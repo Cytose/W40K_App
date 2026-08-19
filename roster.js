@@ -1770,7 +1770,7 @@ function syncTarget(){
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
 }
 el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
-el("btnAddUnit").addEventListener("click", openUnitPick);
+
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport").addEventListener("click", exportImport);
 if(el("listName")) el("listName").addEventListener("change", ()=>{
