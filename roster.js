@@ -38,10 +38,27 @@ function migreEnh(nom){
   return nom;
 }
 
+/* unites d'une liste enregistree qui n'existent plus dans la table :
+   on les retire, mais on le dit — une unite qui disparait en silence
+   fausse le total sans prevenir */
+let RETIREES = [];
+
 function normaliseListe(L){
   L.detach = L.detach || []; L.units = L.units || [];
   L.cap = L.cap || 2000; L.nom = L.nom || "Liste"; L.nextId = L.nextId || 1;
   if(!L.id) L.id = listeVierge().id;
+  L.units = L.units.filter(ru => {
+    if(unitRow(ru.name)) return true;
+    RETIREES.push(ru.name);
+    return false;
+  });
+  L.units.forEach(ru => {
+    ru.chars = (ru.chars || []).filter(c => {
+      if(unitRow(c.name)) return true;
+      RETIREES.push(c.name);
+      return false;
+    });
+  });
   L.units.forEach(ru => {
     ru.chars = ru.chars || []; ru.lo = ru.lo || [];
     if(ru.sel === undefined) ru.sel = true;
@@ -79,6 +96,14 @@ function loadR(){
   /* premier lancement, ou reprise de l'ancien format : on fixe l'etat
      tout de suite plutot que d'attendre la premiere modification */
   if(!localStorage.getItem(LKEY)) saveR();
+  if(RETIREES.length){
+    const uniques = RETIREES.filter((x,i) => RETIREES.indexOf(x) === i);
+    saveR();
+    setTimeout(()=> toast(
+      uniques.join(", ") + (uniques.length > 1 ? " ne sont plus dans la table" : " n'est plus dans la table") +
+      " : retiré" + (uniques.length > 1 ? "s" : "") + " de tes listes.", "", null), 900);
+    RETIREES = [];
+  }
 }
 
 /* ---- gestion des listes ---- */
@@ -1037,7 +1062,7 @@ function renderPlay(){
     let html = '<h4>' + nomAffiche(ru) + '</h4>';
     const sc = socle(ru.name);
     /* une fortification ne bouge pas : son mouvement se note « — » */
-    const mv = u[1] ? 'M' + u[1] + '"' : 'immobile';
+    const mv = u[1] ? 'M' + u[1] + '"' : 'M —';
     html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · ' + mv + ' · E' + u[2] +
       ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
       (sc ? ' · socle ' + sc + ' mm' : '') + '</i>';

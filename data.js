@@ -36,8 +36,8 @@ const UNITS = [
 ["Monolith",8,13,2,0,22,[1],{"1":420},0,"",0,"TITANIC FLY en 11e. Pas d'invu. Dégradé à 1-7 PV : -1 pour toucher. Deadly Demise D6.",8,"7+"],
 ["Obelisk",8,13,2,0,24,[1],{"1":280},0,"",0,"TITANIC FLY. Pas d'invu. Dégradé à 1-8 PV : -1 pour toucher. Deadly Demise D6.",8,"7+"],
 ["Tesseract Vault",8,12,2,4,24,[1],{"1":465},0,"",0,"TITANIC FLY. Dégradé à 1-8 PV : un seul pouvoir C'tan par phase. Deadly Demise D6+3.",8,"7+"],
-["Doom Scythe",20,9,3,0,12,[1],{"1":200},0,"",0,"Aircraft. Dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3.",0,"7+"],
-["Night Scythe",14,9,3,0,12,[1],{"1":125},0,"",0,"Refondu en 11e (Hover, FRAME). Transport 1 unité INFANTERIE.",0,"7+"],
+["Doom Scythe",0,9,3,0,12,[1],{"1":200},0,"",0,"AÉRODYNE. Le pack de faction remplace son M et son CO par « — » : en 11e un aérodyne ne fait qu'un mouvement d'arrivée (règles de base 23.02) et ne tient pas d'objectif. Dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3. Le pack nomme cette fiche « Faucheur » ; le rattachement au Doom Scythe est une déduction, pas une lecture.",0,"7+"],
+["Night Scythe",14,9,3,0,12,[1],{"1":125},0,"",0,"Refondu en 11e : le pack lui retire AÉRODYNE, fixe son M à 14\" et lui donne Stationnaire et Frappe en Profondeur. Mot-clé CHÂSSIS. Transport 1 unité INFANTERIE. Le pack nomme cette fiche « Moissonneur » ; le rattachement au Night Scythe est une déduction, pas une lecture.",0,"7+"],
 ["Overlord",5,5,2,4,6,[1],{"1":90},0,"Leader",0,"Implacable Resilience : -1 Dégât sur chaque attaque allouée. Orbe de résurrection en option.",1,"6+"],
 ["Royal Warden",5,5,3,0,4,[1],{"1":50},0,"Leader",0,"Engrammatic Logic.",1,"6+"],
 ["Lokhust Lord",8,6,3,4,6,[1],{"1":70},0,"Leader",0,"Nanoscarab Amulet (option) : FNP 5+.",2,"6+"],
@@ -58,10 +58,7 @@ const UNITS = [
 ["Orikan the Diviner",5,4,4,4,4,[1],{"1":90},0,"Support",0,"Epic Hero. Master Chronomancer : l'unité menée gagne une invu 4+.",1,"6+"],
 ["Illuminor Szeras",8,8,2,4,9,[1],{"1":175},4,"",0,"Epic Hero. FNP 4+ permanent. Mechanical Augmentation.",3,"6+"],
 ["Nekrosor Ammentar",10,8,3,4,9,[1],{"1":185},0,"",0,"NOUVEAU 11e. Epic Hero. Nullstone Field : FNP 5+ vs mortelles/psychiques à 6\". Fights First.",3,"6+"],
-["Szarekh, The Silent King",8,10,2,4,16,[3],{"3":420},0,"",0,"Epic Hero. Unité = Szarekh (16 PV) + 2 Menhirs (E10 Svg2+ Invu4+ 5 PV). Dégradé à 1-6 PV.",6,"6+"],
-["Nemesor Zahndrekh",5,5,2,4,6,[1],{"1":85},0,"Leader",1,"Legends. Counter-tactics.",1,"7+"],
-["Vargard Obyron",5,5,2,0,5,[1],{"1":85},0,"Leader",1,"Legends. Pas d'invu. Avec Zahndrekh : FNP 4+ aux personnages de l'unité.",1,"6+"],
-["Lord",5,5,3,0,4,[1],{"1":65},0,"Leader",1,"Legends. Svg en conflit selon les sources (2+ sur le PDF, 3+ sur Wahapedia).",1,"6+"]
+["Szarekh, The Silent King",8,10,2,4,16,[3],{"3":420},0,"",0,"Epic Hero. Unité = Szarekh (16 PV) + 2 Menhirs (E10 Svg2+ Invu4+ 5 PV). Dégradé à 1-6 PV.",6,"6+"]
 ];
 
 /* WEAPONS : [unité, arme, "T"|"C", A par figurine, CT/CC, F, PA, D, drapeaux, portée]
@@ -203,13 +200,7 @@ const WEAPONS = [
 ["Szarekh, The Silent King","Sceptre of Eternal Glory","T","2",2,10,3,"3","dev","24\""],
 ["Szarekh, The Silent King","Staff of Stars","T","12",2,6,1,"1","indirect","24\""],
 ["Szarekh, The Silent King","Annihilator beam (×2 menhirs)","T","2",2,14,4,"6","","24\""],
-["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"],
-["Nemesor Zahndrekh","Staff of light (tir)","T","3",3,5,2,"1","","18\""],
-["Nemesor Zahndrekh","Staff of light (càc)","C","4",3,5,2,"1","","18\""],
-["Vargard Obyron","Warscythe","C","4",2,8,3,"2","dev precision","càc"],
-["Lord","Staff of light (tir)","T","3",3,5,2,"1","","18\""],
-["Lord","Lord's blade","C","3",3,8,3,"2","dev","càc"],
-["Lord","Staff of light (càc)","C","3",3,5,2,"1","","18\""]
+["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"]
 ];
 
 /* ============================================================
@@ -223,7 +214,7 @@ const KW = {
               "Orikan the Diviner","Illuminor Szeras"],
   destroyer: ["Skorpekh Destroyers","Ophydian Destroyers","Lokhust Destroyers","Lokhust Heavy Destroyers",
               "Hexmark Destroyer","Skorpekh Lord","Lokhust Lord","Nekrosor Ammentar"],
-  noble    : ["Overlord","Lord","Imotekh the Stormlord","Nemesor Zahndrekh","Trazyn the Infinite",
+  noble    : ["Overlord","Imotekh the Stormlord","Trazyn the Infinite",
               "Catacomb Command Barge","Royal Warden"],
   triarch  : ["Triarch Praetorians","Triarch Stalker","Szarekh, The Silent King"],
   lychguard: ["Lychguard"],
@@ -236,7 +227,7 @@ const KW = {
   tombblade: ["Tomb Blades"],
   epic     : ["C'tan Shard of the Nightbringer","C'tan Shard of the Deceiver","C'tan Shard of the Void Dragon",
               "Imotekh the Stormlord","Trazyn the Infinite","Orikan the Diviner","Illuminor Szeras",
-              "Nekrosor Ammentar","Szarekh, The Silent King","Nemesor Zahndrekh","Vargard Obyron"],
+              "Nekrosor Ammentar","Szarekh, The Silent King"],
   battleline:["Necron Warriors","Immortals"],
   chassis:["Annihilation Barge","Catacomb Command Barge","Convergence of Dominion","Tesseract Vault","Doomsday Ark","Ghost Ark","Monolith","Obelisk","Triarch Stalker"]
 };
@@ -308,10 +299,7 @@ const ATTACH = {
 "Royal Warden":["Immortals","Necron Warriors"],
 "Skorpekh Lord":["Skorpekh Destroyers"],
 "Technomancer":["Canoptek Wraiths","Immortals","Necron Warriors"],
-"Trazyn the Infinite":["Immortals","Lychguard","Necron Warriors"],
-"Nemesor Zahndrekh":["Immortals","Lychguard","Necron Warriors"],
-"Vargard Obyron":["Immortals","Lychguard","Necron Warriors"],
-"Lord":["Immortals","Lychguard","Necron Warriors"]
+"Trazyn the Infinite":["Immortals","Lychguard","Necron Warriors"]
 };
 
 /* RETINUE : escortes qui se greffent sur une unite deja menee par un
@@ -479,8 +467,7 @@ const BASES = {
 "C'tan Shard of the Nightbringer":"60","C'tan Shard of the Deceiver":"60",
 "C'tan Shard of the Void Dragon":"80","Transcendent C'tan":"60",
 "Imotekh the Stormlord":"40","Trazyn the Infinite":"40","Orikan the Diviner":"40",
-"Illuminor Szeras":"80","Nekrosor Ammentar":"","Szarekh, The Silent King":"100",
-"Nemesor Zahndrekh":"40","Vargard Obyron":"40","Lord":"40"
+"Illuminor Szeras":"80","Nekrosor Ammentar":"","Szarekh, The Silent King":"100"
 };
 
 /* ============================================================
@@ -788,9 +775,6 @@ const CAT = [
 ["Illuminor Szeras","Epic Hero"],
 ["Nekrosor Ammentar","Epic Hero"],
 ["Szarekh, The Silent King","Epic Hero"],
-["Nemesor Zahndrekh","Epic Hero"],
-["Vargard Obyron","Epic Hero"],
-["Lord","Personnage"],
 ["Convergence of Dominion","Fortification"]
 ];
 const CAT_ORDRE = ["Epic Hero","Personnage","Battleline","Infanterie","Bête","Monté","Véhicule","Monstre","Fortification","Autre"];
@@ -1024,18 +1008,6 @@ const APTITUDES = {
   ["Voice of the Triarch","At the start of the battle round, select one Triarch ability. Until the start of the next battle round, this unit has that ability."],
   ["Marche Implacable (Aura)","Tant qu'une unité de NÉCRONS amie est à 6\" ou moins de la figurine de Szarekh de cette unité, ajoutez 2\" à la caractéristique de Mouvement des figurines de l'unité amie. Texte remplacé par le pack de faction v1.1, qui redéfinit aussi les mots-clés : toutes les figurines VÉHICULE, HÉROS ÉPIQUE, TRIARCAT ; figurine de Szarekh PERSONNAGE, LE ROI SILENCIEUX."],
   ["Triarchal Menhirs","If this unit's Szarekh model is destroyed, all of this unit's remaining Triarchal Menhir models are also destroyed."]
- ],
- "Nemesor Zahndrekh" : [
-  ["Transient Madness","While this model is leading a unit, at the start of your Command phase, roll one D6: until the start of your next Command phase, weapons equipped by models in that unit gain the ability below that corresponds with that roll: ■ 1-2: [SUSTAINED HITS 1] ■ 3-4: [LETHAL HITS] ■ 5-6: [DEVASTATING WOUNDS]"],
-  ["Counter-tactics","Once per battle, after your opponent uses a Stratagem, if this model is on the battlefield, it can use this ability. If it does, until the end of the battle, the CP cost your opponent must pay to use that Stratagem again is increased by 1CP."]
- ],
- "Vargard Obyron" : [
-  ["Ghostwalk Mantle","While this model is leading a unit, models in that unit have the Fights First ability."],
-  ["The Vargard's Duty","While this model is in the same unit as NEMESOR ZAHNDREKH, CHARACTER models in that unit have the Feel No Pain 4+ ability."]
- ],
- "Lord" : [
-  ["Relentless March","While this model is leading a unit, add 1\" to the Move characteristic of models in that unit."],
-  ["The Lord's Will","While this model is leading a unit, you can target that unit with Stratagems even when it is Battle-shocked."]
  ]
 };
 

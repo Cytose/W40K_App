@@ -142,7 +142,7 @@ function refreshAttacker(){
   const w = list[curWeapon] || list[0], f = parseFlags(w[8]);
 
   el("puName").textContent = curUnit + (u[10] ? "  (Legends)" : "");
-  el("puSub").textContent = (u[1] ? "M " + u[1] + "\"" : "immobile") + " · E" + u[2] + " · Svg " + u[3] + "+" +
+  el("puSub").textContent = (u[1] ? "M " + u[1] + "\"" : "M —") + " · E" + u[2] + " · Svg " + u[3] + "+" +
     (u[4] ? " / " + u[4] + "++" : "") + " · " + u[5] + " PV" +
     (u[7][String(curSize)] ? " · " + u[7][String(curSize)] + " pts" : "");
 

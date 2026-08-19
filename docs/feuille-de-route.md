@@ -293,3 +293,46 @@ affichent « coût inconnu » et ne comptent rien dans le total.
   de la table ne porte ces noms de façon certaine ; le second correspond au
   Night Scythe, dont les corrections sont déjà appliquées.
 - **La branche par défaut du dépôt** est désormais `main`.
+
+## 9. Retrait des Legends — 19/08/2026
+
+Kévin ne joue jamais les unités Legends. Trois d'entre elles étaient dans la
+table : **Nemesor Zahndrekh**, **Vargard Obyron** et **Lord**. Elles sont
+retirées, ainsi que leurs six profils d'armes, leurs aptitudes, leurs
+rattachements, leurs socles, leurs catégories et leurs entrées dans les
+groupes de mots-clés `noble` et `epic`. La table passe de 53 à 50 unités,
+sans référence pendante.
+
+Le drapeau `legends` de `UNITS` et le badge qui l'affiche restent en place :
+ils ne coûtent rien et resservent si une unité Legends revient.
+
+**Une unité inconnue ne disparaît plus en silence.** Jusqu'ici, une liste
+enregistrée citant une unité absente de la table la voyait simplement ignorée
+du pavé, tout en restant dans les données et hors du total. Elle est
+maintenant retirée au chargement, sauvegardée, et nommée dans un message.
+Cela vaut aussi pour un personnage rattaché.
+
+### Le Faucheur et le Moissonneur
+
+Kévin pensait qu'il s'agissait d'unités Legends. Le catalogue donne la liste
+des Legends nécrons — Anrakyr, Obyron, Zahndrekh, Lord, Canoptek Tomb Stalker,
+Tomb Sentinel, Acanthrites, Tesseract Ark, Gauss Pylon, Sentry Pylon, Night
+Shroud — et aucune ne correspond.
+
+Ce sont les deux aérodynes de la table :
+
+- **Faucheur = Doom Scythe.** La section 23.02 des règles de base ne laisse
+  aux AÉRODYNES qu'un mouvement d'arrivée, et ils ne tiennent pas d'objectif :
+  d'où un M et un CO à « — ». Appliqué.
+- **Moissonneur = Night Scythe.** L'errata lui retire AÉRODYNE, fixe son M à
+  14″ et lui donne Stationnaire puis Frappe en Profondeur — exactement la
+  refonte que BSData avait déjà relevée sur le Night Scythe, source
+  indépendante. Déjà appliqué en base.
+
+Le rattachement reste une déduction, pas une lecture : il est signalé comme
+telle sur les deux fiches.
+
+### Le Géomancien
+
+Décision de Kévin : on le laisse en **Appui**, et on laisse le doute planer
+sur « Meneur ». La fiche continue de signaler la contradiction du pack.
