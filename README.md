@@ -128,7 +128,7 @@ liste ouverte reste consultable en dessous, en lecture seule.
   pas le profil : porter le bâton met ses deux profils à disposition, et le
   choix du mode se fait au moment d'attaquer. Quinze armes du catalogue sont
   dans ce cas.
-- **Choix d'unité rangé** — le sélecteur groupe les 53 unités par grande
+- **Choix d'unité rangé** — le sélecteur groupe les 50 unités par grande
   catégorie (Epic Hero, Personnage, Battleline, Infanterie, Bête, Monté,
   Véhicule, Monstre, Fortification), reprises des mots-clés du catalogue
   BattleScribe. Le type de châssis prime sur le statut : les C'tan sont des
@@ -214,7 +214,7 @@ Non affilié à Games Workshop.
 
 ## Vérification des données, 08/2026
 
-Les 52 unités ont été confrontées au catalogue BattleScribe
+Les unités ont été confrontées au catalogue BattleScribe
 [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e) rev.106 — dépôt qui
 porte encore le nom de la 10e mais contient les nouveautés de la 11e.
 
@@ -264,11 +264,31 @@ rangées sous Fer de Lance Linceul Céleste alors qu'elles appartiennent au
 Conclave de Crypteks, et la sismolance du Géomancien était enregistrée sans
 portée sous un nom inventé.
 
-Trois points que le pack ne tranche pas, ou tranche contre lui-même : la
-composition de Convergence de Domination reste inconnue ; le pack retire
-« Meneur » aux Crypteks page 30 mais la fiche du Géomancien page 17 la porte
-encore ; et deux fiches visées par les errata, « Faucheur » et « Moissonneur »,
-n'ont pas pu être rattachées à une unité de la table.
+Deux points que le pack ne tranche pas, ou tranche contre lui-même : la
+composition de Convergence de Domination reste inconnue, et le pack retire
+« Meneur » aux Crypteks page 30 alors que la fiche du Géomancien page 17 la
+porte encore.
+
+Les fiches d'errata nommées « Faucheur » et « Moissonneur » ont été rattachées
+au **Doom Scythe** et au **Night Scythe** par déduction : la section 23.02 des
+règles de base ne laisse aux AÉRODYNES que le mouvement d'arrivée, ce qui
+explique un M et un CO à « — » pour l'un ; le Moissonneur, lui, perd AÉRODYNE
+et prend un M de 14″, exactement la refonte que BSData avait déjà relevée sur
+le Night Scythe. Ce rattachement est signalé comme déduction sur les deux
+fiches.
+
+## Unités Legends
+
+Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :
+**Nemesor Zahndrekh**, **Vargard Obyron** et **Lord**, avec leurs armes, leurs
+aptitudes, leurs rattachements, leurs socles et leurs mots-clés. Le drapeau
+`legends` de `UNITS` et le badge correspondant restent en place : ils ne
+coûtent rien et servent si une unité Legends revient un jour.
+
+Une liste enregistrée qui contenait une de ces unités — ou un personnage
+rattaché supprimé — la perd au chargement, avec un message qui la nomme.
+Auparavant une unité inconnue disparaissait du pavé sans un mot tout en
+restant dans les données.
 Les empreintes de socle ne viennent d'aucune de ces deux sources : seules
 Immortals 32, Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 sont
 confirmées, le reste suit les socles habituels et reste à vérifier.
