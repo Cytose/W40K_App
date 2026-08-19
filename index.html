@@ -300,6 +300,53 @@ pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px 
   body{background:#fff;color:#000}
   #tabs,.hbar,#pad,.backbar,.sheet,.toast,.tip{display:none !important}
 }
+/* ---------- suivi de partie ---------- */
+#gbar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--li);
+  border:1px solid var(--li);border-radius:9px;overflow:hidden;margin:10px 0 0}
+#gbar .gc{background:var(--s1);padding:9px 3px;text-align:center}
+#gbar .gk{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+#gbar .gv{font-size:19px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums;line-height:1.15}
+#gbar .gpm{display:flex;gap:4px;justify-content:center;margin-top:3px}
+#gbar .gpm button{width:26px;height:24px;border:1px solid var(--li);background:transparent;
+  color:var(--glow);border-radius:6px;font-size:14px;line-height:1;cursor:pointer;font-family:inherit}
+#gbar .gpm button:disabled{opacity:.3;color:var(--tx3)}
+.phasebar{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:8px 0 0}
+.phasebar button{padding:9px 2px;border:1px solid var(--line);background:var(--s1);color:var(--tx3);
+  border-radius:8px;font-family:inherit;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  font-weight:700;cursor:pointer}
+.phasebar button.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
+#grappel{margin:9px 0 2px;padding:10px 12px;border:1px solid var(--li);border-left:2px solid var(--glow);
+  border-radius:8px;background:var(--s1);font-size:12.5px;line-height:1.55;color:var(--tx2)}
+#grappel b{color:var(--glow);display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.grow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.grow:last-child{border-bottom:0}
+.grow.mort{opacity:.42}
+.grow .gn{flex:1;min-width:0}
+.grow .gn b{display:block;font-size:13px;color:var(--tx1);cursor:pointer}
+.grow.mort .gn b{text-decoration:line-through}
+.grow .gn i{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:1px}
+.grow .gpv{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--glow);
+  min-width:56px;text-align:right}
+.grow .gpv.bas{color:var(--warn)}
+.grow .gb{display:flex;gap:4px}
+.grow .gb button{width:30px;height:30px;border:1px solid var(--li);background:transparent;
+  color:var(--tx2);border-radius:7px;font-size:13px;line-height:1;cursor:pointer;font-family:inherit}
+.grow .gb button:hover{border-color:var(--glow);color:var(--glow)}
+.gsub{padding-left:14px;border-left:1px solid var(--line);margin-left:2px}
+#gscore .srow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line)}
+#gscore .srow:last-child{border-bottom:0}
+#gscore .srow span{flex:1;font-size:13px;color:var(--tx2)}
+#gscore .srow b{font-size:17px;font-weight:800;color:var(--tx1);min-width:34px;text-align:right;
+  font-variant-numeric:tabular-nums}
+#gscore .srow button{width:32px;height:32px;border:1px solid var(--li);background:transparent;
+  color:var(--glow);border-radius:7px;font-size:15px;cursor:pointer;font-family:inherit}
+#gjournal .je{font-size:12px;color:var(--tx3);padding:5px 0;border-bottom:1px solid var(--line);line-height:1.45}
+#gjournal .je:last-child{border-bottom:0}
+#gjournal .je b{color:var(--tx2)}
+.gplay{margin-left:auto;padding:6px 10px;border:1px solid var(--glow);background:transparent;
+  color:var(--glow);border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;cursor:pointer;font-family:inherit;flex:0 0 auto}
+.gplay:disabled{border-color:var(--li);color:var(--tx3);cursor:default}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
 .opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
   white-space:normal;max-height:3.6em;overflow:hidden}
@@ -928,6 +975,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <p class="hint" style="margin-top:2px" id="detHint">Deux détachements ne peuvent pas partager le même tag d'exclusivité.</p>
       <div id="detList"></div>
       <div class="addrow"><button type="button" id="btnAddDetach">+ Ajouter un détachement</button></div>
+      <div class="padsep">Disposition de Force</div>
+      <p class="hint" style="margin-top:2px">Elle se choisit parmi celles du détachement retenu et décide de la mission. Le catalogue BattleScribe ne les porte pas : note ici la tienne.</p>
+      <div class="row">
+        <label for="listDispo">Disposition</label>
+        <div class="ctl"><input type="text" id="listDispo" maxlength="48" placeholder="ex. Purge the Foe" style="max-width:none;width:100%;text-align:left"></div>
+      </div>
     </div>
   </section>
 
@@ -962,19 +1015,48 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 </div>
 
 <div class="screen" id="scPlay">
-  <section class="card">
+  <div id="gbar"></div>
+  <div class="phasebar" id="gphases"></div>
+  <div id="grappel"></div>
+
+  <section class="card" id="cardEtat">
+    <h2>État des unités <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">Les points de vie qu'il reste. Touche le nom pour ouvrir la fiche.</p>
+      <div id="gunits"></div>
+      <div class="addrow"><button type="button" id="btnReanime">Réanimer (D3 par unité)</button>
+        <button type="button" id="btnResetPV">Tout remettre à neuf</button></div>
+    </div>
+  </section>
+
+  <section class="card" id="cardScore">
+    <h2>Score <span class="chev">▾</span></h2>
+    <div class="body">
+      <div id="gscore"></div>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardStratJeu">
+    <h2>Stratagèmes <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">Jouer un stratagème retire son coût de tes points de commandement.</p>
+      <div id="gstrat"></div>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardJournal">
+    <h2>Journal <span class="chev">▾</span></h2>
+    <div class="body">
+      <div id="gjournal"></div>
+      <div class="addrow"><button type="button" id="btnNewGame">Nouvelle partie</button></div>
+    </div>
+  </section>
+
+  <section class="card collapsed">
     <h2>Liste en jeu <span class="chev">▾</span></h2>
     <div class="body">
       <p class="hint" style="margin-top:2px">La liste ouverte, en lecture seule, telle qu'on la consulte en partie.</p>
       <div id="playList"></div>
-    </div>
-  </section>
-  <section class="card collapsed">
-    <h2>À venir <span class="chev">▾</span></h2>
-    <div class="body">
-      <p class="hint" style="margin-top:2px">Cet axe accueillera le suivi de partie : compteur de points de
-      commandement, phase en cours, capacités et stratagèmes déployables selon la phase. Les stratagèmes
-      attendent leurs données — seuls dix-sept noms et un texte sont connus à ce jour.</p>
     </div>
   </section>
 </div>

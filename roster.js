@@ -20,7 +20,7 @@ let situ = {};                        // conditions situationnelles cochees
 
 const listeVierge = (nom, cap) => ({
   id: "l" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36),
-  nom: nom || "Nouvelle liste", cap: cap || 2000, detach: [], units: [], nextId: 1
+  nom: nom || "Nouvelle liste", cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
 });
 
 function saveR(){
@@ -207,6 +207,8 @@ const totalDP = () => R.detach.reduce((a,n) => { const d = detachRow(n); return 
 /* budget de Points de Detachement : 3 a 2000 pts, au prorata ailleurs
    (1 par tranche de 500 pts, minimum 1) */
 const capDP = () => Math.max(1, Math.round((R.cap || 2000) / 2000 * 3));
+/* ameliorations : deux a 1000 points, quatre a 2000, au prorata ailleurs */
+const capEnhancements = () => Math.max(1, Math.round((R.cap || 2000) / 500));
 
 function validate(){
   const w = [];
@@ -265,7 +267,9 @@ function validate(){
   const enhs = R.units.map(x => x.enh).filter(Boolean);
   enhs.forEach((e, i) => { if(enhs.indexOf(e) !== i)
     w.push("Amélioration <b>" + e + "</b> prise deux fois : une seule par armée."); });
-  if(enhs.length > 3) w.push("<b>" + enhs.length + " améliorations</b> : trois au maximum.");
+  const capEnh = capEnhancements();
+  if(enhs.length > capEnh) w.push("<b>" + enhs.length + " améliorations</b> : " + capEnh +
+    " au maximum à " + cap + " pts.");
   return w;
 }
 
@@ -791,6 +795,211 @@ function renderIndex(){
    Ce qu'on regarde en partie : les groupes, leurs figurines et
    leur armement, sans rien pouvoir modifier par megarde.
    ========================================================== */
+/* ==========================================================
+   SUIVI DE PARTIE
+   Le tour, la phase, les points de commandement, ce qu'il
+   reste de chaque unite et le score. Tout est enregistre :
+   fermer l'application au milieu d'une partie ne perd rien.
+   ========================================================== */
+const GKEY = "mathhammer.partie.v1";
+const PHASES = [["cmd","Cmdt"],["mvt","Mvt"],["tir","Tir"],["chg","Charge"],["cbt","Combat"]];
+const PHASE_LONG = {cmd:"Commandement", mvt:"Mouvement", tir:"Tir", chg:"Charge", cbt:"Combat"};
+const RAPPELS = {
+  cmd: "Gagne 1 PC. Protocoles de Réanimation : chaque unité de l'armée encore sur la table récupère D3 points de vie — figurine blessée d'abord, puis figurine détruite ramenée avec 1 PV. Tests de Choc pour les unités sous la moitié de leur effectif.",
+  mvt: "Mouvement normal, Avance (+D6, plus de tir sauf armes d'Assaut), ou Rester Immobile (+1 pour toucher aux armes Lourdes). Étape des Renforts : Frappe en Profondeur à plus de 9\" de tout ennemi.",
+  tir: "Une unité au contact ne tire qu'avec ses Pistolets. Rapid Fire double dans la moitié de la portée, Melta ajoute ses dégâts. Vérifie la portée avant de désigner la cible : la colonne Po est sur chaque fiche.",
+  chg: "2D6, il faut atteindre le contact. Une unité qui a Avancé ou Est Restée Immobile ne charge pas. Surveillance : ton adversaire peut dépenser 1 PC pour tirer.",
+  cbt: "Les unités qui ont chargé frappent en premier, puis alternance en commençant par le joueur dont c'est le tour. Une figurine doit être au contact ou à 2\" d'une figurine de son unité qui l'est."
+};
+let G = null;
+
+const partieVierge = () => ({ liste: R ? R.id : "", tour: 1, phase: "cmd", pc: 0,
+  prim: 0, sec: 0, u: {}, journal: [] });
+
+function saveG(){ try{ localStorage.setItem(GKEY, JSON.stringify(G)); }catch(e){} }
+function loadG(){
+  try{ G = JSON.parse(localStorage.getItem(GKEY) || "null"); }catch(e){ G = null; }
+  if(!G || !G.u) G = partieVierge();
+  /* la partie suit la liste ouverte : en changer repart de zero */
+  if(R && G.liste !== R.id) G = partieVierge();
+}
+
+const pvMax = ru => { const u = unitRow(ru.name); return u ? ru.size * u[5] : 0; };
+const pvMaxChar = nom => { const u = unitRow(nom); return u ? u[5] : 0; };
+
+/* etat d'une unite, cree a la demande pour suivre les ajouts de liste */
+function etat(ru){
+  let e = G.u[ru.id];
+  if(!e){ e = G.u[ru.id] = { pv: pvMax(ru), c: ru.chars.map(c => pvMaxChar(c.name)) }; }
+  if(e.c.length !== ru.chars.length) e.c = ru.chars.map((c,i) => e.c[i] !== undefined ? e.c[i] : pvMaxChar(c.name));
+  return e;
+}
+
+function noteJournal(txt){
+  G.journal.unshift({ t: G.tour, p: G.phase, x: txt });
+  if(G.journal.length > 60) G.journal.length = 60;
+}
+
+const d3 = () => 1 + Math.floor(Math.random() * 3);
+
+function renderPartie(){
+  if(!G) loadG();
+  /* changer de liste, c'est changer de partie */
+  if(R && G.liste !== R.id){ G = partieVierge(); saveG(); }
+  const bar = el("gbar"); if(!bar) return;
+  if(!R){ bar.innerHTML = ""; return; }
+
+  const vivantes = R.units.filter(ru => etat(ru).pv > 0).length;
+  bar.innerHTML =
+    '<div class="gc"><div class="gk">Tour</div><div class="gv">' + G.tour + '<small style="font-size:11px;color:var(--tx3)"> / 5</small></div></div>' +
+    '<div class="gc"><div class="gk">Phase</div><div class="gv" style="font-size:13px;padding:4px 0 2px">' + PHASE_LONG[G.phase] + '</div></div>' +
+    '<div class="gc"><div class="gk">PC</div><div class="gv">' + G.pc + '</div>' +
+      '<div class="gpm"><button type="button" data-pc="-1">−</button><button type="button" data-pc="1">+</button></div></div>' +
+    '<div class="gc"><div class="gk">Debout</div><div class="gv">' + vivantes + '<small style="font-size:11px;color:var(--tx3)"> / ' + R.units.length + '</small></div></div>';
+  bar.querySelectorAll("[data-pc]").forEach(b => b.addEventListener("click", ()=>{
+    G.pc = Math.max(0, G.pc + parseInt(b.dataset.pc, 10));
+    saveG(); renderPartie();
+  }));
+
+  const ph = el("gphases");
+  ph.innerHTML = "";
+  PHASES.forEach(([k, lbl])=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = lbl;
+    b.className = k === G.phase ? "on" : "";
+    b.addEventListener("click", ()=>{
+      /* revenir au commandement, c'est le tour suivant : un PC de plus */
+      if(k === "cmd" && G.phase !== "cmd"){
+        G.tour = Math.min(9, G.tour + 1); G.pc++;
+        noteJournal("Tour " + G.tour + " — +1 PC (total " + G.pc + ")");
+      }
+      G.phase = k; saveG(); renderPartie();
+    });
+    ph.appendChild(b);
+  });
+
+  const rap = el("grappel");
+  rap.innerHTML = "<b>" + PHASE_LONG[G.phase] + "</b>" + RAPPELS[G.phase];
+
+  /* --- etat des unites --- */
+  const host = el("gunits"); host.innerHTML = "";
+  if(!R.units.length){ host.innerHTML = '<div class="empty">La liste ouverte est vide.</div>'; }
+  R.units.forEach(ru=>{
+    const u = unitRow(ru.name); if(!u) return;
+    const e = etat(ru), max = pvMax(ru);
+    const figs = u[5] > 0 ? Math.ceil(e.pv / u[5]) : 0;
+    const row = document.createElement("div");
+    row.className = "grow" + (e.pv <= 0 ? " mort" : "");
+    const gn = document.createElement("div");
+    gn.className = "gn";
+    gn.innerHTML = '<b>' + nomAffiche(ru) + '</b><i>' + (e.pv > 0
+      ? figs + " figurine" + (figs > 1 ? "s" : "") + " sur " + ru.size
+      : "détruite") + '</i>';
+    gn.querySelector("b").addEventListener("click", ()=> ouvreFiche(ru.name));
+    const pv = document.createElement("span");
+    pv.className = "gpv" + (e.pv <= max / 2 ? " bas" : "");
+    pv.textContent = e.pv + "/" + max;
+    const gb = document.createElement("div");
+    gb.className = "gb";
+    const bt = (txt, delta) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = txt;
+      b.addEventListener("click", ()=>{
+        if(delta === null){ e.pv = max; e.c = ru.chars.map(c => pvMaxChar(c.name)); }
+        else e.pv = Math.max(0, Math.min(max, e.pv + delta));
+        if(e.pv === 0) noteJournal(nomAffiche(ru) + " détruite");
+        saveG(); renderPartie();
+      });
+      return b;
+    };
+    gb.appendChild(bt("−5", -5)); gb.appendChild(bt("−1", -1));
+    gb.appendChild(bt("+1", 1)); gb.appendChild(bt("⟲", null));
+    row.appendChild(gn); row.appendChild(pv); row.appendChild(gb);
+    host.appendChild(row);
+
+    ru.chars.forEach((c, i)=>{
+      const cu = unitRow(c.name); if(!cu) return;
+      const cmax = pvMaxChar(c.name);
+      const sr = document.createElement("div");
+      sr.className = "grow gsub" + (e.c[i] <= 0 ? " mort" : "");
+      const n2 = document.createElement("div");
+      n2.className = "gn";
+      n2.innerHTML = '<b style="color:var(--cyan)">' + c.name + '</b><i>' +
+        (e.c[i] > 0 ? (roleDe(c.name) || "personnage") : "détruit") + '</i>';
+      n2.querySelector("b").addEventListener("click", ()=> ouvreFiche(c.name));
+      const p2 = document.createElement("span");
+      p2.className = "gpv" + (e.c[i] <= cmax / 2 ? " bas" : "");
+      p2.textContent = e.c[i] + "/" + cmax;
+      const b2 = document.createElement("div");
+      b2.className = "gb";
+      [["−1",-1],["+1",1],["⟲",null]].forEach(([t,d])=>{
+        const b = document.createElement("button");
+        b.type = "button"; b.textContent = t;
+        b.addEventListener("click", ()=>{
+          e.c[i] = d === null ? cmax : Math.max(0, Math.min(cmax, e.c[i] + d));
+          if(e.c[i] === 0) noteJournal(c.name + " détruit");
+          saveG(); renderPartie();
+        });
+        b2.appendChild(b);
+      });
+      sr.appendChild(n2); sr.appendChild(p2); sr.appendChild(b2);
+      host.appendChild(sr);
+    });
+  });
+
+  /* --- score --- */
+  const sc = el("gscore"); sc.innerHTML = "";
+  const ligne = (lbl, clef, pas) => {
+    const r = document.createElement("div");
+    r.className = "srow";
+    const t = document.createElement("span"); t.textContent = lbl;
+    const moins = document.createElement("button"); moins.type = "button"; moins.textContent = "−";
+    const v = document.createElement("b"); v.textContent = G[clef];
+    const plus = document.createElement("button"); plus.type = "button"; plus.textContent = "+";
+    moins.addEventListener("click", ()=>{ G[clef] = Math.max(0, G[clef] - pas); saveG(); renderPartie(); });
+    plus.addEventListener("click", ()=>{ G[clef] += pas; saveG(); renderPartie(); });
+    r.appendChild(t); r.appendChild(moins); r.appendChild(v); r.appendChild(plus);
+    sc.appendChild(r);
+  };
+  ligne("Primaire", "prim", 5);
+  ligne("Secondaire", "sec", 1);
+  const tot = document.createElement("div");
+  tot.className = "srow";
+  tot.innerHTML = '<span style="color:var(--glow);font-weight:700">Total</span><b style="color:var(--glow)">' +
+    (G.prim + G.sec) + '</b>';
+  sc.appendChild(tot);
+
+  /* --- stratagemes jouables --- */
+  const gs = el("gstrat"); gs.innerHTML = "";
+  const lot = STRATS.filter(x => x[1] === "Core" || R.detach.indexOf(x[1]) >= 0);
+  lot.forEach(st=>{
+    const cout = st[3] || 1;
+    const d = document.createElement("div");
+    d.className = "grow";
+    const n = document.createElement("div");
+    n.className = "gn";
+    const provenance = st[1] === "Core" ? "Stratagème de base"
+      : st[1] + (st[2] && st[2] !== st[1] ? " · " + st[2] : "");
+    n.innerHTML = '<b>' + st[0] + '</b><i>' + provenance + ' · ' + cout + ' PC</i>';
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "gplay"; b.textContent = "Jouer";
+    b.disabled = G.pc < cout;
+    b.addEventListener("click", ()=>{
+      G.pc -= cout;
+      noteJournal(st[0] + " (−" + cout + " PC, reste " + G.pc + ")");
+      saveG(); renderPartie();
+    });
+    d.appendChild(n); d.appendChild(b);
+    gs.appendChild(d);
+  });
+
+  /* --- journal --- */
+  const jr = el("gjournal");
+  jr.innerHTML = G.journal.length
+    ? G.journal.map(j => '<div class="je"><b>T' + j.t + ' · ' + (PHASE_LONG[j.p] || j.p) + '</b> — ' + j.x + '</div>').join("")
+    : '<div class="empty" style="padding:12px 4px">Rien encore.</div>';
+}
+
 function renderPlay(){
   const host = el("playList"); if(!host) return;
   host.innerHTML = "";
@@ -882,6 +1091,14 @@ function renderPtsBar(){
     '<div class="c ' + (dp>dpMax?"over":"") + '"><div class="k">Détachement</div><div class="v">' + dp + ' / ' + dpMax + '</div></div>' +
     '<div class="c"><div class="k">Unités</div><div class="v">' + R.units.length + '</div></div>';
 }
+/* la Disposition de Force se choisit parmi celles du detachement retenu.
+   Le catalogue ne les porte pas : on laisse la saisir, plutot que d'en
+   inventer une liste. */
+function renderDispo(){
+  const z = el("listDispo"); if(!z) return;
+  if(document.activeElement !== z) z.value = R.fd || "";
+}
+
 function renderDetach(){
   const host = el("detList"); host.innerHTML = "";
   /* plus de budget ou plus rien de compatible : on ferme la porte
@@ -1424,7 +1641,8 @@ function renderWarn(){
 }
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
-  renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad();
+  renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad(); renderPartie();
+  renderDispo();
   if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
   if(window.__syncRosterQuick) window.__syncRosterQuick();
 }
@@ -1949,6 +2167,7 @@ function listeEnTexte(L){
   const pts = pointsDe(L);
   lignes.push(L.nom + " — Nécrons — " + pts + " / " + L.cap + " pts");
   lignes.push("Détachement : " + (L.detach.length ? L.detach.join(" + ") : "aucun"));
+  if(L.fd) lignes.push("Disposition de Force : " + L.fd);
   lignes.push("");
 
   const parCat = {};
@@ -2355,7 +2574,7 @@ function unb64u(str){
 /* on ne transporte que ce qui n'est pas reconstructible : ni id ni points */
 const packList = () => ({
   t: R.nom, p: R.cap,
-  d: R.detach,
+  d: R.detach, f: R.fd || "",
   u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0,
     g: ru.grp || "", e: ru.enh || "" }))
 });
@@ -2388,6 +2607,7 @@ function applyPacked(o){
   if(!o || !Array.isArray(o.u)) throw 0;
   const L = listeVierge(o.t || "Liste reçue", o.p || 2000);
   L.detach = Array.isArray(o.d) ? o.d : [];
+  L.fd = o.f || "";
   L.units = o.u.map(u => ({
     id: L.nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
     grp: u.g || nomGroupe(), enh: u.e || null
@@ -2402,7 +2622,7 @@ async function shareLink(){
   if(location.protocol === "file:"){
     alert("Cette copie est ouverte depuis un fichier local : un lien de partage n'y " +
       "serait valable que sur cet ordinateur.\n\nUtilise « Exporter / importer la liste » " +
-      "pour passer ta liste d'un appareil à l'autre.");
+      "pour passer ta liste d'un appareil à l'autre, ou la sauvegarde en fichier.");
     return;
   }
   if(!R.units.length){ alert("Ta liste est vide — ajoute au moins une unité avant de la partager."); return; }
@@ -2650,6 +2870,36 @@ el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport2").addEventListener("click", exportImport);
+if(el("listDispo")) el("listDispo").addEventListener("change", ()=>{
+  R.fd = el("listDispo").value.trim(); saveR(); renderList();
+});
+
+/* boutons du suivi de partie */
+el("btnReanime").addEventListener("click", ()=>{
+  if(!R) return;
+  let n = 0;
+  R.units.forEach(ru=>{
+    const e = etat(ru), max = pvMax(ru);
+    if(e.pv <= 0 || e.pv >= max) return;
+    const g = d3();
+    e.pv = Math.min(max, e.pv + g);
+    n++;
+  });
+  noteJournal(n ? "Réanimation de " + n + " unité" + (n > 1 ? "s" : "") : "Réanimation : rien à relever");
+  saveG(); renderPartie();
+  toast(n ? n + " unité" + (n > 1 ? "s réanimées" : " réanimée") + "." : "Aucune unité à réanimer.", "", null);
+});
+el("btnResetPV").addEventListener("click", ()=>{
+  if(!R) return;
+  R.units.forEach(ru=>{ const e = etat(ru); e.pv = pvMax(ru); e.c = ru.chars.map(c => pvMaxChar(c.name)); });
+  noteJournal("Toutes les unités remises à neuf");
+  saveG(); renderPartie();
+});
+el("btnNewGame").addEventListener("click", ()=>{
+  if(!confirm("Repartir d'une partie vierge ? Le tour, les PC, le score et l'état des unités sont remis à zéro.")) return;
+  G = partieVierge(); saveG(); renderPartie();
+  toast("Nouvelle partie.", "", null);
+});
 el("btnCopyTxt").addEventListener("click", ()=> copier(listeEnTexte(), "Le texte de la liste"));
 el("btnPrint").addEventListener("click", imprimeListe);
 el("btnShare2").addEventListener("click", shareLink);
