@@ -136,6 +136,26 @@ function peutRejoindre(perso, unite){
   return !l ? null : l.indexOf(unite) >= 0;
 }
 
+/* ce qu'un groupe porte deja : un chef, un soutien, une escorte */
+const roleDe = nom => (unitRow(nom) || [])[9] || (RETINUE[nom] ? "Escorte" : "");
+const compteRole = (ru, role) => ru.chars.filter(c => roleDe(c.name) === role).length;
+const aCryptek = ru => ru.chars.some(c => has("cryptek", c.name));
+
+/* pourquoi ce personnage ne peut pas rejoindre ce groupe, "" s'il le peut.
+   Une escorte Cryptek pose une double condition : elle ne se greffe que sur
+   une unite deja menee par un CRYPTEK, et une seule a la fois. */
+function refusAttache(nom, ru){
+  if(ru.chars.some(c => c.name === nom)) return "déjà dans ce groupe";
+  const role = roleDe(nom);
+  if(role === "Leader" && compteRole(ru, "Leader")) return "un seul chef par unité";
+  if(role === "Support" && compteRole(ru, "Support")) return "un seul soutien par unité";
+  if(role === "Escorte"){
+    if(!aCryptek(ru)) return "exige un CRYPTEK dans l'unité";
+    if(compteRole(ru, "Escorte")) return "une seule escorte par unité";
+  }
+  return "";
+}
+
 /* mots-cles portes par le groupe : ceux de l'unite plus ceux de
    chaque personnage rattache — c'est ce qui decide si un
    stratageme CRYPTEK ou NOBLE peut viser le groupe */
@@ -201,10 +221,18 @@ function validate(){
       (lim===1 ? " (Epic Hero)" : lim===6 ? " (Battleline)" : " (règle des trois)") + ".");
   });
   R.units.forEach(ru => {
-    const led = ru.chars.filter(c => (unitRow(c.name)||[])[9] === "Leader").length;
-    const sup = ru.chars.filter(c => (unitRow(c.name)||[])[9] === "Support").length;
-    if(led > 1) w.push("<b>" + ru.name + "</b> : deux Leaders sur la même unité, un seul est autorisé.");
-    if(sup > 1) w.push("<b>" + ru.name + "</b> : deux Supports sur la même unité, un seul est autorisé.");
+    const nom = ru.grp ? ru.grp + " (" + ru.name + ")" : ru.name;
+    const led = compteRole(ru, "Leader"), sup = compteRole(ru, "Support"),
+          esc = compteRole(ru, "Escorte");
+    if(led > 1) w.push("<b>" + nom + "</b> : " + led + " chefs, un seul est autorisé.");
+    if(sup > 1) w.push("<b>" + nom + "</b> : " + sup + " soutiens, un seul est autorisé.");
+    if(esc > 1) w.push("<b>" + nom + "</b> : " + esc + " escortes, une seule est autorisée.");
+    /* une escorte Cryptek reste suspendue au CRYPTEK qui l'a fait venir */
+    if(esc && !aCryptek(ru)){
+      const e = ru.chars.filter(c => roleDe(c.name) === "Escorte").map(c => c.name).join(", ");
+      w.push("<b>" + e + "</b> sur " + nom + " : une escorte Cryptek exige un CRYPTEK dans l'unité, " +
+        "or il n'y en a plus.");
+    }
     const tot = ru.lo.reduce((a,l) => a + l.n, 0);
     if(tot > ru.size) w.push("<b>" + ru.name + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
     ru.chars.forEach(c => {
@@ -690,7 +718,11 @@ function renderWarn(){
   const w = validate(), host = el("rosterWarn");
   host.innerHTML = w.length ? '<div class="warnbox">' + w.join("<br>") + '</div>' : "";
 }
-function renderList(){ renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderStrats(); renderArms(); renderFireList(); }
+function renderList(){
+  renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
+  renderStrats(); renderArms(); renderFireList();
+  if(window.__syncRosterQuick) window.__syncRosterQuick();
+}
 
 /* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
 let pickMode = null, pickTarget = null;
@@ -752,15 +784,18 @@ function renderPick(){
     const non = candidats.filter(u => peutRejoindre(u[0], cible) === false);
 
     const bouton = (u, etat) => {
+      const refus = refusAttache(u[0], pickTarget);
       const b = document.createElement("button");
-      b.type="button"; b.className = "opt" + (etat === "non" ? " opt-off" : "");
+      b.type = "button";
+      b.className = "opt" + (etat === "non" || refus ? " opt-off" : "");
+      if(refus) b.disabled = true;
       const role = u[9] || "Escorte";
       const sc = socle(u[0]);
       b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">' +
         role + ' · E' + u[2] + ' · ' + u[5] + ' PV' + (sc ? ' · socle ' + sc + ' mm' : '') +
-        ' · ' + (u[7][String(u[6][0])]||0) + ' pts</span></span>' +
+        ' · ' + (u[7][String(u[6][0])]||0) + ' pts' + (refus ? ' — ' + refus : '') + '</span></span>' +
         '<span class="otag">' + role.toUpperCase() + '</span>';
-      b.addEventListener("click", ()=>{
+      if(!refus) b.addEventListener("click", ()=>{
         pickTarget.chars.push({name:u[0], w:0});
         closeSheet("sheetUnit"); saveR(); renderList();
       });
