@@ -58,42 +58,12 @@ header{
   background:var(--s2);color:var(--tx2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
 }
 .ghost:active{background:var(--s3)}
-.zoomer{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;
-  overflow:hidden;flex:0 0 auto}
-.zoomer button{min-height:34px;padding:0 9px;border:0;background:var(--s2);color:var(--tx2);
-  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1}
-.zoomer button:active{background:var(--s3)}
-.zoomer button:disabled{opacity:.35;cursor:default}
-.zoomer sub,.zoomer sup{font-size:9px}
 .ghost.icon{padding:0 10px;font-size:15px;line-height:1}
 .ghost.icon.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
 /* en plein ecran, l'encoche et la barre systeme disparaissent : on recupere
    la marge que les insets reservaient */
 :root:fullscreen header{padding-top:0}
 :root:fullscreen body{padding-bottom:48px}
-/* le zoom s'applique a la page entiere : l'en-tete colle, la barre d'onglets
-   reste en bas, seul le contenu grandit */
-:root{zoom:var(--ui,1)}
-.zoomtip{position:fixed;left:50%;bottom:calc(58px + env(safe-area-inset-bottom));
-  transform:translateX(-50%);z-index:60;padding:7px 14px;background:var(--s3);
-  border:1px solid var(--glow);color:var(--glow);font-size:12px;font-weight:700;
-  letter-spacing:.06em;pointer-events:none;opacity:0;transition:opacity .18s;
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
-.zoomtip.on{opacity:1}
-/* Agrandir l'affichage retrecit la largeur utile, mais les media queries
-   continuent de voir la largeur d'origine : elles ne peuvent pas servir de
-   garde-fou. L'en-tete se resserre donc par palier de zoom, pose par le
-   script, sans quoi ses commandes sortent de l'ecran. */
-.z1 .logo small{display:none}
-.z1 .hbar{gap:7px;padding:8px 9px 6px}
-.z1 .logo{font-size:12.5px;letter-spacing:.09em}
-.z1 .ghost{padding:0 9px;font-size:11.5px}
-.z2 .mark{display:none}
-.z2 .logo{font-size:11.5px;max-width:9ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.z3 .logo{display:none}
-.z3 .ghost.icon{padding:0 8px}
-.z3 .ghost{padding:0 8px;font-size:11px}
-.z4 .sum .k{font-size:8.5px}
 .summary{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
 .sum{background:var(--s1);padding:8px 6px 9px;text-align:center;min-width:0}
 .sum .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -305,6 +275,39 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .backbar .ar{color:var(--glow);font-size:16px;line-height:1}
 .backbar:active{background:var(--s2)}
 
+/* ---------- pave de l'editeur ---------- */
+#pad{margin-top:2px}
+.padgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.tile{
+  position:relative;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;
+  padding:7px 7px 6px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
+  font-family:inherit;text-align:left;cursor:pointer;overflow:hidden;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+}
+.tile:active{background:var(--s2)}
+.tile .tg{font-size:7.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--glow);
+  font-weight:800;line-height:1.15;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile .tn{font-size:11px;font-weight:800;line-height:1.15;margin-top:2px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tile .tb{display:flex;align-items:flex-end;justify-content:space-between;gap:3px;margin-top:auto}
+.tile .tp{font-size:15px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums;line-height:1}
+.tile .tp small{display:block;font-size:7.5px;font-weight:600;color:var(--tx3);letter-spacing:.04em}
+.tile .tx{font-size:9px;color:var(--tx3);font-variant-numeric:tabular-nums;text-align:right;line-height:1.25}
+.tile .tmark{position:absolute;top:0;right:0;width:0;height:0;
+  border-top:13px solid var(--glow);border-left:13px solid transparent;opacity:.55}
+.tile.add{align-items:center;justify-content:center;border-style:dashed;border-color:var(--line-hi);
+  color:var(--glow);font-size:12px;font-weight:800;text-align:center;line-height:1.3}
+.tile.warnmark{border-color:var(--warn)}
+.tile.warnmark .tmark{border-top-color:var(--warn)}
+.tile.tool{align-items:center;justify-content:center;text-align:center;gap:4px}
+.tile.tool .ti2{font-size:18px;line-height:1;color:var(--glow)}
+.tile.tool .tn{font-size:10px;text-align:center;-webkit-line-clamp:2;margin-top:0}
+.tile.tool .tc{font-size:8.5px;color:var(--tx3);line-height:1.2}
+.padsep{margin:16px 2px 2px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--tx3);font-weight:800;border-bottom:1px solid var(--line);padding-bottom:5px}
+@media (max-width:330px){ .padgrid{grid-template-columns:repeat(2,1fr)} }
+
 /* ---------- index des listes ---------- */
 .lcard{width:100%;text-align:left;display:flex;align-items:center;gap:11px;margin-top:9px;
   padding:12px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
@@ -470,10 +473,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <div class="spacer"></div>
     <button class="ghost icon" id="btnFull" type="button" hidden
             aria-label="Passer en plein écran" title="Plein écran">⛶</button>
-    <div class="zoomer" role="group" aria-label="Taille d'affichage">
-      <button type="button" id="btnZoomOut" aria-label="Réduire l'affichage">A<sub>−</sub></button>
-      <button type="button" id="btnZoomIn" aria-label="Agrandir l'affichage">A<sup>+</sup></button>
-    </div>
     <button class="ghost" id="btnSave" type="button">Enregistrer</button>
   </div>
   <div class="summary" id="headSum">
@@ -743,7 +742,13 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </div>
   <div id="listEditor" hidden>
     <button class="backbar" id="btnBackIndex" type="button"><span class="ar">‹</span><span class="bt">Mes listes</span></button>
-  <section class="card">
+    <div id="pad">
+      <div class="padgrid" id="padUnits"></div>
+      <div class="padsep">Réglages de la liste</div>
+      <div class="padgrid pad3" id="padTools"></div>
+    </div>
+    <button class="backbar" id="btnBackPad" type="button" hidden><span class="ar">‹</span><span class="bt" id="panelTitle">Retour au pavé</span></button>
+  <section class="card" id="cardSettings">
     <h2>Mes listes <span class="chev">▾</span></h2>
     <div class="body">
       <div class="chips tight" id="listTabs"></div>
@@ -763,7 +768,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
 
-  <section class="card">
+  <section class="card" id="cardDetach">
     <h2>Détachements <span class="chev">▾</span></h2>
     <div class="body">
       <p class="hint" style="margin-top:2px" id="detHint">Deux détachements ne peuvent pas partager le même tag d'exclusivité.</p>
@@ -772,7 +777,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
 
-  <section class="card">
+  <section class="card" id="cardUnits">
     <h2>Unités <span class="chev">▾</span></h2>
     <div class="body">
       <div id="rosterList"></div>
@@ -826,7 +831,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </section>
 </div>
 </main>
-<div class="zoomtip" id="zoomTip" aria-live="polite"></div>
 
 <nav class="tabs" id="tabs">
   <button type="button" data-s="scList"><span class="ti">☷</span>Listes</button>

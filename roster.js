@@ -522,6 +522,109 @@ function renderDef(){
    L'axe s'ouvre ici : on voit ce qu'on a, on entre dans l'une
    d'elles pour la modifier.
    ========================================================== */
+/* ==========================================================
+   PAVÉ DE L'ÉDITEUR
+   Une longue page qu'on déroule se prête mal à la construction
+   d'une liste : on cherche une unité parmi d'autres, on la règle,
+   on revient. Le pavé pose chaque unité sur sa case ; toucher une
+   case ouvre son panneau, le retour ramène au pavé.
+   ========================================================== */
+const PANNEAUX = ["cardSettings", "cardDetach", "cardUnits", "cardStrat", "cardArms"];
+let unitOuverte = null;          /* id de l'unite affichee seule */
+
+function pointsUnite(ru){
+  const u = unitRow(ru.name); if(!u) return 0;
+  let p = u[7][String(ru.size)] || 0;
+  ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) p += cu[7][String(cu[6][0])] || 0; });
+  const e = ru.enh && enhRow(ru.enh);
+  return p + (e && typeof e[1] === "number" ? e[1] : 0);
+}
+
+/* une unite dont le rattachement ou l'amelioration cloche merite d'etre
+   signalee sur sa case, sans avoir a l'ouvrir */
+function uniteSuspecte(ru){
+  if(compteRole(ru, "Leader") > 1 || compteRole(ru, "Support") > 1) return true;
+  if(compteRole(ru, "Escorte") > 1) return true;
+  if(compteRole(ru, "Escorte") && !aCryptek(ru)) return true;
+  if(ru.chars.some(c => peutRejoindre(c.name, ru.name) === false)) return true;
+  if(ru.enh && !ru.chars.length) return true;
+  return false;
+}
+
+function renderPad(){
+  const gu = el("padUnits"), gt = el("padTools");
+  if(!gu || !gt) return;
+
+  gu.innerHTML = "";
+  R.units.forEach(ru=>{
+    const u = unitRow(ru.name); if(!u) return;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tile" + (uniteSuspecte(ru) ? " warnmark" : "");
+    const nAtt = ru.chars.length;
+    b.innerHTML =
+      (ru.grp ? '<span class="tg">' + ru.grp + '</span>' : '') +
+      '<span class="tn">' + ru.name + '</span>' +
+      '<span class="tb"><span class="tp">' + pointsUnite(ru) + '<small>points</small></span>' +
+      '<span class="tx">×' + ru.size + (nAtt ? '<br>+' + nAtt + ' perso' + (nAtt > 1 ? 's' : '') : '') + '</span></span>' +
+      (uniteSuspecte(ru) ? '<span class="tmark"></span>' : '');
+    b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
+    gu.appendChild(b);
+  });
+  const plus = document.createElement("button");
+  plus.type = "button";
+  plus.className = "tile add";
+  plus.innerHTML = "+<br>Unité";
+  plus.addEventListener("click", openUnitPick);
+  gu.appendChild(plus);
+
+  const dp = totalDP(), dpMax = capDP();
+  const outils = [
+    ["cardDetach",   "◈", "Détachements", dp + " / " + dpMax + " PD"],
+    ["cardStrat",    "⚡", "Stratagèmes",  STRATS.filter(x => x[1] === "Core" || R.detach.indexOf(x[1]) >= 0).length + " fiches"],
+    ["cardArms",     "⌖", "Armement",     WEAPONS.length ? R.units.length + " unité" + (R.units.length > 1 ? "s" : "") : ""],
+    ["cardSettings", "⚙", "Réglages",     R.cap + " pts"]
+  ];
+  gt.innerHTML = "";
+  outils.forEach(([id, ic, nom, compl])=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tile tool";
+    b.innerHTML = '<span class="ti2">' + ic + '</span><span class="tn">' + nom + '</span>' +
+      (compl ? '<span class="tc">' + compl + '</span>' : '');
+    b.addEventListener("click", ()=> ouvrePanneau(id));
+    gt.appendChild(b);
+  });
+}
+
+function ouvrePanneau(id, uid){
+  unitOuverte = uid || null;
+  el("pad").hidden = true;
+  el("btnBackPad").hidden = false;
+  PANNEAUX.forEach(p=>{
+    const c = el(p); if(!c) return;
+    c.hidden = (p !== id);
+    c.classList.remove("collapsed");
+  });
+  let titre = "Retour au pavé";
+  if(uid){
+    const ru = R.units.find(x => x.id === uid);
+    if(ru) titre = ru.grp || ru.name;
+  }
+  el("panelTitle").textContent = titre;
+  renderList();
+  window.scrollTo(0, 0);
+}
+
+function fermePanneau(){
+  unitOuverte = null;
+  el("pad").hidden = false;
+  el("btnBackPad").hidden = true;
+  PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
+  renderList();
+  window.scrollTo(0, 0);
+}
+
 function renderIndex(){
   const host = el("listCards"); if(!host) return;
   host.innerHTML = "";
@@ -689,7 +792,11 @@ function renderRoster(){
     host.innerHTML = '<div class="empty">Ta liste est vide.<br>Ajoute une unité pour commencer.</div>';
     return;
   }
-  R.units.forEach((ru, ui)=>{
+  /* le pave ouvre une unite a la fois : on ne rend que celle-la */
+  const vues = unitOuverte ? R.units.filter(x => x.id === unitOuverte) : R.units;
+  if(!vues.length){ fermePanneau(); return; }
+  vues.forEach((ru)=>{
+    const ui = R.units.indexOf(ru);
     const u = unitRow(ru.name); if(!u) return;
     const wl = unitWeps(ru.name);
     const div = document.createElement("div");
@@ -939,7 +1046,7 @@ function renderWarn(){
 }
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
-  renderStrats(); renderArms(); renderFireList(); renderIndex();
+  renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad();
   if(window.__syncRosterQuick) window.__syncRosterQuick();
 }
 
@@ -1094,9 +1201,14 @@ function renderPick(){
       const wl = unitWeps(u[0]);
       let di = wl.findIndex(w => w[2] === "T");
       if(di < 0) di = 0;
-      R.units.push({id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true,
-        grp:nomGroupe(), enh:null});
-      closeSheet("sheetUnit"); saveR(); renderList();
+      const neuve = {id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true,
+        grp:nomGroupe(), enh:null};
+      R.units.push(neuve);
+      closeSheet("sheetUnit"); saveR();
+      /* on vient de la poser sur le pave : on ouvre directement son panneau,
+         c'est la qu'on va la regler */
+      if(el("listEditor") && !el("listEditor").hidden) ouvrePanneau("cardUnits", neuve.id);
+      else renderList();
     });
     host.appendChild(b);
   });
@@ -1537,7 +1649,7 @@ function ouvreEditeur(id){
   if(id) ouvreListe(id);
   el("listIndex").hidden = true;
   el("listEditor").hidden = false;
-  renderList(); window.scrollTo(0,0);
+  fermePanneau();
 }
 function fermeEditeur(){
   el("listEditor").hidden = true;
@@ -1545,6 +1657,7 @@ function fermeEditeur(){
   renderIndex(); window.scrollTo(0,0);
 }
 el("btnBackIndex").addEventListener("click", fermeEditeur);
+el("btnBackPad").addEventListener("click", fermePanneau);
 el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
 function syncTarget(){
   el("ptName3").textContent = SIM.tgtName;
@@ -1622,6 +1735,7 @@ el("cmpPhase").querySelectorAll(".chip").forEach(b=>
   }));
 
 loadR(); loadCmp();
+PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
 initDetachSheet();
 renderList();
 renderIndex();
