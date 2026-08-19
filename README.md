@@ -62,6 +62,12 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
   dans le total. Contrôles : trois au maximum, jamais deux fois la même, ni sur
   un groupe sans personnage, ni sur un Epic Hero.
 - **Empreinte de socle** — affichée sur l'unité et sur chaque personnage.
+- **Armement** — tous les profils de la liste à plat, groupés par groupe, pour
+  retrouver une arme sans dérouler l'unité. Quatre filtres : armes prises,
+  toutes les armes, tir seul, càc seul. Les armes des personnages rattachés
+  sont incluses ; celles qui ne sont pas équipées restent visibles, grisées.
+- **Stratagèmes** — ceux des détachements retenus plus ceux de base, dépliables
+  sur leur texte Quand / Cible / Effet.
 - **Lien de partage** — la liste entière est encodée dans l'URL (JSON réduit,
   gzip, base64url) : on s'envoie le lien et la liste s'ouvre sur l'autre
   appareil, sans serveur ni compte. Une liste de 2000 points tient en moins de
@@ -101,6 +107,14 @@ là-bas), et 36 écarts de points. Sur les douze valeurs lisibles dans WarOrgan
 sur douze, le catalogue seulement sept. Les points d'ici sont donc les bons et
 c'est BSData qui est en retard ; les vingt-quatre autres écarts n'ont pas pu
 être tranchés faute de référence.
+
+Le catalogue **ne contient aucun stratagème** de la 11e : ni ceux des
+détachements — Molecular Targeting, Microscarab Swarm, Animus Curse et les
+autres y sont introuvables — ni les stratagèmes de base sous une forme
+exploitable. `STRATS` ne porte donc que ce qui est lisible sur les captures
+WarOrgan : dix-sept entrées avec nom, détachement, type et coût, dont une
+seule avec son texte complet. Les autres s'affichent « texte non renseigné » ;
+les compléter ne demande que de remplir les trois dernières colonnes.
 
 Le catalogue a servi de source pour les rattachements (règle Leader de chaque
 personnage) et les améliorations. Il ignore encore celles de Skyshroud

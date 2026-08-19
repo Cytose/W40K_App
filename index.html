@@ -247,6 +247,38 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
   border:1px solid var(--line);padding:2px 5px}
 .gkw.gkwadd{color:var(--cyan);border-color:var(--cyan)}
 .alerte{color:var(--warn);cursor:help}
+
+/* ---------- stratagemes ---------- */
+.strat{border:1px solid var(--line);background:var(--s1);margin-top:7px;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.strat > button{width:100%;display:flex;align-items:center;gap:9px;text-align:left;
+  padding:9px 11px;background:transparent;border:0;color:var(--tx);font-family:inherit;
+  font-size:13.5px;cursor:pointer}
+.strat .sn{flex:1;min-width:0}
+.strat .sn b{display:block;font-weight:700;font-size:13.5px}
+.strat .sn i{display:block;font-style:normal;font-size:9.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--tx3);margin-top:2px}
+.strat .cp{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--glow)}
+.strat .sbody{display:none;padding:2px 11px 11px;font-size:12.5px;line-height:1.5;color:var(--tx2)}
+.strat.open .sbody{display:block}
+.strat .sbody dt{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3);
+  margin-top:7px;font-weight:700}
+.strat .sbody dd{margin:2px 0 0}
+.strat .vide{color:var(--tx3);font-style:italic}
+.stratsep{margin:15px 2px 3px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--glow);border-bottom:1px solid var(--line);padding-bottom:5px;font-weight:800}
+
+/* ---------- armement a plat ---------- */
+.armgrp{margin-top:14px}
+.armgrp h4{margin:0 0 5px;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--glow);font-weight:800}
+.armgrp h4 span{color:var(--tx3);font-weight:600;letter-spacing:.04em;text-transform:none}
+.armwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.arms{min-width:340px}
+table.arms td.an{white-space:normal;min-width:118px}
+table.arms tr.off td{opacity:.45}
+table.arms .n{font-size:9.5px;color:var(--tx3);display:block;line-height:1.35;margin-top:1px}
+table.arms .q{color:var(--glow);font-weight:700}
 /* ---------- onglets & ecrans ---------- */
 .screen{display:none}
 .screen.on{display:block}
@@ -483,6 +515,28 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <div id="rosterWarn"></div>
       <button class="btn" id="btnShare" type="button">Lien de partage</button>
       <button class="btn" id="btnExport" type="button">Exporter / importer la liste</button>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardStrat">
+    <h2>Stratagèmes <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte.</p>
+      <div id="stratList"></div>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardArms">
+    <h2>Armement <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">Tous les profils de la liste, à plat, pour retrouver une arme sans dérouler l'unité.</p>
+      <div class="chips tight" id="armMode">
+        <button type="button" class="chip on" data-m="prises">Armes prises</button>
+        <button type="button" class="chip" data-m="toutes">Toutes les armes</button>
+        <button type="button" class="chip" data-m="tir">Tir seul</button>
+        <button type="button" class="chip" data-m="cac">Càc seul</button>
+      </div>
+      <div id="armList"></div>
     </div>
   </section>
 </div>
