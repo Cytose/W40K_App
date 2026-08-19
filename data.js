@@ -169,9 +169,9 @@ const WEAPONS = [
 ["Chronomancer","Aeonstave","C","3",4,5,1,"1","","càc"],
 ["Psychomancer","Abyssal lance (tir)","T","1",4,6,3,"3","","18\""],
 ["Psychomancer","Abyssal lance (càc)","C","1",4,6,3,"3","","18\""],
-["Geomancer","Tremorglaive — faisceau","T","2",4,8,2,"2","melta:2","càc"],
-["Geomancer","Tremorglaive — onde de choc","T","D6+2",4,4,0,"1","torrent ignorescover","càc"],
-["Geomancer","Tremorglaive (càc)","C","2",4,8,2,"2","","càc"],
+["Geomancer","Sismolance — faisceau réverbérant","T","2",4,8,2,"2","melta:2","18\""],
+["Geomancer","Sismolance — ondes de choc","T","D6+2",4,4,0,"1","torrent ignorescover","18\""],
+["Geomancer","Sismolance (càc)","C","2",4,8,2,"2","","càc"],
 ["Catacomb Command Barge","Gauss cannon","T","3",3,5,2,"2","lethal","24\""],
 ["Catacomb Command Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\""],
 ["Catacomb Command Barge","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
@@ -216,6 +216,7 @@ const WEAPONS = [
    Mots-cles utiles aux regles de detachement (11e)
    ============================================================ */
 const KW = {
+
   canoptek : ["Canoptek Scarab Swarms","Canoptek Wraiths","Canoptek Spyders","Canoptek Reanimator",
               "Canoptek Doomstalker","Canoptek Macrocytes","Canoptek Tomb Crawlers"],
   cryptek  : ["Technomancer","Plasmancer","Chronomancer","Psychomancer","Geomancer",
@@ -236,35 +237,57 @@ const KW = {
   epic     : ["C'tan Shard of the Nightbringer","C'tan Shard of the Deceiver","C'tan Shard of the Void Dragon",
               "Imotekh the Stormlord","Trazyn the Infinite","Orikan the Diviner","Illuminor Szeras",
               "Nekrosor Ammentar","Szarekh, The Silent King","Nemesor Zahndrekh","Vargard Obyron"],
-  battleline:["Necron Warriors","Immortals"]
+  battleline:["Necron Warriors","Immortals"],
+  chassis:["Annihilation Barge","Catacomb Command Barge","Convergence of Dominion","Tesseract Vault","Doomsday Ark","Ghost Ark","Monolith","Obelisk","Triarch Stalker"]
 };
 
-/* DETACHMENTS : [nom, PD, tag, nom de la regle, effet en clair, cle d'effet, conditionnel] */
+/* ============================================================
+   DETACHEMENTS
+   [nom, PD, tag, nom de la regle, texte de la regle, cle d'effet,
+    conditionnel, nom francais]
+   Les sept premiers viennent du Pack de Faction Necrons v1.1
+   (22 juillet 2026) : regle de detachement au texte officiel.
+   Les cinq suivants viennent du codex, que ce pack ne reprend
+   pas : leur texte reste resume, avec les errata du pack
+   appliques et signales.
+   ============================================================ */
 const DETACHMENTS = [
-["Awakened Dynasty",3,"DYNASTY","Command Protocols",
- "+1 au jet de touche pour toute unite menee par un PERSONNAGE necron.","led_hit1",0],
-["Canoptek Court",3,"","Power Matrix",
- "Relance des 1 pour toucher pour CRYPTEK et CANOPTEK ; relance totale dans la Matrice de Puissance.","canoptek_rr",1],
-["Starshatter Arsenal",3,"","Relentless Onslaught",
- "+1 pour toucher contre une unite a portee d'un objectif (hors MONSTRE) ; [ASSAUT] aux tirs VEHICULE/MONTE.","obj_hit1",1],
-["Annihilation Legion",2,"","Annihilation Protocol",
- "+1 PA aux tirs DESTROYER CULT visant la cible eligible la plus proche ; relance de charge.","destroyer_ap1",1],
-["Obeisance Phalanx",2,"","Worthy Foes",
- "+1 pour blesser aux NOBLE / LYCHGUARD / TRIARCH contre l'unite ennemie designee.","noble_wound1",1],
-["Hypercrypt Legion",2,"HYPERCRYPT","Hyperphasing",
- "Retire des unites en Reserves Strategiques en fin de tour adverse. Aucun effet sur les des.","",0],
-["Cursed Legion",2,"","Cold Fervour",
- "+2 en Force aux armes DESTROYER CULT (etendu a l'armee apres une unite detruite).","destroyer_str2",0],
-["Cryptek Conclave",2,"","Technosorcerous Augmentations",
- "[ASSAUT] aux CRYPTEK, plus une aptitude au choix par phase de tir (Anti-Infanterie 3+, Ignore le couvert...).","cryptek_anti",1],
-["Pantheon of Woe",2,"","Cosmic Distortion",
- "+1 PA a toute attaque visant une unite « unravelling » a 6\" d'un MONSTRE necron.","monster_ap1",1],
-["Hand of the Dynasty",1,"DYNASTY","Hypermotility Protocols",
- "[ASSAUT] pour IMMORTALS / NECRON WARRIORS. Aucun effet sur les des.","",0],
-["Skyshroud Spearhead",1,"","Transdimensional Deployment",
- "Frappe en Profondeur pour TOMB BLADES, et +1 pour toucher apres un mouvement d'ingress.","tomb_hit1",1],
-["The Phaeron's Armoury",1,"HYPERCRYPT","Empowered Engines",
- "+6\" de Mouvement aux NECRONS TITANESQUE VOLANT. Aucun effet sur les des.","",0]
+["Hand of the Dynasty",1,"DYNASTY","Protocoles d'Hypermobilité",
+ "▪ Les attaques de tir des unités d'IMMORTELS/GUERRIERS NÉCRONS amies ont [ASSAUT]. ▪ Quand une unité d'IMMORTELS/GUERRIERS NÉCRONS amie est choisie pour faire un mouvement d'avance, ce dernier ne l'empêche pas d'être éligible pour entreprendre une action. Ce détachement a l'étiquette DYNASTIE et ne peut pas être pris avec un autre détachement de DYNASTIE.",
+ "",0,"Main de la Dynastie"],
+["Skyshroud Spearhead",1,"","Déploiement Transdimensionnel",
+ "▪ Les unités de MÉCANOPTÈRES amies ont Frappe en Profondeur. ▪ Quand une unité de MÉCANOPTÈRES amie est choisie pour tirer, si elle a fait un mouvement d'arrivée à ce tour, ses attaques de tir ont +1 aux jets de touche.",
+ "tomb_hit1",1,"Fer de Lance Linceul Céleste"],
+["The Phaeron's Armoury",1,"HYPERCRYPT","Réacteurs Surpuissants",
+ "Les unités TITANESQUES NÉCRONS amies qui ont le mot-clé VOL ont +6\" en M. Ce détachement a l'étiquette HYPERCRYPTE et ne peut pas être pris avec un autre détachement d'HYPERCRYPTE.",
+ "",0,"L'Arsenal du Phaëron"],
+["Starshatter Arsenal",3,"","Offensive Implacable",
+ "Chaque fois qu'une figurine de NÉCRONS de votre armée (figurines de MONSTRE exclues) fait une attaque qui cible une unité à portée d'un ou plusieurs pions d'objectif, ajoutez 1 au jet de Touche. De plus, les armes de tir dont sont équipées les figurines de VÉHICULE NÉCRON et de NÉCRONS MONTÉES (figurines TITANESQUES exclues) de votre armée ont l'aptitude [ASSAUT].",
+ "obj_hit1",1,"Arsenal Brise-astres"],
+["Cryptek Conclave",2,"","Augmentations Technosorcières",
+ "▪ Les armes de tir dont sont équipées les figurines de CRYPTEK de votre armée ont l'aptitude [ASSAUT]. ▪ À votre phase de Tir, chaque fois qu'une unité de CRYPTEK de votre armée est choisie pour tirer, choisissez 1 des aptitudes suivantes : [ANTI-INFANTERIE 3+], [ANTI-MONTÉ 4+], [ASSAUT], [LOURD], [IGNORE LE COUVERT]. Jusqu'à la fin de la phase, les armes de tir dont sont équipées les figurines de l'unité ont l'aptitude choisie.",
+ "cryptek_anti",1,"Conclave de Crypteks"],
+["Cursed Legion",2,"","Froide Ferveur",
+ "▪ Ajoutez 2 à la caractéristique de Force des armes dont sont équipées les figurines de CULTE DESTROYER de votre armée. ▪ La première fois à chaque tour qu'une unité de CULTE DESTROYER de votre armée fait des attaques qui détruisent une unité ou la font passer En Dessous de son Demi-effectif, après que l'unité a fini de résoudre ses attaques, jusqu'à la fin du tour, ajoutez 2 à la caractéristique de Force des armes dont sont équipées les figurines NÉCRONS (sauf les figurines de CULTE DESTROYER, MONSTRE et TITANESQUES).",
+ "destroyer_str2",0,"Légion Maudite"],
+["Pantheon of Woe",2,"","Distorsion Cosmique",
+ "Les unités de MONSTRE NÉCRON de votre armée ont l'aptitude Champs de Distorsion (Aura) : tant qu'une unité ennemie est à 6\" de cette unité, l'unité ennemie est effritée ; tant qu'une unité ennemie est effritée, chaque fois qu'une attaque cible l'unité, améliorez de 1 la caractéristique de Pénétration d'Armure de l'attaque. Au début de chaque phase, pour chaque unité de MONSTRE NÉCRON de votre armée, l'unité peut subir 3 blessures mortelles ; dans ce cas, jusqu'à la fin de la phase, la portée de l'aura passe à 9\". RESTRICTIONS : quand vous rassemblez votre armée, chaque unité de MONSTRE NÉCRON reçoit son aptitude d'Entrave Nécrodermique et vous devez augmenter son coût en points du montant indiqué dans l'Inventaire du Munitorum ; si votre armée dépasse alors la limite en points, vous ne pouvez pas inclure l'unité.",
+ "monster_ap1",1,"Panthéon de Malheur"],
+["Awakened Dynasty",3,"DYNASTY","Protocoles de Commandement",
+ "+1 au jet de touche pour toute unité menée par un PERSONNAGE nécron. Texte du codex, non repris par le pack de faction : à vérifier sur ta fiche.",
+ "led_hit1",0,"Dynastie Éveillée"],
+["Canoptek Court",3,"","Matrice Énergétique",
+ "Relance des 1 pour toucher pour CRYPTEK et CANOPTEK ; relance totale dans la Matrice Énergétique. Texte du codex, non repris par le pack de faction : à vérifier sur ta fiche. Errata du pack : s'il n'y a aucun pion d'objectif dans le No Man's Land ou la zone de déploiement adverse, ces zones ne peuvent pas être dans la Matrice Énergétique.",
+ "canoptek_rr",1,"Cour Canoptek"],
+["Annihilation Legion",2,"","Protocole d'Annihilation",
+ "Errata du pack : « Chaque fois qu'une unité de CULTE DESTROYER de votre armée fait une attaque de tir qui cible la cible éligible la plus proche, ajoutez 1 à la caractéristique de Pénétration d'Armure de l'attaque. » Le reste de la règle vient du codex : relance de charge.",
+ "destroyer_ap1",1,"Légion d'Annihilation"],
+["Obeisance Phalanx",2,"","Adversaires Dignes",
+ "Texte remplacé par le pack de faction : « À votre phase de Commandement, choisissez 1 unité ennemie. Jusqu'au début de votre prochaine phase de Commandement, à chaque attaque d'une unité de NOBLE, de FACTIONNAIRES ou du TRIARCAT de votre armée qui cible l'unité choisie, ajoutez 1 au jet de Blessure. »",
+ "noble_wound1",1,"Phalange d'Obéissance"],
+["Hypercrypt Legion",2,"HYPERCRYPT","Hyperphasage",
+ "Retire des unités en Réserves Stratégiques en fin de tour adverse. Tableau remplacé par le pack de faction : Incursion jusqu'à 1 unité, Force de Frappe jusqu'à 2 unités, Offensive jusqu'à 3 unités. Une unité retirée par l'Hyperphasage qui a Frappe en Profondeur ne peut pas arriver des Réserves au premier round. Aucun effet sur les dés.",
+ "",0,"Légion d'Hypercrypte"]
 ];
 
 /* ============================================================
@@ -301,51 +324,137 @@ const RETINUE = {
 };
 
 /* ============================================================
-   AMELIORATIONS (Enhancements)
-   [nom, points, detachement, description]
-   Source : catalogue BattleScribe BSData/wh40k-10e rev.106.
-   Ce catalogue est en retard sur la 11e : les ameliorations de
-   Skyshroud Spearhead en sont absentes et ont ete relevees sur
-   WarOrgan. Un cout inconnu vaut null et n'est pas compte.
-   Les quatre detachements Pantheon of Woe, Hand of the Dynasty
-   et The Phaeron's Armoury n'ont pas encore d'amelioration ici.
+   OPTIMISATIONS
+   [nom, cout en points, detachement, texte]
+   Un cout a null signifie « inconnu » : le pack de faction ne
+   donne pas les points, qui vivent dans l'Inventaire du
+   Munitorum. L'application affiche alors « cout inconnu » et
+   ne compte rien dans le total.
+   Les vingt optimisations des sept detachements du pack sont au
+   texte officiel francais. Les seize autres viennent du codex,
+   que ce pack ne reprend pas : elles restent en anglais, sauf
+   le Voile de Tenebres dont le pack donne le nouveau texte.
    ============================================================ */
 const ENHANCEMENTS = [
-["Veil of Darkness",20,"Awakened Dynasty","NECRONS model only. Once per battle, at the end of your opponent's turn, if the bearer's unit is not within Engagement Range of one or more enemy units, the bearer can use this Enhancement. If it does, remove that unit from the battlefield. Then, in the Reinforcements step of your next Movement phase, set up that unit anywhere on the battlefield that is more than 9\" horizontally away from all enemy models."],
-["Nether-realm Casket",20,"Awakened Dynasty","NECRONS model only. While the bearer is leading a unit, models in that unit have the Stealth ability."],
-["Phasal Subjugator",35,"Awakened Dynasty","NECRONS model only. While a friendly NECRONS unit (excluding CHARACTER units) is within 6\" of the bearer, each time a model in that unit makes an attack, add 1 to the hit roll."],
-["Dimensional Overseer",25,"Hypercrypt Legion","NECRONS model only. While the bearer is on the battlefield or in Strategic Reserves, add 1 to the number of units from your army that you can select for the Hyperphasing rule."],
-["Eternal Madness",25,"Annihilation Legion","NECRONS model only. In the Fight phase, each time a model in the bearer's unit is destroyed, if that model had not fought this phase, roll one D6. On a 4+, do not remove the destroyed model from play; it can fight after the attacking model's unit has finished making its attacks, and is then removed from play."],
-["Ingrained Superiority",10,"Annihilation Legion","NECRONS model only. Each time a model in the bearer's unit makes an attack, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."],
-["Soulless Reaper",20,"Annihilation Legion","DESTROYER CULT model only. Each time an enemy unit within Engagement Range of the bearer's unit is selected to Fall Back, roll one D6. On a 3+, that unit cannot Fall Back and must Remain Stationary."],
-["Eldritch Nightmare",15,"Annihilation Legion","DESTROYER CULT model only. At the start of the Fight phase, each enemy unit within Engagement Range of the bearer must take a Battle-shock test."],
-["Dimensional Sanctum",20,"Canoptek Court","CRYPTEK model only. Models in the bearer's unit have the Infiltrators ability."],
-["Hyperphasic Fulcrum",15,"Canoptek Court","CRYPTEK model only. While the bearer is leading a unit, if that unit is wholly within your army's Power Matrix, each time a model in that unit makes an attack, re-roll a Wound roll of 1."],
-["Autodivinator",15,"Canoptek Court","CRYPTEK model only. Each time your opponent gains a CP as a result of an ability, roll one D6: on a 2+, you also gain 1CP."],
-["Metalodermal Tesla Weave",10,"Canoptek Court","CRYPTEK model only. Once per phase, when an enemy unit selects the bearer's unit as a target of a charge, roll one D6: on a 2-5, that enemy unit suffers D3 mortal wounds, on a 6, that enemy unit suffers 3 mortal wounds."],
-["Honourable Combatant",10,"Obeisance Phalanx","OVERLORD model only. Each time the bearer's unit destroys an enemy CHARACTER unit, your opponent loses 1CP if they have any."],
-["Unflinching Will",20,"Obeisance Phalanx","OVERLORD model only. The bearer's melee weapons have the [PRECISION] and [ANTI-INFANTRY 5+] abilities."],
-["Warrior Noble",15,"Obeisance Phalanx","OVERLORD model only. Each time a melee attack targets the bearer's unit, subtract 1 from the Hit roll."],
-["Eternal Conqueror",25,"Obeisance Phalanx","OVERLORD model only. Each time a model in the bearer's unit makes an attack that targets an enemy unit within range of an objective marker, you can re-roll the Hit roll."],
-["Enaegic Dermal Bond",30,"Awakened Dynasty","NECRONS model only. The bearer has the Feel No Pain 4+ ability."],
-["Arisen Tyrant",25,"Hypercrypt Legion","NECRONS model only. Each time a model in the bearer's unit makes an attack, re-roll a Hit roll of 1. If the bearer's unit was set up on the battlefield this turn, you can re-roll the Hit roll instead."],
-["Hyperspatial Transfer Node",15,"Hypercrypt Legion","NECRONS model only. Each time the bearer's unit Advances, do not make an Advance roll for it. Instead, until the end of the phase, add 6\" to the Move characteristic of models in the bearer's unit."],
-["Osteoclave Fulcrum",20,"Hypercrypt Legion","NECRONS model only. Models in the bearer's unit have the Deep Strike ability."],
-["Dread Majesty",30,"Starshatter Arsenal","While a friendly ^^**Necrons**^^ unit (excluding ^^**Monster^^** and ^^**Titianic^^** units) is within 6\" of the bearer, each time a model in that unit makes an attack, re‑roll a Hit roll of 1 and re‑roll a Wound roll of 1."],
-["Miniaturised Nebuloscope",15,"Starshatter Arsenal","Ranged weapons equipped by models in the bearer's unit have the [IGNORES COVER] ability."],
-["Demanding Leader",10,"Starshatter Arsenal","In your Command phase, select one friendly NECRONS VEHICLE or NECRONS MOUNTED unit (excluding TITANIC units) within 6\" of the bearer. Until the start of your next Command phase, that unit is eligible to shoot in a turn in which it Fell Back."],
-["Chrono-impedance Fields",25,"Starshatter Arsenal","In your Command phase, select one friendly **^^Necrons Vehicle^^** or **^^Necrons Mounted^^** unit (excluding Titanic units) within 6\" of the bearer. Until the start of your next Command phase, each time an attack is allocated to a model in that unit, subtract 1 from the Damage characteristic of that attack."],
-["Gauntlet of Compression",20,"Cryptek Conclave","Add 6\" to the Range characteristic of ranged weapons equipped by models in the bearer's unit."],
-["Atomic Disintegrators",10,"Cryptek Conclave","In your Shooting phase, each time the bearer's unit is selected to shoot, when selecting an ability for the Technosorcerous Augmentations Detachment rule, you can also select from the following abilities: [ANTI‑MONSTER 5+], [ANTI‑VEHICLE 5+]."],
-["Quantum Abacus",15,"Cryptek Conclave","Each time you select the bearer's unit as the target of a Stratagem, roll one D6, adding 1 if it is within range of one or more objectives: on a 4+, you gain 1CP."],
-["Gravitic Bolas",15,"Skyshroud Spearhead","In your Shooting phase, after the bearer has shot, select one enemy unit hit by one or more of those attacks (excluding ^^**Titanic^^** units); until the start of your next turn, that enemy unit is pinned. While a unit is pinned, subtract 2 from that unit's Move characteristic and subtract 2 from Charge rolls made for that unit."],
-["Destroyer Ankh",20,"Cursed Legion","The bearer has the ^^**Destroyer Cult^^** keyword. Add 2\" to the Move characteristic of models in the bearer's unit and add 2 to the Attacks characteristic of melee weapons equipped by the bearer."],
-["Murdermind",15,"Cursed Legion","The bearer has the Destroyer Cult keyword and during the Declare Battle Formations step, the bearer can be attached to a Destroyer Cult unit (excluding Character units). If you do, the bearer's unit cannot contain any models without the Destroyer Cult keyword. Add 3\" to the Move characteristic of the bearer."],
-["Mark of the Nekrosor",20,"Cursed Legion","Each time a model in the bearer's unit makes an attack, add 1 to the Hit roll."],
-["Cursed Circlet",25,"Cursed Legion","Each time an enemy unit is selected to shoot, after that unit has shot, if any models from the bearer's unit were destroyed as a result of those attacks, the bearer's unit can make a Surge move. To do so, roll one D6: the bearer's unit can be moved a number of inches up to the result, but the bearer's unit must finish that move as close as possible to the closest enemy unit (excluding ^^**Aircraft^^**). When doing so, those models can be moved within Engagement Range of that enemy unit. A unit cannot make a Surge move while it is Battle‑shocked."],
-["Recursive Reanimation",,"Skyshroud Spearhead","Absente du catalogue BattleScribe : relevee sur WarOrgan, cout a confirmer."],
-["Deepening Madness",20,"Skyshroud Spearhead","Absente du catalogue BattleScribe : relevee sur WarOrgan (20 pts)."]
+
+/* --- Main de la Dynastie */
+["Sentinelles Animées",null,"Hand of the Dynasty",
+ "Unité de GUERRIERS NÉCRONS seulement. Cette unité a Éclaireurs 5\"."],
+["Instruments de Domination",null,"Hand of the Dynasty",
+ "Unité d'IMMORTELS seulement. Les attaques de tir de cette unité ont [TIR RAPIDE 1]."],
+
+/* --- Fer de Lance Linceul Céleste */
+["Réanimation Récursive",null,"Skyshroud Spearhead",
+ "Unité de MÉCANOPTÈRES seulement. Quand cette unité active ses Protocoles de Réanimation, +1 au jet."],
+["Folie Croissante",20,"Skyshroud Spearhead",
+ "Unité MONTÉE de CULTE DESTROYER seulement. Les attaques de tir de cette unité ont [ASSAUT]. Coût relevé sur WarOrgan, absent du pack de faction."],
+
+/* --- L'Arsenal du Phaëron */
+["Optimisateur de Prélocalisation",null,"The Phaeron's Armoury",
+ "Figurine NÉCRON seulement. Quand cette unité est choisie pour tirer, si elle a été placée à ce tour en utilisant l'aptitude Portail d'Éternité d'un Monolithe, les attaques de tir de l'unité ont [TOUCHES FATALES], ou [TOUCHES SOUTENUES 1]."],
+["Linceul Mortel (Aura)",null,"The Phaeron's Armoury",
+ "Unité d'OBÉLISQUE seulement. À l'étape d'Ébranlement adverse, si une unité ennemie à 8\" ou moins de cette unité est en dessous de son effectif initial, elle fait un jet d'ébranlement."],
+
+/* --- Arsenal Brise-astres */
+["Majesté Effroyable (Aura)",30,"Starshatter Arsenal",
+ "Figurine de TÉTRARQUE ou CONSOLE DE COMMANDEMENT seulement. Tant qu'une unité NÉCRON amie (unités TITANESQUES exclues) est à 6\" du porteur, à chaque attaque d'une figurine de l'unité, relancez tout jet de Touche de 1 et relancez tout jet de Blessure de 1."],
+["Nébuloscope Miniaturisé",15,"Starshatter Arsenal",
+ "Figurine NÉCRON seulement. Les armes de tir dont sont équipées les figurines de l'unité du porteur ont l'aptitude [IGNORE LE COUVERT]."],
+["Noble Exigeant",10,"Starshatter Arsenal",
+ "Figurine NÉCRON seulement. À votre phase de Commandement, choisissez 1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) à 6\" du porteur. Jusqu'au début de votre prochaine phase de Commandement, l'unité est éligible pour tirer à un tour où elle a Battu en Retraite."],
+["Champs de Chrono-impédance",25,"Starshatter Arsenal",
+ "Figurine NÉCRON seulement. À votre phase de Commandement, choisissez 1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) à 6\" du porteur. Jusqu'au début de votre prochaine phase de Commandement, à chaque attaque qui cible une figurine de l'unité, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
+
+/* --- Conclave de Crypteks */
+["Boulier Quantique",15,"Cryptek Conclave",
+ "Figurine NÉCRON seulement. Chaque fois que vous choisissez l'unité du porteur comme cible d'un Stratagème, jetez 1 D6, en ajoutant 1 si elle est à portée d'un ou plusieurs objectifs : sur 4+, vous gagnez 1PC."],
+["Désintégrateurs Atomiques",10,"Cryptek Conclave",
+ "Figurine de CRYPTEK seulement. À votre phase de Tir, chaque fois que l'unité du porteur est choisie pour tirer, quand vous choisissez une aptitude pour la règle de Détachement Augmentations Technosorcières, vous pouvez aussi choisir parmi les aptitudes suivantes : [ANTI-MONSTRE 5+], [ANTI-VÉHICULE 5+]."],
+["Gantelet de Compression",20,"Cryptek Conclave",
+ "Figurine NÉCRON seulement. Ajoutez 6\" à la caractéristique de Portée des armes de tir dont sont équipées les figurines de l'unité du porteur."],
+["Bolas Gravitiques",15,"Cryptek Conclave",
+ "Figurine de CRYPTEK seulement. À votre phase de Tir, après que le porteur a tiré, choisissez 1 unité ennemie touchée par une ou plusieurs de ces attaques (sauf les unités TITANESQUES) ; jusqu'au début de votre prochain tour, l'unité ennemie est entravée. Tant qu'une unité est entravée, soustrayez 2 à sa caractéristique de Mouvement et soustrayez 2 aux jets de Charge pour l'unité."],
+
+/* --- Légion Maudite */
+["Ankh de Destroyer",20,"Cursed Legion",
+ "Figurine de CONSOLE DE COMMANDEMENT ou TÉTRARQUE seulement. Le porteur a le mot-clé CULTE DESTROYER. Ajoutez 2\" à la caractéristique de Mouvement des figurines de l'unité du porteur et ajoutez 2 à la caractéristique d'Attaques des armes de mêlée dont le porteur est équipé."],
+["Esprit Meurtrier",15,"Cursed Legion",
+ "Figurine de CRYPTEK seulement. Le porteur a le mot-clé CULTE DESTROYER. Ajoutez 3\" à la caractéristique de Mouvement du porteur. Texte corrigé par le pack de faction v1.1."],
+["Marque du Nékrosor",20,"Cursed Legion",
+ "Figurine de CULTE DESTROYER seulement. À chaque attaque d'une figurine de l'unité du porteur, ajoutez 1 au jet de Touche."],
+["Diadème Maudit",25,"Cursed Legion",
+ "Figurine de CULTE DESTROYER seulement. Chaque fois qu'une unité ennemie est choisie pour tirer, après que l'unité a tiré, si une ou plusieurs figurines de l'unité du porteur ont été détruites à cause de ces attaques, l'unité du porteur peut faire un mouvement d'Élan. Dans ce cas, jetez 1 D6 : l'unité du porteur peut se déplacer d'une distance en pouces inférieure ou égale au résultat, mais elle doit finir ce mouvement aussi près que possible de l'unité ennemie la plus proche (sauf les AÉRODYNES). Ce faisant, ces figurines peuvent être déplacées à Portée d'Engagement de l'unité ennemie. Une unité ne peut pas faire un mouvement d'Élan tant qu'elle est Ébranlée."],
+
+/* --- Dynastie Éveillée (codex) */
+["Voile de Ténèbres",20,"Awakened Dynasty",
+ "Texte remplacé par le pack de faction : « (Une fois par bataille, par armée) À la fin du tour adverse, si cette unité est non engagée, vous pouvez utiliser cette aptitude. Dans ce cas : ▪ Placez cette unité en réserve stratégique. ▪ Cette unité a Frappe en Profondeur jusqu'au début de votre prochaine phase de Tir. ▪ Cette unité doit faire un mouvement d'arrivée à votre prochaine phase de Mouvement (y compris à votre premier tour). »"],
+["Nether-realm Casket",20,"Awakened Dynasty",
+ "NECRONS model only. While the bearer is leading a unit, models in that unit have the Stealth ability."],
+["Phasal Subjugator",35,"Awakened Dynasty",
+ "NECRONS model only. While a friendly NECRONS unit (excluding CHARACTER units) is within 6\" of the bearer, each time a model in that unit makes an attack, add 1 to the hit roll."],
+["Enaegic Dermal Bond",30,"Awakened Dynasty",
+ "NECRONS model only. The bearer has the Feel No Pain 4+ ability."],
+
+/* --- Légion d'Hypercrypte (codex) */
+["Dimensional Overseer",25,"Hypercrypt Legion",
+ "NECRONS model only. While the bearer is on the battlefield or in Strategic Reserves, add 1 to the number of units from your army that you can select for the Hyperphasing rule."],
+["Arisen Tyrant",25,"Hypercrypt Legion",
+ "NECRONS model only. Each time a model in the bearer's unit makes an attack, re-roll a Hit roll of 1. If the bearer's unit was set up on the battlefield this turn, you can re-roll the Hit roll instead."],
+["Hyperspatial Transfer Node",15,"Hypercrypt Legion",
+ "NECRONS model only. Each time the bearer's unit Advances, do not make an Advance roll for it. Instead, until the end of the phase, add 6\" to the Move characteristic of models in the bearer's unit."],
+["Osteoclave Fulcrum",20,"Hypercrypt Legion",
+ "NECRONS model only. Models in the bearer's unit have the Deep Strike ability."],
+
+/* --- Légion d'Annihilation (codex) */
+["Eternal Madness",25,"Annihilation Legion",
+ "NECRONS model only. In the Fight phase, each time a model in the bearer's unit is destroyed, if that model had not fought this phase, roll one D6. On a 4+, do not remove the destroyed model from play; it can fight after the attacking model's unit has finished making its attacks, and is then removed from play."],
+["Ingrained Superiority",10,"Annihilation Legion",
+ "NECRONS model only. Each time a model in the bearer's unit makes an attack, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."],
+["Soulless Reaper",20,"Annihilation Legion",
+ "DESTROYER CULT model only. Each time an enemy unit within Engagement Range of the bearer's unit is selected to Fall Back, roll one D6. On a 3+, that unit cannot Fall Back and must Remain Stationary."],
+["Eldritch Nightmare",15,"Annihilation Legion",
+ "DESTROYER CULT model only. At the start of the Fight phase, each enemy unit within Engagement Range of the bearer must take a Battle-shock test."],
+
+/* --- Cour Canoptek (codex) */
+["Dimensional Sanctum",20,"Canoptek Court",
+ "CRYPTEK model only. Models in the bearer's unit have the Infiltrators ability."],
+["Hyperphasic Fulcrum",15,"Canoptek Court",
+ "CRYPTEK model only. While the bearer is leading a unit, if that unit is wholly within your army's Power Matrix, each time a model in that unit makes an attack, re-roll a Wound roll of 1."],
+["Autodivinator",15,"Canoptek Court",
+ "CRYPTEK model only. Each time your opponent gains a CP as a result of an ability, roll one D6: on a 2+, you also gain 1CP. Errata du pack : ne se déclenche pas quand une règle d'une autre nature octroie des PC, ni quand l'adversaire défausse une carte de Mission Secondaire contre 1PC."],
+["Metalodermal Tesla Weave",10,"Canoptek Court",
+ "CRYPTEK model only. Once per phase, when an enemy unit selects the bearer's unit as a target of a charge, roll one D6: on a 2-5, that enemy unit suffers D3 mortal wounds, on a 6, that enemy unit suffers 3 mortal wounds."],
+
+/* --- Phalange d'Obéissance (codex) */
+["Honourable Combatant",10,"Obeisance Phalanx",
+ "OVERLORD model only. Each time the bearer's unit destroys an enemy CHARACTER unit, your opponent loses 1CP if they have any."],
+["Unflinching Will",20,"Obeisance Phalanx",
+ "OVERLORD model only. The bearer's melee weapons have the [PRECISION] and [ANTI-INFANTRY 5+] abilities."],
+["Warrior Noble",15,"Obeisance Phalanx",
+ "OVERLORD model only. Each time a melee attack targets the bearer's unit, subtract 1 from the Hit roll."],
+["Eternal Conqueror",25,"Obeisance Phalanx",
+ "OVERLORD model only. Each time a model in the bearer's unit makes an attack that targets an enemy unit within range of an objective marker, you can re-roll the Hit roll."]
 ];
+/* Anciens noms anglais des optimisations que le pack de faction
+   nomme desormais en francais : les listes deja enregistrees
+   continuent de retrouver leur optimisation. */
+const ENH_ANCIENS = {
+ "Recursive Reanimation" : "Réanimation Récursive",
+ "Deepening Madness" : "Folie Croissante",
+ "Dread Majesty" : "Majesté Effroyable (Aura)",
+ "Miniaturised Nebuloscope" : "Nébuloscope Miniaturisé",
+ "Demanding Leader" : "Noble Exigeant",
+ "Chrono-impedance Fields" : "Champs de Chrono-impédance",
+ "Quantum Abacus" : "Boulier Quantique",
+ "Atomic Disintegrators" : "Désintégrateurs Atomiques",
+ "Gauntlet of Compression" : "Gantelet de Compression",
+ "Gravitic Bolas" : "Bolas Gravitiques",
+ "Destroyer Ankh" : "Ankh de Destroyer",
+ "Murdermind" : "Esprit Meurtrier",
+ "Mark of the Nekrosor" : "Marque du Nékrosor",
+ "Cursed Circlet" : "Diadème Maudit",
+ "Veil of Darkness" : "Voile de Ténèbres"
+};
 
 /* ============================================================
    EMPREINTE DE SOCLE, en millimetres
@@ -393,36 +502,213 @@ origine: ["de Mandragora","de Thanatos","de Solemnace","de Gidrim","de Nihilakh"
 
 /* ============================================================
    STRATAGEMES
-   [nom, detachement ou "Core", type, cout PC, quand, cible, effet]
-   Aucune source verifiable n'existe pour la 11e : le catalogue
-   BattleScribe ne contient aucun stratageme de detachement. Ne
-   figure donc ici que ce qui est lisible sur les captures
-   WarOrgan — nom, detachement, type, cout — et le seul texte
-   qui y apparaissait deplie. Les champs vides s'affichent comme
-   « texte non renseigné » : les completer ne demande que de
-   remplir les trois dernieres colonnes.
+   Texte officiel francais. Deux sources, toutes deux publiees
+   librement par Games Workshop :
+     - Necrons, Pack de Faction version 1.1 (valide a partir du
+       22 juillet 2026) pour les sept detachements du pack ;
+     - Warhammer 40,000, Regles de Base, section 15, pour les
+       stratagemes de base.
+   Les cinq detachements du codex (Dynastie Eveillee, Cour
+   Canoptek, Legion d'Annihilation, Phalange d'Obeissance,
+   Legion d'Hypercrypte) ne figurent pas dans ces documents :
+   leurs stratagemes restent a saisir dans l'application.
+   [nom, detachement, type, cout, quand, cible, effet, restrictions]
    ============================================================ */
 const STRATS = [
-["Molecular Targeting","Cryptek Conclave","Battle Tactic",1,
- "Ta phase de Tir ou de Combat.",
- "Une unité NECRONS de ton armée qui n'a pas encore été choisie pour tirer ou combattre cette phase.",
- "Jusqu'à la fin de la phase, chaque fois qu'une figurine de l'unité attaque, tu peux ignorer tout ou partie des modificateurs à sa Capacité de Tir ou de Combat et au jet de touche. Si l'unité a le mot-clé CRYPTEK, tu peux aussi ignorer les modificateurs au jet de blessure."],
-["Microscarab Swarm","Cryptek Conclave","Wargear",1,"","",""],
-["Animus Curse","Cryptek Conclave","Wargear",1,"","",""],
-["Synergistic Empowerment","Cryptek Conclave","Strategic Ploy",1,"","",""],
-["Untapped Power","Cryptek Conclave","Battle Tactic",1,"","",""],
-["Potentiality Syphon","Cryptek Conclave","Strategic Ploy",1,"","",""],
-["Omnilocked Strafing","Skyshroud Spearhead","",1,"","",""],
-["Swift as Death","Skyshroud Spearhead","",1,"","",""],
-["Evasive Protocols","Skyshroud Spearhead","",1,"","",""],
-["Command Re-Roll","Core","Core",1,"","",""],
-["Epic Challenge","Core","Core",1,"","",""],
-["Insane Bravery","Core","Core",1,"","",""],
-["Explosives","Core","Core",1,"","",""],
-["Crushing Impact","Core","Core",1,"","",""],
-["Rapid Ingress","Core","Core",1,"","",""],
-["Fire Overwatch","Core","Core",1,"","",""],
-["Smokescreen","Core","Core",1,"","",""]
+
+/* --- Main de la Dynastie ------------------------------------ */
+["Protocoles Prépondérants","Hand of the Dynasty","",1,
+ "À la phase de Commandement.",
+ "Une unité d'IMMORTELS amie.",
+ "Votre unité a +1 en CO jusqu'à la fin du tour.",""],
+["Volonté du Conquérant","Hand of the Dynasty","",1,
+ "À la fin de votre phase de Mouvement.",
+ "Une unité d'IMMORTELS/GUERRIERS NÉCRONS amie.",
+ "Choisissez un objectif que votre unité contrôle. Cet objectif est sécurisé.",""],
+["Nanosaturation","Hand of the Dynasty","",1,
+ "À la phase de Tir adverse, quand une unité ennemie qui a ciblé une unité d'IMMORTELS/GUERRIERS NÉCRONS amie a tiré.",
+ "Cette unité d'IMMORTELS/GUERRIERS NÉCRONS.",
+ "Votre unité tire en utilisant le tir au jugé, mais ce faisant, elle peut seulement cibler cette unité ennemie.",""],
+
+/* --- Fer de Lance Linceul Céleste --------------------------- */
+["Mitraillage Omniverrouillé","Skyshroud Spearhead","",1,
+ "À votre phase de Mouvement, quand une unité de NÉCRONS MONTÉE amie est choisie pour faire un mouvement de retraite.",
+ "Cette unité de NÉCRONS MONTÉE.",
+ "Ce mouvement n'empêche pas votre unité d'être éligible pour tirer.",""],
+["Vif comme la Mort","Skyshroud Spearhead","",1,
+ "À la phase de Mouvement adverse, quand une unité ennemie finit un mouvement à 8\" ou moins d'une unité de NÉCRONS MONTÉE amie non engagée.",
+ "Cette unité de NÉCRONS MONTÉE.",
+ "Votre unité peut faire un mouvement normal de D3+3\" maximum.",""],
+["Protocoles d'Esquive","Skyshroud Spearhead","",1,
+ "À la phase de Tir adverse, quand une unité ennemie cible une unité de NÉCRONS MONTÉE amie.",
+ "Cette unité de NÉCRONS MONTÉE.",
+ "Les attaques de tir qui ciblent votre unité et dont la F est supérieure à son E ont -1 aux jets de blessure.",""],
+
+/* --- L'Arsenal du Phaëron ----------------------------------- */
+["Trame Quantique Sous-surfacique","The Phaeron's Armoury","",1,
+ "À la phase de Tir adverse ou à la phase de Combat, quand une unité ennemie cible une unité TITANESQUE NÉCRON amie qui a le mot-clé VOL.",
+ "Cette unité TITANESQUE NÉCRON qui a le mot-clé VOL.",
+ "Les attaques qui ciblent votre unité ont -1 en PA jusqu'à ce que cette unité ennemie ait attaqué.",""],
+["Impulsion de Particules","The Phaeron's Armoury","",1,
+ "Au début de votre phase de Tir.",
+ "Une unité TITANESQUE NÉCRON amie qui a le mot-clé VOL.",
+ "Choisissez une unité ennemie visible et à 12\" ou moins de votre unité : l'unité choisie a +3\" en portée de détection.",""],
+["Tempête Cosmique","The Phaeron's Armoury","",1,
+ "À votre phase de Tir, quand une unité d'OBÉLISQUE/CRYPTE TESSERACT amie est choisie pour tirer.",
+ "Cette unité d'OBÉLISQUE/CRYPTE TESSERACT.",
+ "Les Sphères Tesla de votre unité ont +1 en PA.",""],
+
+/* --- Arsenal Brise-astres ----------------------------------- */
+["Récupération Impitoyable","Starshatter Arsenal","Tactique de Bataille",2,
+ "À votre phase de Tir ou à la phase de Combat.",
+ "1 unité NÉCRON (unités TITANESQUES exclues) de votre armée qui n'a pas été choisie pour tirer ou combattre à cette phase.",
+ "Jusqu'à la fin de la phase, à chaque attaque d'une figurine de votre unité, si la cible de l'attaque est à portée d'un ou plusieurs pions d'objectif, ajoutez 1 au jet de Blessure.",""],
+["Enveloppes Inflexibles","Starshatter Arsenal","Tactique de Bataille",2,
+ "À la phase de Tir adverse ou à la phase de Combat, juste après qu'une unité ennemie a choisi ses cibles.",
+ "1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) de votre armée qui a été choisie comme cible d'une ou plusieurs attaques de l'unité attaquante.",
+ "Jusqu'à la fin de la phase, chaque fois qu'une attaque cible une figurine de votre unité, si la caractéristique de Force de l'attaque est supérieure à la caractéristique d'Endurance de l'unité, soustrayez 1 au jet de Blessure.",""],
+["Chronodécalage","Starshatter Arsenal","Ruse Stratégique",1,
+ "À votre phase de Mouvement.",
+ "1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) de votre armée qui n'a pas été choisie pour se déplacer à cette phase.",
+ "Jusqu'à la fin de la phase, si votre unité Avance, ne faites pas un jet d'Avance pour elle. À la place, jusqu'à la fin de la phase, ajoutez 6\" à la caractéristique de Mouvement des figurines de votre unité.",""],
+["Tunnel Dimensionnel","Starshatter Arsenal","Ruse Stratégique",1,
+ "À votre phase de Mouvement.",
+ "1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) de votre armée.",
+ "Jusqu'à la fin de la phase, les figurines de votre unité peuvent se déplacer à l'horizontale à travers les figurines et les éléments de terrain.",""],
+["Servitude sans Fin","Starshatter Arsenal","Ruse Stratégique",1,
+ "À la fin de votre phase de Combat.",
+ "1 unité NÉCRON (unités TITANESQUES exclues) de votre armée qui est à portée d'un ou plusieurs pions d'objectif que vous contrôlez.",
+ "Les Protocoles de Réanimation de votre unité s'activent.",""],
+["Repositionnement Réactif","Starshatter Arsenal","Ruse Stratégique",1,
+ "À la phase de Tir adverse, juste après qu'une unité ennemie a tiré.",
+ "1 unité NÉCRON de votre armée (unités TITANESQUES exclues) qui était la cible d'une ou plusieurs attaques de l'unité attaquante.",
+ "Votre unité peut faire un mouvement Normal de jusqu'à D6\".",""],
+
+/* --- Conclave de Crypteks ----------------------------------- */
+["Ciblage Moléculaire","Cryptek Conclave","Tactique de Bataille",1,
+ "À votre phase de Tir ou à la phase de Combat.",
+ "1 unité NÉCRON de votre armée qui n'a pas été choisie pour tirer ou combattre à cette phase.",
+ "Jusqu'à la fin de la phase, à chaque attaque d'une figurine de votre unité, vous pouvez ignorer certains ou tous les modificateurs à ce qui suit : la caractéristique de Capacité de Tir ou de Capacité de Combat de l'attaque ; le jet de Touche. Si votre unité a le mot-clé CRYPTEK, vous pouvez aussi ignorer certains ou tous les modificateurs au jet de Blessure.",""],
+["Nuée de Microscarabées","Cryptek Conclave","Équipement",1,
+ "À la phase de Tir adverse ou à la phase de Combat, juste après qu'une unité ennemie a choisi ses cibles.",
+ "1 unité d'INFANTERIE CRYPTEK de votre armée qui a été choisie comme cible d'une ou plusieurs attaques de l'unité attaquante.",
+ "Si votre unité a le mot-clé GUERRIERS NÉCRONS, jusqu'à la fin de la phase, les figurines de votre unité ont une sauvegarde invulnérable de 5+. Si elle a le mot-clé IMMORTELS, jusqu'à la fin de la phase, les figurines de votre unité ont une sauvegarde invulnérable de 4+.",""],
+["Malédiction Spirituelle","Cryptek Conclave","Équipement",1,
+ "À la phase de Tir adverse ou à la phase de Combat, juste après qu'une unité ennemie a tiré ou combattu.",
+ "1 figurine de CRYPTEK de votre armée qui a été détruite par 1 attaque de l'unité attaquante. Vous pouvez utiliser ce Stratagème sur la figurine même si elle vient d'être détruite.",
+ "Jusqu'à la fin de la bataille, chaque fois qu'une figurine NÉCRON amie fait une attaque qui cible l'unité attaquante, vous pouvez relancer le jet de Touche.",""],
+["Renforcement Synergétique","Cryptek Conclave","Ruse Stratégique",1,
+ "Au début de votre phase de Tir.",
+ "1 unité de CRYPTEK de votre armée.",
+ "Choisissez 1 figurine NÉCRON amie (sauf les MONSTRES et VÉHICULES) à 12\" d'une figurine de CRYPTEK de votre unité. Jusqu'à la fin de la phase, cette figurine NÉCRON amie a le mot-clé CRYPTEK.",""],
+["Pouvoir Inexploité","Cryptek Conclave","Tactique de Bataille",1,
+ "À votre phase de Tir.",
+ "1 unité de CRYPTEK de votre armée qui n'a pas été choisie pour tirer à cette phase.",
+ "Jusqu'à la fin de la phase, chaque fois que votre unité est choisie pour tirer, quand vous choisissez une aptitude pour la Règle de Détachement Augmentations Technosorcières, vous pouvez choisir 1 aptitude supplémentaire parmi celles disponibles.",""],
+["Siphon des Possibles","Cryptek Conclave","Ruse Stratégique",1,
+ "À la phase de Commandement adverse.",
+ "1 unité NÉCRON de votre armée à portée d'un ou plusieurs pions d'objectif.",
+ "Les Protocoles de Réanimation de votre unité s'activent. Si c'est une unité de CRYPTEK, elle réanime 1 point de vie supplémentaire.",""],
+
+/* --- Légion Maudite ----------------------------------------- */
+["Meurtre Méthodique","Cursed Legion","Tactique de Bataille",1,
+ "À votre phase de Tir ou à la phase de Combat.",
+ "1 unité NÉCRON (MONSTRES et VÉHICULES exclus) de votre armée qui n'a pas été choisie pour tirer ou combattre à cette phase.",
+ "Jusqu'à la fin de la phase, les armes dont sont équipées les figurines de votre unité ont l'aptitude [TOUCHES SOUTENUES 1].",""],
+["Image de la Mort","Cursed Legion","Tactique de Bataille",1,
+ "À la phase de Tir adverse ou à la phase de Combat, juste après qu'une unité ennemie a choisi ses cibles.",
+ "1 unité de CULTE DESTROYER de votre armée qui a été choisie comme cible d'une ou plusieurs attaques de l'unité attaquante.",
+ "Jusqu'à la fin de la phase, chaque fois qu'une attaque cible votre unité, soustrayez 1 au jet de Touche.",""],
+["Protocoles Mortis","Cursed Legion","Ruse Stratégique",1,
+ "À votre phase de Tir ou à la phase de Combat, juste après la première fois qu'une unité de CULTE DESTROYER de votre armée a détruit une unité ennemie à ce tour.",
+ "1 unité NÉCRON amie (MONSTRES et VÉHICULES exclus) à 9\" de l'unité de CULTE DESTROYER.",
+ "Les Protocoles de Réanimation de l'unité amie ciblée s'activent.",""],
+["Poussés à la Boucherie","Cursed Legion","Ruse Stratégique",1,
+ "À votre phase de Tir ou votre phase de Charge.",
+ "1 unité de CULTE DESTROYER de votre armée.",
+ "Jusqu'à la fin du tour, votre unité est éligible pour tirer et déclarer une charge à un tour où elle a Avancé.",
+ "Vous pouvez utiliser ce Stratagème une seule fois par tour."],
+["Démence Contagieuse","Cursed Legion","Tactique de Bataille",1,
+ "À votre phase de Charge.",
+ "1 unité NÉCRON (MONSTRES et VÉHICULES exclus) de votre armée qui n'a pas déclaré une charge à cette phase.",
+ "Jusqu'à la fin de la phase, chaque fois que votre unité déclare une charge, si une ou plusieurs cibles de cette charge sont à Portée d'Engagement d'une ou plusieurs unités amies, ajoutez 2 au jet de Charge.",""],
+["Agressivité contre Nature","Cursed Legion","Ruse Stratégique",2,
+ "À la fin de la phase de Charge adverse.",
+ "1 unité NÉCRON (MONSTRES et VÉHICULES exclus) de votre armée qui est à 6\" d'une ou plusieurs unités ennemies et qui serait éligible pour déclarer une charge contre une ou plusieurs de ces unités ennemies si c'était votre phase de Charge.",
+ "Votre unité déclare à présent une charge qui peut seulement cibler une ou plusieurs de ces unités ennemies, et vous résolvez cette charge. Notez que même si cette charge est réussie, votre unité ne reçoit pas de bonus de Charge à ce tour.",""],
+
+/* --- Panthéon de Malheur ------------------------------------ */
+["Cascade Disharmonique","Pantheon of Woe","Fait Épique",1,
+ "À n'importe quelle phase, juste après qu'une figurine de MONSTRE NÉCRON de votre armée a été détruite, avant de faire son jet de Destruction Néfaste.",
+ "Cette figurine de MONSTRE NÉCRON. Vous pouvez utiliser ce Stratagème sur la figurine même si elle vient d'être détruite.",
+ "Jusqu'à la fin de la phase, l'aptitude Destruction Néfaste de votre figurine inflige des blessures mortelles sur un jet d'un D6 de 3+ au lieu de 6.",""],
+["Érosion Moléculaire","Pantheon of Woe","Ruse Stratégique",1,
+ "À la phase de Commandement.",
+ "1 unité de MONSTRE NÉCRON de votre armée.",
+ "Choisissez 1 unité ennemie effritée visible de votre unité. L'unité ennemie doit faire un test d'Ébranlement. Ce faisant, soustrayez 1 au résultat. En cas d'échec à ce test, l'unité ennemie subit D3+1 blessures mortelles.",
+ "Vous pouvez utiliser ce Stratagème une seule fois par round de bataille."],
+["Transmogrification de Masse","Pantheon of Woe","Fait Épique",1,
+ "À votre phase de Tir ou à la phase de Combat, juste après qu'une unité de MONSTRE NÉCRON de votre armée a détruit une unité ennemie.",
+ "1 unité NÉCRON amie (sauf les MONSTRES) à 6\" de l'unité de MONSTRE.",
+ "Si l'unité ennemie était effritée au début de la phase, les Protocoles de Réanimation de votre unité amie s'activent.",
+ "Vous pouvez utiliser ce Stratagème une seule fois par tour."],
+["Ciblage d'Aura Entrophasique","Pantheon of Woe","Tactique de Bataille",1,
+ "À votre phase de Tir ou à la phase de Combat.",
+ "1 unité NÉCRON (sauf les MONSTRES) de votre armée qui n'a pas été choisie pour tirer ou combattre à cette phase.",
+ "Jusqu'à la fin de la phase, à chaque attaque d'une figurine de votre unité qui cible une unité ennemie, relancez tout jet de Touche de 1. Si la cible de l'attaque est effritée, relancez tout jet de Blessure de 1 également.",""],
+["Chronodistorsion","Pantheon of Woe","Tactique de Bataille",1,
+ "À la phase de Combat, juste après qu'une unité ennemie a choisi ses cibles.",
+ "1 unité NÉCRON de votre armée qui a été choisie comme cible d'une ou plusieurs attaques de l'unité attaquante.",
+ "Jusqu'à la fin de la phase, chaque fois qu'une figurine de votre unité est détruite, si la figurine n'a pas combattu à cette phase, jetez 1 D6, en ajoutant 1 si l'unité attaquante est effritée : sur 4+, ne retirez pas la figurine détruite du jeu ; elle peut combattre après que l'unité attaquante a résolu ses attaques, puis elle est retirée du jeu.",""],
+["Dissolution de Phase","Pantheon of Woe","Ruse Stratégique",1,
+ "À la phase de Mouvement adverse, quand une unité ennemie effritée est choisie pour Battre en Retraite.",
+ "1 unité NÉCRON de votre armée qui est à Portée d'Engagement de l'unité ennemie.",
+ "Quand l'unité ennemie Bat en Retraite, toutes ses figurines doivent faire un test de Fuite Désespérée. Ce faisant, si l'unité ennemie est Ébranlée, soustrayez 1 à chacun de ces tests.",""],
+
+/* --- Stratagèmes de base (Règles de Base, section 15) -------- */
+["Relance de Commandement","Core","Core",1,
+ "À n'importe quelle phase, juste après que vous avez fait un des jets suivants pour une unité ou une figurine amie : jet d'avance, jet de charge, jet de dégâts, jet de risque, jet de touche, jet de sauvegarde, jet de blessure, ou un jet pour déterminer le nombre d'attaques générées par une arme.",
+ "Cette unité ou figurine.",
+ "Vous relancez ce jet. Si vous jetez plus d'un dé en même temps, choisissez l'un de ces dés pour le relancer (sauf pour les jets de charge, que vous devez relancer entièrement).",""],
+["Défi Épique","Core","Core",1,
+ "À la phase de Combat, juste après qu'une unité de PERSONNAGE amie a été choisie pour combattre.",
+ "Cette unité de PERSONNAGE.",
+ "Choisissez 1 figurine de PERSONNAGE de votre unité. Jusqu'à la fin de la phase, les armes de mêlée de cette figurine ont l'aptitude [PRÉCISION].",""],
+["Courage Insensé","Core","Core",1,
+ "À l'étape d'Ébranlement de votre phase de Commandement, juste avant que vous fassiez un jet d'ébranlement pour une unité amie.",
+ "Cette unité.",
+ "Ce jet d'ébranlement est automatiquement réussi.",
+ "Vous ne pouvez pas utiliser ce stratagème plus d'une fois par bataille."],
+["Explosifs","Core","Core",1,
+ "À votre phase de Tir.",
+ "1 unité à EXPLOSIFS/GRENADES non engagée amie qui est éligible pour tirer et n'a pas fait de mouvement d'avance à ce tour.",
+ "1. Choisissez 1 figurine à EXPLOSIFS/GRENADES de votre unité. 2. Choisissez 1 unité ennemie non engagée à 8\" ou moins et visible de cette figurine. 3. Jetez six D6 : pour chaque 4+, cette unité ennemie subit 1 blessure mortelle.",""],
+["Impact Écrasant","Core","Core",1,
+ "À votre phase de Charge, juste après qu'une unité de MONSTRE/VÉHICULE amie a fini un mouvement de charge.",
+ "Cette unité de MONSTRE/VÉHICULE.",
+ "1. Choisissez 1 unité ennemie engagée avec votre unité. 2. Choisissez 1 figurine de votre unité engagée avec cette unité ennemie. 3. Jetez autant de D6 que la caractéristique d'E de cette figurine : pour chaque 1, votre unité subit 1 blessure mortelle ; pour chaque 5+, l'unité ennemie subit 1 blessure mortelle (jusqu'à un maximum de 6 blessures mortelles par unité).",""],
+["Arrivée Précipitée","Core","Core",1,
+ "À la fin de la phase de Mouvement adverse.",
+ "1 unité amie qui est en réserve stratégique (sauf les AÉRODYNES).",
+ "Votre unité effectue un mouvement d'arrivée.",
+ "Vous ne pouvez pas utiliser ce stratagème pendant le premier round de bataille."],
+["Tir en État d'Alerte","Core","Core",1,
+ "À la fin de la phase de Mouvement adverse.",
+ "1 unité non engagée amie (sauf les unités TITANESQUES).",
+ "Votre unité tire en utilisant le tir au jugé : elle peut cibler une seule unité ennemie visible à 24\" ou moins, chaque attaque touche seulement sur un jet de touche non modifié de 6 quels que soient la CT et les modificateurs, et les jets de touche ne peuvent pas être relancés. Après avoir tiré, votre unité n'est plus éligible pour entreprendre une action jusqu'à la fin de la phase.",""],
+["Écran de Fumée","Core","Core",1,
+ "Au début de la phase de Tir adverse.",
+ "1 unité à FUMÉE amie.",
+ "Jusqu'à la fin de la phase, à chaque attaque qui cible soit votre unité à FUMÉE, soit une unité qui n'est pas entièrement visible de la figurine attaquante à cause d'une ou plusieurs figurines de votre unité à FUMÉE, la cible a le bénéfice du couvert contre l'attaque.",""],
+["Intervention Héroïque","Core","Core",1,
+ "À la fin de la phase de Charge adverse.",
+ "1 unité non engagée amie à 12\" ou moins d'une ou plusieurs unités ennemies. Vous pouvez choisir une unité de VÉHICULE seulement si c'est une unité de PERSONNAGE/MARCHEUR.",
+ "Résolvez une charge avec votre unité. Ce faisant, avant de faire le jet de charge, vous devez choisir 1 des modes suivants. Bondir pour Défendre : quand vous choisissez des cibles de charge, vous pouvez seulement choisir des unités ennemies qui ont effectué un mouvement de charge à cette phase et qui sont dans la distance maximale. Dans la Mêlée (+1PC) : quand vous faites le jet de charge, si le résultat est supérieur à 6 après modificateurs, changez-le par 6 ; quand vous choisissez des cibles de charge, vous pouvez choisir une ou plusieurs unités ennemies qui sont à 6\" ou moins de votre unité et dans la distance maximale.",
+ "Le mode « Dans la Mêlée » coûte 1PC de plus."],
+["Contre-Offensive","Core","Core",2,
+ "À l'étape Combattre de la phase de Combat adverse, juste après qu'une unité ennemie a résolu ses attaques.",
+ "1 unité amie qui est éligible pour combattre.",
+ "Jusqu'à la fin de la phase, votre unité a l'aptitude Combat en Premier et elle doit être la prochaine unité que vous choisissez pour combattre.",""]
 ];
 
 /* ============================================================
@@ -521,7 +807,7 @@ const APTITUDES = {
   ["Deployment","When this unit is first set up on the battlefield, its models do not have to be set up in Unit Coherency. Instead, each model must be set up wholly within 12\" of one other model from its unit. From that point on, each model in this unit is treated as a separate unit."]
  ],
  "Necron Warriors" : [
-  ["Their Number is Legion","Each time this unit's Reanimation Protocols activate, you can re-roll the dice to see how many wounds are regenerated."]
+  ["Leur Nombre Est Légion","Quand les Protocoles de Réanimation de cette unité s'activent, vous pouvez relancer le dé. Le pack confirme que cette aptitude s'applique aussi quand la réanimation vient du Stratagème Protocole des Légions Impérissables."]
  ],
  "Immortals" : [
   ["Implacable Eradication","Each time a model in this unit makes an attack, re-roll a Wound roll of 1. If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Wound roll instead."]
@@ -548,7 +834,7 @@ const APTITUDES = {
   ["Whirling Onslaught","Each time a model in this unit makes a melee attack, re-roll a Hit roll of 1. If this unit made a Charge move this turn, you can re-roll the Hit roll instead."]
  ],
  "Ophydian Destroyers" : [
-  ["Tunnelling Horrors","At the end of your opponent's turn, if this unit is not within Engagement Range of one or more enemy units, you can remove this unit from the battlefield. In the Reinforcements step of your next Movement phase, set it up anywhere on the battlefield that is more than 9\" horizontally away from all enemy models."]
+  ["Horreurs Fouisseuses","À la fin du tour adverse, si cette unité est non engagée, vous pouvez utiliser cette aptitude. Dans ce cas : ▪ placez cette unité en réserve stratégique ; ▪ cette unité doit faire un mouvement d'arrivée à votre prochaine phase de Mouvement, y compris à votre premier tour. Texte remplacé par le pack de faction v1.1."]
  ],
  "Lokhust Destroyers" : [
   ["Hard-wired for Destruction","Each time a model in this unit makes a ranged attack that targets the closest eligible enemy unit, re-roll a Hit roll of 1. If the target of that attack is within range of an objective marker your opponent controls, you can re-roll the Hit roll instead."]
@@ -574,20 +860,23 @@ const APTITUDES = {
   ["Canoptek Swarm","In your Command phase, select one friendly CANOPTEK SCARAB SWARM unit within 6\" of this unit. One destroyed model is returned to that CANOPTEK SCARAB SWARM unit for each SPYDER model in this unit."]
  ],
  "Canoptek Reanimator" : [
-  ["Nanoscarab Reanimation Beam (Aura)","While a friendly NECRONS unit is within 3\" of this model, each time that unit's Reanimation Protocols activate, that unit reanimates an additional D3 wounds."]
+  ["Faisceau de Réanimation de Nanoscarabées (Aura)","Tant qu'une unité NÉCRONS amie est à 3\" de cette figurine, chaque fois que les Protocoles de Réanimation de l'unité amie s'activent, l'unité amie soigne D3 points de vie supplémentaires. Texte remplacé par le pack de faction v1.1."]
  ],
  "Canoptek Doomstalker" : [
   ["Damaged: 1-4 wounds remaining","While this model has 1-4 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."],
   ["Sentinel Construct","Each time you target this unit with the Fire Overwatch Stratagem, while resolving that Stratagem, hits are scored on unmodified Hit rolls of 5+."]
  ],
  "Canoptek Macrocytes" : [
-  ["Harassment Swarm (Aura)","While an enemy unit (excluding ^^**Monsters^^** and ^^**Vehicles^^**) is within 3\" of this unit, each time a model in that unit makes an attack, subtract 1 from the Hit roll."],
-  ["Nanoscarab Projector","Once per battle round, when a friendly ^^**Necrons^^** unit within 3\" of the bearer activates its Reanimation Protocols, the bearer can use this ability. If it does, that unit reanimates 1 additional wound."],
-  ["Accelerator Mandible","At the start of the Fight phase, select one friendly ^^**Canoptek^^** unit within 3\" of the bearer's unit. Until the end of the phase, improve the Weapon Skill characteristic of weapons equipped by models in that unit by 1."]
+  ["Aptitudes de base","Éclaireurs 8\"."],
+  ["Essaim Harceleur (Aura)","Tant qu'une unité ennemie (MONSTRES et VÉHICULES exclus) est à 3\" de cette unité, à chaque attaque d'une figurine de l'unité, soustrayez 1 au jet de Touche."],
+  ["Mandibule accélératrice (équipement)","Au début de la phase de Combat, choisissez 1 unité CANOPTEK amie à 3\" de l'unité du porteur. Jusqu'à la fin de la phase, améliorez de 1 la caractéristique de Capacité de Combat des armes dont sont équipées les figurines de l'unité."],
+  ["Projecteur de nanoscarabées (équipement)","Une fois par round de bataille, quand une unité de NÉCRONS amie à 3\" du porteur active ses Protocoles de Réanimation, le porteur peut utiliser cette aptitude. Dans ce cas, l'unité réanime 1 PV supplémentaire."],
+  ["Composition","5 Macrocytes Canopteks, chacun équipé d'un scalpel Gauss et de griffes. Toutes les figurines peuvent échanger leur scalpel Gauss contre un projecteur Tesla ; 1 figurine peut prendre à la place un faisceau atomiseur et un projecteur de nanoscarabées ; 1 figurine peut prendre à la place une mandibule accélératrice."]
  ],
  "Canoptek Tomb Crawlers" : [
-  ["Weapon Sentinels","Each time a model in this unit makes a ranged attack that targets a unit within 12\", you can ignore any or all modifiers to the following: that attack's Ballistic Skill characteristic; the Hit roll; the Wound roll."],
-  ["Canoptek Retinue","At the start of the Declare Battle Formations step, this unit can join one other unit from your army that is being led by a ^^**Cryptek^^** model (a unit cannot have more than one ^^**Tomb Crawlers^^** unit joined to it and cannot have both a ^^**Tomb Crawlers^^** and a ^^**Cryptothralls^^** unit joined to it). If it does, until the end of the battle, every model in this unit counts as being part of that Bodyguard unit, and that Bodyguard unit's Starting Strength is increased accordingly."]
+  ["Arme Sentinelle","À chaque attaque de tir d'une figurine de cette unité qui cible une unité à 12\", vous pouvez ignorer certains ou tous les modificateurs à ce qui suit : la caractéristique de Capacité de Tir de l'attaque ; le jet de Touche ; le jet de Blessure."],
+  ["Suite Canoptek","Au début de l'étape Déclarer les Formations de Bataille, cette unité peut rejoindre 1 autre unité de votre armée qui est menée par une figurine de CRYPTEK. Une unité ne peut pas avoir plus de 1 unité d'Arpenteurs Sépulcraux jointe à elle, ni avoir à la fois une unité d'Arpenteurs Sépulcraux et de Cryptoserfs. Dans ce cas, jusqu'à la fin de la bataille, toutes les figurines de cette unité comptent comme faisant partie de l'unité de Gardes du Corps, et l'Effectif Initial de celle-ci est augmenté en conséquence."],
+  ["Composition","2 Arpenteurs Sépulcraux Canopteks, chacun équipé d'une faucheuse Gauss jumelée et de griffes. 1 figurine peut échanger sa faucheuse Gauss jumelée contre 1 isolateur transdimensionnel."]
  ],
  "Triarch Stalker" : [
   ["Targeting Relay","In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the phase, that unit cannot have the Benefit of Cover."]
@@ -604,7 +893,7 @@ const APTITUDES = {
  ],
  "Monolith" : [
   ["Damaged: 1-7 wounds remaining","While this model has 1-7 wounds remaining, subtract 4 from its Objective Control characteristic and each time this model makes an attack, subtract 1 from the Hit roll."],
-  ["Eternity Gate","In the Reinforcements step of your Movement phase, you can select one NECRONS INFANTRY unit from your army that is either in Reserves or on the battlefield (if you select the latter, remove that unit from the battlefield and place it into Reserves). That unit is then set up anywhere on the battlefield that is wholly within 6\" of this model and not within Engagement Range of any enemy models. That unit cannot declare a charge this turn."]
+  ["Portail d'Éternité","À votre phase de mouvement (hormis au premier round de bataille), vous pouvez choisir 1 unité d'INFANTERIE NÉCRON qui est soit en réserve stratégique, soit sur le champ de bataille (si vous choisissez une unité sur le champ de bataille, retirez-la du champ de bataille et placez-la en réserve stratégique). L'unité choisie peut faire un mouvement d'arrivée, et doit être placée entièrement à 6\" ou moins de cette unité, et ne doit être engagée avec aucune unité ennemie. L'unité choisie ne peut pas faire de mouvement de charge à ce tour. Elle n'a pas à être placée à 6\" ou moins d'un bord du champ de bataille et reste éligible pour tirer. Texte remplacé par le pack de faction v1.1."]
  ],
  "Obelisk" : [
   ["Damaged: 1-8 wounds remaining","While this model has 1-8 wounds remaining, subtract 4 from its Objective Control characteristic and each time this model makes an attack, subtract 1 from the Hit roll."],
@@ -633,7 +922,8 @@ const APTITUDES = {
  "Lokhust Lord" : [
   ["Destroyer Cult","While this model is leading a unit, each time a model in that unit makes a ranged attack, a successful unmodifed Hit roll of 5+ scores a Critical Hit."],
   ["Driven by Hatred","Each time this model makes an attack that targets an enemy unit that is Below Half-strength, you can re-roll the Hit roll and you can re-roll the Wound roll."],
-  ["Nanoscarab amulet","The bearer has the Feel No Pain 5+ ability."]
+  ["Nanoscarab amulet","The bearer has the Feel No Pain 5+ ability."],
+  ["Résurrection","(Une fois par bataille, par unité) À la fin de n'importe quelle phase, vous pouvez utiliser cette aptitude. Dans ce cas, cette unité ressuscite : ses Protocoles de Réanimation s'activent, mais l'unité soigne D6 points de vie au lieu de D3. Vous ne pouvez pas ressusciter plus d'une unité par tour. Texte donné par le pack de faction v1.1 pour le Seigneur Lokhust et le Tétrarque."]
  ],
  "Skorpekh Lord" : [
   ["United In Destruction","While this model is leading a unit, melee weapons equipped by models in that unit have the [LETHAL HITS] ability."],
@@ -649,10 +939,10 @@ const APTITUDES = {
  ],
  "Plasmancer" : [
   ["Harbinger of Destruction","While this model is leading a unit, each time a model in that unit makes a ranged attack, a successful unmodifed Hit roll of 5+ scores a Critical Hit."],
-  ["Living Lightning","In your Shooting phase, select one enemy unit within 18\" of and visible to this model (excluding units with the Lone Operative ability that are not part of an Attached unit and are not within 12\" of this model) and roll four D6: for each 4+, that enemy unit suffers 1 mortal wound."]
+  ["Foudre Consciente","À votre phase de Tir, choisissez 1 unité ennemie à 18\" ou moins et visible de cette figurine (à l'exclusion des unités avec l'aptitude Agent Solitaire qui ne font pas partie d'une unité Attachée et qui sont à plus de 12\" de cette figurine) et jetez quatre D6 : pour chaque 4+, l'unité ennemie subit 1 blessure mortelle. Texte remplacé par le pack de faction v1.1."]
  ],
  "Chronomancer" : [
-  ["Timesplinter Mantle","While this model is leading a unit, each time an attack targets that unit, subtract 1 from the Hit roll."],
+  ["Cape d'Uchronie","▪ Cette unité a Discrétion. ▪ Les attaques de mêlée qui ciblent cette unité ont -1 aux jets de touche. Texte remplacé par le pack de faction v1.1."],
   ["Chronometron","In your Shooting phase, after this model's unit has shot, if it is not within Engagement Range of any enemy units, that unit can make a Normal move of up to 5\". If it does, until the end of the turn, that unit is not eligible to declare a charge."]
  ],
  "Psychomancer" : [
@@ -660,31 +950,49 @@ const APTITUDES = {
   ["Harbinger of Despair","Once per turn, at the start of your Command, Movement, Shooting, Charge or Fight phase, you can select one enemy unit within 18\" of this model. That unit must take a Battle-shock test, subtracting 1 from the roll when it does so."]
  ],
  "Geomancer" : [
-  ["Tectonic Reverberations","In your Movement phase, you can select one enemy unit within 18\" of and visible to this model. Until the start of your next Movement phase that enemy unit is pinned. While a unit is pinned, subtract 2 from that unit's Move characteristic and subtract 2 from Charge rolls made for it."],
-  ["Obelisk Node Control","While this model is within range of an objective marker you control, enemy units that are set up on the battlefield from Reserves cannot be set up within 12\" of this model."]
+  ["Aptitudes de base","Appui. Le pack retire « Meneur » aux Crypteks et leur donne « Appui » (page 30). La fiche du Géomancien, page 17 du même document, porte encore « Meneur » : le pack se contredit sur ce point."],
+  ["Réverbération Tectonique","À votre phase de Mouvement, vous pouvez choisir 1 unité ennemie à 18\" et visible de cette figurine. Jusqu'au début de votre prochaine phase de Mouvement, l'unité ennemie est entravée. Tant qu'une unité est entravée, soustrayez 2 à sa caractéristique de Mouvement et soustrayez 2 à ses jets de Charge."],
+  ["Contrôle d'Obélisque Nodal","Tant que cette figurine est à portée d'un pion d'objectif que vous contrôlez, les unités ennemies qui sont placées sur le champ de bataille depuis les Réserves ne peuvent pas être placées à 12\" de cette figurine."],
+  ["Protocoles d'Avant-garde","Si cette figurine est attachée à une unité de Macrocytes Canopteks à l'étape Déclarer les Formations de Bataille, cette figurine a l'aptitude Éclaireurs 8\"."],
+  ["Meneur (fiche du pack)","Cette figurine peut être attachée aux unités suivantes : Macrocytes Canopteks, Immortels, Guerriers Nécrons. Vous pouvez l'attacher même si une figurine de Garde Royal ou de Noble a déjà été attachée à l'unité."]
  ],
  "Catacomb Command Barge" : [
   ["Carrier Wave (Aura)","While a friendly NECRONS unit is within 6\" of this model, add 1 to the Objective Control characteristic of models in that unit."],
   ["Advanced Quantum Shielding","Each time an attack targets this model, if the Strength characteristic of that attack is greater than this model's Toughness characteristic, subtract 1 from the Wound roll."],
-  ["Resurrection orb","Once per battle, at the end of any phase, select one friendly NECRONS INFANTRY or NECRONS MOUNTED unit within 6\" of the bearer and resurrect that unit. When you do, that unit's Reanimation Protocols are activated reanimating D6 wounds instead of D3 when doing so. You cannot resurrect more than one unit per turn."]
+  ["Orbe de Résurrection","(Une fois par bataille, par unité) À la fin de n'importe quelle phase, vous pouvez utiliser cette aptitude. Dans ce cas, vous pouvez choisir une unité d'INFANTERIE/MONTÉE NÉCRON amie à 6\" ou moins de cette unité. L'unité choisie ressuscite : ses Protocoles de Réanimation s'activent, mais elle soigne D6 points de vie au lieu de D3. Vous ne pouvez pas ressusciter plus d'une unité par tour, et une unité ne peut pas être affectée par un Orbe de Résurrection plus d'une fois par tour. Le pack ajoute aussi le mot-clé NOBLE à cette fiche."]
  ],
  "C'tan Shard of the Nightbringer" : [
-  ["Drain Life","At the end of the Fight phase, roll one D6 for each enemy unit within 6\" of this model: on a 4+, that enemy unit suffers D3 mortal wounds."],
-  ["Quantum Goad","This model is eligible to declare a charge in a turn in which it Advanced."]
+  ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+."],
+  ["Sauvegarde invulnérable","4+."],
+  ["Drain de Vie","À la fin de la phase de Combat, jetez 1 D6 pour chaque unité ennemie à 6\" de cette figurine : sur 4+, l'unité ennemie subit D3 blessures mortelles."],
+  ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
+  ["Aiguillon Quantique — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : cette figurine est éligible pour déclarer une charge à un tour où elle a Avancé. Son coût en points augmente du montant indiqué dans l'Inventaire du Munitorum."]
  ],
  "C'tan Shard of the Deceiver" : [
-  ["Grand Illusion","If your army includes this model, after both players have deployed their armies, select up to three ^^**NECRONS^^** units from your army and redeploy them. When doing so, any of those units can be placed in Strategic Reserves, regardless of how many units are already in Strategic Reserves."],
-  ["Lord of Deceit (Aura)","Each time your opponent targets a unit from their army with a Stratagem, if that unit is within 12\" of this model, increase the cost of that use of that Stratagem by 1CP."]
+  ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+, Discrétion."],
+  ["Sauvegarde invulnérable","4+."],
+  ["Grande Illusion","Si votre armée inclut cette figurine, après que les deux joueurs ont déployé leurs armées, choisissez jusqu'à trois unités de NÉCRONS de votre armée et redéployez-les. Ce faisant, une ou plusieurs de ces unités peuvent être placées en Réserve Stratégique, quel que soit le nombre d'unités s'y trouvant déjà."],
+  ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
+  ["Matrice de Singularité — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement. Seigneur de la Duperie (Aura) : chaque fois que votre adversaire cible une unité de son armée avec un Stratagème, si l'unité est à 12\" de cette figurine, augmentez de 1PC le coût de cette utilisation."]
  ],
  "C'tan Shard of the Void Dragon" : [
-  ["Matter Absorption","At the start of your Shooting phase, select one enemy ^^**VEHICLE^^** unit within 12\" of this model and roll one D6: on a 2+, that enemy unit suffers D3 mortal wounds and this model regains up to that many lost wounds."],
-  ["Animus Damper","Once per turn, at the start of your opponent's Shooting phase, select one enemy ^^**Vehicle^^** unit visible to the bearer. That unit must take a Leadership test. Until the end of the phase, each time a model in that unit makes an attack, subtract 1 from the Hit roll and, if that Leadership test was failed, subtract 1 from the Wound roll as well."]
+  ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+."],
+  ["Sauvegarde invulnérable","4+."],
+  ["Absorption de Matière","Au début de votre phase de Tir, choisissez 1 unité de VÉHICULE ennemie à 12\" de cette figurine et jetez 1 D6 : sur 2+, l'unité ennemie subit D3 blessures mortelles et cette figurine récupère jusqu'à ce nombre de PV perdus."],
+  ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
+  ["Sourdine Spirituelle — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : une fois par tour, au début de la phase de Tir adverse, choisissez 1 unité de VÉHICULE ennemie visible du porteur. L'unité doit faire un test de Commandement. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité, soustrayez 1 au jet de Touche et, si le test de Commandement avait été raté, soustrayez 1 au jet de Blessure également."]
  ],
  "Transcendent C'tan" : [
-  ["Invulnerable Save (4+)","This model has a 4+ invulnerable save."],
-  ["Transdimensional Displacement","Each time this model is selected to Advance, you can remove it from the battlefield and set it up again anywhere on the battlefield that is more than 9\" horizontally away from all enemy models."],
-  ["C'tan Shard","This model cannot be given Enhancements."],
-  ["Relatavistic Tether","In your turn, each time this model is set up on the battlefield using the Deep Strike or Transdimensional Displacement abilities, it can be set up anywhere on the battlefield that is more than 6\" horizontally away from all enemy units. When doing so, if this model is set up within 9\" of one or more enemy units, until the end of the turn, it is not eligible to declare a charge."]
+  ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+."],
+  ["Sauvegarde invulnérable","4+."],
+  ["Déplacement Transdimensionnel","À votre phase de Mouvement, quand cette unité est choisie pour faire un mouvement d'avance, vous pouvez utiliser cette aptitude. Dans ce cas : ▪ ce mouvement d'avance n'a pas de distance maximale ; ▪ cette unité peut se déplacer à travers tous types de figurines (y compris les figurines ennemies et celles de MONSTRE/VÉHICULE) ; ▪ après s'être déplacée, cette unité doit être à plus de 8\" à l'horizontale des unités ennemies. Texte remplacé par le pack de faction v1.1."],
+  ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
+  ["Écharde C'tan","Cette figurine ne peut pas recevoir d'Optimisations."],
+  ["Longe Relativiste — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : à votre tour, quand cette unité fait un mouvement d'arrivée ou d'avance en utilisant son aptitude Déplacement Transdimensionnel, elle peut finir ce mouvement à plus de 6\" à l'horizontale des unités ennemies (et non à plus de 8\"). Quand elle finit ce mouvement à 8\" ou moins d'une unité ennemie, jusqu'à la fin du tour, elle n'est pas éligible pour déclarer une charge. Si votre armée inclut plus d'un C'tan Transcendant, chacun doit prendre cette aptitude."]
  ],
  "Imotekh the Stormlord" : [
   ["Grand Strategist","At the start of your Command phase, if this model is on the battlefield, you gain 1CP."],
@@ -704,16 +1012,17 @@ const APTITUDES = {
   ["Atomic Energy Manipulator","At the end of the Fight phase, if this model destroyed one or more models this phase, until the end of the battle, add 3\" to the range of its Mechanical Augmentation ability (to a maximum of 12\")."]
  ],
  "Nekrosor Ammentar" : [
-  ["Invulnerable Save (4+)","This model has a 4+ invulnerable save."],
-  ["Protective Disciples","While this model is within 3\" of one or more other friendly ^^**Destroyer Cult^^** units, this model has the Lone Operative ability."],
-  ["Infectious Murder‑madness (Aura)","While a friendly ^^**Necrons^^** unit (excluding ^^**Monster**^^ and ^^**Titanic^^** units) is within 6\" of this model, each time a model in that unit makes an attack, if that model has the ^^**Destroyer Cult^^** keyword or that enemy unit is the closest eligible target, that attack has the [SUSTAINED HITS 1] ability."],
-  ["Prophet of Destruction","Each time this model destroys an enemy unit, select one other friendly ^^**Destroyer Cult^^** unit within 9\" of it. Until the end of the phase, each time a model in that unit makes an attack, re‑roll a Wound roll of 1."],
-  ["Nullstone Field Generator (Aura)","While a friendly ^^**Necrons^^** unit is within 6\" of the bearer, models in that unit have the Feel No Pain 5+ ability against mortal wounds and Psychic Attacks."]
+  ["Aptitudes de base","Frappe en Profondeur, Combat en Premier."],
+  ["Sauvegarde invulnérable","4+."],
+  ["Disciples Protecteurs","Tant que cette figurine est à 3\" d'une ou plusieurs autres unités de CULTE DESTROYER amies, elle a l'aptitude Agent Solitaire."],
+  ["Folie Meurtrière Infectieuse (Aura)","Tant qu'une unité de NÉCRONS amie (unités de MONSTRE et TITANESQUES exclues) est à 6\" de cette figurine, à chaque attaque d'une figurine de l'unité, si la figurine a le mot-clé CULTE DESTROYER ou si l'unité ennemie est la cible éligible la plus proche, l'attaque a l'aptitude [TOUCHES SOUTENUES 1]."],
+  ["Prophète de la Destruction","Chaque fois que cette figurine détruit une unité ennemie, choisissez 1 autre unité de CULTE DESTROYER amie à 9\" de cette figurine. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité amie choisie, relancez tout jet de Blessure de 1."],
+  ["Générateur de Champ à Négalithe (Aura)","Tant qu'une unité de NÉCRONS amie est à 6\" du porteur, ses figurines ont l'aptitude Insensible à la Douleur 5+ contre les blessures mortelles et les Attaques Psychiques."]
  ],
  "Szarekh, The Silent King" : [
   ["Damaged: 1-6 wounds remaining","While this unit's Szarekh model has 1-6 wounds remaining, halve the Attacks characteristic of that model's weapons, and each time this unit makes an attack, subtract 1 from the Hit roll."],
   ["Voice of the Triarch","At the start of the battle round, select one Triarch ability. Until the start of the next battle round, this unit has that ability."],
-  ["The Silent King (Aura)","While a friendly NECRONS unit is within 6\" of this unit's Szarekh model, improve that unit's Leadership characteristic by 1."],
+  ["Marche Implacable (Aura)","Tant qu'une unité de NÉCRONS amie est à 6\" ou moins de la figurine de Szarekh de cette unité, ajoutez 2\" à la caractéristique de Mouvement des figurines de l'unité amie. Texte remplacé par le pack de faction v1.1, qui redéfinit aussi les mots-clés : toutes les figurines VÉHICULE, HÉROS ÉPIQUE, TRIARCAT ; figurine de Szarekh PERSONNAGE, LE ROI SILENCIEUX."],
   ["Triarchal Menhirs","If this unit's Szarekh model is destroyed, all of this unit's remaining Triarchal Menhir models are also destroyed."]
  ],
  "Nemesor Zahndrekh" : [
@@ -738,43 +1047,50 @@ const TRANSPORTS = {
 
 /* FACTION : la regle qui vaut pour toute l'armee */
 const FACTION = [
- ["Reanimation Protocols","If your Army Faction is NECRONS, at the end of your Command phase, each unit from your army with this ability that is on the battlefield activates its Reanimation Protocols and reanimates D3 wounds. Each time such a unit reanimates a wound: ■ If that unit contains one or more models with fewer than their starting number of wounds remaining, select one of those models; that model regains one lost wound. ■ If all models in that unit have their starting number of wounds, but that unit is not at its Starting Strength, one destroyed model is returned to that unit with one wound remaining. Once such a unit is at its Starting Strength and all of its models have their starting number of wounds, nothing further happens."]
+ ["Protocoles de Réanimation","Si votre Faction d'Armée est NÉCRONS, à la fin de votre phase de Commandement, chaque unité amie avec cette aptitude qui est sur le champ de bataille active ses protocoles de réanimation. Quand les Protocoles de Réanimation d'une unité s'activent, elle soigne D3 points de vie. Texte remplacé par le Pack de Faction Nécrons v1.1 du 22 juillet 2026."]
 ];
 
 /* ============================================================
-   GLOSSAIRE : mots-cles d'arme et aptitudes de base du jeu.
-   Texte officiel repris du fichier de systeme BattleScribe.
+   GLOSSAIRE : aptitudes d'arme et aptitudes de base du jeu.
+   Texte officiel francais, Warhammer 40,000 Regles de Base,
+   section 24 « Aptitudes de Base ». Les exemples et le texte
+   d'ambiance sont omis, la regle est reprise mot pour mot.
+   La cle est le libelle affiche dans les tableaux d'armes.
    ============================================================ */
 const GLOSSAIRE = {
- "Anti-" : "Weapons with [ANTI-KEYWORD X+] in their profile are known as Anti weapons. Each time an attack is made with such a weapon against a target with the keyword after the word ‘Anti-', an unmodified Wound roll of ‘x+' scores a Critical Wound.",
- "Assault" : "Weapons with [ASSAULT] in their profile are known as Assault weapons. If a unit that Advanced this turn contains any models equipped with Assault weapons, it is still eligible to shoot in this turn's Shooting phase. When such a unit is selected to shoot, you can only resolve attacks using Assault weapons its models are equipped with.",
- "Blast" : "Weapons with [BLAST] in their profile are known as Blast weapons, and they make a random number of attacks. Each time you determine how many attacks are made with a Blast weapon, add 1 to the result for every five models that were in the target unit when you selected it as the target (rounding down). Blast weapons can never be used to make attacks against a unit that is within Engagement Range of one or more units from the attacking model's army (including its own unit).",
- "Devastating Wounds" : "Weapons with [DEVASTATING WOUNDS] in their profile are known as Devastating Wounds weapons. Each time an attack is made with such a weapon, if that attack scores a Critical Wound, no saving throw of any kind can be made against that attack (including invulnerable saving throws). Such attacks are only allocated to models after all other attacks made by the attacking unit have been allocated and resolved. After that attack is allocated and after any modifiers are applied, it inflicts a number of mortal wounds on the target equal to the Damage characteristic of that attack, instead of inflicting damage normally.",
- "Extra Attacks" : "Weapons with [EXTRA ATTACKS] in their profile are known as Extra Attacks weapons. Each time the bearer of one or more Extra Attacks weapons fights, it makes attacks with each of the Extra Attacks melee weapons it is equipped with and it makes attacks with one of the melee weapons it is equipped with that does not have the [EXTRA ATTACKS] ability (if any). The number of attacks made with an Extra Attacks weapon cannot be modified by other rules, unless that weapon's name is explicitly specified in that rule.",
- "Hazardous" : "Weapons with [HAZARDOUS] in their profile are known as Hazardous weapons. Each time a unit is selected to shoot or fight, after that unit has resolved all of its attacks, for each Hazardous weapon that targets were selected for when resolving those attacks, that unit must take one Hazardous test. To do so, roll one D6: on a 1, that test is failed. For each failed test you must resolve the following sequence (resolve each failed test one at a time): ■ If possible, select one model in that unit that has lost one or more wounds and is equipped with one or more Hazardous weapons. ■ Otherwise, if possible, select one model in that unit (excluding ^^Character^^ models) equipped with one or more Hazardous weapons. ■ Otherwise, select one ^^Character^^ model in that unit equipped with one or more Hazardous weapons. If a model was selected, that unit suffers 3 mortal wounds and when allocating those mortal wounds, they must be allocated to the selected model. If a unit from a player's army is selected as the target of the Fire Overwatch Stratagem in their opponent's Charge phase, any mortal wounds inflicted by Hazardous tests are allocated after the charging unit has ended its Charge move.",
- "Heavy" : "Weapons with [HEAVY] in their profile are known as Heavy weapons. Each time an attack is made with such a weapon, if the attacking model's unit Remained Stationary this turn, add 1 to that attack's Hit roll.",
- "Ignores Cover" : "Weapons with [IGNORES COVER] in their profile are known as Ignores Cover weapons. Each time an attack is made with such a weapon, the target cannot have the Benefit of Cover against that attack.",
- "Indirect Fire" : "Weapons with [INDIRECT FIRE] in their profile are known as Indirect Fire weapons, and attacks can be made with them even if the target is not visible to the attacking model. These attacks can destroy enemy models in a target unit even though none may have been visible to the attacking unit when you selected that target. If no models in a target unit are visible to the attacking unit when you select that target, then each time a model in the attacking unit makes an attack against that target using an Indirect Fire weapon, subtract 1 from that attack's Hit roll, an unmodified Hit roll of 1-3 always fails, and the target has the Benefit of Cover against that attack. Weapons with the [TORRENT] ability cannot be fired using the [INDIRECT FIRE] ability.",
- "Lance" : "Weapons with [LANCE] in their profile are known as Lance weapons. Each time an attack is made with such a weapon, if the bearer made a Charge move this turn, add 1 to that attack's Wound roll.",
- "Lethal Hits" : "Weapons with [LETHAL HITS] in their profile are known as Lethal Hits weapons. Each time an attack is made with such a weapon, a Critical Hit automatically wounds the target.",
- "Melta" : "Weapons with [MELTA X] in their profile are known as Melta weapons. Each time an attack made with such a weapon targets a unit within half that weapon's range, that attack's Damage characteristic is increased by the amount denoted by ‘x'.",
- "One Shot" : "The bearer can only shoot with this weapon once per battle.",
- "Pistol" : "Weapons with [PISTOL] in their profile are known as Pistols. If a unit contains any models equipped with Pistols, that unit is eligible to shoot in its controlling player's Shooting phase even while it is within Engagement Range of one or more enemy units. When such a unit is selected to shoot, it can only resolve attacks using its Pistols and can only target one of the enemy units it is within Engagement Range of. In such circumstances, a Pistol can target an enemy unit even if other friendly units are within Engagement Range of the same enemy unit. If a model is equipped with one or more Pistols, unless it is a ^^Monster^^ or ^^Vehicle^^ model, it can either shoot with its Pistols or with all of its other ranged weapons. Declare whether such a model will shoot with its Pistols or its other ranged weapons before selecting targets.",
- "Precision" : "Weapons with [PRECISION] in their profile are known as Precision weapons. Each time an attack made with such a weapon successfully wounds an Attached unit, if a Character model in that unit is visible to the attacking model, the attacking model's player can choose to have that attack allocated to that Character model instead of following the normal attack sequence.",
- "Rapid Fire" : "Weapons with [RAPID FIRE X] in their profile are known as Rapid Fire weapons. Each time such a weapon targets a unit within half that weapon's range, the Attacks characteristic of that weapon is increased by the amount denoted by ‘x'.",
- "Sustained Hits" : "Weapons with [SUSTAINED HITS X] in their profile are known as Sustained Hits weapons. Each time an attack is made with such a weapon, if a Critical Hit is rolled, that attack scores a number of additional hits on the target as denoted by ‘x'",
- "Torrent" : "Weapons with [TORRENT] in their profile are known as Torrent weapons. Each time an attack is made with such a weapon, that attack automatically hits the target.",
- "Twin-linked" : "Weapons with [TWIN-LINKED] in their profile are known as Twin-linked weapons. Each time an attack is made with such a weapon, you can re-roll that attack's Wound roll.",
- "Deep Strike" : "During the Declare Battle Formations step, if every model in a unit has this ability, you can set it up in Reserves instead of setting it up on the battlefield. If you do, in the Reinforcements step of one of your Movement phases you can set up this unit anywhere on the battlefield that is more than 9\" horizontally away from all enemy models. If a unit with the Deep Strike ability arrives from Strategic Reserves, the controlling player can choose for that unit to be set up either using the rules for Strategic Reserves or using the Deep Strike ability.",
- "Deadly Demise" : "Some models have 'Deadly Demise x' listed in their abilities. When such a model is destroyed, roll one D6 before removing it from play (if such a model is a TRANSPORT, roll before any embarked models disembark). On a 6, each unit within 6\" of that model suffers a number of mortal wounds denoted by 'x' (if this is a random number, roll separately for each unit within 6\").",
- "Feel No Pain" : "Some models have 'Feel No Pain x+' listed in their abilities. Each time a model with this ability suffers damage and so would lose a wound (including wounds lost due to mortal wounds), roll one D6: if the result is greater than or equal to the number denoted by 'x: that wound is ignored and is not lost. If a model has more than one Feel No Pain ability, you can only use one of those abilities each time that model suffers damage and so would lose a wound.",
- "Fights First" : "Units with this ability that are eligible to fight do so in the Fights First step, provided every model in the unit has this ability.",
- "Firing Deck" : "Some ^^Transport^^ models have ‘Firing Deck x' listed in their abilities. Each time such a model is selected to shoot in the Shooting phase, you can select up to ‘x' models embarked within it whose units have not already shot this phase. Then, for each of those embarked models, you can select one ranged weapon that embarked model is equipped with (excluding weapons with the [ONE SHOT] ability). Until that ^^Transport^^ model has resolved all of its attacks, it counts as being equipped with all of the weapons you selected in this way, in addition to its other weapons. Until the end of the phase, those selected models' units are not eligible to shoot.",
- "Infiltrators" : "During deployment, if every model in a unit has this ability, then when you set it up, it can be set up anywhere on the battlefield that is more than 9\" horizontally away from the enemy deployment zone and all enemy models.",
- "Leader" : "While a Bodyguard unit contains a Leader, it is known as an Attached unit and, with the exception of rules that are triggered when units are destroyed (pg 12), it is treated as a single unit for all rules purposes. Each time an attack targets an Attached unit, until the attacking unit has resolved all of its attacks, you must use the Toughness characteristic of the Bodyguard models in that unit, even if a Leader in that unit has a different Toughness characteristic. Each time an attack successfully wounds an Attached unit, that attack cannot be allocated to a Character model in that unit, even if that Character model has lost one or more wounds or has already had attacks allocated to it this phase. As soon as the last Bodyguard model in an Attached unit has been destroyed, any attacks made against that unit that have yet to be allocated can then be allocated to Character models in that unit. Each time the last model in a Bodyguard unit is destroyed, each CHARACTER unit that is part of that Attached unit becomes a separate unit, with its original Starting Strength. If this happens as the result of an attack, they become separate units after the attacking unit has resolved all of its attacks. Each time the last model in a CHARACTER unit that is attached to a Bodyguard unit is destroyed and there is not another CHARACTER unit attached, that Attached unit's Bodyguard unit becomes a separate unit, with its original Starting Strength. If this happens as the result of an attack, they become separate units after the attacking unit has resolved all of its attacks. Each time a unit that is part of an Attached unit is destroyed, it does not have the keywords of any other units that make up that Attached unit (unless it has those keywords on its own datasheet) for the purposes of any rules that would be triggered when that unit is destroyed.",
- "Lone Operative" : "Unless part of an Attached unit, this unit can only be selected as the target of a ranged attack if the attacking model is within 12\".",
- "Scouts" : "Some units have ‘Scouts x\"' listed in their abilities. If every model in a unit has this ability, then at the start of the first battle round, before the first turn begins, it can make a Normal move of up to x\", with the exception that, while making that move, the distance moved by each model in that unit can be greater than that model's Move characteristic, as long as it is not greater than x\". DEDICATED TRANSPORT models can make use of any Scouts x\" ability listed in their abilities, or a Scouts x\" ability that a unit that starts the battle embarked within that DEDICATED TRANSPORT model has (provided only models with this ability are embarked within that Dedicated Transport model), regardless of how that embarked unit gained this ability (e.g. listed in their abilities, conferred by an Enhancement or by an attached Character, etc.). A unit that moves using this ability must end that move more than 9\" horizontally away from all enemy models. If both players have units that can do this, the player who is taking the first turn moves their units first.",
- "Stealth" : "If every model in a unit has this ability, then each time a ranged attack is made against it, subtract 1 from that attack's Hit roll.",
- "Hover" : "Some ^^Aircraft^^ models have 'Hover' listed in their abilities. When you are instructed to Declare Battle Formations, before doing anything else, you must first declare which models from your army with this ability will be in Hover mode. If a model is in Hover mode, then until the end of the battle, its Move characteristic is changed to 20\", it loses the ^^Aircraft^^ keyword and it loses all associated rules for being an ^^Aircraft^^ model. Models in Hover mode do not start the battle in Reserves, but you can choose to place them into Strategic Reserves following the normal rules if you wish.",
- "Psychic" : "Some weapons and abilities can only be used by ^^Psykers^^. Such weapons and abilities are tagged with the word 'Psychic'. If a Psychic weapon or ability causes any unit to suffer one or more wounds, each of those wounds is considered to have been inflicted by a Psychic Attack."
+ "Anti-X" : "[ANTI-X Y+] — À chaque attaque d'une arme [ANTI], si l'unité cible a le mot-clé indiqué par X, un jet de blessure non modifié de Y+ est une blessure critique.",
+ "Assaut" : "[ASSAUT] — Les unités incluant une ou plusieurs figurines avec une arme d'[ASSAUT] peuvent tirer en utilisant le tir d'assaut.",
+ "Déflagration" : "[DÉFLAGRATION] — Chaque fois que vous rassemblez les dés d'attaque pour une arme à [DÉFLAGRATION], ajoutez 1 dé d'attaque supplémentaire par tranche de 5 figurines qui étaient dans l'unité cible à l'étape Choisir les Cibles (arrondi à l'inférieur). Sous la forme [DÉFLAGRATION X], ajoutez plutôt X dés supplémentaires par tranche de 5 figurines.",
+ "Blessures Dévastatrices" : "[BLESSURES DÉVASTATRICES] — À chaque attaque qui résulte en une blessure critique, la séquence d'attaque se termine et l'unité cible subit autant de blessures mortelles que la caractéristique D de l'arme, infligées après les dégâts normaux. Ces blessures mortelles peuvent endommager un maximum de 1 figurine par blessure critique ; les blessures mortelles restantes sont perdues.",
+ "Attaques Bonus" : "[ATTAQUES BONUS] — Chaque fois qu'une unité qui contient une ou plusieurs figurines avec une arme à [ATTAQUES BONUS] combat, ces figurines effectuent des attaques avec ces armes en plus de toute autre. À l'étape Choisir les Armes, pour chacune de ces figurines, vous devez choisir toutes ses armes à [ATTAQUES BONUS] et, si possible, une de ses autres armes de mêlée.",
+ "À Risque" : "[À RISQUE] — Chaque fois qu'une unité est choisie pour tirer ou pour combattre, après avoir résolu toutes ses attaques, faites autant de jets de risque pour elle que le nombre d'armes [À RISQUE] choisies à l'étape Choisir les Armes.",
+ "Lourd" : "[LOURD] — À votre phase de Tir, à chaque attaque faite avec une arme [LOURDE], ajoutez 1 au jet de touche si l'unité attaquante est non engagée, n'a pas été placée sur le champ de bataille à ce tour, et si aucune de ses figurines ne s'est déplacée de plus de 3\" à ce tour.",
+ "Ignore le Couvert" : "[IGNORE LE COUVERT] — À chaque attaque d'une arme qui [IGNORE LE COUVERT], la cible ne peut pas avoir le bénéfice du couvert contre l'attaque, y compris grâce à des règles qui le donnent, comme Discrétion.",
+ "Tir Indirect" : "[TIR INDIRECT] — Les unités incluant une ou plusieurs figurines avec une arme à [TIR INDIRECT] peuvent tirer en utilisant le tir indirect.",
+ "Lance" : "[LANCE] — À chaque attaque d'une arme [LANCE], si l'unité de la figurine qui attaque a effectué un mouvement de charge à ce tour, ajoutez 1 au jet de blessure.",
+ "Touches Fatales" : "[TOUCHES FATALES] — À chaque attaque qui résulte en une touche critique, vous pouvez choisir que l'attaque blesse automatiquement la cible. Ce choix n'est pas obligatoire : il empêche l'attaque de résulter en une blessure critique, donc de déclencher [BLESSURES DÉVASTATRICES].",
+ "Fusion" : "[FUSION X] — À chaque attaque d'une figurine avec une arme à [FUSION], si l'unité cible était à mi-portée ou moins de l'arme à l'étape Choisir les Cibles, jusqu'à ce que les attaques de l'unité attaquante aient été résolues, ajoutez X à la caractéristique de D de l'arme.",
+ "Tir Unique" : "[TIR UNIQUE] — Chaque arme ayant cette aptitude peut seulement être choisie pour effectuer des attaques une seule fois par bataille. Si une figurine détruite est restituée à une unité, ses armes à [TIR UNIQUE] déjà utilisées ne peuvent pas l'être à nouveau.",
+ "Pistolet" : "[PISTOLET] — [PISTOLET] et [COMBAT RAPPROCHÉ] sont identiques au regard des règles : les unités qui en portent peuvent tirer en utilisant le tir en combat rapproché. Quand vous utilisez un autre type de tir, chaque figurine choisit soit ses armes de combat rapproché, soit ses autres armes de tir.",
+ "Précision" : "[PRÉCISION] — Au début de l'étape Ordre d'Allocation, si l'unité cible contient une ou plusieurs figurines de PERSONNAGE visibles d'une ou plusieurs figurines attaquantes, le joueur actif peut choisir 1 groupe d'allocation qui contient une de ces figurines de PERSONNAGE ; ce groupe devient le groupe d'allocation actuel jusqu'à ce que les attaques soient résolues ou que le groupe soit détruit.",
+ "Tir Rapide" : "[TIR RAPIDE X] — Chaque fois que vous rassemblez les dés d'attaque d'une arme à [TIR RAPIDE], ajoutez X dés d'attaque supplémentaires si l'unité cible est à mi-portée ou moins de l'arme à l'étape Choisir les Cibles.",
+ "Touches Soutenues" : "[TOUCHES SOUTENUES X] — À chaque attaque qui résulte en une touche critique, l'attaque résulte en autant de touches supplémentaires sur la cible que le X.",
+ "Torrent" : "[TORRENT] — À chaque attaque d'une arme à [TORRENT], cette attaque touche automatiquement la cible.",
+ "Jumelé" : "[JUMELÉ] — À chaque attaque d'une arme [JUMELÉE], vous pouvez relancer le jet de blessure.",
+ "Psychique" : "[PSYCHIQUE] — À chaque attaque d'une arme [PSYCHIQUE], vous pouvez ignorer certains ou tous les modificateurs à la caractéristique de CT ou de CC de l'attaque, et certains ou tous les modificateurs au jet de touche. Ces attaques sont appelées des attaques psychiques.",
+ "Frappe en Profondeur" : "Chaque fois que cette unité effectue un mouvement d'arrivée, si toutes ses figurines ont cette aptitude, elle peut être placée n'importe où sur le champ de bataille à plus de 8\" à l'horizontale des unités ennemies, y compris dans la zone de déploiement adverse.",
+ "Destruction Néfaste" : "Destruction Néfaste X — Chaque fois qu'une figurine de cette unité est détruite, après que les unités embarquées ont fait leurs mouvements de débarquement d'urgence, jetez 1 D6. Sur un 6, chaque unité à 6\" ou moins de cette figurine subit autant de blessures mortelles que le X.",
+ "Insensible à la Douleur" : "Insensible à la Douleur X+ — Chaque fois qu'une figurine avec cette aptitude est censée perdre un point de vie, jetez 1 D6 : sur X+, ce point de vie n'est pas perdu.",
+ "Combat en Premier" : "Tant que toutes les figurines d'une unité ont cette aptitude, cette unité est une unité qui Combat en Premier et est résolue à l'étape correspondante de la phase de Combat.",
+ "Pont de Tir" : "Pont de Tir X — À votre phase de Tir, chaque fois que ce TRANSPORT est choisi pour tirer, si une ou plusieurs unités y sont embarquées : choisissez jusqu'à X figurines embarquées, puis une arme de tir par figurine choisie (sauf les armes à [TIR UNIQUE]) ; jusqu'à ce que le TRANSPORT ait résolu toutes ses attaques, il a ces armes en plus des siennes ; jusqu'à la fin du tour, les unités embarquées ne sont pas éligibles pour tirer.",
+ "Infiltrateurs" : "Pendant le déploiement, si toutes les figurines d'une unité ont cette aptitude, elle peut être placée n'importe où sur le champ de bataille à plus de 8\" à l'horizontale de la zone de déploiement adverse et des unités ennemies.",
+ "Meneur" : "Les héros les plus puissants combattent en première ligne : voir Unités Attachées.",
+ "Appui" : "On assigne parfois des combattants spécialisés aux escouades de première ligne : voir Unités Attachées.",
+ "Agent Solitaire" : "Sauf si elle fait partie d'une unité attachée, cette unité n'est pas visible des figurines ennemies sauf si elles sont à 12\" ou moins d'elle, et elle ne peut pas être ciblée par des armes à [TIR INDIRECT] sauf si la figurine attaquante est à 12\" ou moins. Sous la forme Agent Solitaire X\", remplacez 12\" par X\".",
+ "Éclaireurs" : "Éclaireurs X\" — À l'étape Résoudre les Aptitudes de Prébataille, si toutes les figurines d'une unité ont cette aptitude, vous pouvez soit la placer n'importe où entièrement dans votre zone de déploiement si elle est en réserve stratégique, soit lui faire effectuer un mouvement d'éclaireur de X\" maximum si elle est entièrement dans votre zone de déploiement. Après ce mouvement, l'unité doit être à plus de 8\" à l'horizontale des unités ennemies.",
+ "Discrétion" : "Si toutes les figurines d'une unité ont cette aptitude, à chaque attaque de tir qui cible l'unité, l'unité a le bénéfice du couvert contre l'attaque.",
+ "Stationnaire" : "Chaque fois que cette unité décolle, ne soustrayez pas 2\" à la distance maximale.",
+ "Marcheur Super-lourd" : "Chaque fois qu'une unité avec cette aptitude effectue un mouvement normal, d'avance ou de retraite, ses figurines peuvent se déplacer à travers les figurines (figurines TITANESQUES exclues) et à l'horizontale à travers des sections d'éléments de terrain de 4\" de hauteur ou moins. Avant de la déplacer, vous pouvez décider que toutes ses figurines aient le mot-clé MOBILE jusqu'à la fin du mouvement ; dans ce cas, à la fin du mouvement, jetez 1 D6 : sur 1, l'unité est ébranlée.",
+ "Abattage" : "[ABATTAGE X] — Chaque fois que vous rassemblez les dés d'attaque pour une arme d'[ABATTAGE], si vous avez choisi une seule cible pour toutes les attaques de l'arme, ajoutez X dés d'attaque supplémentaires par tranche de 5 figurines qui étaient dans l'unité cible à l'étape Choisir les Cibles (arrondi à l'inférieur).",
+ "Combat Rapproché" : "[COMBAT RAPPROCHÉ] — Les unités contenant une ou plusieurs figurines avec une arme de [COMBAT RAPPROCHÉ] peuvent tirer en utilisant le tir en combat rapproché. Quand vous utilisez un autre type de tir, pour chaque figurine de cette unité (sauf MONSTRE/VÉHICULE), vous pouvez choisir soit une ou plusieurs de ses armes de [COMBAT RAPPROCHÉ], soit une ou plusieurs de ses autres armes de tir."
 };

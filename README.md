@@ -160,7 +160,8 @@ liste ouverte reste consultable en dessous, en lecture seule.
   toutes les armes, tir seul, càc seul. Les armes des personnages rattachés
   sont incluses ; celles qui ne sont pas équipées restent visibles, grisées.
 - **Stratagèmes** — ceux des détachements retenus plus ceux de base, dépliables
-  sur leur texte Quand / Cible / Effet.
+  sur leur texte Quand / Cible / Effet / Restrictions, au texte officiel
+  français.
 - **Lien de partage** — la liste ouverte est encodée dans l'URL avec son nom et
   son plafond (JSON réduit, gzip, base64url) : on s'envoie le lien et la liste
   s'ouvre sur l'autre appareil, sans serveur ni compte. Une liste de 2000
@@ -185,8 +186,10 @@ liste ouverte reste consultable en dessous, en lecture seule.
   la copie dans le presse-papier, l'impression (donc le PDF), le lien, le QR
   code, la sauvegarde de toutes les listes dans un fichier et l'import d'un
   `.ros` BattleScribe ou New Recruit.
-- **Stratagèmes** — le texte officiel ne figure dans aucune source ouverte :
-  il se saisit dans l'application, en anglais, et reste enregistré sur
+- **Stratagèmes** — quarante-trois fiches au texte officiel français : les
+  trente-trois des sept détachements du pack de faction et les dix
+  stratagèmes de base. Les cinq détachements du codex n'y figurent pas ; leurs
+  stratagèmes se saisissent dans l'application et restent enregistrés sur
   l'appareil. On peut aussi ajouter un stratagème absent de la table.
 
 ## Règles modélisées
@@ -223,17 +226,49 @@ sur douze, le catalogue seulement sept. Les points d'ici sont donc les bons et
 c'est BSData qui est en retard ; les vingt-quatre autres écarts n'ont pas pu
 être tranchés faute de référence.
 
-Le catalogue **ne contient aucun stratagème** de la 11e : ni ceux des
-détachements — Molecular Targeting, Microscarab Swarm, Animus Curse et les
-autres y sont introuvables — ni les stratagèmes de base sous une forme
-exploitable. `STRATS` ne porte donc que ce qui est lisible sur les captures
-WarOrgan : dix-sept entrées avec nom, détachement, type et coût, dont une
-seule avec son texte complet. Les autres s'affichent « texte non renseigné » ;
-les compléter ne demande que de remplir les trois dernières colonnes.
+Le catalogue **ne contient aucun stratagème** de la 11e, ni ceux des
+détachements ni les stratagèmes de base sous une forme exploitable.
 
 Le catalogue a servi de source pour les rattachements (règle Leader de chaque
-personnage) et les améliorations. Il ignore encore celles de Skyshroud
-Spearhead, relevées sur WarOrgan ; un coût inconnu vaut `null` et ne compte pas.
+personnage) et les améliorations ; un coût inconnu vaut `null` et ne compte
+pas dans le total.
+
+## Sources officielles, 19/08/2026
+
+Deux documents publiés librement par Games Workshop remplacent désormais une
+grande partie des données de règles :
+
+- **Nécrons, Pack de Faction version 1.1**, valide pour le jeu égal à partir
+  du 22 juillet 2026 — sept détachements avec leur règle, leurs optimisations
+  et leurs stratagèmes ; huit fiches techniques ; une section de mises à jour
+  de règles et une FAQ.
+- **Warhammer 40,000, Règles de Base** — les dix stratagèmes de base
+  (section 15) et le glossaire des aptitudes d'arme et de base (section 24).
+
+Ce qui en vient : les 43 stratagèmes, les règles des sept détachements du
+pack, leurs 20 optimisations, les aptitudes des 8 fiches du pack, les
+Protocoles de Réanimation, le glossaire complet, et les errata qui touchent
+des fiches existantes (Chronomancien, Plasmancien, Monolithe, Roi Silencieux,
+Réanimateur Canoptek, Console de Commandement, Destroyers Ophydiens, C'tan
+Transcendant, mot-clé CHÂSSIS).
+
+Les valeurs en points n'y figurent pas — elles vivent dans l'Inventaire du
+Munitorum — donc `data.js` garde les siennes, vérifiées en 08/2026. Les cinq
+détachements du codex (Dynastie Éveillée, Cour Canoptek, Légion
+d'Annihilation, Phalange d'Obéissance, Légion d'Hypercrypte) ne sont pas repris
+par le pack : leurs optimisations restent en anglais et leurs stratagèmes
+restent à saisir.
+
+Deux corrections trouvées à cette occasion : les Bolas Gravitiques étaient
+rangées sous Fer de Lance Linceul Céleste alors qu'elles appartiennent au
+Conclave de Crypteks, et la sismolance du Géomancien était enregistrée sans
+portée sous un nom inventé.
+
+Trois points que le pack ne tranche pas, ou tranche contre lui-même : la
+composition de Convergence de Domination reste inconnue ; le pack retire
+« Meneur » aux Crypteks page 30 mais la fiche du Géomancien page 17 la porte
+encore ; et deux fiches visées par les errata, « Faucheur » et « Moissonneur »,
+n'ont pas pu être rattachées à une unité de la table.
 Les empreintes de socle ne viennent d'aucune de ces deux sources : seules
 Immortals 32, Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 sont
 confirmées, le reste suit les socles habituels et reste à vérifier.
