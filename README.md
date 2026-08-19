@@ -108,6 +108,11 @@ données de stratagèmes, aujourd'hui presque vides.
   profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
   toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
   tant qu'on ne les avait pas ajoutées à la main.
+- **Armement panaché** — cinq fusils gauss et cinq tesla sur dix Immortals :
+  un bandeau annonce combien de figurines sont équipées et combien restent
+  nues, les compteurs ne laissent pas dépasser l'effectif, et une arme
+  ajoutée sert d'emblée les figurines encore sans arme. Une répartition
+  incomplète est signalée comme un dépassement l'était déjà.
 - **Changer l'arme d'une ligne** — chaque ligne d'armement porte un bouton
   d'échange et une croix. L'échange garde le nombre de porteurs et fusionne
   la ligne si l'arme choisie est déjà servie ailleurs dans l'unité ; il

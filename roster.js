@@ -241,7 +241,11 @@ function validate(){
         "or il n'y en a plus.");
     }
     const tot = ru.lo.reduce((a,l) => a + l.n, 0);
-    if(tot > ru.size) w.push("<b>" + ru.name + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
+    if(tot > ru.size)
+      w.push("<b>" + nom + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
+    else if(tot < ru.size)
+      w.push("<b>" + nom + "</b> : " + (ru.size - tot) + " figurine" + (ru.size - tot > 1 ? "s" : "") +
+        " sans arme sur " + ru.size + ".");
     ru.chars.forEach(c => {
       if(peutRejoindre(c.name, ru.name) === false)
         w.push("<b>" + c.name + "</b> ne peut pas rejoindre <b>" + ru.name +
@@ -879,6 +883,20 @@ function renderRoster(){
     }
 
     const grp = groupesArmes(ru.name);
+
+    /* une escouade peut panacher : cinq fusils gauss et cinq tesla sur dix
+       Immortals. Le bandeau dit ce qui reste à équiper, et les compteurs ne
+       laissent pas dépasser l'effectif. */
+    const totArmes = () => ru.lo.reduce((a, x) => a + x.n, 0);
+    const reste = ru.size - totArmes();
+    const rep = document.createElement("div");
+    rep.className = "repart" + (reste === 0 ? " ok" : " todo");
+    rep.innerHTML = '<b>' + totArmes() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
+      ' équipée' + (totArmes() > 1 ? 's' : '') +
+      (reste > 0 ? ' · <span>' + reste + ' sans arme</span>'
+                 : (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>' : ''));
+    div.appendChild(rep);
+
     ru.lo.forEach((l, li)=>{
       const w = wl[l.w]; if(!w) return;
       const g = groupeDe(ru.name, l.w);
@@ -891,7 +909,9 @@ function renderRoster(){
         " PA" + (p.w[6] ? "-" + p.w[6] : "0") + " D" + p.w[7]).join("  ·  ");
       row.innerHTML = '<span class="ln">' + (g ? g.libelle : w[1]) +
         ' <em>' + detail + '</em></span>';
-      row.appendChild(stepper(()=>l.n, v=>{ l.n = v; if(v===0) ru.lo.splice(li,1); }, 0, 60));
+      /* plafond : ce que porte déjà la ligne, plus ce qui reste sans arme */
+      const plafond = () => Math.max(0, l.n + (ru.size - totArmes()));
+      row.appendChild(stepper(()=>l.n, v=>{ l.n = Math.min(v, plafond()); }, 0, ru.size));
       const sw = document.createElement("button");
       sw.type="button"; sw.className="xbtn"; sw.textContent="⇄"; sw.title="Changer d'arme";
       sw.addEventListener("click", ()=> openWeaponPick(ru, li));
@@ -1281,10 +1301,14 @@ function renderPick(){
             pickTarget.lo[pickSlot] = { w: g.principal, n: n };
           }
         } else {
+          /* on sert d'abord les figurines encore sans arme : ajouter une
+             seconde arme à une escouade complète n'aurait aucun sens */
+          const tot = pickTarget.lo.reduce((a, x) => a + x.n, 0);
+          const libre = Math.max(0, pickTarget.size - tot);
           const ex = pickTarget.lo.find(l => groupeDe(pickTarget.name, l.w) &&
                                              groupeDe(pickTarget.name, l.w).base === g.base);
-          if(ex) ex.n = Math.min(pickTarget.size, ex.n + 1);
-          else pickTarget.lo.push({w:g.principal, n:1});
+          if(ex) ex.n = Math.min(pickTarget.size, ex.n + Math.max(1, libre));
+          else pickTarget.lo.push({w:g.principal, n: Math.max(1, libre)});
         }
         pickSlot = null;
         closeSheet("sheetUnit"); saveR(); renderList();
