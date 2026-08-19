@@ -250,6 +250,53 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .gkw.gkwadd{color:var(--cyan);border-color:var(--cyan)}
 .alerte{color:var(--warn);cursor:help}
 
+/* ---------- sous-onglets d'un axe ---------- */
+.subtabs{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:12px;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.subtabs button{flex:1;min-width:0;padding:9px 4px;background:var(--s1);border:0;color:var(--tx3);
+  font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.05em;cursor:pointer}
+.subtabs button.on{background:var(--glow-soft);color:var(--glow)}
+.sub{display:none}
+.sub.on{display:block}
+
+/* ---------- retour vers l'index des listes ---------- */
+.backbar{display:flex;align-items:center;gap:7px;width:100%;margin-top:12px;padding:9px 11px;
+  background:var(--s1);border:1px solid var(--line);color:var(--tx2);font-family:inherit;
+  font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
+.backbar .ar{color:var(--glow);font-size:16px;line-height:1}
+.backbar:active{background:var(--s2)}
+
+/* ---------- index des listes ---------- */
+.lcard{width:100%;text-align:left;display:flex;align-items:center;gap:11px;margin-top:9px;
+  padding:12px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
+  font-family:inherit;cursor:pointer;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.lcard:active{background:var(--s2)}
+.lcard.on{border-color:var(--glow)}
+.lcard .li{flex:1;min-width:0}
+.lcard .li b{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lcard .li i{display:block;font-style:normal;font-size:11.5px;color:var(--tx3);margin-top:3px;
+  font-variant-numeric:tabular-nums}
+.lcard .li .det{display:block;font-size:10.5px;color:var(--tx2);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lcard .lp{flex:0 0 auto;text-align:right}
+.lcard .lp b{display:block;font-size:16px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums}
+.lcard .lp i{display:block;font-style:normal;font-size:10px;color:var(--tx3)}
+.lcard .lp.over b{color:var(--warn)}
+
+/* ---------- liste en lecture ---------- */
+.pgrp{margin-top:13px;border:1px solid var(--line);background:var(--s1);
+  clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+.pgrp h4{margin:0;padding:9px 12px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--glow);font-weight:800;border-bottom:1px solid var(--line)}
+.pgrp .pu{padding:9px 12px;border-top:1px solid rgba(51,69,58,.5)}
+.pgrp .pu:first-of-type{border-top:0}
+.pgrp .pu b{font-size:14px}
+.pgrp .pu i{font-style:normal;font-size:11px;color:var(--tx3);display:block;margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.pgrp .pu .pw{font-size:11.5px;color:var(--tx2);display:block;margin-top:4px}
+
 /* ---------- acces rapide a la liste depuis le simulateur ---------- */
 #rosterQuick{margin-top:9px}
 #rosterQuick .lbl{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3);
@@ -394,6 +441,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 
 <main class="wrap">
 <div class="screen on" id="scSim">
+  <div class="subtabs" id="simTabs">
+    <button type="button" class="on" data-v="subAtk">Attaque</button>
+    <button type="button" data-v="subFire">Tir cumulé</button>
+    <button type="button" data-v="subCmp">Comparer</button>
+  </div>
+  <div class="sub on" id="subAtk">
 
   <section class="card" id="cardAtk">
     <h2>Attaquant <span class="chev">▾</span></h2>
@@ -506,7 +559,92 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
 
-  <footer>
+    </div>
+  <div class="sub" id="subFire">
+  <section class="card">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget2" type="button">
+        <span class="pk"><span class="p1" id="ptName2">Space Marine</span><span class="p2" id="ptSub2">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+      <p class="hint">La cible est partagée avec l'onglet Simulateur.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Qui tire <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chips tight" id="phaseChips">
+        <button type="button" class="chip on" data-p="T">Phase de tir</button>
+        <button type="button" class="chip" data-p="C">Corps à corps</button>
+      </div>
+      <div id="fireList"></div>
+      <div id="situBox"></div>
+    </div>
+  </section>
+
+  <section class="card" id="cardFireRes">
+    <h2>Résultat cumulé <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="summary" style="margin:0 -14px 10px;border-top:0">
+        <div class="sum hero"><div class="k">Dégâts cumulés</div><div class="v" id="fDmg">—</div></div>
+        <div class="sum"><div class="k">Figs tuées</div><div class="v" id="fSlain">—</div></div>
+        <div class="sum"><div class="k">Unité effacée</div><div class="v" id="fWipe">—</div></div>
+      </div>
+      <div class="chart-title">Distribution du résultat</div>
+      <p class="chart-sub" id="fSub"></p>
+      <svg id="fHist" class="chart" role="img" aria-label="Distribution du résultat cumulé"></svg>
+      <div class="chart-title">Contribution de chaque unité</div>
+      <p class="chart-sub">Dégâts réellement infligés dans l'ordre de tir, surtue déduite. « Seule » = ce que l'unité ferait si elle tirait la première.</p>
+      <div id="fTable"></div>
+      <p class="hint" id="fNote"></p>
+    </div>
+  </section>
+  </div>
+  <div class="sub" id="subCmp">
+  <section class="card">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget3" type="button">
+        <span class="pk"><span class="p1" id="ptName3">Space Marine</span><span class="p2" id="ptSub3">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Unités à comparer <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chips tight" id="cmpPhase">
+        <button type="button" class="chip on" data-p="T">Phase de tir</button>
+        <button type="button" class="chip" data-p="C">Corps à corps</button>
+      </div>
+      <div id="cmpList"></div>
+      <div class="addrow">
+        <button type="button" id="btnCmpRoster">+ Depuis ma liste</button>
+        <button type="button" id="btnCmpCat">+ Du catalogue</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="cmpLed"><span class="box">✓</span><span class="txt">Menées par un personnage<em>applique la règle de détachement qui en dépend</em></span></label>
+    </div>
+  </section>
+
+  <section class="card" id="cardCmpRes">
+    <h2>Verdict <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chart-title">Rentabilité — dégâts pour 100 points</div>
+      <p class="chart-sub">La mesure qui compte pour arbitrer une liste : ce que chaque unité rend contre cette cible, ramené à son coût.</p>
+      <div id="cmpEff"></div>
+      <div class="chart-title">Puissance brute — dégâts par unité</div>
+      <p class="chart-sub">Sans tenir compte du coût. Utile pour savoir qui peut faire tomber la cible en un tour.</p>
+      <div id="cmpAbs"></div>
+      <div class="chart-title">Détail</div>
+      <div id="cmpTable"></div>
+      <p class="hint" id="cmpNote"></p>
+    </div>
+  </section>
+  </div>
+<footer>
     Chaîne touche → blessure → sauvegarde calculée exactement ; répartition des dégâts entre figurines
     simulée 30 000 fois (les dégâts ne débordent pas d'une figurine à l'autre).<br>
     Données 11<sup>e</sup> éd. : faction pack Necrons v1.0 + Wahapedia. Points à revérifier au MFM.
@@ -515,6 +653,18 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 </div>
 
 <div class="screen" id="scList">
+  <div id="listIndex">
+    <section class="card">
+      <h2>Mes listes <span class="chev">▾</span></h2>
+      <div class="body">
+        <p class="hint" style="margin-top:2px">Touche une liste pour l'ouvrir et la modifier.</p>
+        <div id="listCards"></div>
+        <button class="btn go" id="btnNewList2" type="button">+ Créer une liste</button>
+      </div>
+    </section>
+  </div>
+  <div id="listEditor" hidden>
+    <button class="backbar" id="btnBackIndex" type="button"><span class="ar">‹</span><span class="bt">Mes listes</span></button>
   <section class="card">
     <h2>Mes listes <span class="chev">▾</span></h2>
     <div class="body">
@@ -577,100 +727,32 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       </div>
       <div id="armList"></div>
     </div>
-  </section>
+  </section>  </div>
 </div>
 
-<div class="screen" id="scCmp">
+<div class="screen" id="scPlay">
   <section class="card">
-    <h2>Cible <span class="chev">▾</span></h2>
+    <h2>Liste en jeu <span class="chev">▾</span></h2>
     <div class="body">
-      <button class="picker" id="pickTarget3" type="button">
-        <span class="pk"><span class="p1" id="ptName3">Space Marine</span><span class="p2" id="ptSub3">—</span></span>
-        <span class="arrow">›</span>
-      </button>
+      <p class="hint" style="margin-top:2px">La liste ouverte, en lecture seule, telle qu'on la consulte en partie.</p>
+      <div id="playList"></div>
     </div>
   </section>
-
-  <section class="card">
-    <h2>Unités à comparer <span class="chev">▾</span></h2>
+  <section class="card collapsed">
+    <h2>À venir <span class="chev">▾</span></h2>
     <div class="body">
-      <div class="chips tight" id="cmpPhase">
-        <button type="button" class="chip on" data-p="T">Phase de tir</button>
-        <button type="button" class="chip" data-p="C">Corps à corps</button>
-      </div>
-      <div id="cmpList"></div>
-      <div class="addrow">
-        <button type="button" id="btnCmpRoster">+ Depuis ma liste</button>
-        <button type="button" id="btnCmpCat">+ Du catalogue</button>
-      </div>
-      <label class="toggle"><input type="checkbox" id="cmpLed"><span class="box">✓</span><span class="txt">Menées par un personnage<em>applique la règle de détachement qui en dépend</em></span></label>
-    </div>
-  </section>
-
-  <section class="card" id="cardCmpRes">
-    <h2>Verdict <span class="chev">▾</span></h2>
-    <div class="body">
-      <div class="chart-title">Rentabilité — dégâts pour 100 points</div>
-      <p class="chart-sub">La mesure qui compte pour arbitrer une liste : ce que chaque unité rend contre cette cible, ramené à son coût.</p>
-      <div id="cmpEff"></div>
-      <div class="chart-title">Puissance brute — dégâts par unité</div>
-      <p class="chart-sub">Sans tenir compte du coût. Utile pour savoir qui peut faire tomber la cible en un tour.</p>
-      <div id="cmpAbs"></div>
-      <div class="chart-title">Détail</div>
-      <div id="cmpTable"></div>
-      <p class="hint" id="cmpNote"></p>
-    </div>
-  </section>
-</div>
-<div class="screen" id="scFire">
-  <section class="card">
-    <h2>Cible <span class="chev">▾</span></h2>
-    <div class="body">
-      <button class="picker" id="pickTarget2" type="button">
-        <span class="pk"><span class="p1" id="ptName2">Space Marine</span><span class="p2" id="ptSub2">—</span></span>
-        <span class="arrow">›</span>
-      </button>
-      <p class="hint">La cible est partagée avec l'onglet Simulateur.</p>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Qui tire <span class="chev">▾</span></h2>
-    <div class="body">
-      <div class="chips tight" id="phaseChips">
-        <button type="button" class="chip on" data-p="T">Phase de tir</button>
-        <button type="button" class="chip" data-p="C">Corps à corps</button>
-      </div>
-      <div id="fireList"></div>
-      <div id="situBox"></div>
-    </div>
-  </section>
-
-  <section class="card" id="cardFireRes">
-    <h2>Résultat cumulé <span class="chev">▾</span></h2>
-    <div class="body">
-      <div class="summary" style="margin:0 -14px 10px;border-top:0">
-        <div class="sum hero"><div class="k">Dégâts cumulés</div><div class="v" id="fDmg">—</div></div>
-        <div class="sum"><div class="k">Figs tuées</div><div class="v" id="fSlain">—</div></div>
-        <div class="sum"><div class="k">Unité effacée</div><div class="v" id="fWipe">—</div></div>
-      </div>
-      <div class="chart-title">Distribution du résultat</div>
-      <p class="chart-sub" id="fSub"></p>
-      <svg id="fHist" class="chart" role="img" aria-label="Distribution du résultat cumulé"></svg>
-      <div class="chart-title">Contribution de chaque unité</div>
-      <p class="chart-sub">Dégâts réellement infligés dans l'ordre de tir, surtue déduite. « Seule » = ce que l'unité ferait si elle tirait la première.</p>
-      <div id="fTable"></div>
-      <p class="hint" id="fNote"></p>
+      <p class="hint" style="margin-top:2px">Cet axe accueillera le suivi de partie : compteur de points de
+      commandement, phase en cours, capacités et stratagèmes déployables selon la phase. Les stratagèmes
+      attendent leurs données — seuls dix-sept noms et un texte sont connus à ce jour.</p>
     </div>
   </section>
 </div>
 </main>
 
 <nav class="tabs" id="tabs">
+  <button type="button" data-s="scList"><span class="ti">☷</span>Listes</button>
   <button type="button" class="on" data-s="scSim"><span class="ti">◈</span>Simulateur</button>
-  <button type="button" data-s="scList"><span class="ti">☷</span>Ma liste</button>
-  <button type="button" data-s="scFire"><span class="ti">△</span>Tir cumulé</button>
-  <button type="button" data-s="scCmp"><span class="ti">⇄</span>Comparer</button>
+  <button type="button" data-s="scPlay"><span class="ti">⚔</span>En partie</button>
 </nav>
 
 <div class="tip" id="tip"></div>

@@ -34,6 +34,24 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | `build.js` | fabrique le bundle minifié dans `dist/` |
 | `mkloader.js` | fabrique le chargeur compressé `dist/index.html` + `dist/a.b64` |
 
+## Les trois axes
+
+L'application est organisée en trois axes, qui correspondent aux trois moments
+d'une partie.
+
+**Listes** — s'ouvre sur l'index de ce qu'on a construit. Toucher une liste
+entre dans son éditeur ; la barre de retour ramène à l'index. C'est là qu'on
+crée, modifie, duplique et supprime.
+
+**Simulateur** — trois vues sous des sous-onglets : Attaque (une unité contre
+une cible), Tir cumulé (plusieurs unités dans l'ordre) et Comparer (côte à
+côte). Les unités de la liste ouverte sont accessibles en une touche.
+
+**En partie** — la liste ouverte en lecture seule, telle qu'on la consulte
+pendant le jeu. Cet axe accueillera le suivi de partie : points de commandement,
+phase en cours, capacités et stratagèmes déployables. Il attend surtout les
+données de stratagèmes, aujourd'hui presque vides.
+
 ## Fonctions
 
 - **Simulateur** — une unité contre une cible : chaîne touche → blessure →
@@ -41,8 +59,8 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
   des dégâts entre figurines (surtue comprise). Distribution, médiane,
   probabilité d'effacer l'unité.
 - **Mes listes** — plusieurs listes coexistent, chacune avec son nom et son
-  plafond de points. On en crée, on en duplique, on en supprime, on passe de
-  l'une à l'autre par ses onglets. Le budget de Points de Détachement suit le
+  plafond de points. L'index les présente avec leur total, leurs détachements
+  et leur nombre d'unités ; on en crée, on en duplique, on en supprime. Le budget de Points de Détachement suit le
   plafond : 3 PD à 2000 points, au prorata ailleurs.
 - **Ma liste** — construction de la liste ouverte : détachements (tags
   d'exclusivité), unités, armement mixte par unité, personnages attachés
