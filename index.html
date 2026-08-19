@@ -261,6 +261,27 @@ input.sheet-search{
 .optrow{display:flex;align-items:stretch;gap:6px}
 .optrow .opt{flex:1;min-width:0}
 .optrow .ibtn{align-self:center}
+/* bandeau de budget : on ajoute des unites sans quitter le catalogue,
+   le compteur doit dire en direct ou l'on en est */
+.pickbar{display:flex;align-items:center;gap:10px;margin:8px 12px 0;padding:9px 12px;
+  border:1px solid var(--li);border-radius:9px;background:var(--s1);font-size:12px}
+.pickbar b{font-size:15px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums}
+.pickbar .pb2{flex:1;color:var(--tx3)}
+.pickbar.over{border-color:var(--warn)}
+.pickbar.over b{color:var(--warn)}
+.opt.cher .o2{color:var(--warn)}
+.opt.pose{border-color:var(--glow)}
+/* annulation : une suppression doit pouvoir se reprendre */
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(120%);
+  bottom:calc(64px + env(safe-area-inset-bottom));z-index:200;display:flex;align-items:center;gap:12px;
+  padding:11px 12px 11px 15px;border:1px solid var(--li);border-radius:10px;background:var(--s2);
+  box-shadow:0 8px 26px rgba(0,0,0,.5);font-size:12.5px;color:var(--tx2);
+  transition:transform .18s ease,opacity .18s;opacity:0;pointer-events:none;max-width:calc(100vw - 24px)}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.toast button{border:1px solid var(--glow);background:transparent;color:var(--glow);
+  border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;flex:0 0 auto}
+.toast button:empty{display:none}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
 .opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
   white-space:normal;max-height:3.6em;overflow:hidden}
@@ -368,9 +389,22 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .tile.tool .ti2{font-size:18px;line-height:1;color:var(--glow)}
 .tile.tool .tn{font-size:10px;text-align:center;-webkit-line-clamp:2;margin-top:0}
 .tile.tool .tc{font-size:8.5px;color:var(--tx3);line-height:1.2}
+.padhint{margin:8px 2px 0;font-size:11.5px;color:var(--tx3);text-align:center}
 .padsep{margin:16px 2px 2px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;
   color:var(--tx3);font-weight:800;border-bottom:1px solid var(--line);padding-bottom:5px}
 @media (max-width:330px){ .padgrid{grid-template-columns:repeat(2,1fr)} }
+/* sur grand ecran le pave respirait mal : trois colonnes etroites au milieu
+   d'un ecran vide. On elargit et on passe a quatre. */
+@media (min-width:980px){
+  .wrap{max-width:920px}
+  .hbar{max-width:920px}
+  .padgrid{grid-template-columns:repeat(4,1fr);gap:9px}
+  .padgrid.pad3{grid-template-columns:repeat(4,1fr)}
+  /* une case carree de 220 px de cote est un gouffre : on la borne */
+  .tile{aspect-ratio:auto;min-height:118px}
+  .sheet-list,.sheet-head,input.sheet-search,.pickbar,.sheet-tabs{max-width:920px;margin-left:auto;margin-right:auto}
+  input.sheet-search{width:calc(100% - 24px)}
+}
 
 /* ---------- index des listes ---------- */
 .lcard{width:100%;text-align:left;display:flex;align-items:center;gap:11px;margin-top:9px;
@@ -815,6 +849,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <button type="button" class="ghost" id="btnReorder">Réorganiser</button>
       </div>
       <div class="padgrid" id="padUnits"></div>
+      <p class="padhint" id="padHint" hidden>Appui long sur une case : régler, fiche, dupliquer, retirer.</p>
       <div class="padsep">Réglages de la liste</div>
       <div class="padgrid pad3" id="padTools"></div>
     </div>
@@ -901,9 +936,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 </nav>
 
 <div class="tip" id="tip"></div>
+<div class="toast" id="toast"><span id="toastTxt"></span><button type="button" id="toastAct"></button></div>
 
 <div class="sheet" id="sheetUnit">
   <div class="sheet-head"><h3>Choisir l'unité</h3><button class="ghost" data-close="sheetUnit" type="button">Fermer</button></div>
+  <div class="pickbar" id="uBudget" hidden></div>
   <input class="sheet-search" id="uSearch" type="text" placeholder="Rechercher une unité…" autocomplete="off">
   <div class="sheet-list" id="uList"></div>
 </div>

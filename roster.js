@@ -559,6 +559,9 @@ function uniteSuspecte(ru){
   if(compteRole(ru, "Escorte") && !aCryptek(ru)) return true;
   if(ru.chars.some(c => peutRejoindre(c.name, ru.name) === false)) return true;
   if(ru.enh && !ru.chars.length) return true;
+  /* une escouade a moitie equipee est la faute la plus courante :
+     elle merite le meme signal que les autres */
+  if(ru.lo.reduce((a, l) => a + l.n, 0) !== ru.size) return true;
   return false;
 }
 
@@ -614,10 +617,13 @@ function renderPad(){
       mv.appendChild(fl("▶", 1, iu === R.units.length - 1));
       b.appendChild(mv);
     } else {
+      appuiLong(b, ()=> ouvreActionsUnite(ru));
       b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
     }
     gu.appendChild(b);
   });
+  const hint = el("padHint");
+  if(hint) hint.hidden = modeRange || !R.units.length;
   if(modeRange){ gt.innerHTML = ""; return; }
   const plus = document.createElement("button");
   plus.type = "button";
@@ -699,6 +705,52 @@ function ouvreActions(L){
   else
     item("Supprimer", "Impossible : c'est ta seule liste", ()=>{}, false);
   openSheet("sheetListAct");
+}
+
+/* appui long (ou clic droit) sur une case du pave : dupliquer, consulter
+   ou retirer sans avoir a ouvrir l'unite */
+function ouvreActionsUnite(ru){
+  el("listActTitle").textContent = nomAffiche(ru);
+  const host = el("listActList");
+  host.innerHTML = "";
+  const item = (titre, sous, action, danger) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "opt";
+    b.innerHTML = '<span class="oi"><span class="o1"' + (danger ? ' style="color:var(--warn)"' : '') +
+      '>' + titre + '</span><span class="o2">' + sous + '</span></span>';
+    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); action(); });
+    host.appendChild(b);
+  };
+  item("Régler", "Effectif, armement, personnages", ()=> ouvrePanneau("cardUnits", ru.id));
+  item("Fiche", "Profil, armes et aptitudes de " + ru.name, ()=> ouvreFiche(ru.name));
+  item("Dupliquer", "Une seconde, armement et rattachements compris", ()=>{
+    const copie = JSON.parse(JSON.stringify(ru));
+    copie.id = nextId++;
+    if(estGroupe(copie)) copie.grp = nomGroupe();
+    R.units.splice(R.units.indexOf(ru) + 1, 0, copie);
+    saveR(); renderList();
+    toast(ru.name + " dupliqué.", "", null);
+  });
+  item("Retirer", pointsUnite(ru) + " pts rendus au budget", ()=> retireUnite(ru), true);
+  openSheet("sheetListAct");
+}
+
+/* pose l'appui long sur un element : 480 ms suffisent a distinguer
+   l'intention d'un simple toucher, et le clic droit fait pareil */
+function appuiLong(elem, action){
+  let t = null, bouge = false;
+  const stop = ()=>{ clearTimeout(t); t = null; };
+  elem.addEventListener("pointerdown", e=>{
+    if(e.button && e.button !== 0) return;
+    bouge = false;
+    t = setTimeout(()=>{ t = null; if(!bouge){ elem.dataset.longp = "1"; action(); } }, 480);
+  });
+  elem.addEventListener("pointermove", ()=>{ bouge = true; stop(); });
+  ["pointerup","pointercancel","pointerleave"].forEach(n => elem.addEventListener(n, stop));
+  elem.addEventListener("contextmenu", e=>{ e.preventDefault(); action(); });
+  elem.addEventListener("click", e=>{
+    if(elem.dataset.longp){ delete elem.dataset.longp; e.stopImmediatePropagation(); e.preventDefault(); }
+  }, true);
 }
 
 function renderIndex(){
@@ -1092,14 +1144,9 @@ function renderRoster(){
     const del = document.createElement("button");
     del.type = "button"; del.className = "btn danger";
     del.textContent = "Retirer";
-    del.addEventListener("click", ()=>{
-      if(!confirm("Retirer " + ru.name + " ×" + ru.size +
-        (ru.chars.length ? " et ses " + ru.chars.length + " personnage" + (ru.chars.length>1?"s":"") : "") +
-        " de la liste ?")) return;
-      const i = R.units.indexOf(ru);
-      if(i >= 0) R.units.splice(i, 1);
-      saveR(); fermePanneau();
-    });
+    /* plus de confirmation : le bandeau d'annulation la remplace, et il
+       coute moins cher qu'une boite de dialogue a chaque retrait */
+    del.addEventListener("click", ()=>{ retireUnite(ru); fermePanneau(); });
     pied.appendChild(fic); pied.appendChild(dup); pied.appendChild(del);
     div.appendChild(pied);
     host.appendChild(div);
@@ -1382,11 +1429,58 @@ function renderList(){
 
 /* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
 let pickMode = null, pickTarget = null;
+/* ==========================================================
+   ANNULATION
+   Une suppression d'unite se reprend : on garde la derniere
+   et on l'offre pendant quelques secondes.
+   ========================================================== */
+let toastT = null;
+function toast(txt, libelle, action){
+  const t = el("toast"); if(!t) return;
+  el("toastTxt").textContent = txt;
+  const b = el("toastAct");
+  b.textContent = libelle || "";
+  b.onclick = null;
+  if(action) b.onclick = ()=>{ cacheToast(); action(); };
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(cacheToast, action ? 7000 : 3000);
+}
+function cacheToast(){ const t = el("toast"); if(t) t.classList.remove("on"); clearTimeout(toastT); }
+
+/* retire une unite en gardant de quoi la remettre a sa place */
+function retireUnite(ru){
+  const i = R.units.indexOf(ru);
+  if(i < 0) return;
+  const copie = JSON.parse(JSON.stringify(ru));
+  R.units.splice(i, 1);
+  saveR(); renderList();
+  toast(ru.name + " retiré de la liste.", "Annuler", ()=>{
+    R.units.splice(Math.min(i, R.units.length), 0, copie);
+    saveR(); renderList();
+  });
+}
+
 function openSheet(id){ el(id).classList.add("open"); document.body.style.overflow="hidden"; }
 function closeSheet(id){ el(id).classList.remove("open"); document.body.style.overflow=""; }
 
+let derniereAjoutee = null, ajoutees = 0;
+/* le compteur du catalogue : combien la liste pese deja, ce qu'il reste */
+function majBudgetPick(){
+  const bar = el("uBudget"); if(!bar) return;
+  if(pickMode !== "unit" || !R){ bar.hidden = true; return; }
+  const pts = totalPoints(), cap = R.cap || 2000, reste = cap - pts;
+  bar.hidden = false;
+  bar.classList.toggle("over", reste < 0);
+  bar.innerHTML = '<b>' + pts + '</b><span class="pb2">/ ' + cap + ' pts  ·  ' +
+    (reste >= 0 ? reste + ' restants' : (-reste) + ' de trop') + '</span>' +
+    '<span class="pb2" style="text-align:right;flex:0 0 auto">' + R.units.length +
+    ' unité' + (R.units.length > 1 ? 's' : '') + '</span>';
+}
+
 function openUnitPick(){
   window.__rosterPick = true; pickMode = "unit"; pickTarget = null;
+  derniereAjoutee = null; ajoutees = 0;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 let pickSlot = null;      /* index dans ru.lo quand on remplace une arme */
@@ -1567,18 +1661,30 @@ function renderPick(){
     return;
   }
   head.textContent = "Ajouter une unité";
+  majBudgetPick();
   /* rangé par grande catégorie : on cherche « un véhicule », « un héros »,
-     rarement un nom précis dans une liste de cinquante-deux entrées */
+     rarement un nom précis dans une liste de cinquante-deux entrées.
+     La recherche prend aussi les mots-cles et le role : « canoptek »,
+     « leader », « battleline » ramenent ce qu'il faut. */
   const retenues = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
-    unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q));
+    unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q) ||
+    norm(u[9] || "").includes(q) ||
+    Object.keys(KW).some(k => has(k, u[0]) && norm(k).includes(q)));
   const parCat = {};
   retenues.forEach(u => (parCat[categorie(u[0])] = parCat[categorie(u[0])] || []).push(u));
   const bouton = u => {
     const b = document.createElement("button");
     b.type="button"; b.className="opt";
-    const sz = u[6][u[6].length-1];
+    /* la taille minimale est celle qu'on prend le plus souvent, et surtout
+       la moins chere : poser d'office la plus grande faisait croire toute
+       l'armee hors de prix. Le prix s'annonce en fourchette. */
+    const sz = u[6][0];
+    const pmin = u[7][String(u[6][0])] || 0, pmax = u[7][String(u[6][u[6].length-1])] || 0;
+    const reste = (R.cap || 2000) - totalPoints();
+    if(pmin > reste) b.classList.add("cher");
     b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">×' + u[6].join("/") +
-      ' · ' + (u[7][String(sz)]||0) + ' pts · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
+      ' · ' + (pmin === pmax ? pmin + ' pts' : pmin + '–' + pmax + ' pts') +
+      ' · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
       (u[10] ? '<span class="otag">LEGENDS</span>' : (u[9] ? '<span class="otag">' + u[9].toUpperCase() + '</span>' : ""));
     b.addEventListener("click", ()=>{
       const wl = unitWeps(u[0]);
@@ -1587,11 +1693,14 @@ function renderPick(){
       const neuve = {id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true,
         grp:nomGroupe(), enh:null};
       R.units.push(neuve);
-      closeSheet("sheetUnit"); saveR();
-      /* on vient de la poser sur le pave : on ouvre directement son panneau,
-         c'est la qu'on va la regler */
-      if(el("listEditor") && !el("listEditor").hidden) ouvrePanneau("cardUnits", neuve.id);
-      else renderList();
+      saveR(); renderList();
+      /* on reste dans le catalogue : monter une liste, c'est poser dix
+         unites d'affilee, pas ressortir dix fois. Le pave se remplit
+         derriere et le budget se met a jour au-dessus. */
+      b.classList.add("pose");
+      setTimeout(()=> b.classList.remove("pose"), 700);
+      majBudgetPick();
+      derniereAjoutee = neuve.id; ajoutees++;
     });
     /* la fiche se consulte avant d'ajouter : c'est la qu'on decide */
     const rangee = document.createElement("div");
@@ -2105,7 +2214,17 @@ el("phaseChips").querySelectorAll(".chip").forEach(b=>
     renderFireList();
   }));
 document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
-  b.addEventListener("click", ()=>{ pickMode = null; pickSlot = null; }));
+  b.addEventListener("click", ()=>{
+    /* on sort du catalogue : dire ce qu'on vient d'y poser, et proposer
+       d'ouvrir la derniere si on n'en a pose qu'une */
+    if(pickMode === "unit" && ajoutees){
+      const id = derniereAjoutee;
+      toast(ajoutees + " unité" + (ajoutees > 1 ? "s ajoutées" : " ajoutée") + " à la liste.",
+        ajoutees === 1 ? "Régler" : "", ajoutees === 1 ? ()=> ouvrePanneau("cardUnits", id) : null);
+    }
+    pickMode = null; pickSlot = null; ajoutees = 0;
+    const bar = el("uBudget"); if(bar) bar.hidden = true;
+  }));
 
 /* le simulateur possede sa propre liste d'unites : on remet son mode
    quand l'utilisateur rouvre la feuille depuis l'onglet Simulateur */
