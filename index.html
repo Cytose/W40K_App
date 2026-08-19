@@ -233,6 +233,34 @@ input.sheet-search{
 .opt .o2{display:block;font-size:11.5px;color:var(--tx3);margin-top:2px;font-variant-numeric:tabular-nums}
 .opt .otag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--tx3);
   border:1px solid var(--line);padding:2px 6px}
+/* fiche d'unite : la datasheet, profil, armes, aptitudes, mots-cles */
+.fiche-prof{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--li);
+  border:1px solid var(--li);border-radius:8px;overflow:hidden;margin:6px 0 12px}
+.fiche-prof div{background:var(--s1);padding:7px 2px;text-align:center}
+.fiche-prof b{display:block;font-size:15px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums}
+.fiche-prof i{display:block;font-style:normal;font-size:9px;letter-spacing:.1em;color:var(--tx3);
+  text-transform:uppercase;margin-top:2px}
+.fiche-sec{margin:14px 2px 6px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--glow);font-weight:800}
+.fiche-apt{border-left:2px solid var(--li);padding:2px 0 2px 10px;margin:0 0 10px}
+.fiche-apt b{display:block;font-size:13px;color:var(--tx1);margin-bottom:2px}
+.fiche-apt p{margin:0;font-size:12.5px;line-height:1.5;color:var(--tx2)}
+.fiche-kw{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 4px}
+.fiche-kw span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;
+  border:1px solid var(--li);border-radius:99px;color:var(--tx3)}
+.pu.tap{cursor:pointer}
+.pu.tap:hover{border-color:var(--glow)}
+.pu.tap>b:after{content:" ⓘ";font-size:10px;color:var(--tx3);font-weight:400}
+.fiche-note{font-size:12px;line-height:1.5;color:var(--tx3);margin:4px 0 0}
+.fiche-glo{margin:0 0 8px}
+.fiche-glo b{font-size:12px;color:var(--tx1)}
+.fiche-glo p{margin:2px 0 0;font-size:12px;line-height:1.5;color:var(--tx3)}
+.ibtn{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid var(--li);
+  background:transparent;color:var(--tx3);font-size:13px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.ibtn:hover{color:var(--glow);border-color:var(--glow)}
+.optrow{display:flex;align-items:stretch;gap:6px}
+.optrow .opt{flex:1;min-width:0}
+.optrow .ibtn{align-self:center}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
 .opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
   white-space:normal;max-height:3.6em;overflow:hidden}
@@ -892,6 +920,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <div class="sheet" id="sheetListAct">
   <div class="sheet-head"><h3 id="listActTitle">Liste</h3><button class="ghost" data-close="sheetListAct" type="button">Fermer</button></div>
   <div class="sheet-list" id="listActList"></div>
+</div>
+
+<div class="sheet" id="sheetFiche">
+  <div class="sheet-head"><h3 id="ficheTitle">Fiche</h3><button class="ghost" data-close="sheetFiche" type="button">Fermer</button></div>
+  <div class="sheet-list" id="ficheBody"></div>
 </div>
 
 <div class="sheet" id="sheetDetach">

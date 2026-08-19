@@ -771,8 +771,8 @@ function renderPlay(){
       if(!l.n) return;
       const g = groupeDe(ru.name, l.w), profils = g ? g.profils : (wl[l.w] ? [{w:wl[l.w]}] : []);
       profils.forEach(p=>{ const w = p.w;
-        html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — A' + w[3] + ' ' + w[4] + '+ F' + w[5] +
-          ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
+        html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — ' + portee(w) + ' A' + w[3] + ' ' + w[4] +
+          '+ F' + w[5] + ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
     });
     html += '</div>';
     ru.chars.forEach(c=>{
@@ -783,19 +783,28 @@ function renderPlay(){
       html += '<div class="pu"><b style="color:var(--glow)">' + c.name + '</b><i>' +
         (roleDe(c.name) || '') + ' · E' + cu[2] + ' · ' + cu[5] + ' PV' +
         (socle(c.name) ? ' · socle ' + socle(c.name) + ' mm' : '') + '</i>' +
-        cws.map(cw => '<span class="pw">' + cw[1] + ' — A' + cw[3] + ' ' + cw[4] + '+ F' + cw[5] +
-          ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>').join('') + '</div>';
+        cws.map(cw => '<span class="pw">' + cw[1] + ' — ' + portee(cw) + ' A' + cw[3] + ' ' + cw[4] +
+          '+ F' + cw[5] + ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>').join('') + '</div>';
     });
     if(ru.enh){
       const e = enhRow(ru.enh);
       html += '<div class="pu"><b style="color:var(--cyan)">' + ru.enh + '</b><i>' +
-        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + '</i></div>';
+        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + '</i>' +
+        (e && e[3] ? '<p class="fiche-note" style="margin:4px 0 0">' + e[3] + '</p>' : '') + '</div>';
     }
     const kws = motsClesGroupe(ru);
     if(kws.length) html += '<div class="pu"><div class="kwline" style="margin:0">' +
       kws.map(k => '<span class="gkw' + (k.source ? ' gkwadd' : '') + '">' + k.kw.toUpperCase() + '</span>').join("") +
       '</div></div>';
     g.innerHTML = html;
+    /* en partie, on veut la regle sous les yeux : toucher l'unite ouvre sa fiche,
+       toucher un personnage rattache ouvre la sienne */
+    g.querySelectorAll(".pu").forEach((bloc, i) => {
+      const cible = i === 0 ? ru.name : (ru.chars[i-1] ? ru.chars[i-1].name : null);
+      if(!cible || !unitRow(cible)) return;
+      bloc.classList.add("tap");
+      bloc.addEventListener("click", ()=> ouvreFiche(cible));
+    });
     host.appendChild(g);
   });
 }
@@ -1032,12 +1041,13 @@ function renderRoster(){
     const table = (titre, lot) => {
       if(!lot.length) return "";
       let h = '<div class="eqt">' + titre + '</div><div class="eqwrap"><table class="arms">' +
-        '<thead><tr><th style="text-align:left">Arme</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+        '<thead><tr><th style="text-align:left">Arme</th><th>Po</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
       lot.forEach(x=>{
         const w = x.w, mots = w[8] ? motsArme(w[8]) : "";
         h += '<tr class="' + (x.n ? '' : 'off') + '"><td class="an">' +
           (x.n ? '<b class="q">×' + x.n + ' </b>' : '') + w[1] +
           (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+          '<td>' + portee(w) + '</td>' +
           '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
           '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
       });
@@ -1065,6 +1075,10 @@ function renderRoster(){
        avec son armement et ses rattachements, pas une unite vierge */
     const pied = document.createElement("div");
     pied.className = "unitfoot";
+    const fic = document.createElement("button");
+    fic.type = "button"; fic.className = "btn";
+    fic.textContent = "Fiche";
+    fic.addEventListener("click", ()=> ouvreFiche(ru.name));
     const dup = document.createElement("button");
     dup.type = "button"; dup.className = "btn";
     dup.textContent = "Dupliquer";
@@ -1086,7 +1100,7 @@ function renderRoster(){
       if(i >= 0) R.units.splice(i, 1);
       saveR(); fermePanneau();
     });
-    pied.appendChild(dup); pied.appendChild(del);
+    pied.appendChild(fic); pied.appendChild(dup); pied.appendChild(del);
     div.appendChild(pied);
     host.appendChild(div);
   });
@@ -1175,6 +1189,104 @@ function groupeDe(nom, i){
   return g.find(x => x.profils.some(p => p.i === i)) || null;
 }
 
+/* ==========================================================
+   FICHE D'UNITE
+   Le profil complet, armes portee comprise, aptitudes et
+   mots-cles : ce qu'on consulte avant d'ajouter une unite et
+   ce qu'on relit en partie.
+   ========================================================== */
+const portee = w => w[9] || (w[2] === "C" ? "càc" : "—");
+const aptitudesDe = nom => (typeof APTITUDES !== "undefined" && APTITUDES[nom]) || [];
+const transportDe = nom => (typeof TRANSPORTS !== "undefined" && TRANSPORTS[nom]) || "";
+
+/* les mots-cles d'arme effectivement portes par l'unite, pour ne
+   derouler que le glossaire qui la concerne */
+function motsUtiles(nom){
+  const out = [];
+  unitWeps(nom).forEach(w => {
+    motsArme(w[8]).split(" · ").forEach(m => {
+      if(!m) return;
+      const clef = m.replace(/\s+[\dD]+\+?$/, "").replace(/^Anti-X$/, "Anti-")
+                    .replace(/^Indirect$/, "Indirect Fire");
+      if(GLOSSAIRE[clef] && out.indexOf(clef) < 0) out.push(clef);
+    });
+  });
+  return out;
+}
+
+function ouvreFiche(nom){
+  const u = unitRow(nom); if(!u) return;
+  el("ficheTitle").textContent = nom;
+  const host = el("ficheBody");
+  const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  let h = "";
+
+  const tailles = u[6], pmin = u[7][String(tailles[0])] || 0,
+        pmax = u[7][String(tailles[tailles.length-1])] || 0;
+  h += '<p class="fiche-note">' + categorie(nom) + '  ·  ×' + tailles.join(" / ") +
+       '  ·  ' + (pmin === pmax ? pmin + " pts" : pmin + "–" + pmax + " pts") +
+       (socle(nom) ? '  ·  socle ' + socle(nom) + ' mm' : '') + '</p>';
+
+  const cel = (v, l) => '<div><b>' + v + '</b><i>' + l + '</i></div>';
+  h += '<div class="fiche-prof">' +
+    cel(u[1] ? u[1] + '"' : "—", "M") + cel(u[2], "E") +
+    cel(u[3] + "+", "SVG") + cel(u[4] ? u[4] + "++" : "—", "INVU") +
+    cel(u[5], "PV") + cel(u[13] || "—", "CD") + cel(u[12] || 0, "CO") + '</div>';
+
+  const wl = unitWeps(nom);
+  const table = (titre, lot) => {
+    if(!lot.length) return "";
+    let t = '<div class="fiche-sec">' + titre + '</div><div class="eqwrap"><table class="arms">' +
+      '<thead><tr><th style="text-align:left">Arme</th><th>Po</th><th>A</th><th>CT</th>' +
+      '<th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+    lot.forEach(w => {
+      const mots = w[8] ? motsArme(w[8]) : "";
+      t += '<tr><td class="an">' + esc(w[1]) +
+        (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+        '<td>' + portee(w) + '</td><td>' + w[3] + '</td><td>' + w[4] + '+</td>' +
+        '<td>' + w[5] + '</td><td>' + (w[6] ? "-" + w[6] : "0") + '</td><td>' + w[7] + '</td></tr>';
+    });
+    return t + '</tbody></table></div>';
+  };
+  h += table("Tir", wl.filter(w => w[2] === "T"));
+  h += table("Corps à corps", wl.filter(w => w[2] === "C"));
+
+  const apts = aptitudesDe(nom);
+  if(apts.length){
+    h += '<div class="fiche-sec">Aptitudes</div>';
+    apts.forEach(a => h += '<div class="fiche-apt"><b>' + esc(a[0]) + '</b><p>' + esc(a[1]) + '</p></div>');
+  }
+  if(u[8]) h += '<div class="fiche-apt"><b>Feel No Pain ' + u[8] + '+</b><p>' +
+    esc(GLOSSAIRE["Feel No Pain"] || "") + '</p></div>';
+
+  const tr = transportDe(nom);
+  if(tr) h += '<div class="fiche-sec">Transport</div><div class="fiche-apt"><p>' + esc(tr) + '</p></div>';
+
+  if(typeof FACTION !== "undefined" && FACTION.length){
+    h += '<div class="fiche-sec">Règle de faction</div>';
+    FACTION.forEach(f => h += '<div class="fiche-apt"><b>' + esc(f[0]) + '</b><p>' + esc(f[1]) + '</p></div>');
+  }
+
+  const kws = [];
+  Object.keys(KW).forEach(k => { if(has(k, nom)) kws.push(k); });
+  if(u[9]) kws.unshift(u[9].toLowerCase());
+  if(kws.length) h += '<div class="fiche-sec">Mots-clés</div><div class="fiche-kw">' +
+    kws.map(k => '<span>' + esc(k) + '</span>').join("") + '</div>';
+
+  const glo = motsUtiles(nom);
+  if(glo.length){
+    h += '<div class="fiche-sec">Mots-clés d\'arme</div>';
+    glo.forEach(k => h += '<div class="fiche-glo"><b>' + esc(k) + '</b><p>' +
+      esc(GLOSSAIRE[k]) + '</p></div>');
+  }
+
+  if(u[11]) h += '<div class="fiche-sec">Note</div><p class="fiche-note">' + esc(u[11]) + '</p>';
+
+  host.innerHTML = h;
+  host.scrollTop = 0;
+  openSheet("sheetFiche");
+}
+
 function motsArme(flags){
   const f = parseFlags(flags), k = [];
   if(f.lethal)  k.push("Lethal Hits");
@@ -1239,7 +1351,7 @@ function renderArms(){
     const wrap = document.createElement("div");
     wrap.className = "armwrap";
     let html = '<table class="arms"><thead><tr><th style="text-align:left">Arme</th>' +
-      '<th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+      '<th>Po</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
     lignes.forEach(L=>{
       const w = L.w, mots = w[8] ? motsArme(w[8]) : "";
       html += '<tr class="' + (L.n ? '' : 'off') + '"><td class="an">' +
@@ -1247,6 +1359,7 @@ function renderArms(){
         (w[2] === "C" ? ' <em style="color:var(--tx3)">càc</em>' : '') +
         (L.perso ? ' <em style="color:var(--tx3)">· ' + L.unite + '</em>' : '') +
         (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+        '<td>' + portee(w) + '</td>' +
         '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
         '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
     });
@@ -1382,7 +1495,14 @@ function renderPick(){
         pickTarget.chars.push({name:u[0], w:0});
         closeSheet("sheetUnit"); saveR(); renderList();
       });
-      return b;
+      const rangee = document.createElement("div");
+      rangee.className = "optrow";
+      const inf = document.createElement("button");
+      inf.type = "button"; inf.className = "ibtn"; inf.textContent = "ⓘ";
+      inf.title = "Voir la fiche de " + u[0];
+      inf.addEventListener("click", e => { e.stopPropagation(); ouvreFiche(u[0]); });
+      rangee.appendChild(b); rangee.appendChild(inf);
+      return rangee;
     };
     const titre = t => {
       const d = document.createElement("div");
@@ -1473,7 +1593,15 @@ function renderPick(){
       if(el("listEditor") && !el("listEditor").hidden) ouvrePanneau("cardUnits", neuve.id);
       else renderList();
     });
-    return b;
+    /* la fiche se consulte avant d'ajouter : c'est la qu'on decide */
+    const rangee = document.createElement("div");
+    rangee.className = "optrow";
+    const inf = document.createElement("button");
+    inf.type = "button"; inf.className = "ibtn"; inf.textContent = "ⓘ";
+    inf.title = "Voir la fiche de " + u[0];
+    inf.addEventListener("click", e => { e.stopPropagation(); ouvreFiche(u[0]); });
+    rangee.appendChild(b); rangee.appendChild(inf);
+    return rangee;
   };
   CAT_ORDRE.forEach(cat=>{
     const lot = parCat[cat];
