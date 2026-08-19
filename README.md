@@ -43,9 +43,10 @@ d'une partie.
 entre dans son éditeur ; la barre de retour ramène à l'index. C'est là qu'on
 crée, modifie, duplique et supprime.
 
-**Simulateur** — trois vues sous des sous-onglets : Attaque (une unité contre
-une cible), Tir cumulé (plusieurs unités dans l'ordre) et Comparer (côte à
-côte). Les unités de la liste ouverte sont accessibles en une touche.
+**Simulateur** — quatre vues sous des sous-onglets : Attaque (une unité contre
+une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à côte)
+et Encaisser (une unité de la liste sous un volume de tir). Les unités de la
+liste ouverte sont accessibles en une touche.
 
 **En partie** — la liste ouverte en lecture seule, telle qu'on la consulte
 pendant le jeu. Cet axe accueillera le suivi de partie : points de commandement,
@@ -86,6 +87,15 @@ données de stratagèmes, aujourd'hui presque vides.
 - **Améliorations** — celles des détachements retenus, avec leur coût compté
   dans le total. Contrôles : trois au maximum, jamais deux fois la même, ni sur
   un groupe sans personnage, ni sur un Epic Hero.
+- **Encaisser** — le calcul du simulateur, rôles inversés : une unité de la
+  liste subit un volume de tir. Dix archétypes d'armes — fusil laser, bolter,
+  bolter lourd, fuseur, plasma, canon laser, autocanon, lance-flammes, épée
+  tronçonneuse, gantelet énergétique — et un nombre de tireurs réglable.
+  Sortie : figurines perdues, survivantes, probabilité d'être effacée,
+  distribution complète, et combien de tireurs il faudrait pour effacer
+  l'unité une fois sur deux. Ces profils sont des repères indicatifs, pas des
+  profils officiels : les listes adverses sont trop variées pour être
+  modélisées.
 - **Empreinte de socle** — affichée sur l'unité et sur chaque personnage.
 - **Armement** — tous les profils de la liste à plat, groupés par groupe, pour
   retrouver une arme sans dérouler l'unité. Quatre filtres : armes prises,

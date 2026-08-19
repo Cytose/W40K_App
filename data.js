@@ -418,3 +418,23 @@ const STRATS = [
 ["Fire Overwatch","Core","Core",1,"","",""],
 ["Smokescreen","Core","Core",1,"","",""]
 ];
+
+/* ============================================================
+   MENACES TYPES
+   [nom, attaques par tireur, CT/CC, Force, PA, Dégâts, mots-clés, note]
+   Archétypes destinés à jauger la survie d'une unité, pas des
+   profils officiels : les listes adverses sont trop variées pour
+   être modélisées. Valeurs indicatives, ajustables à l'écran.
+   ============================================================ */
+const MENACES = [
+["Fusil laser","1",4,3,0,"1","","Infanterie de masse — le volume avant tout"],
+["Bolter","2",3,4,0,"1","","Infanterie lourde, la référence du jeu"],
+["Bolter lourd","3",3,5,1,"2","sust:1","Arme d'appui d'escouade"],
+["Fuseur","1",3,9,4,"D6","melta:2","Anti-blindage à courte portée"],
+["Plasma surchargé","2",3,8,3,"2","","Polyvalent, mord sur presque tout"],
+["Canon laser","1",3,12,3,"D6+1","","Anti-char, une frappe lourde à la fois"],
+["Autocanon","2",3,9,1,"3","","Anti-véhicule léger et infanterie lourde"],
+["Lance-flammes","D6",0,4,0,"1","torrent","Touche automatiquement, à bout portant"],
+["Épée tronçonneuse","3",3,4,1,"1","","Mêlée d'infanterie de base"],
+["Gantelet énergétique","3",4,8,2,"2","","Mêlée lourde, frappe les blindages"]
+];
