@@ -29,6 +29,15 @@ function saveR(){
 }
 
 /* remet une liste d'aplomb : champs manquants des versions precedentes */
+/* le pack de faction nomme en francais des optimisations que le
+   catalogue nommait en anglais : les listes deja enregistrees
+   retrouvent la leur */
+function migreEnh(nom){
+  if(!nom) return nom;
+  if(typeof ENH_ANCIENS !== "undefined" && ENH_ANCIENS[nom]) return ENH_ANCIENS[nom];
+  return nom;
+}
+
 function normaliseListe(L){
   L.detach = L.detach || []; L.units = L.units || [];
   L.cap = L.cap || 2000; L.nom = L.nom || "Liste"; L.nextId = L.nextId || 1;
@@ -38,6 +47,7 @@ function normaliseListe(L){
     if(ru.sel === undefined) ru.sel = true;
     if(!ru.grp) ru.grp = nomGroupe();
     if(ru.enh === undefined) ru.enh = null;
+    ru.enh = migreEnh(ru.enh);
     if(!ru.id) ru.id = L.nextId++;
   });
   return L;
@@ -185,6 +195,8 @@ const KWSET = {};
 Object.keys(KW).forEach(k => KWSET[k] = new Set(KW[k]));
 const has = (kw, name) => KWSET[kw] ? KWSET[kw].has(name) : false;
 const detachRow = n => DETACHMENTS.find(d => d[0] === n);
+/* nom francais officiel du detachement, le nom du catalogue sinon */
+const nomDetach = n => { const d = detachRow(n); return (d && d[7]) || n; };
 const CATMAP = {};
 CAT.forEach(([n, c]) => CATMAP[n] = c);
 const categorie = n => CATMAP[n] || "Autre";
@@ -776,7 +788,7 @@ function renderIndex(){
       '<span class="li"><b>' + L.nom + '</b>' +
       '<i>' + L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
         ' · ' + L.detach.length + ' détachement' + (L.detach.length > 1 ? 's' : '') + '</i>' +
-      '<span class="det">' + (L.detach.join(" · ") || "aucun détachement") + '</span></span>' +
+      '<span class="det">' + (L.detach.map(nomDetach).join(" · ") || "aucun détachement") + '</span></span>' +
       '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
     b.addEventListener("click", ()=> ouvreEditeur(L.id));
     const m = document.createElement("button");
@@ -805,7 +817,7 @@ const GKEY = "mathhammer.partie.v1";
 const PHASES = [["cmd","Cmdt"],["mvt","Mvt"],["tir","Tir"],["chg","Charge"],["cbt","Combat"]];
 const PHASE_LONG = {cmd:"Commandement", mvt:"Mouvement", tir:"Tir", chg:"Charge", cbt:"Combat"};
 const RAPPELS = {
-  cmd: "Gagne 1 PC. Protocoles de Réanimation : chaque unité de l'armée encore sur la table récupère D3 points de vie — figurine blessée d'abord, puis figurine détruite ramenée avec 1 PV. Tests de Choc pour les unités sous la moitié de leur effectif.",
+  cmd: "Gagne 1 PC. Étape d'Ébranlement : jet pour les unités sous la moitié de leur effectif. Fin de phase, Protocoles de Réanimation : chaque unité amie qui a l'aptitude et se trouve sur le champ de bataille soigne D3 points de vie.",
   mvt: "Mouvement normal, Avance (+D6, plus de tir sauf armes d'Assaut), ou Rester Immobile (+1 pour toucher aux armes Lourdes). Étape des Renforts : Frappe en Profondeur à plus de 9\" de tout ennemi.",
   tir: "Une unité au contact ne tire qu'avec ses Pistolets. Rapid Fire double dans la moitié de la portée, Melta ajoute ses dégâts. Vérifie la portée avant de désigner la cible : la colonne Po est sur chaque fiche.",
   chg: "2D6, il faut atteindre le contact. Une unité qui a Avancé ou Est Restée Immobile ne charge pas. Surveillance : ton adversaire peut dépenser 1 PC pour tirer.",
@@ -979,7 +991,7 @@ function renderPartie(){
     const n = document.createElement("div");
     n.className = "gn";
     const provenance = st[1] === "Core" ? "Stratagème de base"
-      : st[1] + (st[2] && st[2] !== st[1] ? " · " + st[2] : "");
+      : nomDetach(st[1]) + (st[2] ? " · " + st[2] : "");
     n.innerHTML = '<b>' + st[0] + '</b><i>' + provenance + ' · ' + cout + ' PC</i>';
     const b = document.createElement("button");
     b.type = "button"; b.className = "gplay"; b.textContent = "Jouer";
@@ -1116,7 +1128,7 @@ function renderDetach(){
     const div = document.createElement("div");
     div.className = "runit";
     div.innerHTML =
-      '<div class="rhead"><div class="rn"><b>' + d[0] + '</b><i>' + d[3] + ' · ' + d[1] + ' PD</i></div>' +
+      '<div class="rhead"><div class="rn"><b>' + nomDetach(d[0]) + '</b><i>' + d[3] + ' · ' + d[1] + ' PD</i></div>' +
       '<button class="xbtn" type="button">×</button></div>' +
       '<p class="hint" style="margin-top:7px">' + d[4] + '</p>';
     div.querySelector(".xbtn").addEventListener("click", ()=>{ R.detach.splice(i,1); saveR(); renderList(); });
@@ -1403,6 +1415,7 @@ function stratsDe(g){
       if(f.cp !== undefined && f.cp !== "") x[3] = parseInt(f.cp, 10) || 1;
       if(f.type) x[2] = f.type;
       x[4] = f.quand || x[4]; x[5] = f.cible || x[5]; x[6] = f.effet || x[6];
+      x[7] = f.restric !== undefined ? f.restric : x[7];
       x.saisi = true;
     }
     return x;
@@ -1423,16 +1436,17 @@ function renderStrats(){
     rien = false;
     const sep = document.createElement("div");
     sep.className = "stratsep";
-    sep.textContent = g === "Core" ? "Stratagèmes de base" : g;
+    sep.textContent = g === "Core" ? "Stratagèmes de base" : nomDetach(g);
     host.appendChild(sep);
     lot.forEach(x=>{
-      const [nom, det, type, cp, quand, cible, effet] = x;
+      const [nom, det, type, cp, quand, cible, effet, restric] = x;
       const d = document.createElement("div");
       d.className = "strat";
       const t = document.createElement("button");
       t.type = "button";
       t.innerHTML = '<span class="sn"><b>' + nom + '</b><i>' +
-        (type && type !== "Core" ? type : (det === "Core" ? "Stratagème de base" : det)) +
+        (det === "Core" ? "Stratagème de base"
+          : (type ? "Stratagème de " + type + " · " + nomDetach(det) : nomDetach(det))) +
         (x.saisi ? ' <span class="smod">saisi</span>' : '') +
         '</i></span><span class="cp">' + cp + ' PC</span>';
       const body = document.createElement("div");
@@ -1440,7 +1454,8 @@ function renderStrats(){
       const rendu = ()=>{
         body.innerHTML = effet
           ? '<dl><dt>Quand</dt><dd>' + quand + '</dd><dt>Cible</dt><dd>' + (cible || "—") +
-            '</dd><dt>Effet</dt><dd>' + effet + '</dd></dl>'
+            '</dd><dt>Effet</dt><dd>' + effet + '</dd>' +
+            (restric ? '<dt>Restrictions</dt><dd>' + restric + '</dd>' : '') + '</dl>'
           : '<p class="vide">Texte non renseigné. Recopie-le depuis ta fiche : il restera sur cet appareil.</p>';
         const b = document.createElement("button");
         b.type = "button"; b.className = "ghost";
@@ -1457,10 +1472,11 @@ function renderStrats(){
         box.innerHTML =
           '<label>Coût en PC</label><input type="number" min="0" max="9" value="' + cp + '" data-f="cp">' +
           '<label>Type</label><input type="text" value="' + (type && type !== "Core" ? type : "") +
-            '" placeholder="Battle Tactic, Epic Deed…" data-f="type">' +
+            '" placeholder="Tactique de Bataille, Fait Épique…" data-f="type">' +
           '<label>Quand</label><textarea data-f="quand" placeholder="When…">' + (quand || "") + '</textarea>' +
           '<label>Cible</label><textarea data-f="cible" placeholder="Target…">' + (cible || "") + '</textarea>' +
-          '<label>Effet</label><textarea data-f="effet" placeholder="Effect…">' + (effet || "") + '</textarea>';
+          '<label>Effet</label><textarea data-f="effet" placeholder="Effet…">' + (effet || "") + '</textarea>' +
+          '<label>Restrictions</label><textarea data-f="restric" placeholder="Restrictions…">' + (restric || "") + '</textarea>';
         const row = document.createElement("div");
         row.className = "addrow";
         const ok = document.createElement("button");
@@ -1547,8 +1563,7 @@ function motsUtiles(nom){
   unitWeps(nom).forEach(w => {
     motsArme(w[8]).split(" · ").forEach(m => {
       if(!m) return;
-      const clef = m.replace(/\s+[\dD]+\+?$/, "").replace(/^Anti-X$/, "Anti-")
-                    .replace(/^Indirect$/, "Indirect Fire");
+      const clef = m.replace(/\s+[\dD]+\+?$/, "");
       if(GLOSSAIRE[clef] && out.indexOf(clef) < 0) out.push(clef);
     });
   });
@@ -1630,21 +1645,24 @@ function ouvreFiche(nom){
 
 function motsArme(flags){
   const f = parseFlags(flags), k = [];
-  if(f.lethal)  k.push("Lethal Hits");
-  if(f.dev)     k.push("Devastating Wounds");
+  if(f.lethal)  k.push("Touches Fatales");
+  if(f.dev)     k.push("Blessures Dévastatrices");
   if(f.torrent) k.push("Torrent");
-  if(f.blast)   k.push("Blast");
-  if(f.twin)    k.push("Twin-linked");
-  if(f.sust)    k.push("Sustained Hits " + f.sust);
-  if(f.rf)      k.push("Rapid Fire " + f.rf);
-  if(f.melta)   k.push("Melta " + f.melta);
+  if(f.blast)   k.push("Déflagration");
+  if(f.twin)    k.push("Jumelé");
+  if(f.sust)    k.push("Touches Soutenues " + f.sust);
+  if(f.rf)      k.push("Tir Rapide " + f.rf);
+  if(f.melta)   k.push("Fusion " + f.melta);
   if(f.anti)    k.push("Anti-X " + f.anti + "+");
-  if(f.assault) k.push("Assault");
-  if(f.heavy)   k.push("Heavy");
-  if(f.precision) k.push("Precision");
-  if(f.hazard)  k.push("Hazardous");
-  if(f.pistol)  k.push("Pistol");
-  if(f.indirect) k.push("Indirect");
+  if(f.assault) k.push("Assaut");
+  if(f.heavy)   k.push("Lourd");
+  if(f.precision) k.push("Précision");
+  if(f.hazard)  k.push("À Risque");
+  if(f.pistol)  k.push("Pistolet");
+  if(f.indirect) k.push("Tir Indirect");
+  if(f.ignorescover) k.push("Ignore le Couvert");
+  if(f.extra)   k.push("Attaques Bonus");
+  if(f.oneshot) k.push("Tir Unique");
   return k.join(" · ");
 }
 function renderArms(){
@@ -1919,7 +1937,7 @@ function renderPick(){
       const b = document.createElement("button");
       b.type="button"; b.className = "opt" + (deja ? " opt-off" : "") + (pickTarget.enh === e[0] ? " sel" : "");
       b.innerHTML = '<span class="oi"><span class="o1">' + e[0] + '</span><span class="o2">' +
-        (typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + ' · ' + e[2] +
+        (typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + ' · ' + nomDetach(e[2]) +
         (deja ? ' · déjà prise ailleurs' : '') + '</span>' +
         (e[3] ? '<span class="o3">' + e[3] + '</span>' : '') + '</span>';
       b.addEventListener("click", ()=>{
@@ -2242,7 +2260,7 @@ function listeEnTexte(L){
   const lignes = [];
   const pts = pointsDe(L);
   lignes.push(L.nom + " — Nécrons — " + pts + " / " + L.cap + " pts");
-  lignes.push("Détachement : " + (L.detach.length ? L.detach.join(" + ") : "aucun"));
+  lignes.push("Détachement : " + (L.detach.length ? L.detach.map(nomDetach).join(" + ") : "aucun"));
   if(L.fd) lignes.push("Disposition de Force : " + L.fd);
   lignes.push("");
 
@@ -2686,7 +2704,7 @@ function applyPacked(o){
   L.fd = o.f || "";
   L.units = o.u.map(u => ({
     id: L.nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
-    grp: u.g || nomGroupe(), enh: u.e || null
+    grp: u.g || nomGroupe(), enh: migreEnh(u.e || null)
   }));
   LISTS.push(L); ouvre(L);
   saveR(); renderList();
@@ -2864,7 +2882,7 @@ function initDetachSheet(){
     b.type = "button";
     b.className = "opt" + (pris ? " sel" : "") + (raison ? " opt-off" : "");
     if(raison) b.disabled = true;
-    b.innerHTML = '<span class="oi"><span class="o1">' + d[0] + '</span>' +
+    b.innerHTML = '<span class="oi"><span class="o1">' + nomDetach(d[0]) + '</span>' +
       '<span class="o2">' + d[1] + ' PD · ' + d[3] + (d[2] ? ' · tag ' + d[2] : '') +
       (raison ? ' — ' + raison : '') + '</span></span>' +
       (d[5] ? '<span class="otag">DÉS</span>' : '');
@@ -2953,7 +2971,7 @@ el("btnAddStrat").addEventListener("click", ()=>{
   const det = R.detach.length === 1 ? R.detach[0]
     : (prompt("De quel détachement ?\n" + R.detach.join("\n"), R.detach[0]) || "").trim();
   if(R.detach.indexOf(det) < 0){ toast("Détachement inconnu.", "", null); return; }
-  SUSER.ajouts.push([nom.trim(), det, "", 1, "", "", ""]);
+  SUSER.ajouts.push([nom.trim(), det, "", 1, "", "", "", ""]);
   saveS(); renderStrats(); renderPartie();
   toast(nom.trim() + " ajouté — touche-le pour saisir son texte.", "", null);
 });

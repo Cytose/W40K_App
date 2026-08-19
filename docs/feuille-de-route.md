@@ -237,3 +237,59 @@ stratagèmes laissés en anglais, feu vert sur l'ensemble.
   dernier faction pack.
 - **Les aptitudes sont en anglais** — texte du catalogue, non traduit.
 - **La branche par défaut du dépôt** est toujours la branche de travail.
+
+## 8. Les documents officiels — 19/08/2026
+
+Kévin a transmis deux PDF publiés librement par Games Workshop : le **Pack de
+Faction Nécrons version 1.1**, valide pour le jeu égal à partir du 22 juillet
+2026, et les **Règles de Base**. Ils règlent d'un coup le point resté ouvert au
+chantier 6.
+
+### Ce qui en a été repris
+
+| Élément | Source | Avant | Après |
+|---|---|---|---|
+| Stratagèmes | pack + règles de base §15 | 17 fiches, 1 texte complet | **43 fiches, toutes complètes, en français** |
+| Règles de détachement | pack | résumé maison | texte officiel pour les 7 du pack |
+| Optimisations | pack | 34, anglais | **38, dont 20 au texte officiel français** |
+| Aptitudes d'unité | pack | anglais | 8 fiches du pack en français |
+| Protocoles de Réanimation | pack, mises à jour | ancien texte détaillé | nouveau texte : D3 PV en fin de phase de Commandement |
+| Glossaire | règles de base §24 | 31 entrées, anglais | **35 entrées, français officiel** |
+| Mots-clés d'arme affichés | règles de base §24 | anglais | français |
+
+Les errata du pack ont été appliqués aux fiches existantes : Chronomancien
+(Cape d'Uchronie), Plasmancien (Foudre Consciente), Monolithe (Portail
+d'Éternité), Roi Silencieux (Marche Implacable et mots-clés), Réanimateur
+Canoptek, Console de Commandement (Orbe de Résurrection et mot-clé NOBLE),
+Destroyers Ophydiens, C'tan Transcendant (Déplacement Transdimensionnel),
+Seigneur Lokhust (Résurrection), plus le mot-clé CHÂSSIS sur neuf fiches.
+
+Les valeurs en points ne figurent pas dans le pack — elles vivent dans
+l'Inventaire du Munitorum — donc celles de `data.js`, vérifiées en 08/2026,
+n'ont pas bougé. Cinq optimisations du pack n'ont donc pas de coût : elles
+affichent « coût inconnu » et ne comptent rien dans le total.
+
+### Deux erreurs trouvées au passage
+
+- Les **Bolas Gravitiques** étaient rangées sous Fer de Lance Linceul Céleste ;
+  le pack les donne au Conclave de Crypteks.
+- La **sismolance du Géomancien** était enregistrée sans portée, sous le nom
+  inventé de « Tremorglaive ». Ses deux profils de tir portent à 18″.
+
+### Ce qui reste en suspens
+
+- **Les stratagèmes des cinq détachements du codex** — Dynastie Éveillée, Cour
+  Canoptek, Légion d'Annihilation, Phalange d'Obéissance, Légion d'Hypercrypte.
+  Le pack ne les reprend pas. Le formulaire de saisie reste en place pour eux.
+- **Leurs seize optimisations** restent en anglais, texte du catalogue.
+- **La composition de Convergence of Dominion** — toujours inconnue.
+- **La portée de l'Aeonstave blast du Chronomancer** — le pack ne donne pas
+  cette fiche.
+- **Une contradiction du pack lui-même** : page 30 il retire « Meneur » aux
+  Crypteks et leur donne « Appui », mais la fiche du Géomancien page 17 porte
+  encore « Meneur ». Les deux versions sont signalées sur la fiche.
+- **Deux fiches d'errata non rattachées** : « Faucheur » (M et CO remplacés par
+  « — ») et « Moissonneur » (M 14″, Stationnaire, plus AÉRODYNE). Aucune unité
+  de la table ne porte ces noms de façon certaine ; le second correspond au
+  Night Scythe, dont les corrections sont déjà appliquées.
+- **La branche par défaut du dépôt** est désormais `main`.
