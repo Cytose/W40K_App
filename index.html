@@ -325,6 +325,12 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .lcard .lp b{display:block;font-size:16px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums}
 .lcard .lp i{display:block;font-style:normal;font-size:10px;color:var(--tx3)}
 .lcard .lp.over b{color:var(--warn)}
+.lrow{display:flex;align-items:stretch;gap:7px;margin-top:9px}
+.lrow .lcard{margin-top:0;flex:1;min-width:0}
+.lmore{flex:0 0 auto;width:42px;background:var(--s1);border:1px solid var(--line);color:var(--tx3);
+  font-family:inherit;font-size:19px;font-weight:800;cursor:pointer;line-height:1;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+.lmore:active{background:var(--s2)}
 
 /* ---------- liste en lecture ---------- */
 .pgrp{margin-top:13px;border:1px solid var(--line);background:var(--s1);
@@ -348,10 +354,6 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 #rosterQuick .chip small{display:block;font-size:9.5px;font-weight:600;color:var(--tx3)}
 #rosterQuick .chip.on small{color:var(--glow)}
 
-/* ---------- onglets de listes ---------- */
-#listTabs .chip{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#listTabs .chip small{display:block;font-size:9.5px;font-weight:600;color:var(--tx3);letter-spacing:.03em}
-#listTabs .chip.on small{color:var(--glow)}
 input[type=text]#listName{max-width:none;width:100%;text-align:left;font-size:15px}
 
 /* ---------- stratagemes ---------- */
@@ -751,7 +753,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <section class="card" id="cardSettings">
     <h2>Mes listes <span class="chev">▾</span></h2>
     <div class="body">
-      <div class="chips tight" id="listTabs"></div>
+      <p class="hint" style="margin-top:2px">Créer, dupliquer et supprimer se font depuis l'index des listes.</p>
       <div class="row">
         <label for="listName">Nom</label>
         <div class="ctl"><input type="text" id="listName" maxlength="42"></div>
@@ -759,11 +761,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <div class="row">
         <label for="listCap">Plafond de points</label>
         <div class="ctl"><input type="number" id="listCap" min="100" max="10000" step="50"></div>
-      </div>
-      <div class="chips tight">
-        <button type="button" class="chip" id="btnNewList">+ Nouvelle liste</button>
-        <button type="button" class="chip" id="btnDupList">Dupliquer</button>
-        <button type="button" class="chip" id="btnDelList">Supprimer</button>
       </div>
     </div>
   </section>
@@ -855,6 +852,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <input class="sheet-search" id="tSearch" type="text" placeholder="Rechercher une cible…" autocomplete="off">
   <div class="sheet-list" id="tList"></div>
 </div>
+<div class="sheet" id="sheetListAct">
+  <div class="sheet-head"><h3 id="listActTitle">Liste</h3><button class="ghost" data-close="sheetListAct" type="button">Fermer</button></div>
+  <div class="sheet-list" id="listActList"></div>
+</div>
+
 <div class="sheet" id="sheetDetach">
   <div class="sheet-head"><h3>Choisir un détachement</h3><button class="ghost" data-close="sheetDetach" type="button">Fermer</button></div>
   <div class="sheet-list" id="dList"></div>

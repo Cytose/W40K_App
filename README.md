@@ -52,8 +52,11 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 L'application est organisée en trois axes, qui correspondent aux trois moments
 d'une partie.
 
-**Listes** — s'ouvre sur l'index de ce qu'on a construit. Toucher une liste
-entre dans son éditeur, présenté en **pavé** : une case carrée par unité, avec
+**Listes** — s'ouvre sur l'index de ce qu'on a construit. C'est là que vit le
+cycle de vie d'une liste : créer, et par le bouton `⋯` de chaque carte ouvrir,
+dupliquer ou supprimer. L'éditeur ne porte que ce qui qualifie la liste
+ouverte — son nom et son plafond. Toucher une liste entre dans son éditeur,
+présenté en **pavé** : une case carrée par unité, avec
 son groupe, ses points, sa taille et ses personnages ; une case bordée d'orange
 signale un rattachement ou une amélioration en faute. Toucher une case ouvre
 son panneau, la barre de retour ramène au pavé. En dessous, quatre cases mènent
@@ -77,8 +80,9 @@ données de stratagèmes, aujourd'hui presque vides.
   probabilité d'effacer l'unité.
 - **Mes listes** — plusieurs listes coexistent, chacune avec son nom et son
   plafond de points. L'index les présente avec leur total, leurs détachements
-  et leur nombre d'unités ; on en crée, on en duplique, on en supprime. Le budget de Points de Détachement suit le
-  plafond : 3 PD à 2000 points, au prorata ailleurs.
+  et leur nombre d'unités ; on en crée, on en duplique, on en supprime depuis
+  cet index. Le budget de Points de Détachement suit le plafond : 3 PD à 2000
+  points, au prorata ailleurs.
 - **Ma liste** — construction de la liste ouverte : détachements (tags
   d'exclusivité), unités, armement mixte par unité, personnages attachés
   (Leader / Support), validation (règle des trois, Battleline, Epic Hero).
