@@ -1,0 +1,739 @@
+(function(){
+"use strict";
+const el = id => document.getElementById(id);
+const {scaleDice, analytic, simulateCombined, simulate} = ENG;
+const {S, unitRow, unitWeps, parseFlags, drawBars, binned, pct, num} = SIM;
+
+/* ==========================================================
+   ETAT DE LA LISTE
+   ========================================================== */
+const RKEY = "mathhammer.roster.v1";
+let R = { detach: [], units: [] };   // units : {id,name,size,lo:[{w,n}],chars:[{name,w}],sel:true}
+let nextId = 1;
+let phase = "T";
+let situ = {};                        // conditions situationnelles cochees
+
+function saveR(){ try{ localStorage.setItem(RKEY, JSON.stringify({R, nextId})); }catch(e){} }
+function loadR(){
+  try{
+    const o = JSON.parse(localStorage.getItem(RKEY) || "null");
+    if(o && o.R){ R = o.R; nextId = o.nextId || 1; }
+  }catch(e){}
+  R.detach = R.detach || []; R.units = R.units || [];
+}
+
+const KWSET = {};
+Object.keys(KW).forEach(k => KWSET[k] = new Set(KW[k]));
+const has = (kw, name) => KWSET[kw] ? KWSET[kw].has(name) : false;
+const detachRow = n => DETACHMENTS.find(d => d[0] === n);
+
+/* ==========================================================
+   POINTS & VALIDATION
+   ========================================================== */
+function unitPoints(ru){
+  const u = unitRow(ru.name); if(!u) return 0;
+  let p = u[7][String(ru.size)] || 0;
+  ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) p += cu[7][String(cu[6][0])] || 0; });
+  return p;
+}
+const totalPoints = () => R.units.reduce((a,ru) => a + unitPoints(ru), 0);
+const totalDP = () => R.detach.reduce((a,n) => { const d = detachRow(n); return a + (d ? d[1] : 0); }, 0);
+
+function validate(){
+  const w = [];
+  const pts = totalPoints();
+  if(pts > 2000) w.push("Liste à <b>" + pts + " pts</b> : " + (pts-2000) + " pts au-dessus de la limite Strike Force.");
+  const dp = totalDP();
+  if(dp > 3) w.push("<b>" + dp + " PD</b> utilisés sur 3 disponibles à 2000 pts.");
+  const tags = {};
+  R.detach.forEach(n => { const d = detachRow(n); if(d && d[2]){ (tags[d[2]] = tags[d[2]] || []).push(n); } });
+  Object.keys(tags).forEach(t => { if(tags[t].length > 1)
+    w.push("Tag <b>" + t + "</b> en double : " + tags[t].join(" + ") + " ne sont pas combinables."); });
+
+  const count = {};
+  R.units.forEach(ru => { count[ru.name] = (count[ru.name]||0) + 1; });
+  Object.keys(count).forEach(n => {
+    const lim = has("epic", n) ? 1 : (has("battleline", n) ? 6 : 3);
+    if(count[n] > lim) w.push("<b>" + n + "</b> ×" + count[n] + " : maximum " + lim +
+      (lim===1 ? " (Epic Hero)" : lim===6 ? " (Battleline)" : " (règle des trois)") + ".");
+  });
+  R.units.forEach(ru => {
+    const led = ru.chars.filter(c => (unitRow(c.name)||[])[9] === "Leader").length;
+    const sup = ru.chars.filter(c => (unitRow(c.name)||[])[9] === "Support").length;
+    if(led > 1) w.push("<b>" + ru.name + "</b> : deux Leaders sur la même unité, un seul est autorisé.");
+    if(sup > 1) w.push("<b>" + ru.name + "</b> : deux Supports sur la même unité, un seul est autorisé.");
+    const tot = ru.lo.reduce((a,l) => a + l.n, 0);
+    if(tot > ru.size) w.push("<b>" + ru.name + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
+  });
+  return w;
+}
+
+/* ==========================================================
+   REGLES DE DETACHEMENT
+   ========================================================== */
+const SITU_LABEL = {
+  canoptek_rr : "Unité entièrement dans la Matrice de Puissance (relance totale)",
+  obj_hit1    : "Cible à portée d'un marqueur d'objectif",
+  destroyer_ap1: "Cible éligible la plus proche",
+  noble_wound1: "Cible désignée par Worthy Foes",
+  cryptek_anti: "Aptitude choisie : Anti-Infanterie 3+",
+  monster_ap1 : "Cible « unravelling » à 6\" d'un MONSTRE",
+  tomb_hit1   : "Tomb Blades arrivées par ingress ce tour"
+};
+function activeRules(){
+  const out = [];
+  R.detach.forEach(n => { const d = detachRow(n); if(d && d[5]) out.push(d); });
+  return out;
+}
+/* applique les regles de detachement a un profil deja construit */
+function applyDetach(prof, ru){
+  const n = ru.name, ledBy = ru.chars.length > 0;
+  activeRules().forEach(d => {
+    const key = d[5], cond = d[6];
+    if(cond && !situ[key]) return;
+    switch(key){
+      case "led_hit1":
+        if(ledBy || (unitRow(n)||[])[9]) prof.hitMod = Math.max(prof.hitMod, 1);
+        break;
+      case "canoptek_rr":
+        if(has("canoptek", n) || has("cryptek", n)) prof.rrH = situ.canoptek_rr ? "failed" : "ones";
+        break;
+      case "obj_hit1":
+        if(!has("monster", n)) prof.hitMod = Math.max(prof.hitMod, 1);
+        break;
+      case "destroyer_ap1":
+        if(has("destroyer", n) && prof.kind === "T") prof.ap = Math.min(5, prof.ap + 1);
+        break;
+      case "noble_wound1":
+        if(has("noble", n) || has("lychguard", n) || has("triarch", n)) prof.wndMod = Math.max(prof.wndMod, 1);
+        break;
+      case "destroyer_str2":
+        if(has("destroyer", n)) prof.str += 2;
+        break;
+      case "cryptek_anti":
+        if(has("cryptek", n)) prof.critW = Math.min(prof.critW, 3);
+        break;
+      case "monster_ap1":
+        prof.ap = Math.min(5, prof.ap + 1);
+        break;
+      case "tomb_hit1":
+        if(has("tombblade", n)) prof.hitMod = Math.max(prof.hitMod, 1);
+        break;
+    }
+  });
+  return prof;
+}
+/* la regle canoptek_rr s'applique meme hors condition (relance des 1) */
+function preApply(prof, ru){
+  R.detach.forEach(dn=>{
+    const d = detachRow(dn); if(!d) return;
+    if(d[5] === "canoptek_rr" && (has("canoptek", ru.name) || has("cryptek", ru.name)))
+      prof.rrH = "ones";
+  });
+  return prof;
+}
+
+/* ==========================================================
+   CONSTRUCTION DES PROFILS D'ATTAQUE
+   ========================================================== */
+function tgtFields(){
+  return {tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
+          fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover};
+}
+function weaponProfile(unitName, w, bearers, ru){
+  const f = parseFlags(w[8]);
+  const p = Object.assign({}, tgtFields(), {
+    label: (ru ? "" : "") + w[1],
+    kind: w[2],
+    attacks: scaleDice(w[3], bearers),
+    bs: w[4], str: w[5], ap: w[6], dmg: w[7],
+    torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
+    sustainedOn: !!f.sust, sustainedN: f.sust ? String(f.sust) : "1",
+    blast: !!f.blast,
+    rapidOn: !!f.rf, rapidN: f.rf ? Math.min(120, (+f.rf) * bearers) : 1,
+    meltaOn: !!f.melta, meltaN: f.melta ? +f.melta : 2,
+    critH: 6, critW: f.anti ? +f.anti : 6,
+    hitMod: 0, wndMod: 0, rrH: "none", rrW: f.twin ? "failed" : "none"
+  });
+  if(ru){ preApply(p, ru); applyDetach(p, ru); }
+  return p;
+}
+/* tous les profils d'une unite de la liste pour la phase courante */
+function unitProfiles(ru){
+  const list = unitWeps(ru.name), out = [];
+  let matched = 0;
+  ru.lo.forEach(l=>{
+    const w = list[l.w];
+    if(!w || w[2] !== phase || l.n <= 0) return;
+    matched++;
+    const p = weaponProfile(ru.name, w, l.n, ru);
+    p.label = w[1] + " ×" + l.n;
+    out.push(p);
+  });
+  /* au corps a corps, toute figurine sans arme de melee choisie se bat
+     avec l'arme de melee par defaut de sa datasheet */
+  if(phase === "C" && !matched){
+    const i = list.findIndex(w => w[2] === "C");
+    if(i >= 0){
+      const p = weaponProfile(ru.name, list[i], ru.size, ru);
+      p.label = list[i][1] + " ×" + ru.size;
+      out.push(p);
+    }
+  }
+  ru.chars.forEach(c=>{
+    const cl = unitWeps(c.name);
+    let w = cl[c.w];
+    if(!w || w[2] !== phase) w = cl.find(x => x[2] === phase);
+    if(!w) return;
+    const p = weaponProfile(c.name, w, 1, ru);
+    p.label = c.name + " — " + w[1];
+    out.push(p);
+  });
+  return out;
+}
+
+/* ==========================================================
+   ECRAN « MA LISTE »
+   ========================================================== */
+function renderPtsBar(){
+  const pts = totalPoints(), dp = totalDP();
+  const b = el("ptsbar");
+  if(!b) return;
+  b.innerHTML =
+    '<div class="c ' + (pts>2000?"over":(pts?"ok":"")) + '"><div class="k">Points</div><div class="v">' + pts + '</div></div>' +
+    '<div class="c ' + (dp>3?"over":"") + '"><div class="k">Détachement</div><div class="v">' + dp + ' / 3</div></div>' +
+    '<div class="c"><div class="k">Unités</div><div class="v">' + R.units.length + '</div></div>';
+}
+function renderDetach(){
+  const host = el("detList"); host.innerHTML = "";
+  if(!R.detach.length){ host.innerHTML = '<div class="empty" style="padding:14px 4px">Aucun détachement choisi.</div>'; return; }
+  R.detach.forEach((n,i)=>{
+    const d = detachRow(n); if(!d) return;
+    const div = document.createElement("div");
+    div.className = "runit";
+    div.innerHTML =
+      '<div class="rhead"><div class="rn"><b>' + d[0] + '</b><i>' + d[3] + ' · ' + d[1] + ' PD</i></div>' +
+      '<button class="xbtn" type="button">×</button></div>' +
+      '<p class="hint" style="margin-top:7px">' + d[4] + '</p>';
+    div.querySelector(".xbtn").addEventListener("click", ()=>{ R.detach.splice(i,1); saveR(); renderList(); });
+    host.appendChild(div);
+  });
+}
+function stepper(get, set, min, max){
+  const w = document.createElement("span");
+  w.className = "stepper";
+  const mk = (t, delta) => {
+    const b = document.createElement("button");
+    b.type="button"; b.textContent=t;
+    b.addEventListener("click", ()=>{
+      const v = Math.max(min, Math.min(max, get() + delta));
+      set(v); saveR(); renderList();
+    });
+    return b;
+  };
+  const val = document.createElement("span");
+  val.textContent = get();
+  w.appendChild(mk("−",-1)); w.appendChild(val); w.appendChild(mk("+",1));
+  return w;
+}
+function renderRoster(){
+  const host = el("rosterList"); host.innerHTML = "";
+  if(!R.units.length){
+    host.innerHTML = '<div class="empty">Ta liste est vide.<br>Ajoute une unité pour commencer.</div>';
+    return;
+  }
+  R.units.forEach((ru, ui)=>{
+    const u = unitRow(ru.name); if(!u) return;
+    const wl = unitWeps(ru.name);
+    const div = document.createElement("div");
+    div.className = "runit";
+
+    const head = document.createElement("div");
+    head.className = "rhead";
+    head.innerHTML = '<div class="rn"><b>' + ru.name + '</b><i>×' + ru.size + ' · E' + u[2] +
+      ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV</i></div>' +
+      '<span class="rpts">' + unitPoints(ru) + ' pts</span><button class="xbtn" type="button">×</button>';
+    head.querySelector(".xbtn").addEventListener("click", ()=>{ R.units.splice(ui,1); saveR(); renderList(); });
+    div.appendChild(head);
+
+    if(u[6].length > 1){
+      const sc = document.createElement("div");
+      sc.className = "chips tight";
+      u[6].forEach(sz=>{
+        const b = document.createElement("button");
+        b.type="button"; b.className = "chip" + (sz===ru.size ? " on" : "");
+        b.textContent = "×" + sz + (u[7][String(sz)] ? " · " + u[7][String(sz)] + " pts" : "");
+        b.addEventListener("click", ()=>{
+          ru.size = sz;
+          const tot = ru.lo.reduce((a,l)=>a+l.n,0);
+          if(tot > sz && ru.lo.length === 1) ru.lo[0].n = sz;
+          saveR(); renderList();
+        });
+        sc.appendChild(b);
+      });
+      div.appendChild(sc);
+    }
+
+    ru.lo.forEach((l, li)=>{
+      const w = wl[l.w]; if(!w) return;
+      const row = document.createElement("div");
+      row.className = "lo";
+      row.innerHTML = '<span class="ln">' + w[1] + (w[2]==="C" ? ' <em>·càc</em>' : '') +
+        ' <em>A' + w[3] + ' F' + w[5] + ' PA' + (w[6]?'-'+w[6]:'0') + ' D' + w[7] + '</em></span>';
+      row.appendChild(stepper(()=>l.n, v=>{ l.n = v; if(v===0) ru.lo.splice(li,1); }, 0, 60));
+      div.appendChild(row);
+    });
+
+    ru.chars.forEach((c, ci)=>{
+      const cl = unitWeps(c.name), w = cl[c.w] || cl[0];
+      const row = document.createElement("div");
+      row.className = "lo";
+      const role = (unitRow(c.name)||[])[9] || "";
+      row.innerHTML = '<span class="ln" style="color:var(--glow)">' + c.name +
+        ' <em>' + role + (w ? ' · ' + w[1] : '') + '</em></span>';
+      const nx = document.createElement("button");
+      nx.className="xbtn"; nx.type="button"; nx.textContent="⟳"; nx.title="Changer d'arme";
+      nx.addEventListener("click", ()=>{ c.w = (c.w + 1) % cl.length; saveR(); renderList(); });
+      const rm = document.createElement("button");
+      rm.className="xbtn"; rm.type="button"; rm.textContent="×";
+      rm.addEventListener("click", ()=>{ ru.chars.splice(ci,1); saveR(); renderList(); });
+      row.appendChild(nx); row.appendChild(rm);
+      div.appendChild(row);
+    });
+
+    const add = document.createElement("div");
+    add.className = "addrow";
+    const bw = document.createElement("button");
+    bw.type="button"; bw.textContent="+ Arme";
+    bw.addEventListener("click", ()=> openWeaponPick(ru));
+    const bc = document.createElement("button");
+    bc.type="button"; bc.textContent="+ Personnage";
+    bc.addEventListener("click", ()=> openCharPick(ru));
+    add.appendChild(bw); add.appendChild(bc);
+    div.appendChild(add);
+    host.appendChild(div);
+  });
+}
+function renderWarn(){
+  const w = validate(), host = el("rosterWarn");
+  host.innerHTML = w.length ? '<div class="warnbox">' + w.join("<br>") + '</div>' : "";
+}
+function renderList(){ renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderFireList(); }
+
+/* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
+let pickMode = null, pickTarget = null;
+function openSheet(id){ el(id).classList.add("open"); document.body.style.overflow="hidden"; }
+function closeSheet(id){ el(id).classList.remove("open"); document.body.style.overflow=""; }
+
+function openUnitPick(){
+  window.__rosterPick = true; pickMode = "unit"; pickTarget = null;
+  el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
+}
+function openWeaponPick(ru){
+  window.__rosterPick = true; pickMode = "weapon"; pickTarget = ru;
+  el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
+}
+function openCmpPick(src){
+  window.__rosterPick = true; pickMode = "cmp:" + src; pickTarget = null;
+  el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
+}
+function openCharPick(ru){
+  window.__rosterPick = true; pickMode = "char"; pickTarget = ru;
+  el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
+}
+const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function renderPick(){
+  const q = norm(el("uSearch").value.trim());
+  const host = el("uList"); host.innerHTML = "";
+  const head = el("sheetUnit").querySelector("h3");
+
+  if(pickMode === "weapon"){
+    head.textContent = "Ajouter une arme — " + pickTarget.name;
+    unitWeps(pickTarget.name).forEach((w,i)=>{
+      if(q && !norm(w[1]).includes(q)) return;
+      const b = document.createElement("button");
+      b.type="button"; b.className="opt";
+      b.innerHTML = '<span class="oi"><span class="o1">' + w[1] + (w[2]==="C"?"  ·càc":"") + '</span>' +
+        '<span class="o2">A' + w[3] + ' · ' + w[4] + '+ · F' + w[5] + ' · PA ' + (w[6]?'-'+w[6]:'0') + ' · D' + w[7] + '</span></span>';
+      b.addEventListener("click", ()=>{
+        const ex = pickTarget.lo.find(l => l.w === i);
+        if(ex) ex.n = Math.min(pickTarget.size, ex.n + 1);
+        else pickTarget.lo.push({w:i, n:1});
+        closeSheet("sheetUnit"); saveR(); renderList();
+      });
+      host.appendChild(b);
+    });
+    return;
+  }
+  if(pickMode === "char"){
+    head.textContent = "Attacher un personnage — " + pickTarget.name;
+    UNITS.filter(u => u[9] && (!q || norm(u[0]).includes(q))).forEach(u=>{
+      const b = document.createElement("button");
+      b.type="button"; b.className="opt";
+      b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">' +
+        u[9] + ' · E' + u[2] + ' · ' + u[5] + ' PV · ' + (u[7][String(u[6][0])]||0) + ' pts</span></span>' +
+        '<span class="otag">' + u[9].toUpperCase() + '</span>';
+      b.addEventListener("click", ()=>{
+        pickTarget.chars.push({name:u[0], w:0});
+        closeSheet("sheetUnit"); saveR(); renderList();
+      });
+      host.appendChild(b);
+    });
+    return;
+  }
+  if(pickMode && pickMode.indexOf("cmp:") === 0){
+    const fromRoster = pickMode === "cmp:roster";
+    head.textContent = fromRoster ? "Comparer — depuis ma liste" : "Comparer — catalogue";
+    const src = fromRoster
+      ? R.units.map(ru => ({name:ru.name, size:ru.size, w:(ru.lo[0]||{w:0}).w}))
+      : UNITS.map(u => ({name:u[0], size:u[6][u[6].length-1], w:0}));
+    const seen = new Set();
+    src.filter(c => !q || norm(c.name).includes(q)).forEach(c=>{
+      if(fromRoster && seen.has(c.name + c.size)) return;
+      seen.add(c.name + c.size);
+      const u = unitRow(c.name); if(!u) return;
+      const b = document.createElement("button");
+      b.type="button"; b.className="opt";
+      b.innerHTML = '<span class="oi"><span class="o1">' + c.name + '</span><span class="o2">×' + c.size +
+        ' · ' + (u[7][String(c.size)]||0) + ' pts · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>';
+      b.addEventListener("click", ()=>{
+        CMP.push({name:c.name, size:c.size, w:c.w|0});
+        closeSheet("sheetUnit"); saveCmp(); renderCmpList();
+      });
+      host.appendChild(b);
+    });
+    if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Rien à ajouter ici.</div>';
+    return;
+  }
+  head.textContent = "Ajouter une unité";
+  UNITS.filter(u => !q || norm(u[0]).includes(q) || unitWeps(u[0]).some(w => norm(w[1]).includes(q))).forEach(u=>{
+    const b = document.createElement("button");
+    b.type="button"; b.className="opt";
+    const sz = u[6][u[6].length-1];
+    b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">×' + u[6].join("/") +
+      ' · ' + (u[7][String(sz)]||0) + ' pts · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
+      (u[10] ? '<span class="otag">LEGENDS</span>' : (u[9] ? '<span class="otag">' + u[9].toUpperCase() + '</span>' : ""));
+    b.addEventListener("click", ()=>{
+      const wl = unitWeps(u[0]);
+      let di = wl.findIndex(w => w[2] === "T");
+      if(di < 0) di = 0;
+      R.units.push({id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true});
+      closeSheet("sheetUnit"); saveR(); renderList();
+    });
+    host.appendChild(b);
+  });
+}
+
+/* ==========================================================
+   ECRAN « TIR CUMULE »
+   ========================================================== */
+function renderFireList(){
+  const host = el("fireList"); if(!host) return;
+  host.innerHTML = "";
+  if(!R.units.length){
+    host.innerHTML = '<div class="empty">Aucune unité dans ta liste.<br>Va dans « Ma liste » pour en ajouter.</div>';
+    el("situBox").innerHTML = ""; renderFire(); return;
+  }
+  R.units.forEach(ru=>{
+    const profs = unitProfiles(ru);
+    const div = document.createElement("div");
+    div.className = "runit checkrow" + (ru.sel && profs.length ? " on sel" : "");
+    div.style.cursor = profs.length ? "pointer" : "default";
+    div.style.opacity = profs.length ? "1" : ".45";
+    const nA = profs.reduce((a,p)=> a + analytic(p).A, 0);
+    div.innerHTML = '<span class="cbox">✓</span><span class="rn" style="flex:1;min-width:0">' +
+      '<b style="display:block;font-size:14px">' + ru.name + '</b>' +
+      '<i style="display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:2px">' +
+      (profs.length ? profs.length + " profil" + (profs.length>1?"s":"") + " · " + num(nA) + " attaques"
+                    : "aucune arme pour cette phase") +
+      ' · ' + unitPoints(ru) + ' pts</i></span>';
+    if(profs.length) div.addEventListener("click", ()=>{ ru.sel = !ru.sel; saveR(); renderFireList(); });
+    host.appendChild(div);
+  });
+  renderSitu();
+  renderFire();
+}
+function renderSitu(){
+  const host = el("situBox"); if(!host) return;
+  const rules = activeRules().filter(d => d[6]);
+  if(!rules.length){ host.innerHTML = ""; return; }
+  host.innerHTML = '<p class="hint" style="margin-top:12px">Conditions de tes détachements — coche celles qui sont vraies ce tour-ci :</p>';
+  rules.forEach(d=>{
+    const lab = document.createElement("label");
+    lab.className = "toggle";
+    lab.innerHTML = '<input type="checkbox"' + (situ[d[5]] ? " checked" : "") + '><span class="box">✓</span>' +
+      '<span class="txt">' + (SITU_LABEL[d[5]] || d[3]) + '<em>' + d[0] + '</em></span>';
+    lab.querySelector("input").addEventListener("change", e=>{
+      situ[d[5]] = e.target.checked; renderFireList();
+    });
+    host.appendChild(lab);
+  });
+}
+
+function renderFire(){
+  const chosen = R.units.filter(ru => ru.sel);
+  const entries = [];
+  chosen.forEach(ru=>{
+    unitProfiles(ru).forEach(p => entries.push({ru, p}));
+  });
+  if(!entries.length){
+    el("fDmg").textContent = "—"; el("fSlain").textContent = "—"; el("fWipe").textContent = "—";
+    el("fTable").innerHTML = ""; el("fSub").textContent = "";
+    el("fHist").innerHTML = ""; el("fNote").textContent = "";
+    return;
+  }
+  const N = entries.length > 8 ? 12000 : 25000;
+  const sim = simulateCombined(entries.map(e => e.p), N);
+  const M = S.models;
+
+  el("fDmg").textContent = num(sim.meanDealt);
+  el("fSlain").textContent = num(sim.meanSlain);
+  el("fWipe").textContent = pct(sim.slainDist[M]);
+  el("fSub").textContent = "Figurines tuées sur " + sim.N.toLocaleString("fr-FR") +
+    " simulations complètes de la phase, dans l'ordre de la liste.";
+  drawBars(el("fHist"), binned(sim.slainDist, 26), "var(--green)", (i,v)=>
+    "<b>" + i + "</b> figurine" + (i>1?"s":"") + "<br>probabilité <b>" + pct(v) + "</b>");
+
+  /* agregation par unite */
+  const byUnit = new Map();
+  entries.forEach((e,i)=>{
+    const k = e.ru.id;
+    if(!byUnit.has(k)) byUnit.set(k, {ru:e.ru, dealt:0, raw:0, pts:unitPoints(e.ru), alone:0});
+    const o = byUnit.get(k);
+    o.dealt += sim.per[i].dealt;
+    o.raw   += sim.per[i].raw;
+  });
+  /* « seule » : ce que l'unite ferait en tirant la premiere sur une cible intacte */
+  byUnit.forEach(o=>{
+    const ps = unitProfiles(o.ru);
+    const s2 = simulateCombined(ps, 8000);
+    o.alone = s2 ? s2.meanDealt : 0;
+  });
+
+  const rows = [...byUnit.values()].sort((a,b)=> b.dealt - a.dealt);
+  const tot = rows.reduce((a,o)=> a + o.dealt, 0) || 1;
+  let html = '<table><thead><tr><th>Unité</th><th>Infligé</th><th>Seule</th><th>Part</th><th>/100 pts</th></tr></thead><tbody>';
+  rows.forEach(o=>{
+    html += "<tr><td>" + o.ru.name + "</td><td>" + num(o.dealt) + "</td><td>" + num(o.alone) +
+      "</td><td>" + Math.round(o.dealt/tot*100) + " %</td><td>" +
+      (o.pts ? num(o.alone/o.pts*100) : "—") + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  el("fTable").innerHTML = html;
+
+  const waste = Math.max(0, sim.meanRaw - sim.meanDealt);
+  el("fNote").innerHTML = "Puissance brute totale <b>" + num(sim.meanRaw) + " PV</b>, dont <b>" +
+    num(waste) + " PV</b> perdus en surtue (" + Math.round(waste/Math.max(sim.meanRaw,0.001)*100) +
+    " %). La colonne « /100 pts » utilise la puissance de l'unité seule : c'est la mesure d'efficacité, indépendante de l'ordre de tir.";
+}
+
+
+/* ==========================================================
+   ECRAN « COMPARER »
+   ========================================================== */
+let CMP = [];          // {name, size, w}
+let cmpPhaseV = "T";
+
+function loadCmp(){ try{ CMP = JSON.parse(localStorage.getItem("mathhammer.cmp.v1") || "[]"); }catch(e){ CMP = []; } }
+function saveCmp(){ try{ localStorage.setItem("mathhammer.cmp.v1", JSON.stringify(CMP)); }catch(e){} }
+
+function cmpProfiles(c){
+  const list = unitWeps(c.name);
+  let w = list[c.w];
+  if(!w || w[2] !== cmpPhaseV) w = list.find(x => x[2] === cmpPhaseV);
+  if(!w) return [];
+  const pseudo = {name:c.name, chars: el("cmpLed").checked ? [{name:"—"}] : []};
+  const p = weaponProfile(c.name, w, c.size, pseudo);
+  p.label = w[1];
+  return [p];
+}
+function cmpPoints(c){
+  const u = unitRow(c.name);
+  return u ? (u[7][String(c.size)] || 0) : 0;
+}
+function renderCmpList(){
+  const host = el("cmpList"); host.innerHTML = "";
+  if(!CMP.length){
+    host.innerHTML = '<div class="empty">Ajoute au moins deux unités à comparer.</div>';
+    renderCmp(); return;
+  }
+  CMP.forEach((c,i)=>{
+    const u = unitRow(c.name); if(!u) return;
+    const list = unitWeps(c.name);
+    let w = list[c.w]; if(!w || w[2] !== cmpPhaseV) w = list.find(x=>x[2]===cmpPhaseV);
+    const row = document.createElement("div");
+    row.className = "cmprow";
+    row.innerHTML = '<span class="cn"><b>' + c.name + '</b><i>×' + c.size + ' · ' +
+      (w ? w[1] : "aucune arme pour cette phase") + ' · ' + cmpPoints(c) + ' pts</i></span>';
+    const nx = document.createElement("button");
+    nx.className="xbtn"; nx.type="button"; nx.textContent="⟳"; nx.title="Arme suivante";
+    nx.addEventListener("click", ()=>{
+      const idxs = list.map((x,j)=>[x,j]).filter(([x])=>x[2]===cmpPhaseV).map(([,j])=>j);
+      if(!idxs.length) return;
+      const cur = idxs.indexOf(c.w);
+      c.w = idxs[(cur + 1) % idxs.length];
+      saveCmp(); renderCmpList();
+    });
+    const sz = document.createElement("button");
+    sz.className="xbtn"; sz.type="button"; sz.textContent="±"; sz.title="Taille suivante";
+    sz.addEventListener("click", ()=>{
+      const k = u[6].indexOf(c.size);
+      c.size = u[6][(k + 1) % u[6].length];
+      saveCmp(); renderCmpList();
+    });
+    const rm = document.createElement("button");
+    rm.className="xbtn"; rm.type="button"; rm.textContent="×";
+    rm.addEventListener("click", ()=>{ CMP.splice(i,1); saveCmp(); renderCmpList(); });
+    if(u[6].length > 1) row.appendChild(sz);
+    row.appendChild(nx); row.appendChild(rm);
+    host.appendChild(row);
+  });
+  renderCmp();
+}
+function hbars(host, rows, fmt, alt){
+  const max = Math.max.apply(null, rows.map(r => r.v)) || 1;
+  host.innerHTML = rows.map(r =>
+    '<div class="hbar-row"><div class="hbar-top"><span class="hn">' + r.n + '</span>' +
+    '<span class="hv">' + fmt(r.v) + '</span><span class="hp">' + r.p + ' pts</span></div>' +
+    '<div class="hbar-track"><div class="hbar-fill' + (alt ? " alt" : "") +
+    '" style="width:' + Math.max(1.5, r.v/max*100) + '%"></div></div></div>').join("");
+}
+function renderCmp(){
+  const hostE = el("cmpEff"), hostA = el("cmpAbs"), hostT = el("cmpTable");
+  if(CMP.length < 1){
+    hostE.innerHTML = hostA.innerHTML = hostT.innerHTML = ""; el("cmpNote").textContent = ""; return;
+  }
+  const res = [];
+  CMP.forEach(c=>{
+    const ps = cmpProfiles(c);
+    if(!ps.length){ res.push({n:c.name, pts:cmpPoints(c), dmg:0, slain:0, wipe:0, eff:0, none:true}); return; }
+    const sim = simulateCombined(ps, 20000);
+    const pts = cmpPoints(c);
+    res.push({n:c.name, pts, dmg:sim.meanDealt, raw:sim.meanRaw, slain:sim.meanSlain,
+              wipe:sim.slainDist[S.models], eff: pts ? sim.meanRaw/pts*100 : 0});
+  });
+  const byEff = res.slice().sort((a,b)=> b.eff - a.eff);
+  const byAbs = res.slice().sort((a,b)=> b.raw - a.raw);
+  hbars(hostE, byEff.map(r=>({n:r.n, v:r.eff, p:r.pts})), v=>num(v)+" PV", false);
+  hbars(hostA, byAbs.map(r=>({n:r.n, v:r.raw||0, p:r.pts})), v=>num(v)+" PV", true);
+
+  let html = '<table><thead><tr><th>Unité</th><th>Pts</th><th>Dégâts</th><th>Figs</th><th>Efface</th><th>/100 pts</th></tr></thead><tbody>';
+  byEff.forEach(r=>{
+    html += "<tr><td>" + r.n + "</td><td>" + r.pts + "</td><td>" + num(r.raw||0) + "</td><td>" +
+      num(r.slain) + "</td><td>" + pct(r.wipe||0) + "</td><td>" + num(r.eff) + "</td></tr>";
+  });
+  hostT.innerHTML = html + "</tbody></table>";
+
+  if(byEff.length >= 2 && byEff[0].eff > 0){
+    const g = byEff[0], b = byEff[byEff.length-1];
+    const ratio = b.eff > 0 ? (g.eff/b.eff) : 0;
+    el("cmpNote").innerHTML = "Contre cette cible, <b>" + g.n + "</b> rend <b>" + num(g.eff) +
+      " PV pour 100 pts</b>" + (ratio > 1.05 ? ", soit " + num(ratio) + "× mieux que " + b.n : "") +
+      ". « Dégâts » est la puissance brute avant plafonnement par les PV de la cible : c'est la bonne mesure pour comparer, la surtue dépendant de l'ordre de tir.";
+  } else el("cmpNote").textContent = "";
+}
+
+/* ==========================================================
+   IMPORT / EXPORT
+   ========================================================== */
+function exportImport(){
+  const txt = JSON.stringify(R);
+  const v = prompt("Copie ce texte pour sauvegarder ta liste, ou colle-en un autre pour l'importer :", txt);
+  if(v === null || v === txt) return;
+  try{
+    const o = JSON.parse(v);
+    if(!o || !Array.isArray(o.units)) throw 0;
+    R = {detach: o.detach || [], units: o.units};
+    R.units.forEach(u => { u.chars = u.chars || []; u.lo = u.lo || []; if(u.sel === undefined) u.sel = true;
+      if(!u.id) u.id = nextId++; });
+    saveR(); renderList();
+  }catch(e){ alert("Liste illisible — rien n'a été modifié."); }
+}
+
+/* ==========================================================
+   INIT
+   ========================================================== */
+function initDetachSheet(){
+  const host = el("dList"); host.innerHTML = "";
+  DETACHMENTS.forEach(d=>{
+    const b = document.createElement("button");
+    b.type="button"; b.className = "opt" + (R.detach.includes(d[0]) ? " sel" : "");
+    b.innerHTML = '<span class="oi"><span class="o1">' + d[0] + '</span>' +
+      '<span class="o2">' + d[1] + ' PD · ' + d[3] + (d[2] ? ' · tag ' + d[2] : '') + '</span></span>' +
+      (d[5] ? '<span class="otag">DÉS</span>' : '');
+    b.addEventListener("click", ()=>{
+      if(!R.detach.includes(d[0])) R.detach.push(d[0]);
+      closeSheet("sheetDetach"); saveR(); renderList();
+    });
+    host.appendChild(b);
+  });
+}
+
+el("tabs").querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
+    document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("on", sc.id===b.dataset.s));
+    window.scrollTo(0,0);
+    el("headSum").style.display = (b.dataset.s === "scSim") ? "" : "none";
+    if(b.dataset.s === "scFire"){ syncTarget(); renderFireList(); }
+    if(b.dataset.s === "scList") renderList();
+    if(b.dataset.s === "scCmp"){ syncTarget(); renderCmpList(); }
+  });
+});
+function syncTarget(){
+  el("ptName3").textContent = SIM.tgtName;
+  el("ptSub3").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
+    " · " + S.wounds + " PV × " + S.models;
+  el("ptName2").textContent = SIM.tgtName;
+  el("ptSub2").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
+    " · " + S.wounds + " PV × " + S.models + (S.fnp ? " · FNP " + S.fnp + "+" : "") +
+    (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
+}
+el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
+el("btnAddUnit").addEventListener("click", openUnitPick);
+el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
+el("btnExport").addEventListener("click", exportImport);
+el("uSearch").addEventListener("input", ()=>{ if(window.__rosterPick && pickMode) renderPick(); });
+el("phaseChips").querySelectorAll(".chip").forEach(b=>
+  b.addEventListener("click", ()=>{
+    phase = b.dataset.p;
+    el("phaseChips").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
+    renderFireList();
+  }));
+document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
+  b.addEventListener("click", ()=>{ pickMode = null; }));
+
+/* le simulateur possede sa propre liste d'unites : on remet son mode
+   quand l'utilisateur rouvre la feuille depuis l'onglet Simulateur */
+const origPick = el("pickUnit");
+origPick.addEventListener("click", ()=>{ pickMode = null; window.__rosterPick = false; }, true);
+
+/* la cible change dans l'onglet Simulateur -> repercuter ici */
+const obs = new MutationObserver(()=>{
+  if(el("scFire").classList.contains("on")){ syncTarget(); renderFireList(); }
+  if(el("scCmp").classList.contains("on")){ syncTarget(); renderCmpList(); }
+});
+obs.observe(el("ptSub"), {childList:true, characterData:true, subtree:true});
+
+// insere la barre de points sous l'en-tete
+const bar = document.createElement("div");
+bar.className = "ptsbar"; bar.id = "ptsbar";
+el("scList").insertBefore(bar, el("scList").firstChild);
+
+el("btnCmpRoster").addEventListener("click", ()=> openCmpPick("roster"));
+el("btnCmpCat").addEventListener("click", ()=> openCmpPick("cat"));
+el("cmpLed").addEventListener("change", renderCmpList);
+el("pickTarget3").addEventListener("click", ()=> el("pickTarget").click());
+el("cmpPhase").querySelectorAll(".chip").forEach(b=>
+  b.addEventListener("click", ()=>{
+    cmpPhaseV = b.dataset.p;
+    el("cmpPhase").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
+    renderCmpList();
+  }));
+
+loadR(); loadCmp();
+initDetachSheet();
+renderList();
+renderCmpList();
+syncTarget();
+})();

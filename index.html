@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mathhammer">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Simulateur de séquence d'attaque Warhammer 40 000 (11e édition) pour les Nécrons.">
+<title>Mathhammer — Nécrons</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg">
+<style>
+:root{
+  color-scheme: dark;
+  --s0:#0B0F0C; --s1:#141A16; --s2:#1D2621; --s3:#27332C;
+  --line:#33453A; --line-hi:#48604F;
+  --tx:#EAF2EC; --tx2:#A9BCAF; --tx3:#74897C;
+  --green:#5FA82F;        /* série 1 — validée en bande sombre */
+  --cyan:#2E9FB4;         /* série 2 — validée en bande sombre */
+  --glow:#9BE85C;         /* accent lumineux, hors graphiques */
+  --glow-soft:rgba(155,232,92,.13);
+  --warn:#E0A030;
+  --tap:46px; --r:10px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--s0);
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(95,168,47,.09), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='58' viewBox='0 0 34 58'%3E%3Cpath d='M17 0 L34 9.7 L34 29 L17 38.7 L0 29 L0 9.7 Z' fill='none' stroke='%235FA82F' stroke-opacity='.055' stroke-width='1'/%3E%3C/svg%3E");
+  color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:15px;line-height:1.45;
+  padding-bottom:calc(48px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:640px;margin:0 auto;padding:0 12px}
+
+/* ---------- en-tête ---------- */
+header{
+  position:sticky;top:0;z-index:30;
+  background:rgba(11,15,12,.95);
+  backdrop-filter:saturate(150%) blur(10px);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.hbar{display:flex;align-items:center;gap:10px;padding:9px 12px 7px;max-width:640px;margin:0 auto}
+.mark{flex:0 0 26px;height:26px}
+.logo{font-size:14px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--glow);line-height:1.15}
+.logo small{display:block;font-size:9.5px;font-weight:500;letter-spacing:.09em;color:var(--tx3);text-transform:none}
+.hbar .spacer{flex:1}
+.ghost{
+  min-height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);
+  background:var(--s2);color:var(--tx2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
+}
+.ghost:active{background:var(--s3)}
+.summary{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.sum{background:var(--s1);padding:8px 6px 9px;text-align:center;min-width:0}
+.sum .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15;margin-top:1px}
+.sum.hero .v{color:var(--glow);text-shadow:0 0 14px rgba(155,232,92,.35)}
+
+/* ---------- cartes à angles coupés ---------- */
+.card{
+  background:var(--s1);border:1px solid var(--line);margin-top:12px;position:relative;
+  clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.card > h2{
+  margin:0;padding:11px 14px 10px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx2);display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;
+  border-bottom:1px solid var(--line);
+}
+.card > h2::before{
+  content:"";flex:0 0 12px;height:12px;
+  background:linear-gradient(135deg,var(--green) 45%,transparent 45%);
+}
+.card > h2 .chev{margin-left:auto;color:var(--tx3);font-size:11px;transition:transform .18s}
+.card.collapsed > h2{border-bottom-color:transparent}
+.card.collapsed > h2 .chev{transform:rotate(-90deg)}
+.card.collapsed > .body{display:none}
+.body{padding:6px 14px 14px}
+.hint{font-size:11.5px;color:var(--tx3);margin:8px 0 0;line-height:1.5}
+
+/* ---------- gros sélecteur (ouvre une feuille) ---------- */
+.picker{
+  width:100%;display:flex;align-items:center;gap:12px;text-align:left;
+  margin:10px 0 2px;padding:11px 12px;border-radius:var(--r);
+  background:var(--s2);border:1px solid var(--line-hi);color:var(--tx);
+  font-family:inherit;font-size:15px;cursor:pointer;
+}
+.picker:active{background:var(--s3)}
+.picker .pk{flex:1;min-width:0;display:flex;flex-direction:column}
+.picker .p1{display:block;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker .p2{display:block;font-size:11.5px;color:var(--tx3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker .arrow{flex:0 0 auto;color:var(--glow);font-size:17px;line-height:1}
+
+/* ---------- puces ---------- */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:9px 14px 4px;margin:0 -14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;min-height:36px;padding:0 13px;border-radius:0;
+  clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
+  background:var(--s2);border:1px solid var(--line);color:var(--tx2);
+  font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;
+}
+.chip.on{background:var(--glow-soft);border-color:var(--glow);color:var(--glow)}
+.chips.tight{padding-top:4px}
+
+/* ---------- champs ---------- */
+.row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6)}
+.row:first-child{border-top:0}
+.row > label{flex:0 0 42%;font-size:13.5px;color:var(--tx2)}
+.row > .ctl{flex:1;min-width:0;display:flex;justify-content:flex-end}
+.row.stack{flex-direction:column;align-items:stretch;gap:6px;padding:9px 0 10px}
+.row.stack > label{flex:none;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3)}
+.row.stack .seg{flex:1;flex-wrap:nowrap;gap:5px}
+.row.stack .seg button{flex:1 1 0;min-width:0;padding:0 2px}
+input[type=text],input[type=number]{
+  width:100%;max-width:128px;height:var(--tap);padding:0 10px;text-align:center;
+  background:var(--s2);border:1px solid var(--line);border-radius:8px;
+  color:var(--tx);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;font-family:inherit;
+}
+input:focus{outline:2px solid var(--glow);outline-offset:-1px}
+.seg{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.seg button{
+  min-width:40px;height:var(--tap);padding:0 8px;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  background:var(--s2);border:1px solid var(--line);color:var(--tx2);
+  font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;font-family:inherit;cursor:pointer;
+}
+.seg button[aria-pressed=true]{background:var(--green);border-color:var(--glow);color:#08120A}
+.seg.small button{min-width:34px;height:38px;font-size:13px}
+.toggle{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(51,69,58,.6);cursor:pointer}
+.toggle:first-child{border-top:0}
+.toggle .box{
+  flex:0 0 22px;height:22px;border:1.5px solid var(--line);background:var(--s2);
+  clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;
+}
+.toggle > input[type=checkbox]{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.toggle > input[type=checkbox]:checked + .box{background:var(--green);border-color:var(--glow);color:#08120A}
+.toggle .txt{flex:1;font-size:13.5px;color:var(--tx2)}
+.toggle .txt em{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:1px}
+.toggle > input[type=checkbox]:checked ~ .txt{color:var(--tx)}
+.toggle .num{flex:0 0 62px;display:flex;justify-content:flex-end}
+.toggle .num input{max-width:62px;height:38px;font-size:15px}
+
+/* ---------- encart profil ---------- */
+.profile{
+  margin:10px 0 2px;padding:10px 12px;background:var(--s2);border:1px solid var(--line);
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);
+  font-size:12px;line-height:1.55;color:var(--tx2);
+}
+.profile .stat{font-size:13px;color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.profile .kw{display:block;margin-top:3px;color:var(--glow);font-weight:700;font-size:11.5px}
+.profile .warn{display:block;margin-top:5px;color:var(--tx3);font-size:11px}
+
+/* ---------- entonnoir ---------- */
+.funnel{display:flex;flex-direction:column;gap:1px;margin-top:6px}
+.fstep{display:flex;align-items:center;gap:10px;padding:7px 0}
+.fstep .fl{flex:0 0 92px;font-size:12.5px;color:var(--tx2)}
+.ftrack{flex:1;height:14px;background:var(--s2);min-width:0;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%)}
+.fbar{height:100%;background:linear-gradient(90deg,var(--green),var(--glow));transition:width .25s ease}
+.fstep .fv{flex:0 0 64px;text-align:right;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+.fstep .fv span{font-size:10.5px;font-weight:500;color:var(--tx3);display:block;line-height:1.15}
+
+/* ---------- graphiques ---------- */
+.chart-title{font-size:12.5px;color:var(--tx2);margin:14px 0 2px;font-weight:700}
+.chart-sub{font-size:11px;color:var(--tx3);margin:0 0 6px}
+svg.chart{display:block;width:100%;height:auto;overflow:visible}
+.axis-lbl{font-size:10px;fill:var(--tx3);font-family:inherit}
+.gridline{stroke:var(--line);stroke-width:1;opacity:.6}
+.tip{position:fixed;z-index:80;pointer-events:none;opacity:0;transition:opacity .12s;
+  background:var(--s3);border:1px solid var(--line-hi);padding:6px 10px;font-size:12px;line-height:1.4;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.6);white-space:nowrap}
+.tip b{font-variant-numeric:tabular-nums;color:var(--glow)}
+
+/* ---------- tableau & valeurs ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 4px;text-align:right;border-bottom:1px solid rgba(51,69,58,.6)}
+th:first-child,td:first-child{text-align:left}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);font-weight:700}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6);font-size:13.5px}
+.kv:first-child{border-top:0}
+.kv span:first-child{color:var(--tx2)}
+.kv b{font-variant-numeric:tabular-nums;font-size:14.5px}
+.btn{
+  width:100%;min-height:44px;border:1px solid var(--line);background:var(--s2);color:var(--tx2);
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);
+  font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:12px;
+}
+.btn.go{border-color:var(--glow);background:var(--glow-soft);color:var(--glow)}
+footer{padding:22px 14px 10px;font-size:10.5px;color:var(--tx3);text-align:center;line-height:1.7}
+
+/* ---------- feuille de sélection ---------- */
+.sheet{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;background:var(--s0)}
+.sheet.open{display:flex}
+.sheet-head{
+  padding:calc(10px + env(safe-area-inset-top)) 12px 10px;border-bottom:1px solid var(--line);
+  background:var(--s1);display:flex;align-items:center;gap:10px;
+}
+.sheet-head h3{margin:0;font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--glow);flex:1}
+input.sheet-search{
+  margin:10px 12px 0;display:block;width:calc(100% - 24px);max-width:none;height:44px;
+  padding:0 12px;text-align:left;background:var(--s2);border:1px solid var(--line-hi);border-radius:8px;
+  color:var(--tx);font-size:16px;font-weight:600;font-family:inherit;
+}
+.sheet-tabs{display:flex;gap:6px;padding:10px 12px 0}
+.sheet-tabs .chip{flex:1;text-align:center}
+.sheet-list{flex:1;overflow-y:auto;padding:8px 12px calc(20px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.opt{
+  width:100%;text-align:left;display:flex;align-items:center;gap:10px;
+  padding:11px 12px;margin-top:6px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  font-family:inherit;font-size:14.5px;cursor:pointer;
+}
+.opt:active{background:var(--s2)}
+.opt.sel{border-color:var(--glow);background:var(--glow-soft)}
+.opt .oi{flex:1;min-width:0;display:flex;flex-direction:column}
+.opt .o1{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opt .o2{display:block;font-size:11.5px;color:var(--tx3);margin-top:2px;font-variant-numeric:tabular-nums}
+.opt .otag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--tx3);
+  border:1px solid var(--line);padding:2px 6px}
+.sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
+/* ---------- onglets & ecrans ---------- */
+.screen{display:none}
+.screen.on{display:block}
+nav.tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+  background:rgba(11,15,12,.97);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
+}
+nav.tabs button{
+  flex:1;padding:9px 4px 10px;background:none;border:0;color:var(--tx3);
+  font-family:inherit;font-size:9.5px;font-weight:700;letter-spacing:.03em;
+  text-transform:uppercase;cursor:pointer;border-top:2px solid transparent;
+}
+nav.tabs button .ti{display:block;font-size:16px;line-height:1.25;margin-bottom:1px}
+nav.tabs button.on{color:var(--glow);border-top-color:var(--glow);background:var(--glow-soft)}
+body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+
+/* ---------- barre de points ---------- */
+.ptsbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ptsbar .c{background:var(--s1);padding:7px 6px 8px;text-align:center;min-width:0}
+.ptsbar .c .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.ptsbar .c .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.ptsbar .c.over .v{color:#E0654A}
+.ptsbar .c.ok .v{color:var(--glow)}
+
+/* ---------- unite de la liste ---------- */
+.runit{background:var(--s1);border:1px solid var(--line);margin-top:10px;padding:11px 12px 12px;
+  clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+.runit.sel{border-color:var(--glow)}
+.rhead{display:flex;align-items:flex-start;gap:9px}
+.rhead .rn{flex:1;min-width:0}
+.rhead .rn b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rhead .rn i{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:2px;font-variant-numeric:tabular-nums}
+.rhead .rpts{flex:0 0 auto;font-size:13px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums}
+.xbtn{flex:0 0 30px;height:30px;border:1px solid var(--line);background:var(--s2);color:var(--tx3);
+  font-size:15px;line-height:1;cursor:pointer;font-family:inherit}
+.lo{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6)}
+.lo .ln{flex:1;min-width:0;font-size:12.5px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lo .ln em{font-style:normal;color:var(--tx3);font-size:11px}
+.stepper{flex:0 0 auto;display:flex;align-items:center;gap:0}
+.stepper button{width:30px;height:30px;border:1px solid var(--line);background:var(--s2);color:var(--tx2);
+  font-size:15px;line-height:1;cursor:pointer;font-family:inherit}
+.stepper span{min-width:30px;text-align:center;font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.addrow{display:flex;gap:7px;margin-top:9px}
+.addrow button{flex:1;min-height:34px;border:1px dashed var(--line-hi);background:transparent;color:var(--tx3);
+  font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.addrow button:active{background:var(--s2)}
+.warnbox{margin-top:10px;padding:9px 11px;border:1px solid #6B4A2A;background:rgba(224,160,48,.09);
+  font-size:11.5px;line-height:1.5;color:#E8C88A;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.warnbox b{color:#F2D9A8}
+.empty{padding:30px 10px;text-align:center;color:var(--tx3);font-size:13px;line-height:1.6}
+.checkrow{display:flex;align-items:center;gap:10px}
+.cbox{flex:0 0 22px;height:22px;border:1.5px solid var(--line);background:var(--s2);
+  clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent}
+.checkrow.on .cbox{background:var(--green);border-color:var(--glow);color:#08120A}
+/* ---------- comparateur ---------- */
+.cmprow{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
+.cmprow:first-child{border-top:0}
+.cmprow .cn{flex:1;min-width:0}
+.cmprow .cn b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmprow .cn i{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:2px}
+.hbar-row{padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
+.hbar-row:first-child{border-top:0}
+.hbar-top{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
+.hbar-top .hn{flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar-top .hv{flex:0 0 auto;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--glow)}
+.hbar-top .hp{flex:0 0 auto;font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.hbar-track{height:12px;background:var(--s2);clip-path:polygon(0 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%)}
+.hbar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--glow))}
+.hbar-fill.alt{background:linear-gradient(90deg,#1F7A8C,var(--cyan))}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="none" stroke="#5FA82F" stroke-width="1.4"/>
+      <path d="M16 8 L23 12 L23 20 L16 24 L9 20 L9 12 Z" fill="none" stroke="#9BE85C" stroke-width="1.2" opacity=".8"/>
+      <path d="M16 13 L19 15 L19 18 L16 20 L13 18 L13 15 Z" fill="#9BE85C"/>
+    </svg>
+    <div class="logo">Mathhammer<small>Nécrons — 40K 11<sup>e</sup> éd.</small></div>
+    <div class="spacer"></div>
+    <button class="ghost" id="btnSave" type="button">Enregistrer</button>
+  </div>
+  <div class="summary" id="headSum">
+    <div class="sum hero"><div class="k">Dégâts moyens</div><div class="v" id="sumDmg">—</div></div>
+    <div class="sum"><div class="k">Figs tuées</div><div class="v" id="sumSlain">—</div></div>
+    <div class="sum"><div class="k">Unité effacée</div><div class="v" id="sumWipe">—</div></div>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="screen on" id="scSim">
+
+  <section class="card" id="cardAtk">
+    <h2>Attaquant <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickUnit" type="button">
+        <span class="pk"><span class="p1" id="puName">Immortals</span><span class="p2" id="puSub">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+      <div class="chips" id="weaponChips"></div>
+      <div class="chips tight" id="sizeChips"></div>
+      <div class="profile" id="profBox"></div>
+      <label class="toggle"><input type="checkbox" id="awakened"><span class="box">✓</span><span class="txt">Personnage nécron à la tête<em>Awakened Dynasty — Command Protocols : +1 au jet de touche</em></span></label>
+      <details style="margin-top:6px">
+        <summary style="font-size:11.5px;color:var(--tx3);cursor:pointer;padding:6px 0">Ajuster le profil à la main</summary>
+        <div class="row"><label for="wName">Nom</label><div class="ctl"><input type="text" id="wName" style="max-width:148px;text-align:left"></div></div>
+        <div class="row"><label for="attacks">Attaques</label><div class="ctl"><input type="text" id="attacks" inputmode="text" placeholder="ex. 2D6+3"></div></div>
+        <div class="row stack"><label>CT / CC</label><div class="ctl"><div class="seg" id="segBS"></div></div></div>
+        <div class="row"><label for="str">Force</label><div class="ctl"><input type="number" id="str" inputmode="numeric" min="1" max="30"></div></div>
+        <div class="row stack"><label>PA</label><div class="ctl"><div class="seg small" id="segAP"></div></div></div>
+        <div class="row"><label for="dmg">Dégâts</label><div class="ctl"><input type="text" id="dmg" inputmode="text" placeholder="ex. D6+2"></div></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="card" id="cardTgt">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget" type="button">
+        <span class="pk"><span class="p1" id="ptName">Space Marine</span><span class="p2" id="ptSub">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+      <div class="chips tight" id="tSizeChips"></div>
+      <div class="row"><label for="tough">Endurance</label><div class="ctl"><input type="number" id="tough" inputmode="numeric" min="1" max="30"></div></div>
+      <div class="row stack"><label>Sauvegarde</label><div class="ctl"><div class="seg small" id="segSv"></div></div></div>
+      <div class="row stack"><label>Invulnérable</label><div class="ctl"><div class="seg small" id="segInv"></div></div></div>
+      <div class="row"><label for="wounds">PV / figurine</label><div class="ctl"><input type="number" id="wounds" inputmode="numeric" min="1" max="60"></div></div>
+      <div class="row"><label for="models">Figurines</label><div class="ctl"><input type="number" id="models" inputmode="numeric" min="1" max="40"></div></div>
+      <div class="row stack"><label>Insensible (FNP)</label><div class="ctl"><div class="seg small" id="segFNP"></div></div></div>
+      <div class="row stack"><label>Réduction de dégâts subis</label><div class="ctl"><div class="seg small" id="segDmgRed"></div></div></div>
+      <label class="toggle"><input type="checkbox" id="cover"><span class="box">✓</span><span class="txt">Bénéfice du couvert<em>+1 en sauvegarde (sans effet sur Svg 3+ ou mieux face à PA 0)</em></span></label>
+      <p class="hint" id="tgtNote"></p>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardAbil">
+    <h2>Capacités de l'arme <span class="chev">▾</span></h2>
+    <div class="body">
+      <label class="toggle"><input type="checkbox" id="torrent"><span class="box">✓</span><span class="txt">Torrent<em>touche automatiquement — donc aucune touche critique</em></span></label>
+      <label class="toggle"><input type="checkbox" id="lethal"><span class="box">✓</span><span class="txt">Lethal Hits<em>touche critique = blessure automatique</em></span></label>
+      <label class="toggle"><input type="checkbox" id="dev"><span class="box">✓</span><span class="txt">Devastating Wounds<em>blessure critique = pas de jet de sauvegarde</em></span></label>
+      <label class="toggle"><input type="checkbox" id="sustainedOn"><span class="box">✓</span><span class="txt">Sustained Hits<em>touches en plus par critique (1, 2, D3…)</em></span><span class="num"><input type="text" id="sustainedN" value="1" inputmode="text"></span></label>
+      <label class="toggle"><input type="checkbox" id="blast"><span class="box">✓</span><span class="txt">Blast<em>+1 attaque par tranche de 5 figurines visées</em></span></label>
+      <label class="toggle"><input type="checkbox" id="rapidOn"><span class="box">✓</span><span class="txt">Rapid Fire (à mi-portée)<em>attaques en plus, à l'échelle de l'unité</em></span><span class="num"><input type="number" id="rapidN" value="1" min="1" max="60" inputmode="numeric"></span></label>
+      <label class="toggle"><input type="checkbox" id="meltaOn"><span class="box">✓</span><span class="txt">Melta (à mi-portée)<em>dégâts en plus par attaque non sauvegardée</em></span><span class="num"><input type="number" id="meltaN" value="2" min="1" max="6" inputmode="numeric"></span></label>
+      <div class="row stack"><label>Touche critique sur</label><div class="ctl"><div class="seg small" id="segCritH"></div></div></div>
+      <div class="row stack"><label>Blessure critique sur — « Anti-X »</label><div class="ctl"><div class="seg small" id="segCritW"></div></div></div>
+    </div>
+  </section>
+
+  <section class="card" id="cardMods">
+    <h2>Modificateurs &amp; relances <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="row stack"><label>Modif. pour toucher</label><div class="ctl"><div class="seg small" id="segHitMod"></div></div></div>
+      <div class="row stack"><label>Modif. pour blesser</label><div class="ctl"><div class="seg small" id="segWndMod"></div></div></div>
+      <div class="row stack"><label>Relance de touche</label><div class="ctl"><div class="seg small" id="segRrH"></div></div></div>
+      <div class="row stack"><label>Relance de blessure</label><div class="ctl"><div class="seg small" id="segRrW"></div></div></div>
+      <p class="hint">Modificateurs plafonnés à ±1 comme dans les règles. Un 1 naturel rate toujours, un critique réussit toujours. « Ratés » relance tous les jets ratés.</p>
+    </div>
+  </section>
+
+  <section class="card" id="cardRes">
+    <h2>Résultats <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="funnel" id="funnel"></div>
+
+      <div class="chips tight" id="modeChips">
+        <button type="button" class="chip on" data-m="auto">Auto</button>
+        <button type="button" class="chip" data-m="slain">Figurines tuées</button>
+        <button type="button" class="chip" data-m="dmg">Dégâts (PV)</button>
+      </div>
+      <div class="chart-title" id="histTitle">Distribution des figurines tuées</div>
+      <p class="chart-sub" id="histSub"></p>
+      <svg id="hist" class="chart" role="img" aria-label="Histogramme de la distribution"></svg>
+
+      <div class="chart-title" id="cumTitle">Probabilité d'en tuer au moins N</div>
+      <p class="chart-sub" id="cumSub">Cumulé.</p>
+      <svg id="cum" class="chart" role="img" aria-label="Probabilité cumulée"></svg>
+
+      <div style="margin-top:16px">
+        <div class="kv"><span>Dégâts moyens infligés</span><b id="rDmg">—</b></div>
+        <div class="kv"><span>Dégâts « perdus » (surtue)</span><b id="rWaste">—</b></div>
+        <div class="kv"><span>Figurines tuées (moyenne)</span><b id="rSlain">—</b></div>
+        <div class="kv"><span>Figurines tuées (médiane)</span><b id="rMed">—</b></div>
+        <div class="kv"><span>Au moins 1 figurine tuée</span><b id="rOne">—</b></div>
+        <div class="kv"><span>Unité entièrement détruite</span><b id="rWipe">—</b></div>
+        <div class="kv"><span>PV restants (moyenne)</span><b id="rLeft">—</b></div>
+      </div>
+
+      <button class="btn" id="btnTable" type="button">Afficher le tableau de données</button>
+      <div id="tableWrap" style="display:none;margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardSaved">
+    <h2>Mes profils enregistrés <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" id="savedHint">Rien d'enregistré. « Enregistrer » en haut mémorise l'attaquant + la cible sur ce téléphone.</p>
+      <div class="chips tight" id="savedList" style="flex-wrap:wrap;overflow:visible"></div>
+    </div>
+  </section>
+
+  <footer>
+    Chaîne touche → blessure → sauvegarde calculée exactement ; répartition des dégâts entre figurines
+    simulée 30 000 fois (les dégâts ne débordent pas d'une figurine à l'autre).<br>
+    Données 11<sup>e</sup> éd. : faction pack Necrons v1.0 + Wahapedia. Points à revérifier au MFM.
+    Tous les champs sont modifiables. Non affilié à Games Workshop.
+  </footer>
+</div>
+
+<div class="screen" id="scList">
+  <section class="card">
+    <h2>Détachements <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">3 Points de Détachement à 2000 pts. Deux détachements ne peuvent pas partager le même tag d'exclusivité.</p>
+      <div id="detList"></div>
+      <div class="addrow"><button type="button" id="btnAddDetach">+ Ajouter un détachement</button></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Unités <span class="chev">▾</span></h2>
+    <div class="body">
+      <div id="rosterList"></div>
+      <div class="addrow">
+        <button type="button" id="btnAddUnit">+ Ajouter une unité</button>
+      </div>
+      <div id="rosterWarn"></div>
+      <button class="btn" id="btnExport" type="button">Exporter / importer la liste</button>
+    </div>
+  </section>
+</div>
+
+<div class="screen" id="scCmp">
+  <section class="card">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget3" type="button">
+        <span class="pk"><span class="p1" id="ptName3">Space Marine</span><span class="p2" id="ptSub3">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Unités à comparer <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chips tight" id="cmpPhase">
+        <button type="button" class="chip on" data-p="T">Phase de tir</button>
+        <button type="button" class="chip" data-p="C">Corps à corps</button>
+      </div>
+      <div id="cmpList"></div>
+      <div class="addrow">
+        <button type="button" id="btnCmpRoster">+ Depuis ma liste</button>
+        <button type="button" id="btnCmpCat">+ Du catalogue</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="cmpLed"><span class="box">✓</span><span class="txt">Menées par un personnage<em>applique la règle de détachement qui en dépend</em></span></label>
+    </div>
+  </section>
+
+  <section class="card" id="cardCmpRes">
+    <h2>Verdict <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chart-title">Rentabilité — dégâts pour 100 points</div>
+      <p class="chart-sub">La mesure qui compte pour arbitrer une liste : ce que chaque unité rend contre cette cible, ramené à son coût.</p>
+      <div id="cmpEff"></div>
+      <div class="chart-title">Puissance brute — dégâts par unité</div>
+      <p class="chart-sub">Sans tenir compte du coût. Utile pour savoir qui peut faire tomber la cible en un tour.</p>
+      <div id="cmpAbs"></div>
+      <div class="chart-title">Détail</div>
+      <div id="cmpTable"></div>
+      <p class="hint" id="cmpNote"></p>
+    </div>
+  </section>
+</div>
+<div class="screen" id="scFire">
+  <section class="card">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget2" type="button">
+        <span class="pk"><span class="p1" id="ptName2">Space Marine</span><span class="p2" id="ptSub2">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+      <p class="hint">La cible est partagée avec l'onglet Simulateur.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Qui tire <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chips tight" id="phaseChips">
+        <button type="button" class="chip on" data-p="T">Phase de tir</button>
+        <button type="button" class="chip" data-p="C">Corps à corps</button>
+      </div>
+      <div id="fireList"></div>
+      <div id="situBox"></div>
+    </div>
+  </section>
+
+  <section class="card" id="cardFireRes">
+    <h2>Résultat cumulé <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="summary" style="margin:0 -14px 10px;border-top:0">
+        <div class="sum hero"><div class="k">Dégâts cumulés</div><div class="v" id="fDmg">—</div></div>
+        <div class="sum"><div class="k">Figs tuées</div><div class="v" id="fSlain">—</div></div>
+        <div class="sum"><div class="k">Unité effacée</div><div class="v" id="fWipe">—</div></div>
+      </div>
+      <div class="chart-title">Distribution du résultat</div>
+      <p class="chart-sub" id="fSub"></p>
+      <svg id="fHist" class="chart" role="img" aria-label="Distribution du résultat cumulé"></svg>
+      <div class="chart-title">Contribution de chaque unité</div>
+      <p class="chart-sub">Dégâts réellement infligés dans l'ordre de tir, surtue déduite. « Seule » = ce que l'unité ferait si elle tirait la première.</p>
+      <div id="fTable"></div>
+      <p class="hint" id="fNote"></p>
+    </div>
+  </section>
+</div>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button type="button" class="on" data-s="scSim"><span class="ti">◈</span>Simulateur</button>
+  <button type="button" data-s="scList"><span class="ti">☷</span>Ma liste</button>
+  <button type="button" data-s="scFire"><span class="ti">△</span>Tir cumulé</button>
+  <button type="button" data-s="scCmp"><span class="ti">⇄</span>Comparer</button>
+</nav>
+
+<div class="tip" id="tip"></div>
+
+<div class="sheet" id="sheetUnit">
+  <div class="sheet-head"><h3>Choisir l'unité</h3><button class="ghost" data-close="sheetUnit" type="button">Fermer</button></div>
+  <input class="sheet-search" id="uSearch" type="text" placeholder="Rechercher une unité…" autocomplete="off">
+  <div class="sheet-list" id="uList"></div>
+</div>
+
+<div class="sheet" id="sheetTarget">
+  <div class="sheet-head"><h3>Choisir la cible</h3><button class="ghost" data-close="sheetTarget" type="button">Fermer</button></div>
+  <div class="sheet-tabs" id="tTabs">
+    <button type="button" class="chip on" data-t="generic">Génériques</button>
+    <button type="button" class="chip" data-t="necrons">Nécrons</button>
+  </div>
+  <input class="sheet-search" id="tSearch" type="text" placeholder="Rechercher une cible…" autocomplete="off">
+  <div class="sheet-list" id="tList"></div>
+</div>
+<div class="sheet" id="sheetDetach">
+  <div class="sheet-head"><h3>Choisir un détachement</h3><button class="ghost" data-close="sheetDetach" type="button">Fermer</button></div>
+  <div class="sheet-list" id="dList"></div>
+</div>
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+<script src="roster.js"></script>
+</body>
+</html>
