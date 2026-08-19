@@ -39,7 +39,7 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | Fichier | Rôle |
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
-| `data.js` | 52 datasheets, 141 profils d'armes, 12 détachements, mots-clés, rattachements, améliorations, socles |
+| `data.js` | 53 datasheets, 141 profils d'armes, 12 détachements, mots-clés, rattachements, améliorations, socles |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | onglets Ma liste, Tir cumulé et Comparer |
@@ -103,10 +103,13 @@ données de stratagèmes, aujourd'hui presque vides.
   profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
   toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
   tant qu'on ne les avait pas ajoutées à la main.
-- **Choix d'unité rangé** — le sélecteur groupe les 52 unités par grande
+- **Choix d'unité rangé** — le sélecteur groupe les 53 unités par grande
   catégorie (Epic Hero, Personnage, Battleline, Infanterie, Bête, Monté,
-  Véhicule), reprises des mots-clés du catalogue BattleScribe. La recherche
-  accepte aussi un nom de catégorie.
+  Véhicule, Monstre, Fortification), reprises des mots-clés du catalogue
+  BattleScribe. Le type de châssis prime sur le statut : les C'tan sont des
+  Monstres avant d'être des Epic Heroes, la Convergence of Dominion une
+  Fortification avant d'être un Véhicule. La recherche accepte aussi un nom
+  de catégorie.
 - **Rattachement** — le choix d'un personnage est trié selon sa règle Leader :
   ceux qui peuvent rejoindre l'unité d'abord, escortes Cryptek comprises, les
   autres relégués et signalés. Un rattachement hors règles reste possible mais
