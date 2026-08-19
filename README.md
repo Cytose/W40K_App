@@ -6,6 +6,21 @@ pour **Warhammer 40 000, 11e édition**, orienté armée **Nécrons**.
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
 
+## Utiliser l'application
+
+Le plus simple est le fichier autonome **`Necron_Aide_Jeu.html`** : tout y est
+embarqué, il suffit de le poser où on veut et de l'ouvrir d'un double-clic.
+Aucune installation, aucun réseau.
+
+Pour travailler sur les sources, il faut les servir par HTTP —
+`python3 -m http.server` puis `http://localhost:8000` — car un navigateur
+refuse de charger des scripts séparés depuis `file://`. Après modification,
+`node build.js` régénère le bundle (nécessite `npm i terser`) : le fichier
+produit est `dist/_full.html`, à recopier sur `Necron_Aide_Jeu.html`.
+
+Le **lien de partage** n'est proposé que sur une version servie en HTTP ;
+depuis un fichier local, il faut passer par « Exporter / importer la liste ».
+
 ## Contenu
 
 | Fichier | Rôle |
