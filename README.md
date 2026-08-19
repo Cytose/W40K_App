@@ -108,6 +108,10 @@ données de stratagèmes, aujourd'hui presque vides.
   profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
   toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
   tant qu'on ne les avait pas ajoutées à la main.
+- **Réordonner les unités** — un bouton bascule le pavé en mode réorganisation :
+  chaque case reçoit deux flèches qui la font avancer ou reculer, les cases
+  d'outils et d'ajout s'effacent, et toucher une case ne l'ouvre plus. L'ordre
+  compte : c'est celui que suit le tir cumulé.
 - **Armement panaché** — cinq fusils gauss et cinq tesla sur dix Immortals :
   un bandeau annonce combien de figurines sont équipées et combien restent
   nues, les compteurs ne laissent pas dépasser l'effectif, et une arme
