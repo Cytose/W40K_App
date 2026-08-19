@@ -20,7 +20,7 @@ let situ = {};                        // conditions situationnelles cochees
 
 const listeVierge = (nom, cap) => ({
   id: "l" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36),
-  nom: nom || "Nouvelle liste", cap: cap || 2000, detach: [], units: [], nextId: 1
+  nom: nom || "Nouvelle liste", cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
 });
 
 function saveR(){
@@ -207,6 +207,8 @@ const totalDP = () => R.detach.reduce((a,n) => { const d = detachRow(n); return 
 /* budget de Points de Detachement : 3 a 2000 pts, au prorata ailleurs
    (1 par tranche de 500 pts, minimum 1) */
 const capDP = () => Math.max(1, Math.round((R.cap || 2000) / 2000 * 3));
+/* ameliorations : deux a 1000 points, quatre a 2000, au prorata ailleurs */
+const capEnhancements = () => Math.max(1, Math.round((R.cap || 2000) / 500));
 
 function validate(){
   const w = [];
@@ -265,7 +267,9 @@ function validate(){
   const enhs = R.units.map(x => x.enh).filter(Boolean);
   enhs.forEach((e, i) => { if(enhs.indexOf(e) !== i)
     w.push("Amélioration <b>" + e + "</b> prise deux fois : une seule par armée."); });
-  if(enhs.length > 3) w.push("<b>" + enhs.length + " améliorations</b> : trois au maximum.");
+  const capEnh = capEnhancements();
+  if(enhs.length > capEnh) w.push("<b>" + enhs.length + " améliorations</b> : " + capEnh +
+    " au maximum à " + cap + " pts.");
   return w;
 }
 
@@ -540,7 +544,7 @@ function renderDef(){
    on revient. Le pavé pose chaque unité sur sa case ; toucher une
    case ouvre son panneau, le retour ramène au pavé.
    ========================================================== */
-const PANNEAUX = ["cardSettings", "cardDetach", "cardUnits", "cardStrat", "cardArms"];
+const PANNEAUX = ["cardSettings", "cardDetach", "cardUnits", "cardStrat", "cardArms", "cardPartage"];
 let unitOuverte = null;          /* id de l'unite affichee seule */
 
 function pointsUnite(ru){
@@ -559,6 +563,9 @@ function uniteSuspecte(ru){
   if(compteRole(ru, "Escorte") && !aCryptek(ru)) return true;
   if(ru.chars.some(c => peutRejoindre(c.name, ru.name) === false)) return true;
   if(ru.enh && !ru.chars.length) return true;
+  /* une escouade a moitie equipee est la faute la plus courante :
+     elle merite le meme signal que les autres */
+  if(ru.lo.reduce((a, l) => a + l.n, 0) !== ru.size) return true;
   return false;
 }
 
@@ -614,10 +621,13 @@ function renderPad(){
       mv.appendChild(fl("▶", 1, iu === R.units.length - 1));
       b.appendChild(mv);
     } else {
+      appuiLong(b, ()=> ouvreActionsUnite(ru));
       b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
     }
     gu.appendChild(b);
   });
+  const hint = el("padHint");
+  if(hint) hint.hidden = modeRange || !R.units.length;
   if(modeRange){ gt.innerHTML = ""; return; }
   const plus = document.createElement("button");
   plus.type = "button";
@@ -630,8 +640,9 @@ function renderPad(){
   const dp = totalDP(), dpMax = capDP();
   const outils = [
     ["cardDetach",   "◈", "Détachements", dp + " / " + dpMax + " PD"],
-    ["cardStrat",    "⚡", "Stratagèmes",  STRATS.filter(x => x[1] === "Core" || R.detach.indexOf(x[1]) >= 0).length + " fiches"],
+    ["cardStrat",    "⚡", "Stratagèmes",  stratsListe().length + " fiches"],
     ["cardArms",     "⌖", "Armement",     WEAPONS.length ? R.units.length + " unité" + (R.units.length > 1 ? "s" : "") : ""],
+    ["cardPartage",  "⇪", "Partager",     R.units.length ? "texte, QR, fichier" : "liste vide"],
     ["cardSettings", "⚙", "Réglages",     R.cap + " pts"]
   ];
   gt.innerHTML = "";
@@ -701,6 +712,52 @@ function ouvreActions(L){
   openSheet("sheetListAct");
 }
 
+/* appui long (ou clic droit) sur une case du pave : dupliquer, consulter
+   ou retirer sans avoir a ouvrir l'unite */
+function ouvreActionsUnite(ru){
+  el("listActTitle").textContent = nomAffiche(ru);
+  const host = el("listActList");
+  host.innerHTML = "";
+  const item = (titre, sous, action, danger) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "opt";
+    b.innerHTML = '<span class="oi"><span class="o1"' + (danger ? ' style="color:var(--warn)"' : '') +
+      '>' + titre + '</span><span class="o2">' + sous + '</span></span>';
+    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); action(); });
+    host.appendChild(b);
+  };
+  item("Régler", "Effectif, armement, personnages", ()=> ouvrePanneau("cardUnits", ru.id));
+  item("Fiche", "Profil, armes et aptitudes de " + ru.name, ()=> ouvreFiche(ru.name));
+  item("Dupliquer", "Une seconde, armement et rattachements compris", ()=>{
+    const copie = JSON.parse(JSON.stringify(ru));
+    copie.id = nextId++;
+    if(estGroupe(copie)) copie.grp = nomGroupe();
+    R.units.splice(R.units.indexOf(ru) + 1, 0, copie);
+    saveR(); renderList();
+    toast(ru.name + " dupliqué.", "", null);
+  });
+  item("Retirer", pointsUnite(ru) + " pts rendus au budget", ()=> retireUnite(ru), true);
+  openSheet("sheetListAct");
+}
+
+/* pose l'appui long sur un element : 480 ms suffisent a distinguer
+   l'intention d'un simple toucher, et le clic droit fait pareil */
+function appuiLong(elem, action){
+  let t = null, bouge = false;
+  const stop = ()=>{ clearTimeout(t); t = null; };
+  elem.addEventListener("pointerdown", e=>{
+    if(e.button && e.button !== 0) return;
+    bouge = false;
+    t = setTimeout(()=>{ t = null; if(!bouge){ elem.dataset.longp = "1"; action(); } }, 480);
+  });
+  elem.addEventListener("pointermove", ()=>{ bouge = true; stop(); });
+  ["pointerup","pointercancel","pointerleave"].forEach(n => elem.addEventListener(n, stop));
+  elem.addEventListener("contextmenu", e=>{ e.preventDefault(); action(); });
+  elem.addEventListener("click", e=>{
+    if(elem.dataset.longp){ delete elem.dataset.longp; e.stopImmediatePropagation(); e.preventDefault(); }
+  }, true);
+}
+
 function renderIndex(){
   const host = el("listCards"); if(!host) return;
   host.innerHTML = "";
@@ -738,6 +795,211 @@ function renderIndex(){
    Ce qu'on regarde en partie : les groupes, leurs figurines et
    leur armement, sans rien pouvoir modifier par megarde.
    ========================================================== */
+/* ==========================================================
+   SUIVI DE PARTIE
+   Le tour, la phase, les points de commandement, ce qu'il
+   reste de chaque unite et le score. Tout est enregistre :
+   fermer l'application au milieu d'une partie ne perd rien.
+   ========================================================== */
+const GKEY = "mathhammer.partie.v1";
+const PHASES = [["cmd","Cmdt"],["mvt","Mvt"],["tir","Tir"],["chg","Charge"],["cbt","Combat"]];
+const PHASE_LONG = {cmd:"Commandement", mvt:"Mouvement", tir:"Tir", chg:"Charge", cbt:"Combat"};
+const RAPPELS = {
+  cmd: "Gagne 1 PC. Protocoles de Réanimation : chaque unité de l'armée encore sur la table récupère D3 points de vie — figurine blessée d'abord, puis figurine détruite ramenée avec 1 PV. Tests de Choc pour les unités sous la moitié de leur effectif.",
+  mvt: "Mouvement normal, Avance (+D6, plus de tir sauf armes d'Assaut), ou Rester Immobile (+1 pour toucher aux armes Lourdes). Étape des Renforts : Frappe en Profondeur à plus de 9\" de tout ennemi.",
+  tir: "Une unité au contact ne tire qu'avec ses Pistolets. Rapid Fire double dans la moitié de la portée, Melta ajoute ses dégâts. Vérifie la portée avant de désigner la cible : la colonne Po est sur chaque fiche.",
+  chg: "2D6, il faut atteindre le contact. Une unité qui a Avancé ou Est Restée Immobile ne charge pas. Surveillance : ton adversaire peut dépenser 1 PC pour tirer.",
+  cbt: "Les unités qui ont chargé frappent en premier, puis alternance en commençant par le joueur dont c'est le tour. Une figurine doit être au contact ou à 2\" d'une figurine de son unité qui l'est."
+};
+let G = null;
+
+const partieVierge = () => ({ liste: R ? R.id : "", tour: 1, phase: "cmd", pc: 0,
+  prim: 0, sec: 0, u: {}, journal: [] });
+
+function saveG(){ try{ localStorage.setItem(GKEY, JSON.stringify(G)); }catch(e){} }
+function loadG(){
+  try{ G = JSON.parse(localStorage.getItem(GKEY) || "null"); }catch(e){ G = null; }
+  if(!G || !G.u) G = partieVierge();
+  /* la partie suit la liste ouverte : en changer repart de zero */
+  if(R && G.liste !== R.id) G = partieVierge();
+}
+
+const pvMax = ru => { const u = unitRow(ru.name); return u ? ru.size * u[5] : 0; };
+const pvMaxChar = nom => { const u = unitRow(nom); return u ? u[5] : 0; };
+
+/* etat d'une unite, cree a la demande pour suivre les ajouts de liste */
+function etat(ru){
+  let e = G.u[ru.id];
+  if(!e){ e = G.u[ru.id] = { pv: pvMax(ru), c: ru.chars.map(c => pvMaxChar(c.name)) }; }
+  if(e.c.length !== ru.chars.length) e.c = ru.chars.map((c,i) => e.c[i] !== undefined ? e.c[i] : pvMaxChar(c.name));
+  return e;
+}
+
+function noteJournal(txt){
+  G.journal.unshift({ t: G.tour, p: G.phase, x: txt });
+  if(G.journal.length > 60) G.journal.length = 60;
+}
+
+const d3 = () => 1 + Math.floor(Math.random() * 3);
+
+function renderPartie(){
+  if(!G) loadG();
+  /* changer de liste, c'est changer de partie */
+  if(R && G.liste !== R.id){ G = partieVierge(); saveG(); }
+  const bar = el("gbar"); if(!bar) return;
+  if(!R){ bar.innerHTML = ""; return; }
+
+  const vivantes = R.units.filter(ru => etat(ru).pv > 0).length;
+  bar.innerHTML =
+    '<div class="gc"><div class="gk">Tour</div><div class="gv">' + G.tour + '<small style="font-size:11px;color:var(--tx3)"> / 5</small></div></div>' +
+    '<div class="gc"><div class="gk">Phase</div><div class="gv" style="font-size:13px;padding:4px 0 2px">' + PHASE_LONG[G.phase] + '</div></div>' +
+    '<div class="gc"><div class="gk">PC</div><div class="gv">' + G.pc + '</div>' +
+      '<div class="gpm"><button type="button" data-pc="-1">−</button><button type="button" data-pc="1">+</button></div></div>' +
+    '<div class="gc"><div class="gk">Debout</div><div class="gv">' + vivantes + '<small style="font-size:11px;color:var(--tx3)"> / ' + R.units.length + '</small></div></div>';
+  bar.querySelectorAll("[data-pc]").forEach(b => b.addEventListener("click", ()=>{
+    G.pc = Math.max(0, G.pc + parseInt(b.dataset.pc, 10));
+    saveG(); renderPartie();
+  }));
+
+  const ph = el("gphases");
+  ph.innerHTML = "";
+  PHASES.forEach(([k, lbl])=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = lbl;
+    b.className = k === G.phase ? "on" : "";
+    b.addEventListener("click", ()=>{
+      /* revenir au commandement, c'est le tour suivant : un PC de plus */
+      if(k === "cmd" && G.phase !== "cmd"){
+        G.tour = Math.min(9, G.tour + 1); G.pc++;
+        noteJournal("Tour " + G.tour + " — +1 PC (total " + G.pc + ")");
+      }
+      G.phase = k; saveG(); renderPartie();
+    });
+    ph.appendChild(b);
+  });
+
+  const rap = el("grappel");
+  rap.innerHTML = "<b>" + PHASE_LONG[G.phase] + "</b>" + RAPPELS[G.phase];
+
+  /* --- etat des unites --- */
+  const host = el("gunits"); host.innerHTML = "";
+  if(!R.units.length){ host.innerHTML = '<div class="empty">La liste ouverte est vide.</div>'; }
+  R.units.forEach(ru=>{
+    const u = unitRow(ru.name); if(!u) return;
+    const e = etat(ru), max = pvMax(ru);
+    const figs = u[5] > 0 ? Math.ceil(e.pv / u[5]) : 0;
+    const row = document.createElement("div");
+    row.className = "grow" + (e.pv <= 0 ? " mort" : "");
+    const gn = document.createElement("div");
+    gn.className = "gn";
+    gn.innerHTML = '<b>' + nomAffiche(ru) + '</b><i>' + (e.pv > 0
+      ? figs + " figurine" + (figs > 1 ? "s" : "") + " sur " + ru.size
+      : "détruite") + '</i>';
+    gn.querySelector("b").addEventListener("click", ()=> ouvreFiche(ru.name));
+    const pv = document.createElement("span");
+    pv.className = "gpv" + (e.pv <= max / 2 ? " bas" : "");
+    pv.textContent = e.pv + "/" + max;
+    const gb = document.createElement("div");
+    gb.className = "gb";
+    const bt = (txt, delta) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = txt;
+      b.addEventListener("click", ()=>{
+        if(delta === null){ e.pv = max; e.c = ru.chars.map(c => pvMaxChar(c.name)); }
+        else e.pv = Math.max(0, Math.min(max, e.pv + delta));
+        if(e.pv === 0) noteJournal(nomAffiche(ru) + " détruite");
+        saveG(); renderPartie();
+      });
+      return b;
+    };
+    gb.appendChild(bt("−5", -5)); gb.appendChild(bt("−1", -1));
+    gb.appendChild(bt("+1", 1)); gb.appendChild(bt("⟲", null));
+    row.appendChild(gn); row.appendChild(pv); row.appendChild(gb);
+    host.appendChild(row);
+
+    ru.chars.forEach((c, i)=>{
+      const cu = unitRow(c.name); if(!cu) return;
+      const cmax = pvMaxChar(c.name);
+      const sr = document.createElement("div");
+      sr.className = "grow gsub" + (e.c[i] <= 0 ? " mort" : "");
+      const n2 = document.createElement("div");
+      n2.className = "gn";
+      n2.innerHTML = '<b style="color:var(--cyan)">' + c.name + '</b><i>' +
+        (e.c[i] > 0 ? (roleDe(c.name) || "personnage") : "détruit") + '</i>';
+      n2.querySelector("b").addEventListener("click", ()=> ouvreFiche(c.name));
+      const p2 = document.createElement("span");
+      p2.className = "gpv" + (e.c[i] <= cmax / 2 ? " bas" : "");
+      p2.textContent = e.c[i] + "/" + cmax;
+      const b2 = document.createElement("div");
+      b2.className = "gb";
+      [["−1",-1],["+1",1],["⟲",null]].forEach(([t,d])=>{
+        const b = document.createElement("button");
+        b.type = "button"; b.textContent = t;
+        b.addEventListener("click", ()=>{
+          e.c[i] = d === null ? cmax : Math.max(0, Math.min(cmax, e.c[i] + d));
+          if(e.c[i] === 0) noteJournal(c.name + " détruit");
+          saveG(); renderPartie();
+        });
+        b2.appendChild(b);
+      });
+      sr.appendChild(n2); sr.appendChild(p2); sr.appendChild(b2);
+      host.appendChild(sr);
+    });
+  });
+
+  /* --- score --- */
+  const sc = el("gscore"); sc.innerHTML = "";
+  const ligne = (lbl, clef, pas) => {
+    const r = document.createElement("div");
+    r.className = "srow";
+    const t = document.createElement("span"); t.textContent = lbl;
+    const moins = document.createElement("button"); moins.type = "button"; moins.textContent = "−";
+    const v = document.createElement("b"); v.textContent = G[clef];
+    const plus = document.createElement("button"); plus.type = "button"; plus.textContent = "+";
+    moins.addEventListener("click", ()=>{ G[clef] = Math.max(0, G[clef] - pas); saveG(); renderPartie(); });
+    plus.addEventListener("click", ()=>{ G[clef] += pas; saveG(); renderPartie(); });
+    r.appendChild(t); r.appendChild(moins); r.appendChild(v); r.appendChild(plus);
+    sc.appendChild(r);
+  };
+  ligne("Primaire", "prim", 5);
+  ligne("Secondaire", "sec", 1);
+  const tot = document.createElement("div");
+  tot.className = "srow";
+  tot.innerHTML = '<span style="color:var(--glow);font-weight:700">Total</span><b style="color:var(--glow)">' +
+    (G.prim + G.sec) + '</b>';
+  sc.appendChild(tot);
+
+  /* --- stratagemes jouables --- */
+  const gs = el("gstrat"); gs.innerHTML = "";
+  const lot = stratsListe();
+  lot.forEach(st=>{
+    const cout = st[3] || 1;
+    const d = document.createElement("div");
+    d.className = "grow";
+    const n = document.createElement("div");
+    n.className = "gn";
+    const provenance = st[1] === "Core" ? "Stratagème de base"
+      : st[1] + (st[2] && st[2] !== st[1] ? " · " + st[2] : "");
+    n.innerHTML = '<b>' + st[0] + '</b><i>' + provenance + ' · ' + cout + ' PC</i>';
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "gplay"; b.textContent = "Jouer";
+    b.disabled = G.pc < cout;
+    b.addEventListener("click", ()=>{
+      G.pc -= cout;
+      noteJournal(st[0] + " (−" + cout + " PC, reste " + G.pc + ")");
+      saveG(); renderPartie();
+    });
+    d.appendChild(n); d.appendChild(b);
+    gs.appendChild(d);
+  });
+
+  /* --- journal --- */
+  const jr = el("gjournal");
+  jr.innerHTML = G.journal.length
+    ? G.journal.map(j => '<div class="je"><b>T' + j.t + ' · ' + (PHASE_LONG[j.p] || j.p) + '</b> — ' + j.x + '</div>').join("")
+    : '<div class="empty" style="padding:12px 4px">Rien encore.</div>';
+}
+
 function renderPlay(){
   const host = el("playList"); if(!host) return;
   host.innerHTML = "";
@@ -771,8 +1033,8 @@ function renderPlay(){
       if(!l.n) return;
       const g = groupeDe(ru.name, l.w), profils = g ? g.profils : (wl[l.w] ? [{w:wl[l.w]}] : []);
       profils.forEach(p=>{ const w = p.w;
-        html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — A' + w[3] + ' ' + w[4] + '+ F' + w[5] +
-          ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
+        html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — ' + portee(w) + ' A' + w[3] + ' ' + w[4] +
+          '+ F' + w[5] + ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
     });
     html += '</div>';
     ru.chars.forEach(c=>{
@@ -783,19 +1045,28 @@ function renderPlay(){
       html += '<div class="pu"><b style="color:var(--glow)">' + c.name + '</b><i>' +
         (roleDe(c.name) || '') + ' · E' + cu[2] + ' · ' + cu[5] + ' PV' +
         (socle(c.name) ? ' · socle ' + socle(c.name) + ' mm' : '') + '</i>' +
-        cws.map(cw => '<span class="pw">' + cw[1] + ' — A' + cw[3] + ' ' + cw[4] + '+ F' + cw[5] +
-          ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>').join('') + '</div>';
+        cws.map(cw => '<span class="pw">' + cw[1] + ' — ' + portee(cw) + ' A' + cw[3] + ' ' + cw[4] +
+          '+ F' + cw[5] + ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>').join('') + '</div>';
     });
     if(ru.enh){
       const e = enhRow(ru.enh);
       html += '<div class="pu"><b style="color:var(--cyan)">' + ru.enh + '</b><i>' +
-        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + '</i></div>';
+        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + '</i>' +
+        (e && e[3] ? '<p class="fiche-note" style="margin:4px 0 0">' + e[3] + '</p>' : '') + '</div>';
     }
     const kws = motsClesGroupe(ru);
     if(kws.length) html += '<div class="pu"><div class="kwline" style="margin:0">' +
       kws.map(k => '<span class="gkw' + (k.source ? ' gkwadd' : '') + '">' + k.kw.toUpperCase() + '</span>').join("") +
       '</div></div>';
     g.innerHTML = html;
+    /* en partie, on veut la regle sous les yeux : toucher l'unite ouvre sa fiche,
+       toucher un personnage rattache ouvre la sienne */
+    g.querySelectorAll(".pu").forEach((bloc, i) => {
+      const cible = i === 0 ? ru.name : (ru.chars[i-1] ? ru.chars[i-1].name : null);
+      if(!cible || !unitRow(cible)) return;
+      bloc.classList.add("tap");
+      bloc.addEventListener("click", ()=> ouvreFiche(cible));
+    });
     host.appendChild(g);
   });
 }
@@ -820,6 +1091,14 @@ function renderPtsBar(){
     '<div class="c ' + (dp>dpMax?"over":"") + '"><div class="k">Détachement</div><div class="v">' + dp + ' / ' + dpMax + '</div></div>' +
     '<div class="c"><div class="k">Unités</div><div class="v">' + R.units.length + '</div></div>';
 }
+/* la Disposition de Force se choisit parmi celles du detachement retenu.
+   Le catalogue ne les porte pas : on laisse la saisir, plutot que d'en
+   inventer une liste. */
+function renderDispo(){
+  const z = el("listDispo"); if(!z) return;
+  if(document.activeElement !== z) z.value = R.fd || "";
+}
+
 function renderDetach(){
   const host = el("detList"); host.innerHTML = "";
   /* plus de budget ou plus rien de compatible : on ferme la porte
@@ -1032,12 +1311,13 @@ function renderRoster(){
     const table = (titre, lot) => {
       if(!lot.length) return "";
       let h = '<div class="eqt">' + titre + '</div><div class="eqwrap"><table class="arms">' +
-        '<thead><tr><th style="text-align:left">Arme</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+        '<thead><tr><th style="text-align:left">Arme</th><th>Po</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
       lot.forEach(x=>{
         const w = x.w, mots = w[8] ? motsArme(w[8]) : "";
         h += '<tr class="' + (x.n ? '' : 'off') + '"><td class="an">' +
           (x.n ? '<b class="q">×' + x.n + ' </b>' : '') + w[1] +
           (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+          '<td>' + portee(w) + '</td>' +
           '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
           '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
       });
@@ -1065,6 +1345,10 @@ function renderRoster(){
        avec son armement et ses rattachements, pas une unite vierge */
     const pied = document.createElement("div");
     pied.className = "unitfoot";
+    const fic = document.createElement("button");
+    fic.type = "button"; fic.className = "btn";
+    fic.textContent = "Fiche";
+    fic.addEventListener("click", ()=> ouvreFiche(ru.name));
     const dup = document.createElement("button");
     dup.type = "button"; dup.className = "btn";
     dup.textContent = "Dupliquer";
@@ -1078,15 +1362,10 @@ function renderRoster(){
     const del = document.createElement("button");
     del.type = "button"; del.className = "btn danger";
     del.textContent = "Retirer";
-    del.addEventListener("click", ()=>{
-      if(!confirm("Retirer " + ru.name + " ×" + ru.size +
-        (ru.chars.length ? " et ses " + ru.chars.length + " personnage" + (ru.chars.length>1?"s":"") : "") +
-        " de la liste ?")) return;
-      const i = R.units.indexOf(ru);
-      if(i >= 0) R.units.splice(i, 1);
-      saveR(); fermePanneau();
-    });
-    pied.appendChild(dup); pied.appendChild(del);
+    /* plus de confirmation : le bandeau d'annulation la remplace, et il
+       coute moins cher qu'une boite de dialogue a chaque retrait */
+    del.addEventListener("click", ()=>{ retireUnite(ru); fermePanneau(); });
+    pied.appendChild(fic); pied.appendChild(dup); pied.appendChild(del);
     div.appendChild(pied);
     host.appendChild(div);
   });
@@ -1096,6 +1375,42 @@ function renderRoster(){
    Ceux des detachements retenus, puis ceux de base. Le texte
    n'est renseigne que pour ce qui a pu etre verifie.
    ========================================================== */
+/* ==========================================================
+   STRATAGEMES SAISIS A LA MAIN
+   Le texte officiel ne figure ni dans le catalogue BattleScribe
+   ni dans le fichier de systeme, et la presse specialisee n'en
+   donne que des paraphrases : hors de question de les inscrire
+   ici. On offre donc de le saisir, en anglais, et de le garder.
+   ========================================================== */
+const SKEY = "mathhammer.strats.v1";
+let SUSER = { fiches: {}, ajouts: [] };
+function loadS(){
+  try{
+    const o = JSON.parse(localStorage.getItem(SKEY) || "null");
+    if(o && o.fiches) SUSER = { fiches: o.fiches, ajouts: o.ajouts || [] };
+  }catch(e){}
+}
+function saveS(){ try{ localStorage.setItem(SKEY, JSON.stringify(SUSER)); }catch(e){} }
+const clefStrat = (det, nom) => det + "|" + nom;
+
+/* la table de base, completee de ce qui a ete saisi */
+function stratsDe(g){
+  const lot = STRATS.filter(x => x[1] === g).map(x => x.slice());
+  SUSER.ajouts.filter(a => a[1] === g).forEach(a => lot.push(a.slice()));
+  return lot.map(x=>{
+    const f = SUSER.fiches[clefStrat(x[1], x[0])];
+    if(f){
+      if(f.cp !== undefined && f.cp !== "") x[3] = parseInt(f.cp, 10) || 1;
+      if(f.type) x[2] = f.type;
+      x[4] = f.quand || x[4]; x[5] = f.cible || x[5]; x[6] = f.effet || x[6];
+      x.saisi = true;
+    }
+    return x;
+  });
+}
+/* tous les stratagemes utilisables par la liste ouverte */
+const stratsListe = () => R.detach.concat(["Core"]).reduce((a, g) => a.concat(stratsDe(g)), []);
+
 function renderStrats(){
   const host = el("stratList"); if(!host) return;
   host.innerHTML = "";
@@ -1103,7 +1418,7 @@ function renderStrats(){
   groupes.push("Core");
   let rien = true;
   groupes.forEach(g=>{
-    const lot = STRATS.filter(x => x[1] === g);
+    const lot = stratsDe(g);
     if(!lot.length) return;
     rien = false;
     const sep = document.createElement("div");
@@ -1118,13 +1433,53 @@ function renderStrats(){
       t.type = "button";
       t.innerHTML = '<span class="sn"><b>' + nom + '</b><i>' +
         (type && type !== "Core" ? type : (det === "Core" ? "Stratagème de base" : det)) +
+        (x.saisi ? ' <span class="smod">saisi</span>' : '') +
         '</i></span><span class="cp">' + cp + ' PC</span>';
       const body = document.createElement("div");
       body.className = "sbody";
-      body.innerHTML = effet
-        ? '<dl><dt>Quand</dt><dd>' + quand + '</dd><dt>Cible</dt><dd>' + cible +
-          '</dd><dt>Effet</dt><dd>' + effet + '</dd></dl>'
-        : '<p class="vide">Texte non renseigné — aucune source vérifiable n\'a pu être trouvée pour ce stratagème.</p>';
+      const rendu = ()=>{
+        body.innerHTML = effet
+          ? '<dl><dt>Quand</dt><dd>' + quand + '</dd><dt>Cible</dt><dd>' + (cible || "—") +
+            '</dd><dt>Effet</dt><dd>' + effet + '</dd></dl>'
+          : '<p class="vide">Texte non renseigné. Recopie-le depuis ta fiche : il restera sur cet appareil.</p>';
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "ghost";
+        b.style.cssText = "margin:6px 11px 10px";
+        b.textContent = effet ? "Corriger le texte" : "Saisir le texte";
+        b.addEventListener("click", ()=> edite());
+        body.appendChild(b);
+      };
+      const edite = ()=>{
+        const f = SUSER.fiches[clefStrat(det, nom)] || {};
+        body.innerHTML = "";
+        const box = document.createElement("div");
+        box.className = "sedit";
+        box.innerHTML =
+          '<label>Coût en PC</label><input type="number" min="0" max="9" value="' + cp + '" data-f="cp">' +
+          '<label>Type</label><input type="text" value="' + (type && type !== "Core" ? type : "") +
+            '" placeholder="Battle Tactic, Epic Deed…" data-f="type">' +
+          '<label>Quand</label><textarea data-f="quand" placeholder="When…">' + (quand || "") + '</textarea>' +
+          '<label>Cible</label><textarea data-f="cible" placeholder="Target…">' + (cible || "") + '</textarea>' +
+          '<label>Effet</label><textarea data-f="effet" placeholder="Effect…">' + (effet || "") + '</textarea>';
+        const row = document.createElement("div");
+        row.className = "addrow";
+        const ok = document.createElement("button");
+        ok.type = "button"; ok.textContent = "Enregistrer";
+        ok.addEventListener("click", ()=>{
+          const v = {};
+          box.querySelectorAll("[data-f]").forEach(i => v[i.dataset.f] = i.value.trim());
+          SUSER.fiches[clefStrat(det, nom)] = v;
+          saveS(); renderStrats(); renderPartie();
+          toast(nom + " enregistré.", "", null);
+        });
+        const non = document.createElement("button");
+        non.type = "button"; non.textContent = "Annuler";
+        non.addEventListener("click", rendu);
+        row.appendChild(ok); row.appendChild(non);
+        box.appendChild(row);
+        body.appendChild(box);
+      };
+      rendu();
       t.addEventListener("click", ()=> d.classList.toggle("open"));
       d.appendChild(t); d.appendChild(body);
       host.appendChild(d);
@@ -1173,6 +1528,104 @@ function groupesArmes(nom){
 function groupeDe(nom, i){
   const g = groupesArmes(nom);
   return g.find(x => x.profils.some(p => p.i === i)) || null;
+}
+
+/* ==========================================================
+   FICHE D'UNITE
+   Le profil complet, armes portee comprise, aptitudes et
+   mots-cles : ce qu'on consulte avant d'ajouter une unite et
+   ce qu'on relit en partie.
+   ========================================================== */
+const portee = w => w[9] || (w[2] === "C" ? "càc" : "—");
+const aptitudesDe = nom => (typeof APTITUDES !== "undefined" && APTITUDES[nom]) || [];
+const transportDe = nom => (typeof TRANSPORTS !== "undefined" && TRANSPORTS[nom]) || "";
+
+/* les mots-cles d'arme effectivement portes par l'unite, pour ne
+   derouler que le glossaire qui la concerne */
+function motsUtiles(nom){
+  const out = [];
+  unitWeps(nom).forEach(w => {
+    motsArme(w[8]).split(" · ").forEach(m => {
+      if(!m) return;
+      const clef = m.replace(/\s+[\dD]+\+?$/, "").replace(/^Anti-X$/, "Anti-")
+                    .replace(/^Indirect$/, "Indirect Fire");
+      if(GLOSSAIRE[clef] && out.indexOf(clef) < 0) out.push(clef);
+    });
+  });
+  return out;
+}
+
+function ouvreFiche(nom){
+  const u = unitRow(nom); if(!u) return;
+  el("ficheTitle").textContent = nom;
+  const host = el("ficheBody");
+  const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  let h = "";
+
+  const tailles = u[6], pmin = u[7][String(tailles[0])] || 0,
+        pmax = u[7][String(tailles[tailles.length-1])] || 0;
+  h += '<p class="fiche-note">' + categorie(nom) + '  ·  ×' + tailles.join(" / ") +
+       '  ·  ' + (pmin === pmax ? pmin + " pts" : pmin + "–" + pmax + " pts") +
+       (socle(nom) ? '  ·  socle ' + socle(nom) + ' mm' : '') + '</p>';
+
+  const cel = (v, l) => '<div><b>' + v + '</b><i>' + l + '</i></div>';
+  h += '<div class="fiche-prof">' +
+    cel(u[1] ? u[1] + '"' : "—", "M") + cel(u[2], "E") +
+    cel(u[3] + "+", "SVG") + cel(u[4] ? u[4] + "++" : "—", "INVU") +
+    cel(u[5], "PV") + cel(u[13] || "—", "CD") + cel(u[12] || 0, "CO") + '</div>';
+
+  const wl = unitWeps(nom);
+  const table = (titre, lot) => {
+    if(!lot.length) return "";
+    let t = '<div class="fiche-sec">' + titre + '</div><div class="eqwrap"><table class="arms">' +
+      '<thead><tr><th style="text-align:left">Arme</th><th>Po</th><th>A</th><th>CT</th>' +
+      '<th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+    lot.forEach(w => {
+      const mots = w[8] ? motsArme(w[8]) : "";
+      t += '<tr><td class="an">' + esc(w[1]) +
+        (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+        '<td>' + portee(w) + '</td><td>' + w[3] + '</td><td>' + w[4] + '+</td>' +
+        '<td>' + w[5] + '</td><td>' + (w[6] ? "-" + w[6] : "0") + '</td><td>' + w[7] + '</td></tr>';
+    });
+    return t + '</tbody></table></div>';
+  };
+  h += table("Tir", wl.filter(w => w[2] === "T"));
+  h += table("Corps à corps", wl.filter(w => w[2] === "C"));
+
+  const apts = aptitudesDe(nom);
+  if(apts.length){
+    h += '<div class="fiche-sec">Aptitudes</div>';
+    apts.forEach(a => h += '<div class="fiche-apt"><b>' + esc(a[0]) + '</b><p>' + esc(a[1]) + '</p></div>');
+  }
+  if(u[8]) h += '<div class="fiche-apt"><b>Feel No Pain ' + u[8] + '+</b><p>' +
+    esc(GLOSSAIRE["Feel No Pain"] || "") + '</p></div>';
+
+  const tr = transportDe(nom);
+  if(tr) h += '<div class="fiche-sec">Transport</div><div class="fiche-apt"><p>' + esc(tr) + '</p></div>';
+
+  if(typeof FACTION !== "undefined" && FACTION.length){
+    h += '<div class="fiche-sec">Règle de faction</div>';
+    FACTION.forEach(f => h += '<div class="fiche-apt"><b>' + esc(f[0]) + '</b><p>' + esc(f[1]) + '</p></div>');
+  }
+
+  const kws = [];
+  Object.keys(KW).forEach(k => { if(has(k, nom)) kws.push(k); });
+  if(u[9]) kws.unshift(u[9].toLowerCase());
+  if(kws.length) h += '<div class="fiche-sec">Mots-clés</div><div class="fiche-kw">' +
+    kws.map(k => '<span>' + esc(k) + '</span>').join("") + '</div>';
+
+  const glo = motsUtiles(nom);
+  if(glo.length){
+    h += '<div class="fiche-sec">Mots-clés d\'arme</div>';
+    glo.forEach(k => h += '<div class="fiche-glo"><b>' + esc(k) + '</b><p>' +
+      esc(GLOSSAIRE[k]) + '</p></div>');
+  }
+
+  if(u[11]) h += '<div class="fiche-sec">Note</div><p class="fiche-note">' + esc(u[11]) + '</p>';
+
+  host.innerHTML = h;
+  host.scrollTop = 0;
+  openSheet("sheetFiche");
 }
 
 function motsArme(flags){
@@ -1239,7 +1692,7 @@ function renderArms(){
     const wrap = document.createElement("div");
     wrap.className = "armwrap";
     let html = '<table class="arms"><thead><tr><th style="text-align:left">Arme</th>' +
-      '<th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+      '<th>Po</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
     lignes.forEach(L=>{
       const w = L.w, mots = w[8] ? motsArme(w[8]) : "";
       html += '<tr class="' + (L.n ? '' : 'off') + '"><td class="an">' +
@@ -1247,6 +1700,7 @@ function renderArms(){
         (w[2] === "C" ? ' <em style="color:var(--tx3)">càc</em>' : '') +
         (L.perso ? ' <em style="color:var(--tx3)">· ' + L.unite + '</em>' : '') +
         (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+        '<td>' + portee(w) + '</td>' +
         '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
         '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
     });
@@ -1263,17 +1717,66 @@ function renderWarn(){
 }
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
-  renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad();
+  renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad(); renderPartie();
+  renderDispo();
+  if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
   if(window.__syncRosterQuick) window.__syncRosterQuick();
 }
 
 /* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
 let pickMode = null, pickTarget = null;
+/* ==========================================================
+   ANNULATION
+   Une suppression d'unite se reprend : on garde la derniere
+   et on l'offre pendant quelques secondes.
+   ========================================================== */
+let toastT = null;
+function toast(txt, libelle, action){
+  const t = el("toast"); if(!t) return;
+  el("toastTxt").textContent = txt;
+  const b = el("toastAct");
+  b.textContent = libelle || "";
+  b.onclick = null;
+  if(action) b.onclick = ()=>{ cacheToast(); action(); };
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(cacheToast, action ? 7000 : 3000);
+}
+function cacheToast(){ const t = el("toast"); if(t) t.classList.remove("on"); clearTimeout(toastT); }
+
+/* retire une unite en gardant de quoi la remettre a sa place */
+function retireUnite(ru){
+  const i = R.units.indexOf(ru);
+  if(i < 0) return;
+  const copie = JSON.parse(JSON.stringify(ru));
+  R.units.splice(i, 1);
+  saveR(); renderList();
+  toast(ru.name + " retiré de la liste.", "Annuler", ()=>{
+    R.units.splice(Math.min(i, R.units.length), 0, copie);
+    saveR(); renderList();
+  });
+}
+
 function openSheet(id){ el(id).classList.add("open"); document.body.style.overflow="hidden"; }
 function closeSheet(id){ el(id).classList.remove("open"); document.body.style.overflow=""; }
 
+let derniereAjoutee = null, ajoutees = 0;
+/* le compteur du catalogue : combien la liste pese deja, ce qu'il reste */
+function majBudgetPick(){
+  const bar = el("uBudget"); if(!bar) return;
+  if(pickMode !== "unit" || !R){ bar.hidden = true; return; }
+  const pts = totalPoints(), cap = R.cap || 2000, reste = cap - pts;
+  bar.hidden = false;
+  bar.classList.toggle("over", reste < 0);
+  bar.innerHTML = '<b>' + pts + '</b><span class="pb2">/ ' + cap + ' pts  ·  ' +
+    (reste >= 0 ? reste + ' restants' : (-reste) + ' de trop') + '</span>' +
+    '<span class="pb2" style="text-align:right;flex:0 0 auto">' + R.units.length +
+    ' unité' + (R.units.length > 1 ? 's' : '') + '</span>';
+}
+
 function openUnitPick(){
   window.__rosterPick = true; pickMode = "unit"; pickTarget = null;
+  derniereAjoutee = null; ajoutees = 0;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 let pickSlot = null;      /* index dans ru.lo quand on remplace une arme */
@@ -1382,7 +1885,14 @@ function renderPick(){
         pickTarget.chars.push({name:u[0], w:0});
         closeSheet("sheetUnit"); saveR(); renderList();
       });
-      return b;
+      const rangee = document.createElement("div");
+      rangee.className = "optrow";
+      const inf = document.createElement("button");
+      inf.type = "button"; inf.className = "ibtn"; inf.textContent = "ⓘ";
+      inf.title = "Voir la fiche de " + u[0];
+      inf.addEventListener("click", e => { e.stopPropagation(); ouvreFiche(u[0]); });
+      rangee.appendChild(b); rangee.appendChild(inf);
+      return rangee;
     };
     const titre = t => {
       const d = document.createElement("div");
@@ -1447,18 +1957,30 @@ function renderPick(){
     return;
   }
   head.textContent = "Ajouter une unité";
+  majBudgetPick();
   /* rangé par grande catégorie : on cherche « un véhicule », « un héros »,
-     rarement un nom précis dans une liste de cinquante-deux entrées */
+     rarement un nom précis dans une liste de cinquante-deux entrées.
+     La recherche prend aussi les mots-cles et le role : « canoptek »,
+     « leader », « battleline » ramenent ce qu'il faut. */
   const retenues = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
-    unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q));
+    unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q) ||
+    norm(u[9] || "").includes(q) ||
+    Object.keys(KW).some(k => has(k, u[0]) && norm(k).includes(q)));
   const parCat = {};
   retenues.forEach(u => (parCat[categorie(u[0])] = parCat[categorie(u[0])] || []).push(u));
   const bouton = u => {
     const b = document.createElement("button");
     b.type="button"; b.className="opt";
-    const sz = u[6][u[6].length-1];
+    /* la taille minimale est celle qu'on prend le plus souvent, et surtout
+       la moins chere : poser d'office la plus grande faisait croire toute
+       l'armee hors de prix. Le prix s'annonce en fourchette. */
+    const sz = u[6][0];
+    const pmin = u[7][String(u[6][0])] || 0, pmax = u[7][String(u[6][u[6].length-1])] || 0;
+    const reste = (R.cap || 2000) - totalPoints();
+    if(pmin > reste) b.classList.add("cher");
     b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">×' + u[6].join("/") +
-      ' · ' + (u[7][String(sz)]||0) + ' pts · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
+      ' · ' + (pmin === pmax ? pmin + ' pts' : pmin + '–' + pmax + ' pts') +
+      ' · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
       (u[10] ? '<span class="otag">LEGENDS</span>' : (u[9] ? '<span class="otag">' + u[9].toUpperCase() + '</span>' : ""));
     b.addEventListener("click", ()=>{
       const wl = unitWeps(u[0]);
@@ -1467,13 +1989,24 @@ function renderPick(){
       const neuve = {id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true,
         grp:nomGroupe(), enh:null};
       R.units.push(neuve);
-      closeSheet("sheetUnit"); saveR();
-      /* on vient de la poser sur le pave : on ouvre directement son panneau,
-         c'est la qu'on va la regler */
-      if(el("listEditor") && !el("listEditor").hidden) ouvrePanneau("cardUnits", neuve.id);
-      else renderList();
+      saveR(); renderList();
+      /* on reste dans le catalogue : monter une liste, c'est poser dix
+         unites d'affilee, pas ressortir dix fois. Le pave se remplit
+         derriere et le budget se met a jour au-dessus. */
+      b.classList.add("pose");
+      setTimeout(()=> b.classList.remove("pose"), 700);
+      majBudgetPick();
+      derniereAjoutee = neuve.id; ajoutees++;
     });
-    return b;
+    /* la fiche se consulte avant d'ajouter : c'est la qu'on decide */
+    const rangee = document.createElement("div");
+    rangee.className = "optrow";
+    const inf = document.createElement("button");
+    inf.type = "button"; inf.className = "ibtn"; inf.textContent = "ⓘ";
+    inf.title = "Voir la fiche de " + u[0];
+    inf.addEventListener("click", e => { e.stopPropagation(); ouvreFiche(u[0]); });
+    rangee.appendChild(b); rangee.appendChild(inf);
+    return rangee;
   };
   CAT_ORDRE.forEach(cat=>{
     const lot = parCat[cat];
@@ -1699,6 +2232,372 @@ function renderCmp(){
 /* ==========================================================
    IMPORT / EXPORT
    ========================================================== */
+/* ==========================================================
+   PARTAGE : texte, impression, sauvegarde, import
+   ========================================================== */
+/* le texte que les organisateurs de tournoi attendent : lisible,
+   sans mise en forme, chaque unite avec son cout et son armement */
+function listeEnTexte(L){
+  L = L || R;
+  const lignes = [];
+  const pts = pointsDe(L);
+  lignes.push(L.nom + " — Nécrons — " + pts + " / " + L.cap + " pts");
+  lignes.push("Détachement : " + (L.detach.length ? L.detach.join(" + ") : "aucun"));
+  if(L.fd) lignes.push("Disposition de Force : " + L.fd);
+  lignes.push("");
+
+  const parCat = {};
+  L.units.forEach(ru => {
+    const c = categorie(ru.name);
+    (parCat[c] = parCat[c] || []).push(ru);
+  });
+  CAT_ORDRE.forEach(cat => {
+    const lot = parCat[cat]; if(!lot || !lot.length) return;
+    lignes.push("+ " + cat.toUpperCase() + " +");
+    lignes.push("");
+    lot.forEach(ru => {
+      const u = unitRow(ru.name); if(!u) return;
+      const tete = (estGroupe(ru) && ru.grp ? ru.grp + " — " : "") +
+        ru.name + " ×" + ru.size + " (" + pointsUnite(ru) + " pts)";
+      lignes.push(tete);
+      const wl = unitWeps(ru.name);
+      ru.lo.forEach(l => {
+        if(!l.n) return;
+        const g = groupeDe(ru.name, l.w), w = wl[l.w];
+        if(!w) return;
+        lignes.push("  • " + l.n + "× " + (g ? g.libelle : w[1]));
+      });
+      ru.chars.forEach(c => {
+        const cu = unitRow(c.name); if(!cu) return;
+        lignes.push("  ‣ " + c.name + " (" + (cu[7][String(cu[6][0])] || 0) + " pts)");
+        const gc = groupeDe(c.name, c.w || 0);
+        if(gc) lignes.push("      • " + gc.libelle);
+      });
+      if(ru.enh){
+        const e = enhRow(ru.enh);
+        lignes.push("  ★ " + ru.enh + " (" + (e && typeof e[1] === "number" ? e[1] + " pts" : "coût inconnu") + ")");
+      }
+      lignes.push("");
+    });
+  });
+  lignes.push("Total : " + pts + " pts sur " + L.cap + ".");
+  const av = validate();
+  if(av.length) lignes.push("À vérifier : " + av.length + " avertissement" + (av.length > 1 ? "s" : "") +
+    " dans l'application.");
+  return lignes.join("\n");
+}
+
+function renderPartage(){
+  const z = el("listTxt"); if(!z) return;
+  z.textContent = listeEnTexte();
+  const q = el("qrHost"); if(q){ q.hidden = true; q.innerHTML = ""; }
+  const r = el("importRap"); if(r) r.innerHTML = "";
+}
+
+/* le presse-papier moderne n'existe pas partout : on retombe sur la
+   selection quand il manque */
+function copier(txt, quoi){
+  const fini = ok => toast(ok ? quoi + " copié." : "Copie refusée par le navigateur — sélectionne le texte à la main.", "", null);
+  if(navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(txt).then(()=> fini(true), ()=> fini(false));
+  else {
+    try{
+      const t = document.createElement("textarea");
+      t.value = txt; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      fini(document.execCommand("copy"));
+      document.body.removeChild(t);
+    }catch(e){ fini(false); }
+  }
+}
+
+/* impression : on ouvre une fenetre propre plutot que d'imprimer
+   l'application, dont la mise en page ne s'y prete pas */
+function imprimeListe(){
+  const w = window.open("", "_blank");
+  if(!w){ toast("Le navigateur a bloqué la fenêtre d'impression.", "", null); return; }
+  const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  w.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">' +
+    '<title>' + esc(R.nom) + '</title><style>' +
+    'body{font:13px/1.55 ui-monospace,Menlo,monospace;margin:26px;color:#111;max-width:720px}' +
+    'h1{font-size:17px;letter-spacing:.04em;margin:0 0 14px;border-bottom:2px solid #111;padding-bottom:6px}' +
+    'pre{white-space:pre-wrap;margin:0;font:inherit}' +
+    '@page{margin:16mm}</style></head><body><h1>' + esc(R.nom) + '</h1><pre>' +
+    esc(listeEnTexte()) + '</pre></body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 250);
+}
+
+/* sauvegarde de toutes les listes dans un fichier */
+function sauvegardeTout(){
+  const payload = { app: "necron-aide-jeu", v: 1, listes: LISTS, strats: SUSER };
+  const blob = new Blob([JSON.stringify(payload, null, 1)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "listes-necrons.json";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast(LISTS.length + " liste" + (LISTS.length > 1 ? "s" : "") + " sauvegardée" +
+    (LISTS.length > 1 ? "s" : "") + ".", "", null);
+}
+
+function rapport(lignes){
+  const host = el("importRap"); if(!host) return;
+  host.innerHTML = lignes.map(l =>
+    '<div class="ir' + (l.warn ? " warn" : "") + '">' + l.txt + '</div>').join("");
+}
+
+/* ==========================================================
+   QR CODE — encodeur autonome, mode octet, correction L.
+   Ecrit ici plutot qu'importe : l'application n'a aucune
+   dependance et doit tourner depuis un simple fichier.
+   ========================================================== */
+const QR = (function(){
+  /* corps de Galois GF(256), polynome 0x11D */
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  for(let i=0, x=1; i<255; i++){
+    EXP[i] = x; LOG[x] = i;
+    x <<= 1; if(x & 256) x ^= 0x11D;
+  }
+  for(let i=255; i<512; i++) EXP[i] = EXP[i-255];
+  const mul = (a,b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+  /* polynome generateur de n symboles de correction */
+  function gen(n){
+    let p = [1];
+    for(let i=0; i<n; i++){
+      const q = new Array(p.length + 1).fill(0);
+      for(let j=0; j<p.length; j++){
+        q[j] ^= p[j];                    /* x · p */
+        q[j+1] ^= mul(p[j], EXP[i]);     /* α^i · p */
+      }
+      p = q;
+    }
+    return p;
+  }
+  function ecc(data, n){
+    const g = gen(n), res = new Array(data.length + n).fill(0);
+    for(let i=0; i<data.length; i++) res[i] = data[i];
+    for(let i=0; i<data.length; i++){
+      const c = res[i];
+      if(!c) continue;
+      for(let j=0; j<g.length; j++) res[i+j] ^= mul(g[j], c);
+    }
+    return res.slice(data.length);
+  }
+
+  /* niveau L : [symboles de correction par bloc, blocs G1, donnees G1, blocs G2, donnees G2] */
+  const BLOCS = [null,
+   [7,1,19,0,0],[10,1,34,0,0],[15,1,55,0,0],[20,1,80,0,0],[26,1,108,0,0],
+   [18,2,68,0,0],[20,2,78,0,0],[24,2,97,0,0],[30,2,116,0,0],[18,2,68,2,69],
+   [20,4,81,0,0],[24,2,92,2,93],[26,4,107,0,0],[30,3,115,1,116],[22,5,87,1,88],
+   [24,5,98,1,99],[28,1,107,5,108],[30,5,120,1,121],[28,3,113,4,114],[28,3,107,5,108],
+   [28,4,116,4,117],[28,2,111,7,112],[30,4,121,5,122],[30,6,117,4,118],[26,8,106,4,107],
+   [28,10,114,2,115],[30,8,122,4,123],[30,3,117,10,118],[30,7,116,7,117],[30,5,115,10,116],
+   [30,13,115,3,116],[30,17,115,0,0],[30,17,115,1,116],[30,13,115,6,116],[30,12,121,7,122],
+   [30,6,121,14,122],[30,17,122,4,123],[30,4,122,18,123],[30,20,117,4,118],[30,19,118,6,119]];
+
+  const ALIGN = [null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],
+   [6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],
+   [6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],
+   [6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],
+   [6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],
+   [6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],
+   [6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],
+   [6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+
+  const donneesDe = v => { const b = BLOCS[v]; return b[1]*b[2] + b[3]*b[4]; };
+
+  /* BCH : 10 bits pour le format, 12 pour la version */
+  function bch(v, poly, n){
+    let d = v << n;
+    const lg = x => { let l = 0; while(x){ l++; x >>= 1; } return l; };
+    const lp = lg(poly);
+    while(lg(d) >= lp) d ^= poly << (lg(d) - lp);
+    return d;
+  }
+
+  function encode(txt){
+    const bytes = new TextEncoder().encode(txt);
+    let v = 0;
+    for(let i=1; i<=40; i++){
+      const cc = i < 10 ? 8 : 16;
+      if(donneesDe(i) * 8 >= 4 + cc + bytes.length * 8){ v = i; break; }
+    }
+    if(!v) throw new Error("trop long pour un QR code");
+
+    /* flux binaire : mode octet, longueur, donnees, terminaison */
+    const bits = [];
+    const put = (val, n) => { for(let i=n-1; i>=0; i--) bits.push((val >> i) & 1); };
+    put(4, 4);
+    put(bytes.length, v < 10 ? 8 : 16);
+    bytes.forEach(b => put(b, 8));
+    const cap = donneesDe(v) * 8;
+    for(let i=0; i<4 && bits.length < cap; i++) bits.push(0);
+    while(bits.length % 8) bits.push(0);
+    const mots = [];
+    for(let i=0; i<bits.length; i+=8){
+      let b = 0; for(let j=0; j<8; j++) b = (b << 1) | bits[i+j];
+      mots.push(b);
+    }
+    const REMPLIS = [0xEC, 0x11];
+    for(let i=0; mots.length < donneesDe(v); i++) mots.push(REMPLIS[i % 2]);
+
+    /* decoupage en blocs, correction, entrelacement */
+    const [nec, b1, d1, b2, d2] = BLOCS[v];
+    const blocs = [], eccs = [];
+    let p = 0;
+    for(let i=0; i<b1; i++){ blocs.push(mots.slice(p, p+d1)); p += d1; }
+    for(let i=0; i<b2; i++){ blocs.push(mots.slice(p, p+d2)); p += d2; }
+    blocs.forEach(b => eccs.push(ecc(b, nec)));
+    const flux = [];
+    const maxD = Math.max(d1, d2);
+    for(let i=0; i<maxD; i++) blocs.forEach(b => { if(i < b.length) flux.push(b[i]); });
+    for(let i=0; i<nec; i++) eccs.forEach(e => flux.push(e[i]));
+
+    /* trame */
+    const n = v * 4 + 17;
+    const m = [], res = [];
+    for(let i=0; i<n; i++){ m.push(new Uint8Array(n)); res.push(new Uint8Array(n)); }
+    const pose = (r, c, val) => { m[r][c] = val; res[r][c] = 1; };
+
+    const reperes = (r, c) => {
+      for(let i=-1; i<=7; i++) for(let j=-1; j<=7; j++){
+        const y = r+i, x = c+j;
+        if(y < 0 || y >= n || x < 0 || x >= n) continue;
+        const bord = (i >= 0 && i <= 6 && (j === 0 || j === 6)) ||
+                     (j >= 0 && j <= 6 && (i === 0 || i === 6));
+        const coeur = i >= 2 && i <= 4 && j >= 2 && j <= 4;
+        pose(y, x, (bord || coeur) ? 1 : 0);
+      }
+    };
+    reperes(0, 0); reperes(0, n-7); reperes(n-7, 0);
+
+    /* les trois coins portent deja un repere : ces mires-la n'existent pas.
+       Toutes les autres se posent, y compris sur la ligne de synchronisation. */
+    const A = ALIGN[v], der = A[A.length-1];
+    A.forEach(r => A.forEach(c => {
+      if((r === 6 && c === 6) || (r === 6 && c === der) || (r === der && c === 6)) return;
+      for(let i=-2; i<=2; i++) for(let j=-2; j<=2; j++)
+        pose(r+i, c+j, (Math.abs(i) === 2 || Math.abs(j) === 2 || (i === 0 && j === 0)) ? 1 : 0);
+    }));
+
+    for(let i=8; i<n-8; i++){ pose(6, i, i % 2 === 0 ? 1 : 0); pose(i, 6, i % 2 === 0 ? 1 : 0); }
+    pose(n-8, 8, 1);
+
+    /* emplacements du format, reserves avant le remplissage */
+    for(let i=0; i<9; i++){ if(!res[8][i]) pose(8, i, 0); if(!res[i][8]) pose(i, 8, 0); }
+    for(let i=0; i<8; i++){ if(!res[8][n-1-i]) pose(8, n-1-i, 0); if(!res[n-1-i][8]) pose(n-1-i, 8, 0); }
+    if(v >= 7){
+      const vb = (v << 12) | bch(v, 0x1F25, 12);
+      for(let i=0; i<18; i++){
+        const b = (vb >> i) & 1;
+        pose(Math.floor(i/3), n-11 + (i%3), b);
+        pose(n-11 + (i%3), Math.floor(i/3), b);
+      }
+    }
+
+    /* remplissage en zigzag, de droite a gauche */
+    let bit = 0, montant = true;
+    const flot = [];
+    flux.forEach(b => { for(let i=7; i>=0; i--) flot.push((b >> i) & 1); });
+    for(let col = n-1; col > 0; col -= 2){
+      if(col === 6) col--;
+      for(let k=0; k<n; k++){
+        const r = montant ? n-1-k : k;
+        for(let d=0; d<2; d++){
+          const c = col - d;
+          if(res[r][c]) continue;
+          m[r][c] = bit < flot.length ? flot[bit] : 0;
+          bit++;
+        }
+      }
+      montant = !montant;
+    }
+
+    /* masques : on garde celui qui penalise le moins */
+    const MASQUES = [
+      (r,c)=>(r+c)%2===0, (r)=>r%2===0, (r,c)=>c%3===0, (r,c)=>(r+c)%3===0,
+      (r,c)=>(Math.floor(r/2)+Math.floor(c/3))%2===0, (r,c)=>(r*c)%2+(r*c)%3===0,
+      (r,c)=>((r*c)%2+(r*c)%3)%2===0, (r,c)=>((r+c)%2+(r*c)%3)%2===0
+    ];
+    let best = null, bestP = Infinity;
+    for(let k=0; k<8; k++){
+      const g = m.map(l => Uint8Array.from(l));
+      for(let r=0; r<n; r++) for(let c=0; c<n; c++)
+        if(!res[r][c] && MASQUES[k](r,c)) g[r][c] ^= 1;
+      /* format : 01 pour le niveau L, puis le numero de masque */
+      const fb = (((1 << 3) | k) << 10 | bch((1 << 3) | k, 0x537, 10)) ^ 0x5412;
+      for(let i=0; i<15; i++){
+        const b = (fb >> i) & 1;
+        /* copie verticale : colonne 8 en haut, puis en bas */
+        if(i < 6) g[i][8] = b;
+        else if(i < 8) g[i+1][8] = b;
+        else g[n-15+i][8] = b;
+        /* copie horizontale : ligne 8 a droite, puis a gauche */
+        if(i < 8) g[8][n-1-i] = b;
+        else if(i === 8) g[8][7] = b;
+        else g[8][14-i] = b;
+      }
+      g[n-8][8] = 1;
+      const p = penalite(g, n);
+      if(p < bestP){ bestP = p; best = g; }
+    }
+    return best;
+  }
+
+  function penalite(g, n){
+    let p = 0, sombres = 0;
+    const serie = (get) => {
+      for(let a=0; a<n; a++){
+        let run = 1;
+        for(let b=1; b<n; b++){
+          if(get(a,b) === get(a,b-1)) run++;
+          else { if(run >= 5) p += 3 + (run - 5); run = 1; }
+        }
+        if(run >= 5) p += 3 + (run - 5);
+      }
+    };
+    serie((a,b)=>g[a][b]); serie((a,b)=>g[b][a]);
+    for(let r=0; r<n-1; r++) for(let c=0; c<n-1; c++){
+      const v = g[r][c];
+      if(v === g[r][c+1] && v === g[r+1][c] && v === g[r+1][c+1]) p += 3;
+    }
+    const MOTIF = [1,0,1,1,1,0,1,0,0,0,0];
+    const cherche = (get) => {
+      for(let a=0; a<n; a++) for(let b=0; b+11<=n; b++){
+        let ok = true;
+        for(let i=0; i<11; i++) if(get(a,b+i) !== MOTIF[i]){ ok = false; break; }
+        if(ok) p += 40;
+        ok = true;
+        for(let i=0; i<11; i++) if(get(a,b+i) !== MOTIF[10-i]){ ok = false; break; }
+        if(ok) p += 40;
+      }
+    };
+    cherche((a,b)=>g[a][b]); cherche((a,b)=>g[b][a]);
+    for(let r=0; r<n; r++) for(let c=0; c<n; c++) if(g[r][c]) sombres++;
+    p += Math.floor(Math.abs(sombres * 100 / (n*n) - 50) / 5) * 10;
+    return p;
+  }
+
+  return { encode: encode };
+})();
+
+/* dessine la matrice dans un canvas, marge de quatre modules */
+function dessineQR(txt, taille){
+  const m = QR.encode(txt), n = m.length, q = 4, tot = n + q*2;
+  const px = Math.max(1, Math.floor((taille || 560) / tot));
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = tot * px;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = "#000";
+  for(let r=0; r<n; r++) for(let c=0; c<n; c++)
+    if(m[r][c]) g.fillRect((c+q)*px, (r+q)*px, px, px);
+  return { canvas: cv, version: (n - 17) / 4 };
+}
+
 function exportImport(){
   const txt = JSON.stringify({nom:R.nom, cap:R.cap, detach:R.detach, units:R.units});
   const v = prompt("Copie ce texte pour sauvegarder ta liste, ou colle-en un autre pour l'importer " +
@@ -1751,7 +2650,7 @@ function unb64u(str){
 /* on ne transporte que ce qui n'est pas reconstructible : ni id ni points */
 const packList = () => ({
   t: R.nom, p: R.cap,
-  d: R.detach,
+  d: R.detach, f: R.fd || "",
   u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0,
     g: ru.grp || "", e: ru.enh || "" }))
 });
@@ -1784,6 +2683,7 @@ function applyPacked(o){
   if(!o || !Array.isArray(o.u)) throw 0;
   const L = listeVierge(o.t || "Liste reçue", o.p || 2000);
   L.detach = Array.isArray(o.d) ? o.d : [];
+  L.fd = o.f || "";
   L.units = o.u.map(u => ({
     id: L.nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
     grp: u.g || nomGroupe(), enh: u.e || null
@@ -1798,7 +2698,7 @@ async function shareLink(){
   if(location.protocol === "file:"){
     alert("Cette copie est ouverte depuis un fichier local : un lien de partage n'y " +
       "serait valable que sur cet ordinateur.\n\nUtilise « Exporter / importer la liste » " +
-      "pour passer ta liste d'un appareil à l'autre.");
+      "pour passer ta liste d'un appareil à l'autre, ou la sauvegarde en fichier.");
     return;
   }
   if(!R.units.length){ alert("Ta liste est vide — ajoute au moins une unité avant de la partager."); return; }
@@ -1817,6 +2717,104 @@ async function shareLink(){
     }catch(e){}
   }
   prompt("Copie ce lien pour ouvrir la liste sur un autre appareil :", url);
+}
+
+/* le lien, tel quel : le QR code et la copie s'en servent tous deux */
+async function lienDeListe(){
+  if(location.protocol === "file:") return "";
+  if(!R.units.length) return "";
+  try{ return location.href.replace(/#.*$/, "") + "#l=" + await encodeList(); }
+  catch(e){ return ""; }
+}
+
+async function afficheQR(){
+  const host = el("qrHost"); if(!host) return;
+  const url = await lienDeListe();
+  host.hidden = false;
+  if(!url){
+    host.innerHTML = '<p>' + (location.protocol === "file:"
+      ? "Cette copie est ouverte depuis un fichier local : le lien n'aurait de sens que sur cet ordinateur. Sauvegarde tes listes dans un fichier pour les transporter."
+      : "Ta liste est vide — ajoute au moins une unité.") + '</p>';
+    return;
+  }
+  host.innerHTML = "";
+  try{
+    const q = dessineQR(url);
+    host.appendChild(q.canvas);
+    const p = document.createElement("p");
+    p.textContent = "Version " + q.version + " · " + url.length +
+      " caractères. Vise-le avec l'autre appareil pour y ouvrir la liste.";
+    host.appendChild(p);
+  }catch(e){
+    host.innerHTML = '<p>Liste trop longue pour tenir dans un QR code (' + url.length +
+      ' caractères). Passe par le lien ou par la sauvegarde en fichier.</p>';
+  }
+}
+
+/* ==========================================================
+   IMPORT BATTLESCRIBE
+   Un .ros est du XML : on y cherche les selections qui portent
+   un profil d'unite, on rapproche les noms de notre catalogue
+   et on dit franchement ce qui n'a pas ete reconnu.
+   ========================================================== */
+function importeRos(txt){
+  let doc;
+  try{ doc = new DOMParser().parseFromString(txt, "application/xml"); }
+  catch(e){ rapport([{txt:"Fichier illisible.", warn:true}]); return; }
+  if(doc.querySelector("parsererror")){
+    rapport([{txt:"Ce fichier n'est pas un XML valide. Un .rosz est une archive : décompresse-la d'abord, le .ros est dedans.", warn:true}]);
+    return;
+  }
+  const nom = (doc.documentElement.getAttribute("name") || "Liste importée").trim();
+  const cle = s => String(s).toLowerCase().replace(/\[legends\]/g, "").replace(/[^a-z0-9]/g, "");
+  const catalogue = {};
+  UNITS.forEach(u => catalogue[cle(u[0])] = u);
+
+  const trouvees = [], inconnues = [];
+  const selections = doc.getElementsByTagName("selection");
+  for(let i=0; i<selections.length; i++){
+    const sel = selections[i];
+    const type = sel.getAttribute("type");
+    if(type !== "unit" && type !== "model") continue;
+    const n = (sel.getAttribute("name") || "").trim();
+    if(!n) continue;
+    const u = catalogue[cle(n)];
+    /* une entree imbriquee dans une unite deja reconnue est une figurine
+       de cette unite, pas une unite de plus */
+    const parent = sel.parentNode && sel.parentNode.parentNode;
+    const dansUnite = parent && parent.nodeName === "selection" &&
+      (parent.getAttribute("type") === "unit" || parent.getAttribute("type") === "model");
+    if(dansUnite) continue;
+    if(u) trouvees.push({ u: u, n: parseInt(sel.getAttribute("number"), 10) || 1, brut: n });
+    else if(inconnues.indexOf(n) < 0) inconnues.push(n);
+  }
+
+  if(!trouvees.length){
+    rapport([{txt:"Aucune unité nécron reconnue dans ce fichier. Il vient peut-être d'une autre faction.", warn:true}]);
+    return;
+  }
+  const L = listeVierge(nom, R.cap || 2000);
+  L.nextId = 1;
+  trouvees.forEach(t => {
+    const u = t.u;
+    /* la taille du .ros ne se lit pas de facon fiable : on prend la plus
+       petite compatible et on laisse regler a la main */
+    const wl = unitWeps(u[0]);
+    let di = wl.findIndex(w => w[2] === "T"); if(di < 0) di = 0;
+    const sz = u[6][0];
+    L.units.push({ id: L.nextId++, name: u[0], size: sz, lo:[{w:di, n:sz}],
+      chars: [], sel: true, grp: "", enh: null });
+  });
+  normaliseListe(L);
+  LISTS.push(L); ouvre(L);
+  saveR(); renderList();
+  const lignes = [{txt: "<b>" + L.units.length + " unité" + (L.units.length > 1 ? "s" : "") +
+    "</b> importée" + (L.units.length > 1 ? "s" : "") + " dans « " + nom + " ». " +
+    "Effectifs et armement sont posés au minimum : à régler unité par unité."}];
+  if(inconnues.length) lignes.push({warn:true, txt: "<b>" + inconnues.length +
+    " entrée" + (inconnues.length > 1 ? "s non reconnues" : " non reconnue") + "</b> : " +
+    inconnues.slice(0, 12).join(", ") + (inconnues.length > 12 ? "…" : "") + "."});
+  rapport(lignes);
 }
 
 async function readSharedLink(){
@@ -1947,7 +2945,107 @@ function syncTarget(){
 el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
-el("btnExport").addEventListener("click", exportImport);
+el("btnExport2").addEventListener("click", exportImport);
+el("btnAddStrat").addEventListener("click", ()=>{
+  if(!R.detach.length){ toast("Choisis d'abord un détachement.", "", null); return; }
+  const nom = prompt("Nom du stratagème, tel qu'il figure sur ta fiche :", "");
+  if(!nom || !nom.trim()) return;
+  const det = R.detach.length === 1 ? R.detach[0]
+    : (prompt("De quel détachement ?\n" + R.detach.join("\n"), R.detach[0]) || "").trim();
+  if(R.detach.indexOf(det) < 0){ toast("Détachement inconnu.", "", null); return; }
+  SUSER.ajouts.push([nom.trim(), det, "", 1, "", "", ""]);
+  saveS(); renderStrats(); renderPartie();
+  toast(nom.trim() + " ajouté — touche-le pour saisir son texte.", "", null);
+});
+if(el("listDispo")) el("listDispo").addEventListener("change", ()=>{
+  R.fd = el("listDispo").value.trim(); saveR(); renderList();
+});
+
+/* boutons du suivi de partie */
+el("btnReanime").addEventListener("click", ()=>{
+  if(!R) return;
+  let n = 0;
+  R.units.forEach(ru=>{
+    const e = etat(ru), max = pvMax(ru);
+    if(e.pv <= 0 || e.pv >= max) return;
+    const g = d3();
+    e.pv = Math.min(max, e.pv + g);
+    n++;
+  });
+  noteJournal(n ? "Réanimation de " + n + " unité" + (n > 1 ? "s" : "") : "Réanimation : rien à relever");
+  saveG(); renderPartie();
+  toast(n ? n + " unité" + (n > 1 ? "s réanimées" : " réanimée") + "." : "Aucune unité à réanimer.", "", null);
+});
+el("btnResetPV").addEventListener("click", ()=>{
+  if(!R) return;
+  R.units.forEach(ru=>{ const e = etat(ru); e.pv = pvMax(ru); e.c = ru.chars.map(c => pvMaxChar(c.name)); });
+  noteJournal("Toutes les unités remises à neuf");
+  saveG(); renderPartie();
+});
+el("btnNewGame").addEventListener("click", ()=>{
+  if(!confirm("Repartir d'une partie vierge ? Le tour, les PC, le score et l'état des unités sont remis à zéro.")) return;
+  G = partieVierge(); saveG(); renderPartie();
+  toast("Nouvelle partie.", "", null);
+});
+el("btnCopyTxt").addEventListener("click", ()=> copier(listeEnTexte(), "Le texte de la liste"));
+el("btnPrint").addEventListener("click", imprimeListe);
+el("btnShare2").addEventListener("click", shareLink);
+el("btnQR").addEventListener("click", afficheQR);
+el("btnBackup").addEventListener("click", sauvegardeTout);
+el("btnShareTxt").addEventListener("click", async ()=>{
+  const txt = listeEnTexte();
+  if(navigator.share){
+    try{ await navigator.share({ title: R.nom, text: txt }); return; }
+    catch(e){ if(e && e.name === "AbortError") return; }
+  }
+  copier(txt, "Le texte de la liste");
+});
+
+/* un seul champ de fichier sert aux deux entrees : on retient ce
+   qu'on attend avant de l'ouvrir */
+let attenteFichier = null;
+el("btnRestore").addEventListener("click", ()=>{ attenteFichier = "json"; el("fileIn").click(); });
+el("btnImportRos").addEventListener("click", ()=>{ attenteFichier = "ros"; el("fileIn").click(); });
+el("fileIn").addEventListener("change", ()=>{
+  const f = el("fileIn").files && el("fileIn").files[0];
+  el("fileIn").value = "";
+  if(!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    const txt = String(fr.result || "");
+    if(attenteFichier === "ros"){ importeRos(txt); return; }
+    try{
+      const o = JSON.parse(txt);
+      const lot = Array.isArray(o) ? o : (o && o.listes);
+      if(!Array.isArray(lot) || !lot.length) throw 0;
+      let n = 0;
+      lot.forEach(L => {
+        if(!L || !Array.isArray(L.units)) return;
+        const neuve = listeVierge(L.nom || "Liste restaurée", L.cap || 2000);
+        neuve.detach = L.detach || [];
+        neuve.units = L.units;
+        normaliseListe(neuve);
+        LISTS.push(neuve); n++;
+      });
+      if(!n) throw 0;
+      /* les stratagemes saisis voyagent avec les listes : ils se completent,
+         ce qui est deja saisi ici n'est pas ecrase */
+      if(o && o.strats && o.strats.fiches){
+        Object.keys(o.strats.fiches).forEach(k => { if(!SUSER.fiches[k]) SUSER.fiches[k] = o.strats.fiches[k]; });
+        (o.strats.ajouts || []).forEach(a => {
+          if(!SUSER.ajouts.some(x => x[0] === a[0] && x[1] === a[1])) SUSER.ajouts.push(a);
+        });
+        saveS();
+      }
+      saveR(); renderList(); renderIndex();
+      rapport([{txt: "<b>" + n + " liste" + (n > 1 ? "s" : "") + "</b> restaurée" +
+        (n > 1 ? "s" : "") + ". Rien n'a été écrasé : elles s'ajoutent aux tiennes."}]);
+    }catch(e){
+      rapport([{txt:"Ce fichier ne contient pas de listes lisibles.", warn:true}]);
+    }
+  };
+  fr.readAsText(f);
+});
 if(el("listName")) el("listName").addEventListener("change", ()=>{
   R.nom = el("listName").value.trim() || "Liste"; saveR(); renderList();
 });
@@ -1968,7 +3066,7 @@ if(el("armMode")) el("armMode").querySelectorAll(".chip").forEach(b=>
     el("armMode").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
     renderArms();
   }));
-el("btnShare").addEventListener("click", shareLink);
+
 el("uSearch").addEventListener("input", ()=>{ if(window.__rosterPick && pickMode) renderPick(); });
 el("phaseChips").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
@@ -1977,7 +3075,17 @@ el("phaseChips").querySelectorAll(".chip").forEach(b=>
     renderFireList();
   }));
 document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
-  b.addEventListener("click", ()=>{ pickMode = null; pickSlot = null; }));
+  b.addEventListener("click", ()=>{
+    /* on sort du catalogue : dire ce qu'on vient d'y poser, et proposer
+       d'ouvrir la derniere si on n'en a pose qu'une */
+    if(pickMode === "unit" && ajoutees){
+      const id = derniereAjoutee;
+      toast(ajoutees + " unité" + (ajoutees > 1 ? "s ajoutées" : " ajoutée") + " à la liste.",
+        ajoutees === 1 ? "Régler" : "", ajoutees === 1 ? ()=> ouvrePanneau("cardUnits", id) : null);
+    }
+    pickMode = null; pickSlot = null; ajoutees = 0;
+    const bar = el("uBudget"); if(bar) bar.hidden = true;
+  }));
 
 /* le simulateur possede sa propre liste d'unites : on remet son mode
    quand l'utilisateur rouvre la feuille depuis l'onglet Simulateur */
@@ -2007,7 +3115,7 @@ el("cmpPhase").querySelectorAll(".chip").forEach(b=>
     renderCmpList();
   }));
 
-loadR(); loadCmp();
+loadR(); loadCmp(); loadS();
 PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
 initDetachSheet();
 renderList();

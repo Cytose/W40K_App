@@ -233,6 +233,130 @@ input.sheet-search{
 .opt .o2{display:block;font-size:11.5px;color:var(--tx3);margin-top:2px;font-variant-numeric:tabular-nums}
 .opt .otag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--tx3);
   border:1px solid var(--line);padding:2px 6px}
+/* fiche d'unite : la datasheet, profil, armes, aptitudes, mots-cles */
+.fiche-prof{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--li);
+  border:1px solid var(--li);border-radius:8px;overflow:hidden;margin:6px 0 12px}
+.fiche-prof div{background:var(--s1);padding:7px 2px;text-align:center}
+.fiche-prof b{display:block;font-size:15px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums}
+.fiche-prof i{display:block;font-style:normal;font-size:9px;letter-spacing:.1em;color:var(--tx3);
+  text-transform:uppercase;margin-top:2px}
+.fiche-sec{margin:14px 2px 6px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--glow);font-weight:800}
+.fiche-apt{border-left:2px solid var(--li);padding:2px 0 2px 10px;margin:0 0 10px}
+.fiche-apt b{display:block;font-size:13px;color:var(--tx1);margin-bottom:2px}
+.fiche-apt p{margin:0;font-size:12.5px;line-height:1.5;color:var(--tx2)}
+.fiche-kw{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 4px}
+.fiche-kw span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;
+  border:1px solid var(--li);border-radius:99px;color:var(--tx3)}
+.pu.tap{cursor:pointer}
+.pu.tap:hover{border-color:var(--glow)}
+.pu.tap>b:after{content:" ⓘ";font-size:10px;color:var(--tx3);font-weight:400}
+.fiche-note{font-size:12px;line-height:1.5;color:var(--tx3);margin:4px 0 0}
+.fiche-glo{margin:0 0 8px}
+.fiche-glo b{font-size:12px;color:var(--tx1)}
+.fiche-glo p{margin:2px 0 0;font-size:12px;line-height:1.5;color:var(--tx3)}
+.ibtn{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid var(--li);
+  background:transparent;color:var(--tx3);font-size:13px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.ibtn:hover{color:var(--glow);border-color:var(--glow)}
+.optrow{display:flex;align-items:stretch;gap:6px}
+.optrow .opt{flex:1;min-width:0}
+.optrow .ibtn{align-self:center}
+/* bandeau de budget : on ajoute des unites sans quitter le catalogue,
+   le compteur doit dire en direct ou l'on en est */
+.pickbar{display:flex;align-items:center;gap:10px;margin:8px 12px 0;padding:9px 12px;
+  border:1px solid var(--li);border-radius:9px;background:var(--s1);font-size:12px}
+.pickbar b{font-size:15px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums}
+.pickbar .pb2{flex:1;color:var(--tx3)}
+.pickbar.over{border-color:var(--warn)}
+.pickbar.over b{color:var(--warn)}
+.opt.cher .o2{color:var(--warn)}
+.opt.pose{border-color:var(--glow)}
+/* annulation : une suppression doit pouvoir se reprendre */
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(120%);
+  bottom:calc(64px + env(safe-area-inset-bottom));z-index:200;display:flex;align-items:center;gap:12px;
+  padding:11px 12px 11px 15px;border:1px solid var(--li);border-radius:10px;background:var(--s2);
+  box-shadow:0 8px 26px rgba(0,0,0,.5);font-size:12.5px;color:var(--tx2);
+  transition:transform .18s ease,opacity .18s;opacity:0;pointer-events:none;max-width:calc(100vw - 24px)}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.toast button{border:1px solid var(--glow);background:transparent;color:var(--glow);
+  border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;flex:0 0 auto}
+.toast button:empty{display:none}
+/* panneau de partage */
+pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px solid var(--li);
+  border-radius:9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+  line-height:1.55;color:var(--tx2);white-space:pre-wrap;word-break:break-word;
+  max-height:300px;overflow:auto}
+#qrHost{display:flex;flex-direction:column;align-items:center;gap:8px;margin:10px 0 4px}
+#qrHost canvas{image-rendering:pixelated;border:8px solid #fff;border-radius:6px;background:#fff;
+  width:min(280px,72vw);height:auto}
+#qrHost p{margin:0;font-size:11.5px;color:var(--tx3);text-align:center}
+#importRap{margin-top:8px}
+#importRap .ir{padding:9px 11px;border:1px solid var(--li);border-radius:8px;background:var(--s1);
+  font-size:12px;line-height:1.5;color:var(--tx2);margin-bottom:6px}
+#importRap .ir b{color:var(--tx1)}
+#importRap .ir.warn{border-color:var(--warn);color:var(--warn)}
+@media print{
+  body{background:#fff;color:#000}
+  #tabs,.hbar,#pad,.backbar,.sheet,.toast,.tip{display:none !important}
+}
+/* ---------- suivi de partie ---------- */
+#gbar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--li);
+  border:1px solid var(--li);border-radius:9px;overflow:hidden;margin:10px 0 0}
+#gbar .gc{background:var(--s1);padding:9px 3px;text-align:center}
+#gbar .gk{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+#gbar .gv{font-size:19px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums;line-height:1.15}
+#gbar .gpm{display:flex;gap:4px;justify-content:center;margin-top:3px}
+#gbar .gpm button{width:26px;height:24px;border:1px solid var(--li);background:transparent;
+  color:var(--glow);border-radius:6px;font-size:14px;line-height:1;cursor:pointer;font-family:inherit}
+#gbar .gpm button:disabled{opacity:.3;color:var(--tx3)}
+.phasebar{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:8px 0 0}
+.phasebar button{padding:9px 2px;border:1px solid var(--line);background:var(--s1);color:var(--tx3);
+  border-radius:8px;font-family:inherit;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  font-weight:700;cursor:pointer}
+.phasebar button.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
+#grappel{margin:9px 0 2px;padding:10px 12px;border:1px solid var(--li);border-left:2px solid var(--glow);
+  border-radius:8px;background:var(--s1);font-size:12.5px;line-height:1.55;color:var(--tx2)}
+#grappel b{color:var(--glow);display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.grow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.grow:last-child{border-bottom:0}
+.grow.mort{opacity:.42}
+.grow .gn{flex:1;min-width:0}
+.grow .gn b{display:block;font-size:13px;color:var(--tx1);cursor:pointer}
+.grow.mort .gn b{text-decoration:line-through}
+.grow .gn i{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:1px}
+.grow .gpv{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--glow);
+  min-width:56px;text-align:right}
+.grow .gpv.bas{color:var(--warn)}
+.grow .gb{display:flex;gap:4px}
+.grow .gb button{width:30px;height:30px;border:1px solid var(--li);background:transparent;
+  color:var(--tx2);border-radius:7px;font-size:13px;line-height:1;cursor:pointer;font-family:inherit}
+.grow .gb button:hover{border-color:var(--glow);color:var(--glow)}
+.gsub{padding-left:14px;border-left:1px solid var(--line);margin-left:2px}
+#gscore .srow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line)}
+#gscore .srow:last-child{border-bottom:0}
+#gscore .srow span{flex:1;font-size:13px;color:var(--tx2)}
+#gscore .srow b{font-size:17px;font-weight:800;color:var(--tx1);min-width:34px;text-align:right;
+  font-variant-numeric:tabular-nums}
+#gscore .srow button{width:32px;height:32px;border:1px solid var(--li);background:transparent;
+  color:var(--glow);border-radius:7px;font-size:15px;cursor:pointer;font-family:inherit}
+#gjournal .je{font-size:12px;color:var(--tx3);padding:5px 0;border-bottom:1px solid var(--line);line-height:1.45}
+#gjournal .je:last-child{border-bottom:0}
+#gjournal .je b{color:var(--tx2)}
+.gplay{margin-left:auto;padding:6px 10px;border:1px solid var(--glow);background:transparent;
+  color:var(--glow);border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;cursor:pointer;font-family:inherit;flex:0 0 auto}
+.gplay:disabled{border-color:var(--li);color:var(--tx3);cursor:default}
+.strat .sedit{padding:2px 11px 12px}
+.strat .sedit label{display:block;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);margin:8px 0 3px;font-weight:700}
+.strat .sedit input,.strat .sedit textarea{width:100%;max-width:none;box-sizing:border-box;
+  background:var(--s0);border:1px solid var(--li);border-radius:7px;color:var(--tx1);
+  font-family:inherit;font-size:12.5px;padding:8px 9px;text-align:left;height:auto}
+.strat .sedit textarea{min-height:74px;resize:vertical;line-height:1.5}
+.strat .sedit .addrow{margin-top:10px}
+.strat .sbody .vide{color:var(--tx3);font-style:italic}
+.strat .smod{font-size:10px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
 .opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
   white-space:normal;max-height:3.6em;overflow:hidden}
@@ -340,9 +464,22 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .tile.tool .ti2{font-size:18px;line-height:1;color:var(--glow)}
 .tile.tool .tn{font-size:10px;text-align:center;-webkit-line-clamp:2;margin-top:0}
 .tile.tool .tc{font-size:8.5px;color:var(--tx3);line-height:1.2}
+.padhint{margin:8px 2px 0;font-size:11.5px;color:var(--tx3);text-align:center}
 .padsep{margin:16px 2px 2px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;
   color:var(--tx3);font-weight:800;border-bottom:1px solid var(--line);padding-bottom:5px}
 @media (max-width:330px){ .padgrid{grid-template-columns:repeat(2,1fr)} }
+/* sur grand ecran le pave respirait mal : trois colonnes etroites au milieu
+   d'un ecran vide. On elargit et on passe a quatre. */
+@media (min-width:980px){
+  .wrap{max-width:920px}
+  .hbar{max-width:920px}
+  .padgrid{grid-template-columns:repeat(4,1fr);gap:9px}
+  .padgrid.pad3{grid-template-columns:repeat(4,1fr)}
+  /* une case carree de 220 px de cote est un gouffre : on la borne */
+  .tile{aspect-ratio:auto;min-height:118px}
+  .sheet-list,.sheet-head,input.sheet-search,.pickbar,.sheet-tabs{max-width:920px;margin-left:auto;margin-right:auto}
+  input.sheet-search{width:calc(100% - 24px)}
+}
 
 /* ---------- index des listes ---------- */
 .lcard{width:100%;text-align:left;display:flex;align-items:center;gap:11px;margin-top:9px;
@@ -787,6 +924,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <button type="button" class="ghost" id="btnReorder">Réorganiser</button>
       </div>
       <div class="padgrid" id="padUnits"></div>
+      <p class="padhint" id="padHint" hidden>Appui long sur une case : régler, fiche, dupliquer, retirer.</p>
       <div class="padsep">Réglages de la liste</div>
       <div class="padgrid pad3" id="padTools"></div>
     </div>
@@ -803,8 +941,41 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <label for="listCap">Plafond de points</label>
         <div class="ctl"><input type="number" id="listCap" min="100" max="10000" step="50"></div>
       </div>
-      <button class="btn" id="btnShare" type="button">Lien de partage</button>
-      <button class="btn" id="btnExport" type="button">Exporter / importer la liste</button>
+      <p class="hint">Partage, impression, QR code, sauvegarde et import sont regroupés dans « Partager ».</p>
+    </div>
+  </section>
+
+  <section class="card" id="cardPartage">
+    <h2>Partager la liste <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="padsep" style="margin-top:2px">Texte de la liste</div>
+      <pre class="listtxt" id="listTxt"></pre>
+      <div class="addrow">
+        <button type="button" id="btnCopyTxt">Copier</button>
+        <button type="button" id="btnShareTxt">Envoyer</button>
+        <button type="button" id="btnPrint">Imprimer</button>
+      </div>
+      <div class="padsep">Lien et QR code</div>
+      <p class="hint" style="margin-top:2px">Le lien porte la liste entière : il l'ouvre telle quelle sur un autre appareil, sans compte ni serveur.</p>
+      <div class="addrow">
+        <button type="button" id="btnShare2">Copier le lien</button>
+        <button type="button" id="btnQR">Afficher le QR code</button>
+      </div>
+      <div id="qrHost" hidden></div>
+      <div class="padsep">Toutes mes listes</div>
+      <p class="hint" style="margin-top:2px">Un fichier qui contient toutes tes listes, à ranger où tu veux. La restauration les ajoute aux tiennes, elle n'écrase rien.</p>
+      <div class="addrow">
+        <button type="button" id="btnBackup">Sauvegarder</button>
+        <button type="button" id="btnRestore">Restaurer</button>
+      </div>
+      <div class="padsep">Importer d'ailleurs</div>
+      <p class="hint" style="margin-top:2px">Un fichier .ros de BattleScribe ou de New Recruit. Le rapprochement se fait sur les noms : ce qui n'est pas reconnu est signalé.</p>
+      <div class="addrow">
+        <button type="button" id="btnImportRos">Fichier BattleScribe</button>
+        <button type="button" id="btnExport2">Coller du JSON</button>
+      </div>
+      <div id="importRap"></div>
+      <input type="file" id="fileIn" accept=".json,.ros,.rosz,.xml,text/plain" hidden>
     </div>
   </section>
 
@@ -814,6 +985,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <p class="hint" style="margin-top:2px" id="detHint">Deux détachements ne peuvent pas partager le même tag d'exclusivité.</p>
       <div id="detList"></div>
       <div class="addrow"><button type="button" id="btnAddDetach">+ Ajouter un détachement</button></div>
+      <div class="padsep">Disposition de Force</div>
+      <p class="hint" style="margin-top:2px">Elle se choisit parmi celles du détachement retenu et décide de la mission. Le catalogue BattleScribe ne les porte pas : note ici la tienne.</p>
+      <div class="row">
+        <label for="listDispo">Disposition</label>
+        <div class="ctl"><input type="text" id="listDispo" maxlength="48" placeholder="ex. Purge the Foe" style="max-width:none;width:100%;text-align:left"></div>
+      </div>
     </div>
   </section>
 
@@ -827,8 +1004,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <section class="card collapsed" id="cardStrat">
     <h2>Stratagèmes <span class="chev">▾</span></h2>
     <div class="body">
-      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte.</p>
+      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte. Le texte officiel n'étant dans aucune source ouverte, il se saisit ici — en anglais, tel qu'il figure sur ta fiche — et reste enregistré sur cet appareil.</p>
       <div id="stratList"></div>
+      <div class="addrow"><button type="button" id="btnAddStrat">+ Ajouter un stratagème</button></div>
     </div>
   </section>
 
@@ -848,19 +1026,48 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 </div>
 
 <div class="screen" id="scPlay">
-  <section class="card">
+  <div id="gbar"></div>
+  <div class="phasebar" id="gphases"></div>
+  <div id="grappel"></div>
+
+  <section class="card" id="cardEtat">
+    <h2>État des unités <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">Les points de vie qu'il reste. Touche le nom pour ouvrir la fiche.</p>
+      <div id="gunits"></div>
+      <div class="addrow"><button type="button" id="btnReanime">Réanimer (D3 par unité)</button>
+        <button type="button" id="btnResetPV">Tout remettre à neuf</button></div>
+    </div>
+  </section>
+
+  <section class="card" id="cardScore">
+    <h2>Score <span class="chev">▾</span></h2>
+    <div class="body">
+      <div id="gscore"></div>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardStratJeu">
+    <h2>Stratagèmes <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" style="margin-top:2px">Jouer un stratagème retire son coût de tes points de commandement.</p>
+      <div id="gstrat"></div>
+    </div>
+  </section>
+
+  <section class="card collapsed" id="cardJournal">
+    <h2>Journal <span class="chev">▾</span></h2>
+    <div class="body">
+      <div id="gjournal"></div>
+      <div class="addrow"><button type="button" id="btnNewGame">Nouvelle partie</button></div>
+    </div>
+  </section>
+
+  <section class="card collapsed">
     <h2>Liste en jeu <span class="chev">▾</span></h2>
     <div class="body">
       <p class="hint" style="margin-top:2px">La liste ouverte, en lecture seule, telle qu'on la consulte en partie.</p>
       <div id="playList"></div>
-    </div>
-  </section>
-  <section class="card collapsed">
-    <h2>À venir <span class="chev">▾</span></h2>
-    <div class="body">
-      <p class="hint" style="margin-top:2px">Cet axe accueillera le suivi de partie : compteur de points de
-      commandement, phase en cours, capacités et stratagèmes déployables selon la phase. Les stratagèmes
-      attendent leurs données — seuls dix-sept noms et un texte sont connus à ce jour.</p>
     </div>
   </section>
 </div>
@@ -873,9 +1080,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 </nav>
 
 <div class="tip" id="tip"></div>
+<div class="toast" id="toast"><span id="toastTxt"></span><button type="button" id="toastAct"></button></div>
 
 <div class="sheet" id="sheetUnit">
   <div class="sheet-head"><h3>Choisir l'unité</h3><button class="ghost" data-close="sheetUnit" type="button">Fermer</button></div>
+  <div class="pickbar" id="uBudget" hidden></div>
   <input class="sheet-search" id="uSearch" type="text" placeholder="Rechercher une unité…" autocomplete="off">
   <div class="sheet-list" id="uList"></div>
 </div>
@@ -892,6 +1101,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <div class="sheet" id="sheetListAct">
   <div class="sheet-head"><h3 id="listActTitle">Liste</h3><button class="ghost" data-close="sheetListAct" type="button">Fermer</button></div>
   <div class="sheet-list" id="listActList"></div>
+</div>
+
+<div class="sheet" id="sheetFiche">
+  <div class="sheet-head"><h3 id="ficheTitle">Fiche</h3><button class="ghost" data-close="sheetFiche" type="button">Fermer</button></div>
+  <div class="sheet-list" id="ficheBody"></div>
 </div>
 
 <div class="sheet" id="sheetDetach">

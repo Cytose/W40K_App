@@ -39,10 +39,10 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | Fichier | Rôle |
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
-| `data.js` | 53 datasheets, 141 profils d'armes, 12 détachements, mots-clés, rattachements, améliorations, socles |
+| `data.js` | 53 datasheets (profil complet, CO et Cd), 142 profils d'armes avec portée, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations, socles |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
-| `roster.js` | onglets Ma liste, Tir cumulé et Comparer |
+| `roster.js` | axes Listes et En partie, vues Tir cumulé et Comparer, fiche d'unité, partage, encodeur QR |
 | `sw.js` | service worker (mode hors-ligne) |
 | `build.js` | fabrique le bundle minifié dans `dist/` |
 | `mkloader.js` | fabrique le chargeur compressé `dist/index.html` + `dist/a.b64` |
@@ -68,10 +68,11 @@ une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à cô
 et Encaisser (une unité de la liste sous un volume de tir). Les unités de la
 liste ouverte sont accessibles en une touche.
 
-**En partie** — la liste ouverte en lecture seule, telle qu'on la consulte
-pendant le jeu. Cet axe accueillera le suivi de partie : points de commandement,
-phase en cours, capacités et stratagèmes déployables. Il attend surtout les
-données de stratagèmes, aujourd'hui presque vides.
+**En partie** — le suivi d'une partie, enregistré en continu : tour, phase,
+points de commandement, unités encore debout, points de vie restants par unité
+et par personnage rattaché, réanimation D3 sur toute l'armée, score primaire et
+secondaire, stratagèmes jouables qui débitent les PC, et journal du tour. La
+liste ouverte reste consultable en dessous, en lecture seule.
 
 ## Fonctions
 
@@ -166,6 +167,27 @@ données de stratagèmes, aujourd'hui presque vides.
   points tient en moins de 400 caractères. Elle s'ajoute aux listes existantes
   après confirmation, sans en écraser aucune, que l'application soit déjà
   ouverte ou non.
+
+- **Fiche d'unité** — le profil complet avec CO et Cd, les armes avec leur
+  portée, les aptitudes propres de l'unité, la règle de faction, les mots-clés
+  et le glossaire des seuls mots-clés d'arme que cette unité porte. Elle
+  s'ouvre depuis le pied du panneau d'unité, depuis le bouton `ⓘ` de chaque
+  entrée du catalogue — sans rien ajouter à la liste — et en touchant une unité
+  dans l'axe En partie.
+- **Construction rapide** — le catalogue reste ouvert : on pose dix unités
+  d'affilée pendant que le pavé se remplit derrière, avec en tête les points
+  posés et ce qu'il reste au budget. La taille par défaut est la plus petite,
+  le prix s'annonce en fourchette, et une entrée hors budget se signale. La
+  recherche prend le nom, l'arme, la catégorie, le rôle et les mots-clés.
+- **Actions sur une case** — appui long, ou clic droit : régler, fiche,
+  dupliquer, retirer. Un retrait s'annule pendant sept secondes.
+- **Partager** — le texte de la liste au format attendu par les organisateurs,
+  la copie dans le presse-papier, l'impression (donc le PDF), le lien, le QR
+  code, la sauvegarde de toutes les listes dans un fichier et l'import d'un
+  `.ros` BattleScribe ou New Recruit.
+- **Stratagèmes** — le texte officiel ne figure dans aucune source ouverte :
+  il se saisit dans l'application, en anglais, et reste enregistré sur
+  l'appareil. On peut aussi ajouter un stratagème absent de la table.
 
 ## Règles modélisées
 
