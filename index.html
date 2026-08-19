@@ -756,6 +756,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div id="listEditor" hidden>
     <button class="backbar" id="btnBackIndex" type="button"><span class="ar">‹</span><span class="bt">Mes listes</span></button>
     <div id="pad">
+      <div id="rosterWarn"></div>
       <div class="padgrid" id="padUnits"></div>
       <div class="padsep">Réglages de la liste</div>
       <div class="padgrid pad3" id="padTools"></div>
@@ -773,6 +774,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <label for="listCap">Plafond de points</label>
         <div class="ctl"><input type="number" id="listCap" min="100" max="10000" step="50"></div>
       </div>
+      <button class="btn" id="btnShare" type="button">Lien de partage</button>
+      <button class="btn" id="btnExport" type="button">Exporter / importer la liste</button>
     </div>
   </section>
 
@@ -789,12 +792,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <h2>Unités <span class="chev">▾</span></h2>
     <div class="body">
       <div id="rosterList"></div>
-      <div class="addrow">
-        <button type="button" id="btnAddUnit">+ Ajouter une unité</button>
-      </div>
-      <div id="rosterWarn"></div>
-      <button class="btn" id="btnShare" type="button">Lien de partage</button>
-      <button class="btn" id="btnExport" type="button">Exporter / importer la liste</button>
     </div>
   </section>
 
