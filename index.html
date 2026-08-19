@@ -296,6 +296,21 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .btn.danger{border-color:rgba(224,160,48,.5);color:var(--warn)}
 .btn.danger:active{background:rgba(224,160,48,.12)}
 
+/* ---------- barre et reorganisation du pave ---------- */
+.padbar{display:flex;align-items:center;gap:9px;margin-top:12px}
+.padbar span{flex:1;min-width:0;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--tx3);font-weight:700}
+.padbar .ghost.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
+.tile .tmove{display:none;position:absolute;left:0;right:0;bottom:0;height:30px}
+.pad.range .tile .tmove{display:flex}
+.tile .tmove button{flex:1;border:0;border-top:1px solid var(--line);background:var(--s3);
+  color:var(--glow);font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;line-height:1}
+.tile .tmove button + button{border-left:1px solid var(--line)}
+.tile .tmove button:disabled{color:var(--tx3);opacity:.4}
+.pad.range .tile{cursor:default}
+.pad.range .tile.add{display:none}
+.pad.range .tile .tb{margin-bottom:26px}
+
 /* ---------- pave de l'editeur ---------- */
 #pad{margin-top:2px}
 .padgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
@@ -767,6 +782,10 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <button class="backbar" id="btnBackIndex" type="button"><span class="ar">‹</span><span class="bt">Mes listes</span></button>
     <div id="pad">
       <div id="rosterWarn"></div>
+      <div class="padbar">
+        <span id="padCount"></span>
+        <button type="button" class="ghost" id="btnReorder">Réorganiser</button>
+      </div>
       <div class="padgrid" id="padUnits"></div>
       <div class="padsep">Réglages de la liste</div>
       <div class="padgrid pad3" id="padTools"></div>

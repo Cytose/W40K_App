@@ -562,12 +562,27 @@ function uniteSuspecte(ru){
   return false;
 }
 
+let modeRange = false;
+
 function renderPad(){
   const gu = el("padUnits"), gt = el("padTools");
   if(!gu || !gt) return;
 
+  const pad = el("pad");
+  if(pad) pad.classList.toggle("range", modeRange);
+  const cpt = el("padCount");
+  if(cpt) cpt.textContent = modeRange
+    ? "Ordre de la liste — il commande le tir cumulé"
+    : R.units.length + " unité" + (R.units.length > 1 ? "s" : "");
+  const br = el("btnReorder");
+  if(br){
+    br.textContent = modeRange ? "Terminé" : "Réorganiser";
+    br.classList.toggle("on", modeRange);
+    br.disabled = R.units.length < 2;
+  }
+
   gu.innerHTML = "";
-  R.units.forEach(ru=>{
+  R.units.forEach((ru, iu)=>{
     const u = unitRow(ru.name); if(!u) return;
     const b = document.createElement("button");
     b.type = "button";
@@ -579,12 +594,35 @@ function renderPad(){
       '<span class="tb"><span class="tp">' + pointsUnite(ru) + '<small>points</small></span>' +
       '<span class="tx">×' + ru.size + (nAtt ? '<br>+' + nAtt + ' perso' + (nAtt > 1 ? 's' : '') : '') + '</span></span>' +
       (uniteSuspecte(ru) ? '<span class="tmark"></span>' : '');
-    b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
+    if(modeRange){
+      const mv = document.createElement("span");
+      mv.className = "tmove";
+      const fl = (txt, delta, off) => {
+        const x = document.createElement("button");
+        x.type = "button"; x.textContent = txt; x.disabled = off;
+        x.setAttribute("aria-label", delta < 0 ? "Avancer" : "Reculer");
+        x.addEventListener("click", e=>{
+          e.stopPropagation();
+          const j = iu + delta;
+          if(j < 0 || j >= R.units.length) return;
+          R.units.splice(j, 0, R.units.splice(iu, 1)[0]);
+          saveR(); renderList();
+        });
+        return x;
+      };
+      mv.appendChild(fl("◀", -1, iu === 0));
+      mv.appendChild(fl("▶", 1, iu === R.units.length - 1));
+      b.appendChild(mv);
+    } else {
+      b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
+    }
     gu.appendChild(b);
   });
+  if(modeRange){ gt.innerHTML = ""; return; }
   const plus = document.createElement("button");
   plus.type = "button";
   plus.className = "tile add";
+  plus.hidden = modeRange;
   plus.innerHTML = "+<br>Unité";
   plus.addEventListener("click", openUnitPick);
   gu.appendChild(plus);
@@ -628,7 +666,7 @@ function ouvrePanneau(id, uid){
 }
 
 function fermePanneau(){
-  unitOuverte = null;
+  unitOuverte = null; modeRange = false;
   el("pad").hidden = false;
   el("btnBackPad").hidden = true;
   PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
@@ -1893,6 +1931,9 @@ function fermeEditeur(){
 }
 el("btnBackIndex").addEventListener("click", fermeEditeur);
 el("btnBackPad").addEventListener("click", fermePanneau);
+if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
+  modeRange = !modeRange; renderPad();
+});
 el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
 function syncTarget(){
   el("ptName3").textContent = SIM.tgtName;
