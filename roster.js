@@ -725,18 +725,24 @@ function renderPlay(){
     html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · ' + mv + ' · E' + u[2] +
       ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
       (sc ? ' · socle ' + sc + ' mm' : '') + '</i>';
-    ru.lo.forEach(l=>{ const w = wl[l.w]; if(w && l.n)
-      html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — A' + w[3] + ' ' + w[4] + '+ F' + w[5] +
-        ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
+    ru.lo.forEach(l=>{
+      if(!l.n) return;
+      const g = groupeDe(ru.name, l.w), profils = g ? g.profils : (wl[l.w] ? [{w:wl[l.w]}] : []);
+      profils.forEach(p=>{ const w = p.w;
+        html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — A' + w[3] + ' ' + w[4] + '+ F' + w[5] +
+          ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
+    });
     html += '</div>';
     ru.chars.forEach(c=>{
-      const cu = unitRow(c.name), cw = unitWeps(c.name)[c.w || 0];
+      const cu = unitRow(c.name);
       if(!cu) return;
+      const gc = groupeDe(c.name, c.w || 0);
+      const cws = gc ? gc.profils.map(p => p.w) : [unitWeps(c.name)[c.w || 0]].filter(Boolean);
       html += '<div class="pu"><b style="color:var(--glow)">' + c.name + '</b><i>' +
         (roleDe(c.name) || '') + ' · E' + cu[2] + ' · ' + cu[5] + ' PV' +
         (socle(c.name) ? ' · socle ' + socle(c.name) + ' mm' : '') + '</i>' +
-        (cw ? '<span class="pw">' + cw[1] + ' — A' + cw[3] + ' ' + cw[4] + '+ F' + cw[5] +
-          ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>' : '') + '</div>';
+        cws.map(cw => '<span class="pw">' + cw[1] + ' — A' + cw[3] + ' ' + cw[4] + '+ F' + cw[5] +
+          ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>').join('') + '</div>';
     });
     if(ru.enh){
       const e = enhRow(ru.enh);
@@ -872,18 +878,26 @@ function renderRoster(){
       div.appendChild(sc);
     }
 
+    const grp = groupesArmes(ru.name);
     ru.lo.forEach((l, li)=>{
       const w = wl[l.w]; if(!w) return;
+      const g = groupeDe(ru.name, l.w);
       const row = document.createElement("div");
       row.className = "lo";
-      row.innerHTML = '<span class="ln">' + w[1] + (w[2]==="C" ? ' <em>·càc</em>' : '') +
-        ' <em>A' + w[3] + ' F' + w[5] + ' PA' + (w[6]?'-'+w[6]:'0') + ' D' + w[7] + '</em></span>';
+      /* l'arme porte parfois plusieurs profils : on les montre tous, c'est
+         ce dont la figurine dispose une fois équipée */
+      const detail = (g ? g.profils : [{w:w}]).map(p =>
+        (p.w[2] === "C" ? "càc" : "tir") + " A" + p.w[3] + " F" + p.w[5] +
+        " PA" + (p.w[6] ? "-" + p.w[6] : "0") + " D" + p.w[7]).join("  ·  ");
+      row.innerHTML = '<span class="ln">' + (g ? g.libelle : w[1]) +
+        ' <em>' + detail + '</em></span>';
       row.appendChild(stepper(()=>l.n, v=>{ l.n = v; if(v===0) ru.lo.splice(li,1); }, 0, 60));
       div.appendChild(row);
     });
 
     ru.chars.forEach((c, ci)=>{
-      const cl = unitWeps(c.name), w = cl[c.w] || cl[0];
+      const cl = unitWeps(c.name), gAct = groupeDe(c.name, c.w || 0);
+      const w = gAct ? {1: gAct.libelle} : (cl[c.w] || cl[0]);
       const row = document.createElement("div");
       row.className = "lo";
       const role = (unitRow(c.name)||[])[9] || (RETINUE[c.name] ? "Escorte" : "");
@@ -894,7 +908,12 @@ function renderRoster(){
         ' <em>' + role + (scc ? ' · socle ' + scc + ' mm' : '') + (w ? ' · ' + w[1] : '') + '</em></span>';
       const nx = document.createElement("button");
       nx.className="xbtn"; nx.type="button"; nx.textContent="⟳"; nx.title="Changer d'arme";
-      nx.addEventListener("click", ()=>{ c.w = (c.w + 1) % cl.length; saveR(); renderList(); });
+      nx.addEventListener("click", ()=>{
+        const gs = groupesArmes(c.name);
+        const iAct = gs.findIndex(g => g.profils.some(p => p.i === (c.w || 0)));
+        c.w = gs[(iAct + 1 + gs.length) % gs.length].principal;
+        saveR(); renderList();
+      });
       const rm = document.createElement("button");
       rm.className="xbtn"; rm.type="button"; rm.textContent="×";
       rm.addEventListener("click", ()=>{ ru.chars.splice(ci,1); saveR(); renderList(); });
@@ -932,9 +951,18 @@ function renderRoster(){
        nulle part tant qu'on ne les avait pas ajoutées à la main. */
     const eq = document.createElement("div");
     eq.className = "eqbloc";
-    const pris = {};
-    ru.lo.forEach(l => { if(l.n > 0) pris[l.w] = (pris[l.w] || 0) + l.n; });
-    const lignes = wl.map((w, i) => ({ w:w, i:i, n:pris[i] || 0 }));
+    /* une arme équipée met tous ses profils à disposition : le nombre de
+       porteurs vaut donc pour chacun d'eux */
+    const prisGrp = {};
+    ru.lo.forEach(l=>{
+      if(l.n <= 0) return;
+      const g = groupeDe(ru.name, l.w);
+      if(g) prisGrp[g.base] = (prisGrp[g.base] || 0) + l.n;
+    });
+    const lignes = [];
+    grp.forEach(g => g.profils.forEach(p =>
+      lignes.push({ w:p.w, i:p.i, n:prisGrp[g.base] || 0,
+                    lbl: g.libelle, modes: g.profils.length > 1 })));
     const tir = lignes.filter(x => x.w[2] === "T"), cac = lignes.filter(x => x.w[2] === "C");
     const table = (titre, lot) => {
       if(!lot.length) return "";
@@ -1047,6 +1075,41 @@ function renderStrats(){
    arme, pas une unite.
    ========================================================== */
 let armMode = "prises";
+/* ==========================================================
+   ARMES À PLUSIEURS PROFILS
+   Un bâton de lumière donne un tir ET une frappe ; un rayon
+   thermique donne deux modes de tir. Porter l'arme, c'est
+   disposer de tous ses profils : le choix du mode se fait au
+   moment d'attaquer, pas au moment de s'équiper.
+   ========================================================== */
+const baseArme = n => String(n).toLowerCase()
+  .replace(/\s*\((tir|càc|cac|c'tan)\)\s*$/i, '')
+  .replace(/\s*[×x]\s*\d+\s*$/i, '')
+  .replace(/\s*[—-]\s*.+$/, '')
+  .trim();
+
+/* [{base, libelle, profils:[{w, i}], principal}] pour une unité */
+function groupesArmes(nom){
+  const wl = unitWeps(nom), vus = {}, out = [];
+  wl.forEach((w, i)=>{
+    const b = baseArme(w[1]);
+    if(vus[b] === undefined){
+      vus[b] = out.length;
+      const lbl = w[1].replace(/\s*\((tir|càc|cac)\)\s*$/i, '')
+                      .replace(/\s*[×x]\s*\d+\s*$/i, '')
+                      .replace(/\s*[—-]\s*.+$/, '').trim();
+      out.push({ base: b, libelle: lbl || w[1], profils: [], principal: i });
+    }
+    out[vus[b]].profils.push({ w: w, i: i });
+  });
+  return out;
+}
+/* le groupe auquel appartient un profil donné */
+function groupeDe(nom, i){
+  const g = groupesArmes(nom);
+  return g.find(x => x.profils.some(p => p.i === i)) || null;
+}
+
 function motsArme(flags){
   const f = parseFlags(flags), k = [];
   if(f.lethal)  k.push("Lethal Hits");
@@ -1076,27 +1139,31 @@ function renderArms(){
   R.units.forEach(ru=>{
     const wl = unitWeps(ru.name); if(!wl.length) return;
     /* combien de figurines portent chaque arme, personnages compris */
-    const pris = {};
-    ru.lo.forEach(l => { if(l.n > 0) pris[l.w] = (pris[l.w] || 0) + l.n; });
+    const prisG = {};
+    ru.lo.forEach(l=>{
+      if(l.n <= 0) return;
+      const g = groupeDe(ru.name, l.w);
+      if(g) prisG[g.base] = (prisG[g.base] || 0) + l.n;
+    });
 
     const lignes = [];
-    wl.forEach((w, i)=>{
-      const n = pris[i] || 0;
+    groupesArmes(ru.name).forEach(g => g.profils.forEach(p=>{
+      const n = prisG[g.base] || 0, w = p.w;
       if(armMode === "prises" && !n) return;
       if(armMode === "tir" && w[2] !== "T") return;
       if(armMode === "cac" && w[2] !== "C") return;
       lignes.push({w:w, n:n, unite:ru.name});
-    });
+    }));
     /* armes des personnages rattaches : celle qui est selectionnee */
     ru.chars.forEach(c=>{
-      const cw = unitWeps(c.name);
-      cw.forEach((w, i)=>{
-        const equipee = (c.w || 0) === i;
+      const gAct = groupeDe(c.name, c.w || 0);
+      groupesArmes(c.name).forEach(g => g.profils.forEach(p=>{
+        const equipee = !!(gAct && gAct.base === g.base), w = p.w;
         if(armMode === "prises" && !equipee) return;
         if(armMode === "tir" && w[2] !== "T") return;
         if(armMode === "cac" && w[2] !== "C") return;
         lignes.push({w:w, n:equipee ? 1 : 0, unite:c.name, perso:true});
-      });
+      }));
     });
     if(!lignes.length) return;
 
@@ -1168,20 +1235,29 @@ function renderPick(){
 
   if(pickMode === "weapon"){
     head.textContent = "Ajouter une arme — " + pickTarget.name;
-    unitWeps(pickTarget.name).forEach((w,i)=>{
-      if(q && !norm(w[1]).includes(q)) return;
+    /* on équipe une arme, pas un profil : proposer « Rod of covenant (tir) »
+       et « (càc) » séparément laissait croire qu'on peut prendre l'un sans
+       l'autre, alors que le bâton donne les deux */
+    groupesArmes(pickTarget.name).forEach(g=>{
+      if(q && !norm(g.libelle).includes(q)) return;
       const b = document.createElement("button");
       b.type="button"; b.className="opt";
-      b.innerHTML = '<span class="oi"><span class="o1">' + w[1] + (w[2]==="C"?"  ·càc":"") + '</span>' +
-        '<span class="o2">A' + w[3] + ' · ' + w[4] + '+ · F' + w[5] + ' · PA ' + (w[6]?'-'+w[6]:'0') + ' · D' + w[7] + '</span></span>';
+      const detail = g.profils.map(p =>
+        (p.w[2] === "C" ? "càc" : "tir") + " A" + p.w[3] + " " + p.w[4] + "+ F" + p.w[5] +
+        " PA" + (p.w[6] ? "-" + p.w[6] : "0") + " D" + p.w[7]).join("  ·  ");
+      b.innerHTML = '<span class="oi"><span class="o1">' + g.libelle + '</span>' +
+        '<span class="o2">' + detail + '</span></span>' +
+        (g.profils.length > 1 ? '<span class="otag">' + g.profils.length + ' PROFILS</span>' : '');
       b.addEventListener("click", ()=>{
-        const ex = pickTarget.lo.find(l => l.w === i);
+        const ex = pickTarget.lo.find(l => groupeDe(pickTarget.name, l.w) &&
+                                           groupeDe(pickTarget.name, l.w).base === g.base);
         if(ex) ex.n = Math.min(pickTarget.size, ex.n + 1);
-        else pickTarget.lo.push({w:i, n:1});
+        else pickTarget.lo.push({w:g.principal, n:1});
         closeSheet("sheetUnit"); saveR(); renderList();
       });
       host.appendChild(b);
     });
+    if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune arme trouvée.</div>';
     return;
   }
   if(pickMode === "char"){

@@ -108,6 +108,11 @@ données de stratagèmes, aujourd'hui presque vides.
   profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
   toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
   tant qu'on ne les avait pas ajoutées à la main.
+- **Armes à plusieurs profils** — un bâton de lumière donne un tir *et* une
+  frappe, un rayon thermique deux modes de tir. L'application équipe l'arme,
+  pas le profil : porter le bâton met ses deux profils à disposition, et le
+  choix du mode se fait au moment d'attaquer. Quinze armes du catalogue sont
+  dans ce cas.
 - **Choix d'unité rangé** — le sélecteur groupe les 53 unités par grande
   catégorie (Epic Hero, Personnage, Battleline, Infanterie, Bête, Monté,
   Véhicule, Monstre, Fortification), reprises des mots-clés du catalogue
