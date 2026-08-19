@@ -601,6 +601,31 @@ window.__syncRosterQuick = renderRosterQuick;
    tenu a bout de bras, on veut pouvoir tout grossir sans
    dependre du zoom du navigateur, qui casse la mise en page.
    ========================================================== */
+/* Plein ecran — la barre d'adresse du navigateur mange une bonne part de
+   la hauteur. L'API n'existe pas sur Safari iOS : le bouton n'y apparait
+   pas, seule l'installation sur l'ecran d'accueil y donne le plein ecran. */
+(function initPleinEcran(){
+  const r = document.documentElement, b = el("btnFull");
+  if(!b) return;
+  const demande = r.requestFullscreen || r.webkitRequestFullscreen;
+  const sortie = document.exitFullscreen || document.webkitExitFullscreen;
+  if(!demande) return;                    /* Safari iOS : rien a proposer */
+  b.hidden = false;
+  const actif = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const refletat = ()=>{
+    b.classList.toggle("on", actif());
+    b.textContent = actif() ? "⤢" : "⛶";
+    b.setAttribute("aria-label", actif() ? "Quitter le plein écran" : "Passer en plein écran");
+  };
+  b.addEventListener("click", ()=>{
+    if(actif()) sortie.call(document);
+    else demande.call(r).catch(()=>{});
+  });
+  document.addEventListener("fullscreenchange", refletat);
+  document.addEventListener("webkitfullscreenchange", refletat);
+  refletat();
+})();
+
 const ZOOMS = [1, 1.15, 1.3, 1.45, 1.6];
 const ZKEY = "mathhammer.zoom.v1";
 let zoomI = 0;

@@ -65,6 +65,12 @@ header{
 .zoomer button:active{background:var(--s3)}
 .zoomer button:disabled{opacity:.35;cursor:default}
 .zoomer sub,.zoomer sup{font-size:9px}
+.ghost.icon{padding:0 10px;font-size:15px;line-height:1}
+.ghost.icon.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
+/* en plein ecran, l'encoche et la barre systeme disparaissent : on recupere
+   la marge que les insets reservaient */
+:root:fullscreen header{padding-top:0}
+:root:fullscreen body{padding-bottom:48px}
 /* le zoom s'applique a la page entiere : l'en-tete colle, la barre d'onglets
    reste en bas, seul le contenu grandit */
 :root{zoom:var(--ui,1)}
@@ -85,6 +91,7 @@ header{
 .z2 .mark{display:none}
 .z2 .logo{font-size:11.5px;max-width:9ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .z3 .logo{display:none}
+.z3 .ghost.icon{padding:0 8px}
 .z3 .ghost{padding:0 8px;font-size:11px}
 .z4 .sum .k{font-size:8.5px}
 .summary{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
@@ -461,6 +468,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </svg>
     <div class="logo">Mathhammer<small>Nécrons — 40K 11<sup>e</sup> éd.</small></div>
     <div class="spacer"></div>
+    <button class="ghost icon" id="btnFull" type="button" hidden
+            aria-label="Passer en plein écran" title="Plein écran">⛶</button>
     <div class="zoomer" role="group" aria-label="Taille d'affichage">
       <button type="button" id="btnZoomOut" aria-label="Réduire l'affichage">A<sub>−</sub></button>
       <button type="button" id="btnZoomIn" aria-label="Agrandir l'affichage">A<sup>+</sup></button>
