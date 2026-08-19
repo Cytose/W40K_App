@@ -261,3 +261,126 @@ const DETACHMENTS = [
 ["The Phaeron's Armoury",1,"HYPERCRYPT","Empowered Engines",
  "+6\" de Mouvement aux NECRONS TITANESQUE VOLANT. Aucun effet sur les des.","",0]
 ];
+
+/* ============================================================
+   RATTACHEMENT DES PERSONNAGES
+   Source : catalogue BattleScribe BSData/wh40k-10e rev.106,
+   regle « Leader » de chaque personnage (extraction automatique).
+   ATTACH : personnage -> unites qu'il peut rejoindre.
+   ============================================================ */
+const ATTACH = {
+"Chronomancer":["Immortals","Necron Warriors"],
+"Geomancer":["Canoptek Macrocytes","Immortals","Necron Warriors"],
+"Imotekh the Stormlord":["Immortals","Lychguard","Necron Warriors"],
+"Lokhust Lord":["Lokhust Destroyers","Lokhust Heavy Destroyers"],
+"Orikan the Diviner":["Immortals","Necron Warriors"],
+"Overlord":["Immortals","Lychguard","Necron Warriors"],
+"Plasmancer":["Immortals","Necron Warriors"],
+"Psychomancer":["Immortals","Necron Warriors"],
+"Royal Warden":["Immortals","Necron Warriors"],
+"Skorpekh Lord":["Skorpekh Destroyers"],
+"Technomancer":["Canoptek Wraiths","Immortals","Necron Warriors"],
+"Trazyn the Infinite":["Immortals","Lychguard","Necron Warriors"],
+"Nemesor Zahndrekh":["Immortals","Lychguard","Necron Warriors"],
+"Vargard Obyron":["Immortals","Lychguard","Necron Warriors"],
+"Lord":["Immortals","Lychguard","Necron Warriors"]
+};
+
+/* RETINUE : escortes qui se greffent sur une unite deja menee par un
+   CRYPTEK. Liste relevee sur la fiche Canoptek Tomb Crawlers. */
+const RETINUE = {
+"Canoptek Tomb Crawlers":["Canoptek Macrocytes","Canoptek Wraiths","Immortals","Necron Warriors",
+  "Skorpekh Destroyers","Lokhust Destroyers","Ophydian Destroyers","Lokhust Heavy Destroyers"],
+"Cryptothralls":["Canoptek Macrocytes","Canoptek Wraiths","Immortals","Necron Warriors",
+  "Skorpekh Destroyers","Lokhust Destroyers","Ophydian Destroyers","Lokhust Heavy Destroyers"]
+};
+
+/* ============================================================
+   AMELIORATIONS (Enhancements)
+   [nom, points, detachement, description]
+   Source : catalogue BattleScribe BSData/wh40k-10e rev.106.
+   Ce catalogue est en retard sur la 11e : les ameliorations de
+   Skyshroud Spearhead en sont absentes et ont ete relevees sur
+   WarOrgan. Un cout inconnu vaut null et n'est pas compte.
+   Les quatre detachements Pantheon of Woe, Hand of the Dynasty
+   et The Phaeron's Armoury n'ont pas encore d'amelioration ici.
+   ============================================================ */
+const ENHANCEMENTS = [
+["Veil of Darkness",20,"Awakened Dynasty","NECRONS model only. Once per battle, at the end of your opponent’s turn, if the bearer’s unit is not within Engagement Range of one or more enemy units, the bearer can use this Enh"],
+["Nether-realm Casket",20,"Awakened Dynasty","NECRONS model only. While the bearer is leading a unit, models in that unit have the Stealth ability."],
+["Phasal Subjugator",35,"Awakened Dynasty","NECRONS model only. While a friendly NECRONS unit (excluding CHARACTER units) is within 6' of the bearer, each time a model in that unit makes an attack, add 1 to the hit roll."],
+["Dimensional Overseer",25,"Hypercrypt Legion","NECRONS model only. While the bearer is on the battlefield or in Strategic Reserves, add 1 to the number of units from your army that you can select for the Hyperphasing rule."],
+["Eternal Madness",25,"Annihilation Legion","NECRONS model only. In the Fight phase, each time a model in the bearer's unit is destroyed, if that model had not fought this phase, roll one D6. On a 4+, do not remove the destro"],
+["Ingrained Superiority",10,"Annihilation Legion","NECRONS model only. Each time a model in the bearer's unit makes an attack, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."],
+["Soulless Reaper",20,"Annihilation Legion","DESTROYER CULT model only. Each time an enemy unit within Engagement Range of the bearer's unit is selected to Fall Back, roll one D6. On a 3+, that unit cannot Fall Back and must "],
+["Eldritch Nightmare",15,"Annihilation Legion","DESTROYER CULT model only. At the start of the Fight phase, each enemy unit within Engagement Range of the bearer must take a Battle-shock test."],
+["Dimensional Sanctum",20,"Canoptek Court","CRYPTEK model only. Models in the bearer's unit have the Infiltrators ability."],
+["Hyperphasic Fulcrum",15,"Canoptek Court","CRYPTEK model only. While the bearer is leading a unit, if that unit is wholly within your army's Power Matrix, each time a model in that unit makes an attack, re-roll a Wound roll"],
+["Autodivinator",15,"Canoptek Court","CRYPTEK model only. Each time your opponent gains a CP as a result of an ability, roll one D6: on a 2+, you also gain 1CP."],
+["Metalodermal Tesla Weave",10,"Canoptek Court","CRYPTEK model only. Once per phase, when an enemy unit selects the bearer's unit as a target of a charge, roll one D6: on a 2-5, that enemy unit suffers D3 mortal wounds, on a 6, t"],
+["Honourable Combatant",10,"Obeisance Phalanx","OVERLORD model only. Each time the bearer's unit destroys an enemy CHARACTER unit, your opponent loses 1CP if they have any."],
+["Unflinching Will",20,"Obeisance Phalanx","OVERLORD model only. The bearer's melee weapons have the [PRECISION] and [ANTI-INFANTRY 5+] abilities."],
+["Warrior Noble",15,"Obeisance Phalanx","OVERLORD model only. Each time a melee attack targets the bearer's unit, subtract 1 from the Hit roll."],
+["Eternal Conqueror",25,"Obeisance Phalanx","OVERLORD model only. Each time a model in the bearer's unit makes an attack that targets an enemy unit within range of an objective marker, you can re-roll the Hit roll."],
+["Enaegic Dermal Bond",30,"Awakened Dynasty","NECRONS model only. The bearer has the Feel No Pain 4+ ability."],
+["Arisen Tyrant",25,"Hypercrypt Legion","NECRONS model only. Each time a model in the bearer's unit makes an attack, re-roll a Hit roll of 1. If the bearer's unit was set up on the battlefield this turn, you can re-roll t"],
+["Hyperspatial Transfer Node",15,"Hypercrypt Legion","NECRONS model only. Each time the bearer's unit Advances, do not make an Advance roll for it. Instead, until the end of the phase, add 6' to the Move characteristic of models in th"],
+["Osteoclave Fulcrum",20,"Hypercrypt Legion","NECRONS model only. Models in the bearer's unit have the Deep Strike ability."],
+["Dread Majesty",30,"Starshatter Arsenal","While a friendly Necrons unit (excluding Monster and Titianic units) is within 6' of the bearer, each time a model in that unit makes an attack, re‑roll a Hit roll of 1 and re‑roll"],
+["Miniaturised Nebuloscope",15,"Starshatter Arsenal","Ranged weapons equipped by models in the bearer’s unit have the [IGNORES COVER] ability."],
+["Demanding Leader",10,"Starshatter Arsenal","In your Command phase, select one friendly NECRONS VEHICLE or NECRONS MOUNTED unit (excluding TITANIC units) within 6' of the bearer. Until the start of your next Command phase, th"],
+["Chrono-impedance Fields",25,"Starshatter Arsenal","In your Command phase, select one friendly Necrons Vehicle or Necrons Mounted unit (excluding Titanic units) within 6' of the bearer. Until the start of your next Command phase, ea"],
+["Gauntlet of Compression",20,"Cryptek Conclave","Add 6' to the Range characteristic of ranged weapons equipped by models in the bearer’s unit."],
+["Atomic Disintegrators",10,"Cryptek Conclave","In your Shooting phase, each time the bearer’s unit is selected to shoot, when selecting an ability for the Technosorcerous Augmentations Detachment rule, you can also select from "],
+["Quantum Abacus",15,"Cryptek Conclave","Each time you select the bearer’s unit as the target of a Stratagem, roll one D6, adding 1 if it is within range of one or more objectives: on a 4+, you gain 1CP."],
+["Gravitic Bolas",15,"Skyshroud Spearhead","In your Shooting phase, after the bearer has shot, select one enemy unit hit by one or more of those attacks (excluding Titanic units); until the start of your next turn, that enem"],
+["Destroyer Ankh",20,"Cursed Legion","The bearer has the Destroyer Cult keyword. Add 2' to the Move characteristic of models in the bearer’s unit and add 2 to the Attacks characteristic of melee weapons equipped by the"],
+["Murdermind",15,"Cursed Legion","The bearer has the Destroyer Cult keyword and during the Declare Battle Formations step, the bearer can be attached to a Destroyer Cult unit (excluding Character units). If you do,"],
+["Mark of the Nekrosor",20,"Cursed Legion","Each time a model in the bearer’s unit makes an attack, add 1 to the Hit roll."],
+["Cursed Circlet",25,"Cursed Legion","Each time an enemy unit is selected to shoot, after that unit has shot, if any models from the bearer’s unit were destroyed as a result of those attacks, the bearer’s unit can make"],
+["Recursive Reanimation",null,"Skyshroud Spearhead","Absente du catalogue BattleScribe : relevee sur WarOrgan, cout a confirmer."],
+["Deepening Madness",20,"Skyshroud Spearhead","Absente du catalogue BattleScribe : relevee sur WarOrgan (20 pts)."]];
+
+/* ============================================================
+   EMPREINTE DE SOCLE, en millimetres
+   Trois valeurs seulement sont certaines — Immortals 32,
+   Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 —
+   relevees sur les fiches WarOrgan. Le reste suit les socles
+   Games Workshop habituels et reste A VERIFIER. Une chaine vide
+   signifie « inconnu » et s'affiche « — » dans l'application.
+   ============================================================ */
+const BASES = {
+"Necron Warriors":"32","Immortals":"32","Lychguard":"40","Deathmarks":"32","Flayed Ones":"32",
+"Triarch Praetorians":"40","Cryptothralls":"40","Skorpekh Destroyers":"50",
+"Ophydian Destroyers":"50","Lokhust Destroyers":"60","Lokhust Heavy Destroyers":"60",
+"Tomb Blades":"60","Canoptek Scarab Swarms":"40","Canoptek Wraiths":"60",
+"Canoptek Spyders":"60","Canoptek Reanimator":"80","Canoptek Doomstalker":"80",
+"Canoptek Macrocytes":"","Canoptek Tomb Crawlers":"50","Triarch Stalker":"120×92",
+"Doomsday Ark":"170×105","Ghost Ark":"170×105","Annihilation Barge":"170×105",
+"Monolith":"","Obelisk":"","Tesseract Vault":"","Doom Scythe":"120×92","Night Scythe":"120×92",
+"Overlord":"40","Royal Warden":"40","Lokhust Lord":"60","Skorpekh Lord":"60",
+"Hexmark Destroyer":"40","Technomancer":"40","Plasmancer":"40","Chronomancer":"40",
+"Psychomancer":"40","Geomancer":"","Catacomb Command Barge":"170×105",
+"C'tan Shard of the Nightbringer":"60","C'tan Shard of the Deceiver":"60",
+"C'tan Shard of the Void Dragon":"80","Transcendent C'tan":"60",
+"Imotekh the Stormlord":"40","Trazyn the Infinite":"40","Orikan the Diviner":"40",
+"Illuminor Szeras":"80","Nekrosor Ammentar":"","Szarekh, The Silent King":"100",
+"Nemesor Zahndrekh":"40","Vargard Obyron":"40","Lord":"40"
+};
+
+/* ============================================================
+   NOMS DE GROUPES
+   Un groupe d'unites rattachees recoit un nom fabrique tout seul,
+   pour qu'on puisse le designer en partie sans avoir a le saisir.
+   Trois fragments tires au hasard : forme, qualificatif, origine.
+   ============================================================ */
+const GRPN = {
+forme: ["Phalange","Cohorte","Croisade","Colonne","Escorte","Garde","Lame","Faucille","Meute",
+  "Procession","Cortege","Legion","Vague","Sentinelle","Vigile","Serre","Nuee","Herse"],
+qualif: ["d'Obsidienne","de Nécrodermis","du Silence","des Cendres","de Cuivre","du Vide",
+  "d'Antimatiere","des Tombes","du Crepuscule","de Phase","des Dynasties","du Zenith",
+  "de Poussiere","d'Ivoire","des Suaires","du Prisme","de Fer Noir","des Constellations"],
+origine: ["de Mandragora","de Thanatos","de Solemnace","de Gidrim","de Nihilakh","de Sautekh",
+  "de Novokh","de Nephrekh","de Ogdobekh","d'Antinomia","de Charnovokh","de Maynarkh",
+  "de Szarekhan","d'Oruscar","de Thokt","de Ithakas"]
+};
