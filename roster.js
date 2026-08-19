@@ -42,6 +42,7 @@ function migreEnh(nom){
    on les retire, mais on le dit — une unite qui disparait en silence
    fausse le total sans prevenir */
 let RETIREES = [];
+let MIGRE = false;
 
 function normaliseListe(L){
   L.detach = L.detach || []; L.units = L.units || [];
@@ -65,6 +66,25 @@ function normaliseListe(L){
     if(!ru.grp) ru.grp = nomGroupe();
     if(ru.enh === undefined) ru.enh = null;
     ru.enh = migreEnh(ru.enh);
+    /* les armes portees d'office ne se repartissent plus : on retire les
+       lignes qui leur etaient allouees et on rend leur place aux autres,
+       sans quoi une arme de melee mangeait des figurines a l'armement */
+    const wl0 = unitWeps(ru.name);
+    if(wl0.length){
+      ru.lo = ru.lo.filter(l => wl0[l.w] && !armeDOffice(wl0[l.w]));
+      const choix0 = wl0.map((w, i) => ({w:w, i:i})).filter(x => !armeDOffice(x.w));
+      if(choix0.length){
+        const manque = ru.size - ru.lo.reduce((a, l) => a + l.n, 0);
+        if(manque > 0){
+          if(ru.lo.length) ru.lo[0].n += manque;
+          else ru.lo.push({ w: choix0[0].i, n: ru.size });
+          MIGRE = true;
+        }
+      } else if(ru.lo.length){
+        ru.lo = [];
+        MIGRE = true;
+      }
+    }
     if(!ru.id) ru.id = L.nextId++;
   });
   return L;
@@ -95,7 +115,7 @@ function loadR(){
   ouvre(LISTS.find(x => x.id === actif) || LISTS[0]);
   /* premier lancement, ou reprise de l'ancien format : on fixe l'etat
      tout de suite plutot que d'attendre la premiere modification */
-  if(!localStorage.getItem(LKEY)) saveR();
+  if(!localStorage.getItem(LKEY) || MIGRE){ saveR(); MIGRE = false; }
   if(RETIREES.length){
     const uniques = RETIREES.filter((x,i) => RETIREES.indexOf(x) === i);
     saveR();
@@ -208,6 +228,38 @@ function motsClesGroupe(ru){
 
 const socle = nom => (BASES && BASES[nom]) || "";
 
+/* Comment une arme est portee. Le catalogue distingue l'arme rattachee
+   au modele — toutes les figurines l'ont, elle ne se choisit pas — de
+   l'arme prise dans un groupe d'options. Sans information, on suppose
+   qu'elle est portee d'office : c'est le cas de tous les armements de
+   vehicule et de personnage. */
+const armeDOffice = w => !w || w[10] !== 0;
+const aDesChoix = nom => unitWeps(nom).some(w => !armeDOffice(w));
+
+/* combien de figurines portent chaque arme, par indice : une arme
+   d'office est portee par toute l'unite, une arme au choix par ce que
+   la repartition lui donne */
+function portParArme(ru){
+  const wl = unitWeps(ru.name), out = {};
+  wl.forEach((w, i) => { if(armeDOffice(w)) out[i] = ru.size; });
+  (ru.lo || []).forEach(l => {
+    if(l.n > 0 && wl[l.w] && !armeDOffice(wl[l.w])) out[l.w] = (out[l.w] || 0) + l.n;
+  });
+  return out;
+}
+/* la meme chose ramenee au groupe d'arme : un baton de lumiere qui donne
+   un tir et une frappe ne compte qu'une fois */
+function portParGroupe(ru){
+  const par = portParArme(ru), out = {};
+  Object.keys(par).forEach(i => {
+    const g = groupeDe(ru.name, +i);
+    if(g) out[g.base] = Math.max(out[g.base] || 0, par[i]);
+  });
+  return out;
+}
+/* total reparti sur les seules armes au choix */
+const totalChoix = ru => (ru.lo || []).reduce((a, l) => a + l.n, 0);
+
 /* ameliorations ouvertes par les detachements retenus */
 const enhDispo = () => ENHANCEMENTS.filter(e => R.detach.indexOf(e[2]) >= 0);
 const enhRow = nom => ENHANCEMENTS.find(e => e[0] === nom);
@@ -279,8 +331,9 @@ function validate(){
       w.push("<b>" + e + "</b> sur " + nom + " : une escorte Cryptek exige un CRYPTEK dans l'unité, " +
         "or il n'y en a plus.");
     }
-    const tot = ru.lo.reduce((a,l) => a + l.n, 0);
-    if(tot > ru.size)
+    const tot = totalChoix(ru);
+    if(!aDesChoix(ru.name)){ /* rien a repartir : toutes ses armes sont d'office */ }
+    else if(tot > ru.size)
       w.push("<b>" + nom + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
     else if(tot < ru.size)
       w.push("<b>" + nom + "</b> : " + (ru.size - tot) + " figurine" + (ru.size - tot > 1 ? "s" : "") +
@@ -404,12 +457,13 @@ function weaponProfile(unitName, w, bearers, ru){
 function unitProfiles(ru){
   const list = unitWeps(ru.name), out = [];
   let matched = 0;
-  ru.lo.forEach(l=>{
-    const w = list[l.w];
-    if(!w || w[2] !== phase || l.n <= 0) return;
+  const port = portParArme(ru);
+  Object.keys(port).forEach(k=>{
+    const i = +k, w = list[i], n = port[i];
+    if(!w || w[2] !== phase || n <= 0) return;
     matched++;
-    const p = weaponProfile(ru.name, w, l.n, ru);
-    p.label = w[1] + " ×" + l.n;
+    const p = weaponProfile(ru.name, w, n, ru);
+    p.label = w[1] + " ×" + n;
     out.push(p);
   });
   /* au corps a corps, toute figurine sans arme de melee choisie se bat
@@ -602,7 +656,7 @@ function uniteSuspecte(ru){
   if(ru.enh && !ru.chars.length) return true;
   /* une escouade a moitie equipee est la faute la plus courante :
      elle merite le meme signal que les autres */
-  if(ru.lo.reduce((a, l) => a + l.n, 0) !== ru.size) return true;
+  if(aDesChoix(ru.name) && totalChoix(ru) !== ru.size) return true;
   return false;
 }
 
@@ -1066,11 +1120,15 @@ function renderPlay(){
     html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · ' + mv + ' · E' + u[2] +
       ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
       (sc ? ' · socle ' + sc + ' mm' : '') + '</i>';
-    ru.lo.forEach(l=>{
-      if(!l.n) return;
-      const g = groupeDe(ru.name, l.w), profils = g ? g.profils : (wl[l.w] ? [{w:wl[l.w]}] : []);
+    const portU = portParArme(ru), vusG = {};
+    Object.keys(portU).forEach(k=>{
+      const i = +k, n = portU[i];
+      if(!n) return;
+      const g = groupeDe(ru.name, i);
+      if(g){ if(vusG[g.base]) return; vusG[g.base] = 1; }
+      const profils = g ? g.profils : (wl[i] ? [{w:wl[i]}] : []);
       profils.forEach(p=>{ const w = p.w;
-        html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — ' + portee(w) + ' A' + w[3] + ' ' + w[4] +
+        html += '<span class="pw">×' + n + ' ' + w[1] + ' — ' + portee(w) + ' A' + w[3] + ' ' + w[4] +
           '+ F' + w[5] + ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
     });
     html += '</div>';
@@ -1238,18 +1296,36 @@ function renderRoster(){
 
     const grp = groupesArmes(ru.name);
 
-    /* une escouade peut panacher : cinq fusils gauss et cinq tesla sur dix
-       Immortals. Le bandeau dit ce qui reste à équiper, et les compteurs ne
-       laissent pas dépasser l'effectif. */
-    const totArmes = () => ru.lo.reduce((a, x) => a + x.n, 0);
+    /* Les armes d'office se listent sans compteur : toutes les figurines
+       les ont. Seules les armes au choix se repartissent — cinq fusils
+       gauss et cinq tesla sur dix Immortals — et le bandeau ne parle que
+       de celles-la. */
+    const wlU = wl;
+    const dOffice = [];
+    grp.forEach(g => { if(g.profils.every(pr => armeDOffice(pr.w))) dOffice.push(g); });
+    dOffice.forEach(g=>{
+      const row = document.createElement("div");
+      row.className = "lo lo-fixe";
+      const detail = g.profils.map(pr =>
+        (pr.w[2] === "C" ? "càc" : "tir") + " A" + pr.w[3] + " F" + pr.w[5] +
+        " PA" + (pr.w[6] ? "-" + pr.w[6] : "0") + " D" + pr.w[7]).join("  ·  ");
+      row.innerHTML = '<span class="ln">' + g.libelle + ' <em>' + detail + '</em></span>' +
+        '<span class="lofix">' + (ru.size > 1 ? "toutes les figurines" : "d'office") + '</span>';
+      div.appendChild(row);
+    });
+
+    const choixPossible = aDesChoix(ru.name);
+    const totArmes = () => totalChoix(ru);
     const reste = ru.size - totArmes();
-    const rep = document.createElement("div");
-    rep.className = "repart" + (reste === 0 ? " ok" : " todo");
-    rep.innerHTML = '<b>' + totArmes() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
-      ' équipée' + (totArmes() > 1 ? 's' : '') +
-      (reste > 0 ? ' · <span>' + reste + ' sans arme</span>'
-                 : (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>' : ''));
-    div.appendChild(rep);
+    if(choixPossible){
+      const rep = document.createElement("div");
+      rep.className = "repart" + (reste === 0 ? " ok" : " todo");
+      rep.innerHTML = '<b>' + totArmes() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
+        ' au choix' +
+        (reste > 0 ? ' · <span>' + reste + ' sans arme</span>'
+                   : (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>' : ''));
+      div.appendChild(rep);
+    }
 
     ru.lo.forEach((l, li)=>{
       const w = wl[l.w]; if(!w) return;
@@ -1334,12 +1410,7 @@ function renderRoster(){
     eq.className = "eqbloc";
     /* une arme équipée met tous ses profils à disposition : le nombre de
        porteurs vaut donc pour chacun d'eux */
-    const prisGrp = {};
-    ru.lo.forEach(l=>{
-      if(l.n <= 0) return;
-      const g = groupeDe(ru.name, l.w);
-      if(g) prisGrp[g.base] = (prisGrp[g.base] || 0) + l.n;
-    });
+    const prisGrp = portParGroupe(ru);
     const lignes = [];
     grp.forEach(g => g.profils.forEach(p =>
       lignes.push({ w:p.w, i:p.i, n:prisGrp[g.base] || 0,
@@ -1368,6 +1439,8 @@ function renderRoster(){
     add.className = "addrow";
     const bw = document.createElement("button");
     bw.type="button"; bw.textContent="+ Arme";
+    bw.disabled = !aDesChoix(ru.name);
+    if(bw.disabled) bw.title = "Toutes les armes de cette unité sont portées d'office.";
     bw.addEventListener("click", ()=> openWeaponPick(ru));
     const bc = document.createElement("button");
     bc.type="button"; bc.textContent="+ Personnage";
@@ -1700,12 +1773,7 @@ function renderArms(){
   R.units.forEach(ru=>{
     const wl = unitWeps(ru.name); if(!wl.length) return;
     /* combien de figurines portent chaque arme, personnages compris */
-    const prisG = {};
-    ru.lo.forEach(l=>{
-      if(l.n <= 0) return;
-      const g = groupeDe(ru.name, l.w);
-      if(g) prisG[g.base] = (prisG[g.base] || 0) + l.n;
-    });
+    const prisG = portParGroupe(ru);
 
     const lignes = [];
     groupesArmes(ru.name).forEach(g => g.profils.forEach(p=>{
@@ -1855,6 +1923,9 @@ function renderPick(){
        et « (càc) » séparément laissait croire qu'on peut prendre l'un sans
        l'autre, alors que le bâton donne les deux */
     groupesArmes(pickTarget.name).forEach(g=>{
+      /* une arme portee d'office n'est pas un choix : la proposer laisserait
+         croire qu'on peut s'en passer */
+      if(g.profils.every(pr => armeDOffice(pr.w))) return;
       if(q && !norm(g.libelle).includes(q)) return;
       const b = document.createElement("button");
       b.type="button"; b.className="opt";
@@ -1888,11 +1959,19 @@ function renderPick(){
           /* on sert d'abord les figurines encore sans arme : ajouter une
              seconde arme à une escouade complète n'aurait aucun sens */
           const tot = pickTarget.lo.reduce((a, x) => a + x.n, 0);
-          const libre = Math.max(0, pickTarget.size - tot);
+          let libre = Math.max(0, pickTarget.size - tot);
           const ex = pickTarget.lo.find(l => groupeDe(pickTarget.name, l.w) &&
                                              groupeDe(pickTarget.name, l.w).base === g.base);
+          if(!libre && !ex){
+            /* l'escouade est deja entierement equipee : la nouvelle arme
+               prend une figurine a la ligne la plus fournie, sinon on
+               deborderait de l'effectif */
+            const gros = pickTarget.lo.slice().sort((a, b) => b.n - a.n)[0];
+            if(gros && gros.n > 0){ gros.n -= 1; libre = 1; }
+          }
           if(ex) ex.n = Math.min(pickTarget.size, ex.n + Math.max(1, libre));
           else pickTarget.lo.push({w:g.principal, n: Math.max(1, libre)});
+          pickTarget.lo = pickTarget.lo.filter(l => l.n > 0);
         }
         pickSlot = null;
         closeSheet("sheetUnit"); saveR(); renderList();
@@ -2304,11 +2383,13 @@ function listeEnTexte(L){
         ru.name + " ×" + ru.size + " (" + pointsUnite(ru) + " pts)";
       lignes.push(tete);
       const wl = unitWeps(ru.name);
-      ru.lo.forEach(l => {
-        if(!l.n) return;
-        const g = groupeDe(ru.name, l.w), w = wl[l.w];
-        if(!w) return;
-        lignes.push("  • " + l.n + "× " + (g ? g.libelle : w[1]));
+      const portE = portParArme(ru), vusE = {};
+      Object.keys(portE).forEach(k => {
+        const i = +k, n = portE[i], w = wl[i];
+        if(!n || !w) return;
+        const g = groupeDe(ru.name, i);
+        if(g){ if(vusE[g.base]) return; vusE[g.base] = 1; }
+        lignes.push("  • " + n + "× " + (g ? g.libelle : w[1]));
       });
       ru.chars.forEach(c => {
         const cu = unitRow(c.name); if(!cu) return;
