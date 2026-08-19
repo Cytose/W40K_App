@@ -33,6 +33,11 @@ utilisable hors-ligne.
   Contribution de chaque unité et puissance perdue.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
   par dégâts pour 100 points.
+- **Lien de partage** — la liste entière est encodée dans l'URL (JSON réduit,
+  gzip, base64url) : on s'envoie le lien et la liste s'ouvre sur l'autre
+  appareil, sans serveur ni compte. Une liste de 2000 points tient en moins de
+  400 caractères. L'import demande confirmation avant de remplacer la liste
+  existante.
 
 ## Règles modélisées
 

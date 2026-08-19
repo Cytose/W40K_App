@@ -651,6 +651,110 @@ function exportImport(){
 }
 
 /* ==========================================================
+   LIEN DE PARTAGE
+   la liste tient dans l'URL : JSON reduit -> gzip -> base64url,
+   ce qui permet de passer une liste d'un appareil a l'autre
+   sans serveur ni compte.
+   ========================================================== */
+const B64A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+function b64u(bytes){
+  let s = "";
+  for(let i=0; i<bytes.length; i+=3){
+    const a = bytes[i], b = bytes[i+1], c = bytes[i+2];
+    s += B64A[a >> 2] + B64A[((a & 3) << 4) | ((b || 0) >> 4)];
+    if(b === undefined) break;
+    s += B64A[((b & 15) << 2) | ((c || 0) >> 6)];
+    if(c === undefined) break;
+    s += B64A[c & 63];
+  }
+  return s;
+}
+function unb64u(str){
+  const n = str.length, out = new Uint8Array(Math.floor(n * 3 / 4));
+  let p = 0, buf = 0, bits = 0;
+  for(let i=0; i<n; i++){
+    const v = B64A.indexOf(str[i]);
+    if(v < 0) throw 0;
+    buf = (buf << 6) | v; bits += 6;
+    if(bits >= 8){ bits -= 8; out[p++] = (buf >> bits) & 255; }
+  }
+  return out.subarray(0, p);
+}
+
+/* on ne transporte que ce qui n'est pas reconstructible : ni id ni points */
+const packList = () => ({
+  d: R.detach,
+  u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0 }))
+});
+
+async function encodeList(){
+  const bytes = new TextEncoder().encode(JSON.stringify(packList()));
+  if(self.CompressionStream){
+    try{
+      const buf = await new Response(new Blob([bytes]).stream()
+        .pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+      return "1" + b64u(new Uint8Array(buf));
+    }catch(e){}
+  }
+  return "0" + b64u(bytes);
+}
+async function decodeList(code){
+  const raw = unb64u(code.slice(1));
+  let bytes;
+  if(code[0] === "1"){
+    const buf = await new Response(new Blob([raw]).stream()
+      .pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+    bytes = new Uint8Array(buf);
+  } else if(code[0] === "0"){ bytes = raw; }
+  else throw 0;
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function applyPacked(o){
+  if(!o || !Array.isArray(o.u)) throw 0;
+  R = { detach: Array.isArray(o.d) ? o.d : [], units: o.u.map(u => ({
+    id: nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0
+  })) };
+  saveR(); renderList();
+}
+
+async function shareLink(){
+  if(!R.units.length){ alert("Ta liste est vide — ajoute au moins une unité avant de la partager."); return; }
+  let url;
+  try{ url = location.href.replace(/#.*$/, "") + "#l=" + await encodeList(); }
+  catch(e){ alert("Impossible de fabriquer le lien de partage."); return; }
+  if(navigator.share){
+    try{ await navigator.share({ title: "Ma liste Nécrons", url: url }); return; }
+    catch(e){ if(e && e.name === "AbortError") return; }
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    try{
+      await navigator.clipboard.writeText(url);
+      alert("Lien copié. Ouvre-le sur l'autre appareil pour y charger la liste.");
+      return;
+    }catch(e){}
+  }
+  prompt("Copie ce lien pour ouvrir la liste sur un autre appareil :", url);
+}
+
+async function readSharedLink(){
+  const m = /[#&]l=([A-Za-z0-9\-_]+)/.exec(location.hash || "");
+  if(!m) return;
+  try{
+    const o = await decodeList(m[1]);
+    const n = (o.u || []).length;
+    const msg = R.units.length
+      ? "Ce lien contient une liste de " + n + " unité" + (n>1?"s":"") +
+        ". La charger remplacera la liste enregistrée sur cet appareil. Continuer ?"
+      : "Charger la liste de " + n + " unité" + (n>1?"s":"") + " contenue dans ce lien ?";
+    if(confirm(msg)) applyPacked(o);
+  }catch(e){ alert("Ce lien de partage est illisible — ta liste n'a pas été modifiée."); }
+  /* on nettoie l'URL pour ne pas reproposer l'import a chaque rechargement */
+  try{ history.replaceState(null, "", location.href.replace(/#.*$/, "")); }catch(e){}
+}
+
+/* ==========================================================
    INIT
    ========================================================== */
 function initDetachSheet(){
@@ -693,6 +797,7 @@ el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 el("btnAddUnit").addEventListener("click", openUnitPick);
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport").addEventListener("click", exportImport);
+el("btnShare").addEventListener("click", shareLink);
 el("uSearch").addEventListener("input", ()=>{ if(window.__rosterPick && pickMode) renderPick(); });
 el("phaseChips").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
@@ -736,4 +841,5 @@ initDetachSheet();
 renderList();
 renderCmpList();
 syncTarget();
+readSharedLink();
 })();
