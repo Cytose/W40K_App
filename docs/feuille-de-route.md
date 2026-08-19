@@ -336,3 +336,75 @@ telle sur les deux fiches.
 
 Décision de Kévin : on le laisse en **Appui**, et on laisse le doute planer
 sur « Meneur ». La fiche continue de signaler la contradiction du pack.
+
+## 10. Armes portées d'office — 19/08/2026
+
+Kévin : « il faut bien que tu prennes en compte qu'il y a des armes de corps
+à corps et des armes de distance, là je n'ai pas pu choisir ».
+
+Le modèle de données était faux. Chaque figurine ne pouvait porter qu'**une**
+arme, et la répartition devait couvrir tout l'effectif. Sur dix Immortals
+avec trois armes en table — fusil gauss, carabine tesla, arme de corps à
+corps — poser dix fusils gauss laissait zéro figurine pour les deux autres :
+impossible de panacher, et l'arme de corps à corps, que toutes les figurines
+portent, mangeait des places.
+
+### La distinction
+
+Le catalogue la porte explicitement. Pour les Immortals :
+
+- l'arme de corps à corps est un `selectionEntry` rattaché **directement au
+  modèle**, min 1 max 1 — toutes les figurines l'ont ;
+- le fusil gauss et la carabine tesla sont dans un `selectionEntryGroup`
+  « Weapons » min 1 max 1 — un choix exclusif.
+
+Deux formes coexistent dans le catalogue : un modèle unique avec un groupe
+d'options (Immortals, Lychguard), ou plusieurs variantes de modèle partageant
+une arme commune par `entryLink` (Necron Warriors, Macrocytes Canopteks).
+L'extraction gère les deux, en lisant les contraintes de groupe : un groupe
+dont le `max` est inférieur au nombre d'options est un choix, sinon chaque
+option se juge sur son propre `min`.
+
+Résultat : **91 armes portées d'office, 45 au choix**, sur 136. Trente-quatre
+unités sur cinquante n'ont aucun choix d'arme — véhicules et personnages
+pour l'essentiel.
+
+Les dix-huit armes que le catalogue ne nomme pas comme les nôtres tombent sur
+« portée d'office », ce qui est correct pour toutes : éperons blindés,
+pouvoirs C'tan de la Crypte Tesseract, sismolance du Géomancien, bâton du
+Chronomancien, armement de Szarekh, lame du Tétrarque sur la Console de
+Commandement.
+
+### Ce que ça change
+
+- L'éditeur liste les armes d'office **sans compteur**, marquées « toutes les
+  figurines » ou « d'office » pour une figurine seule.
+- Le bandeau de répartition ne parle plus que des armes au choix, et
+  disparaît quand il n'y en a pas.
+- « + Arme » ne propose plus que de vrais choix, et se désactive sinon.
+- Ajouter une arme à une escouade déjà complète prend une figurine à la ligne
+  la plus fournie au lieu de déborder de l'effectif.
+- **Le simulateur compte enfin les armes d'office.** Dix Immortals frappaient
+  à 0 attaque en corps à corps, ils frappent à 20. Un Doomsday Ark dont
+  l'armement n'avait jamais été réparti tirait à 0, il tire à 25,5.
+- Le texte exporté et l'axe Armement montrent tout l'armement de l'unité, pas
+  seulement ce qui avait été réparti à la main.
+
+Les listes déjà enregistrées sont migrées au chargement : les lignes allouées
+à une arme d'office sont retirées, et l'effectif libéré revient aux armes au
+choix.
+
+### Une limite assumée
+
+Une seule réserve d'armes au choix par unité, pas une par emplacement. Une
+unité qui aurait deux choix indépendants — une tourelle et des barbettes —
+serait mal servie. C'était déjà le cas avant ; le corriger demanderait de
+distinguer les groupes du catalogue un par un, et l'extraction montre que ça
+ne concerne aucune unité nécron aujourd'hui.
+
+### Wahapedia
+
+Kévin a proposé `wahapedia.ru/wh40k11ed/factions/necrons/`. Le proxy réseau de
+l'environnement d'exécution bloque ce domaine : la page est inatteignable
+d'ici. Le contournement est celui des PDF — déposer la page enregistrée dans
+la conversation.

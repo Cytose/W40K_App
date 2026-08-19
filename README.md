@@ -114,11 +114,23 @@ liste ouverte reste consultable en dessous, en lecture seule.
   chaque case reçoit deux flèches qui la font avancer ou reculer, les cases
   d'outils et d'ajout s'effacent, et toucher une case ne l'ouvre plus. L'ordre
   compte : c'est celui que suit le tir cumulé.
+- **Arme portée d'office et arme au choix** — une fiche technique distingue
+  ce que *toutes* les figurines portent de ce qui se choisit. Un Immortel a
+  toujours son arme de corps à corps, et choisit entre fusil gauss et
+  carabine tesla ; un Doomsday Ark porte ses trois armes à la fois et ne
+  choisit rien. L'application suit cette distinction : les armes d'office
+  sont listées sans compteur, et seules les armes au choix se répartissent
+  entre les figurines. La classification vient du catalogue BattleScribe —
+  une arme rattachée au modèle, ou commune à toutes ses variantes, est
+  portée d'office ; une arme prise dans un groupe d'options est un choix.
 - **Armement panaché** — cinq fusils gauss et cinq tesla sur dix Immortals :
-  un bandeau annonce combien de figurines sont équipées et combien restent
-  nues, les compteurs ne laissent pas dépasser l'effectif, et une arme
-  ajoutée sert d'emblée les figurines encore sans arme. Une répartition
-  incomplète est signalée comme un dépassement l'était déjà.
+  un bandeau annonce combien de figurines ont reçu leur arme au choix et
+  combien restent nues, les compteurs ne laissent pas dépasser l'effectif,
+  et une arme ajoutée sert d'emblée les figurines encore sans arme — ou, si
+  l'escouade est déjà complète, prend une figurine à la ligne la plus
+  fournie. Une répartition incomplète est signalée comme un dépassement
+  l'était déjà, et une unité sans aucune arme au choix n'affiche pas de
+  bandeau du tout.
 - **Changer l'arme d'une ligne** — chaque ligne d'armement porte un bouton
   d'échange et une croix. L'échange garde le nombre de porteurs et fusionne
   la ligne si l'arme choisie est déjà servie ailleurs dans l'unité ; il
