@@ -397,6 +397,127 @@ function pointsDe(L){
 }
 
 /* ==========================================================
+   ENCAISSER
+   Le calcul du simulateur, rôles inversés : l'unité de la liste
+   devient la cible, l'attaquant est un archétype d'arme. On ne
+   cherche pas la justesse d'une liste adverse, seulement à
+   savoir si une unité tient un volume de tir donné.
+   ========================================================== */
+let defUnite = null, defMenace = 0, defTireurs = 10;
+
+function defCible(){
+  /* l'unite choisie, a defaut la premiere de la liste */
+  if(defUnite){
+    const u = unitRow(defUnite.nom);
+    if(u) return {u:u, taille:defUnite.taille, nom:defUnite.nom};
+  }
+  const ru = R && R.units[0];
+  if(ru){ const u = unitRow(ru.name); if(u) return {u:u, taille:ru.size, nom:ru.name}; }
+  const u = unitRow("Immortals");
+  return u ? {u:u, taille:10, nom:"Immortals"} : null;
+}
+
+function renderDef(){
+  const host = el("defQuick"); if(!host) return;
+
+  /* --- qui encaisse : les unites de la liste, puis un repli */
+  host.innerHTML = "";
+  const cible = defCible();
+  const r = window.ROSTER && window.ROSTER.actives();
+  const wrap = document.createElement("div");
+  wrap.className = "chips tight";
+  const vus = new Set();
+  const proposer = (nom, taille) => {
+    const cle = nom + "|" + taille;
+    if(vus.has(cle)) return;
+    vus.add(cle);
+    const u = unitRow(nom); if(!u) return;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (cible && cible.nom === nom && cible.taille === taille ? " on" : "");
+    b.innerHTML = nom + ' ×' + taille;
+    b.addEventListener("click", ()=>{ defUnite = {nom:nom, taille:taille}; renderDef(); });
+    wrap.appendChild(b);
+  };
+  if(r && r.unites.length) r.unites.forEach(x => proposer(x.nom, x.taille));
+  else UNITS.slice(0, 8).forEach(u => proposer(u[0], u[6][u[6].length-1]));
+  host.appendChild(wrap);
+
+  if(!cible){ el("defProf").textContent = ""; return; }
+  const u = cible.u;
+  el("defProf").innerHTML = '<span class="stat">×' + cible.taille + ' · E' + u[2] +
+    ' · Svg ' + u[3] + '+' + (u[4] ? ' / ' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
+    (u[8] ? ' · Insensible ' + u[8] + '+' : '') + '</span>' +
+    '<span class="kw">' + (cible.taille * u[5]) + ' PV au total</span>';
+
+  /* --- ce qu'elle recoit */
+  const th = el("defThreats");
+  th.innerHTML = "";
+  MENACES.forEach((m, i)=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (i === defMenace ? " on" : "");
+    b.textContent = m[0];
+    b.addEventListener("click", ()=>{ defMenace = i; renderDef(); });
+    th.appendChild(b);
+  });
+  const m = MENACES[defMenace];
+  const f = parseFlags(m[6]);
+  el("defThreatProf").innerHTML =
+    '<span class="stat">A ' + m[1] + ' · ' + (f.torrent ? 'auto' : m[2] + '+') +
+    ' · F' + m[3] + ' · PA ' + (m[4] ? '-' + m[4] : '0') + ' · D ' + m[5] + '</span>' +
+    (m[6] ? '<span class="kw">' + motsArme(m[6]) + '</span>' : '') +
+    '<span class="warn">' + m[7] + '</span>';
+
+  /* --- resultat : le moteur, cible et attaquant echanges */
+  const prof = {
+    attacks: scaleDice(m[1], defTireurs),
+    bs: m[2] || 4, str: m[3], ap: m[4], dmg: m[5],
+    tough: u[2], sv: u[3], inv: u[4] || 0, wounds: u[5],
+    models: cible.taille, fnp: u[8] || 0, dmgRed: 0, cover: false,
+    torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
+    sustainedOn: !!f.sust, sustainedN: f.sust || "1",
+    blast: !!f.blast, rapidOn: false, rapidN: 0,
+    meltaOn: !!f.melta, meltaN: f.melta || 0,
+    critH: 6, critW: 6, hitMod: 0, wndMod: 0, rrH: "none", rrW: "none"
+  };
+  const sim = simulate(prof, 20000);
+  const pv = cible.taille * u[5];
+  const perte = sim.meanSlain, reste = Math.max(0, cible.taille - perte);
+  const efface = sim.slainDist[cible.taille] || 0;
+  /* combien de tireurs pour effacer l'unite une fois sur deux :
+     dichotomie sur 1..60, six essais au lieu de soixante */
+  const efface50 = n => (simulate(Object.assign({}, prof, {attacks: scaleDice(m[1], n)}), 2500)
+                          .slainDist[cible.taille] || 0) >= 0.5;
+  let seuil = null;
+  if(efface50(60)){
+    let bas = 1, haut = 60;
+    while(bas < haut){
+      const mid = (bas + haut) >> 1;
+      if(efface50(mid)) haut = mid; else bas = mid + 1;
+    }
+    seuil = bas;
+  }
+
+  el("defSum").innerHTML =
+    '<div class="sum hero"><div class="k">Figurines perdues</div><div class="v">' + num(perte) + '</div></div>' +
+    '<div class="sum"><div class="k">Il en reste</div><div class="v">' + num(reste) + '</div></div>' +
+    '<div class="sum"><div class="k">Unité effacée</div><div class="v">' + pct(efface) + '</div></div>';
+
+  el("defSub").textContent = "Sur " + sim.N.toLocaleString("fr-FR") +
+    " simulations de la salve, figurines perdues par l'unité.";
+  drawBars(el("defBars"), binned(sim.slainDist, cible.taille), "var(--cyan)", (i,v)=>
+    "<b>" + i + "</b> figurine" + (i>1?"s":"") + " perdue" + (i>1?"s":"") +
+    "<br>probabilité <b>" + pct(v) + "</b>");
+  el("defNote").innerHTML =
+    '<b>' + defTireurs + ' × ' + m[0] + '</b> sur <b>' + cible.nom + ' ×' + cible.taille + '</b> (' + pv + ' PV) : ' +
+    num(sim.meanDealt) + ' PV encaissés en moyenne' +
+    (sim.meanRaw > sim.meanDealt + 0.05 ? ', ' + num(sim.meanRaw - sim.meanDealt) + ' perdus en surtue' : '') + '. ' +
+    (seuil ? 'Il en faudrait <b>' + seuil + '</b> pour l\'effacer une fois sur deux.'
+           : 'Moins d\'une chance sur deux de l\'effacer, même à 60 tireurs.');
+}
+
+/* ==========================================================
    INDEX DES LISTES
    L'axe s'ouvre ici : on voit ce qu'on a, on entre dans l'une
    d'elles pour la modifier.
@@ -1407,6 +1528,7 @@ el("simTabs").querySelectorAll("button").forEach(b=>{
     el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
     if(b.dataset.v === "subFire"){ syncTarget(); renderFireList(); }
     if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
+    if(b.dataset.v === "subDef") renderDef();
   });
 });
 
@@ -1447,6 +1569,12 @@ if(el("listCap")) el("listCap").addEventListener("change", ()=>{
   const v = parseInt(el("listCap").value, 10);
   R.cap = (isFinite(v) && v >= 100) ? Math.min(10000, v) : 2000;
   saveR(); renderList();
+});
+if(el("defN")) el("defN").addEventListener("change", ()=>{
+  const v = parseInt(el("defN").value, 10);
+  defTireurs = (isFinite(v) && v > 0) ? Math.min(60, v) : 10;
+  el("defN").value = defTireurs;
+  renderDef();
 });
 if(el("armMode")) el("armMode").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{

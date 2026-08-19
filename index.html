@@ -445,6 +445,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <button type="button" class="on" data-v="subAtk">Attaque</button>
     <button type="button" data-v="subFire">Tir cumulé</button>
     <button type="button" data-v="subCmp">Comparer</button>
+    <button type="button" data-v="subDef">Encaisser</button>
   </div>
   <div class="sub on" id="subAtk">
 
@@ -602,6 +603,39 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
   </div>
+  <div class="sub" id="subDef">
+    <section class="card">
+      <h2>Unité qui encaisse <span class="chev">▾</span></h2>
+      <div class="body">
+        <div id="defQuick"></div>
+        <div class="profile" id="defProf"></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Ce qu'elle reçoit <span class="chev">▾</span></h2>
+      <div class="body">
+        <p class="hint" style="margin-top:2px">Archétypes indicatifs, pas des profils officiels : les listes
+        adverses sont trop variées pour être modélisées. De quoi juger si une unité tient un volume de tir donné.</p>
+        <div class="chips tight" id="defThreats"></div>
+        <div class="row">
+          <label for="defN">Nombre de tireurs</label>
+          <div class="ctl"><input type="number" id="defN" min="1" max="60" step="1" value="10"></div>
+        </div>
+        <div class="profile" id="defThreatProf"></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Ce qu'il en reste <span class="chev">▾</span></h2>
+      <div class="body">
+        <div class="summary" id="defSum" style="border-top:0;margin-top:4px"></div>
+        <div class="chart-title" style="margin-top:14px">Figurines perdues</div>
+        <p class="chart-sub" id="defSub"></p>
+        <svg id="defBars" class="chart" role="img" aria-label="Distribution des figurines perdues"></svg>
+        <p class="hint" id="defNote"></p>
+      </div>
+    </section>
+  </div>
+
   <div class="sub" id="subCmp">
   <section class="card">
     <h2>Cible <span class="chev">▾</span></h2>
