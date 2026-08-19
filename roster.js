@@ -968,9 +968,23 @@ function renderRoster(){
     add.appendChild(bw); add.appendChild(bc); add.appendChild(be);
     div.appendChild(add);
 
+    /* dupliquer une fois l'unite reglee : c'est la qu'on veut la seconde,
+       avec son armement et ses rattachements, pas une unite vierge */
+    const pied = document.createElement("div");
+    pied.className = "unitfoot";
+    const dup = document.createElement("button");
+    dup.type = "button"; dup.className = "btn";
+    dup.textContent = "Dupliquer";
+    dup.addEventListener("click", ()=>{
+      const copie = JSON.parse(JSON.stringify(ru));
+      copie.id = nextId++;
+      if(estGroupe(copie)) copie.grp = nomGroupe();
+      R.units.splice(R.units.indexOf(ru) + 1, 0, copie);
+      saveR(); ouvrePanneau("cardUnits", copie.id);
+    });
     const del = document.createElement("button");
     del.type = "button"; del.className = "btn danger";
-    del.textContent = "Retirer « " + ru.name + " » de la liste";
+    del.textContent = "Retirer";
     del.addEventListener("click", ()=>{
       if(!confirm("Retirer " + ru.name + " ×" + ru.size +
         (ru.chars.length ? " et ses " + ru.chars.length + " personnage" + (ru.chars.length>1?"s":"") : "") +
@@ -979,7 +993,8 @@ function renderRoster(){
       if(i >= 0) R.units.splice(i, 1);
       saveR(); fermePanneau();
     });
-    div.appendChild(del);
+    pied.appendChild(dup); pied.appendChild(del);
+    div.appendChild(pied);
     host.appendChild(div);
   });
 }

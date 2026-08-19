@@ -99,6 +99,11 @@ données de stratagèmes, aujourd'hui presque vides.
   5 184 combinaisons), qu'on peut réécrire ou retirer au sort. C'est ce nom
   qu'on annonce en partie. Une unité seule garde le sien : elle n'est pas un
   groupe, le champ n'apparaît pas.
+- **Dupliquer une unité** — depuis son panneau, une fois réglée : la copie
+  reprend l'armement, les personnages rattachés et l'amélioration, se place
+  juste après l'originale et s'ouvre aussitôt. Un groupe dupliqué reçoit son
+  propre nom. La validation signale ensuite ce qui dépasse — règle des trois,
+  Epic Hero en double.
 - **Équipement de l'unité** — deux tableaux, tir et corps à corps, avec le
   profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
   toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
