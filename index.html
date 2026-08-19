@@ -275,6 +275,16 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .backbar .ar{color:var(--glow);font-size:16px;line-height:1}
 .backbar:active{background:var(--s2)}
 
+/* ---------- repartition des armes ---------- */
+.repart{margin:10px 0 2px;padding:7px 10px;font-size:11.5px;color:var(--tx2);
+  background:var(--s2);border:1px solid var(--line);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.repart b{color:var(--tx);font-variant-numeric:tabular-nums}
+.repart.ok{border-color:rgba(155,232,92,.35)}
+.repart.ok b{color:var(--glow)}
+.repart.todo{border-color:rgba(224,160,48,.45)}
+.repart.todo span{color:var(--warn);font-weight:700}
+
 /* ---------- equipement de l'unite ---------- */
 .eqbloc{margin-top:12px;border-top:1px solid rgba(51,69,58,.6);padding-top:10px}
 .eqt{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--glow);
