@@ -40,14 +40,21 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
   sauvegarde calculée exactement, puis 30 000 simulations pour la répartition
   des dégâts entre figurines (surtue comprise). Distribution, médiane,
   probabilité d'effacer l'unité.
-- **Ma liste** — construction à 2000 points : détachements (budget de 3 PD,
-  tags d'exclusivité), unités, armement mixte par unité, personnages attachés
+- **Mes listes** — plusieurs listes coexistent, chacune avec son nom et son
+  plafond de points. On en crée, on en duplique, on en supprime, on passe de
+  l'une à l'autre par ses onglets. Le budget de Points de Détachement suit le
+  plafond : 3 PD à 2000 points, au prorata ailleurs.
+- **Ma liste** — construction de la liste ouverte : détachements (tags
+  d'exclusivité), unités, armement mixte par unité, personnages attachés
   (Leader / Support), validation (règle des trois, Battleline, Epic Hero).
 - **Tir cumulé** — plusieurs unités de la liste tirent sur la même cible dans
   l'ordre : la surtue d'une unité pénalise les suivantes, comme en partie.
   Contribution de chaque unité et puissance perdue.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
   par dégâts pour 100 points.
+- **Simulateur depuis la liste** — le sélecteur d'unité du simulateur propose
+  d'abord ce que contient la liste ouverte, avec la taille et l'arme retenues
+  et les personnages rattachés, avant le catalogue complet.
 - **Groupes rattachés** — chaque unité de la liste porte un nom fabriqué tout
   seul (« Cohorte de Nécrodermis de Thanatos », 5 184 combinaisons), qu'on peut
   réécrire ou retirer au sort. C'est ce nom qu'on annonce en partie.
@@ -68,11 +75,12 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
   sont incluses ; celles qui ne sont pas équipées restent visibles, grisées.
 - **Stratagèmes** — ceux des détachements retenus plus ceux de base, dépliables
   sur leur texte Quand / Cible / Effet.
-- **Lien de partage** — la liste entière est encodée dans l'URL (JSON réduit,
-  gzip, base64url) : on s'envoie le lien et la liste s'ouvre sur l'autre
-  appareil, sans serveur ni compte. Une liste de 2000 points tient en moins de
-  400 caractères. L'import demande confirmation avant de remplacer la liste
-  existante.
+- **Lien de partage** — la liste ouverte est encodée dans l'URL avec son nom et
+  son plafond (JSON réduit, gzip, base64url) : on s'envoie le lien et la liste
+  s'ouvre sur l'autre appareil, sans serveur ni compte. Une liste de 2000
+  points tient en moins de 400 caractères. Elle s'ajoute aux listes existantes
+  après confirmation, sans en écraser aucune, que l'application soit déjà
+  ouverte ou non.
 
 ## Règles modélisées
 

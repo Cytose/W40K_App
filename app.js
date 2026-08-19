@@ -240,9 +240,52 @@ function renderUnitList(){
   if(window.__rosterPick) return;
   const q = norm(el("uSearch").value.trim());
   const host = el("uList"); host.innerHTML = "";
+
+  /* d'abord ce qui est deja dans la liste ouverte : en general on veut
+     simuler une unite de son armee, pas n'importe laquelle du catalogue */
+  const roster = window.ROSTER && window.ROSTER.actives();
+  if(roster && roster.unites.length){
+    const vus = new Set();
+    const retenues = roster.unites.filter(x=>{
+      if(q && !norm(x.nom).includes(q)) return false;
+      const k = x.nom + "|" + x.taille + "|" + x.arme;
+      if(vus.has(k)) return false;
+      vus.add(k); return true;
+    });
+    if(retenues.length){
+      const sep = document.createElement("div");
+      sep.className = "sheet-sep";
+      sep.textContent = "Dans « " + roster.liste + " »";
+      host.appendChild(sep);
+      retenues.forEach(x=>{
+        const u = unitRow(x.nom); if(!u) return;
+        const wl = unitWeps(x.nom), w = wl[x.arme] || wl[0];
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "opt" + (x.nom === curUnit ? " sel" : "");
+        b.innerHTML = '<span class="oi"><span class="o1">' + x.nom + '</span><span class="o2">' +
+          '×' + x.taille + (w ? ' · ' + w[1] : '') + ' · ' + x.groupe + '</span></span>' +
+          (x.perso ? '<span class="otag">RATTACHÉ</span>' : '');
+        b.addEventListener("click", ()=>{
+          curUnit = x.nom; curWeapon = x.arme; curSize = x.taille;
+          const sizes = unitRow(x.nom)[6];
+          if(sizes.indexOf(curSize) < 0) curSize = sizes[sizes.length-1];
+          closeSheet("sheetUnit"); applyWeapon();
+        });
+        host.appendChild(b);
+      });
+      const sep2 = document.createElement("div");
+      sep2.className = "sheet-sep";
+      sep2.textContent = "Tout le catalogue";
+      host.appendChild(sep2);
+    }
+  }
+
   const list = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
     unitWeps(u[0]).some(w => norm(w[1]).includes(q)));
-  if(!list.length){ host.innerHTML = '<div class="sheet-empty">Aucune unité trouvée.</div>'; return; }
+  if(!list.length && !host.children.length){
+    host.innerHTML = '<div class="sheet-empty">Aucune unité trouvée.</div>'; return;
+  }
   list.forEach(u=>{
     const b = document.createElement("button");
     b.type="button"; b.className = "opt" + (u[0]===curUnit ? " sel" : "");

@@ -7,21 +7,114 @@ const {S, unitRow, unitWeps, parseFlags, drawBars, binned, pct, num} = SIM;
 /* ==========================================================
    ETAT DE LA LISTE
    ========================================================== */
-const RKEY = "mathhammer.roster.v1";
-let R = { detach: [], units: [] };   // units : {id,name,size,lo:[{w,n}],chars:[{name,w}],sel:true}
-let nextId = 1;
+const RKEY = "mathhammer.roster.v1";   /* ancien format, une seule liste */
+const LKEY = "mathhammer.lists.v1";
+
+/* Une liste : {id, nom, cap, detach:[], units:[], nextId}
+   units : {id,name,size,lo:[{w,n}],chars:[{name,w}],sel,grp,enh} */
+let LISTS = [];
+let R = null;                         // la liste ouverte
+let nextId = 1;                       // compteur d'unites de la liste ouverte
 let phase = "T";
 let situ = {};                        // conditions situationnelles cochees
 
-function saveR(){ try{ localStorage.setItem(RKEY, JSON.stringify({R, nextId})); }catch(e){} }
+const listeVierge = (nom, cap) => ({
+  id: "l" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36),
+  nom: nom || "Nouvelle liste", cap: cap || 2000, detach: [], units: [], nextId: 1
+});
+
+function saveR(){
+  if(R){ R.nextId = nextId; }
+  try{ localStorage.setItem(LKEY, JSON.stringify({ v:1, actif: R ? R.id : null, listes: LISTS })); }catch(e){}
+}
+
+/* remet une liste d'aplomb : champs manquants des versions precedentes */
+function normaliseListe(L){
+  L.detach = L.detach || []; L.units = L.units || [];
+  L.cap = L.cap || 2000; L.nom = L.nom || "Liste"; L.nextId = L.nextId || 1;
+  if(!L.id) L.id = listeVierge().id;
+  L.units.forEach(ru => {
+    ru.chars = ru.chars || []; ru.lo = ru.lo || [];
+    if(ru.sel === undefined) ru.sel = true;
+    if(!ru.grp) ru.grp = nomGroupe();
+    if(ru.enh === undefined) ru.enh = null;
+    if(!ru.id) ru.id = L.nextId++;
+  });
+  return L;
+}
+
+function ouvre(L){ R = L; nextId = L.nextId || 1; }
+
 function loadR(){
+  let actif = null;
   try{
-    const o = JSON.parse(localStorage.getItem(RKEY) || "null");
-    if(o && o.R){ R = o.R; nextId = o.nextId || 1; }
+    const o = JSON.parse(localStorage.getItem(LKEY) || "null");
+    if(o && Array.isArray(o.listes)){ LISTS = o.listes; actif = o.actif; }
   }catch(e){}
-  R.detach = R.detach || []; R.units = R.units || [];
-  /* listes d'avant les groupes : on leur en fabrique un */
-  R.units.forEach(ru => { if(!ru.grp) ru.grp = nomGroupe(); });
+
+  /* reprise de l'ancien format : la liste unique devient la premiere */
+  if(!LISTS.length){
+    let ancienne = null;
+    try{
+      const o = JSON.parse(localStorage.getItem(RKEY) || "null");
+      if(o && o.R) ancienne = Object.assign(listeVierge("Ma liste", 2000), {
+        detach: o.R.detach || [], units: o.R.units || [], nextId: o.nextId || 1
+      });
+    }catch(e){}
+    LISTS = [ancienne || listeVierge("Ma liste", 2000)];
+    actif = LISTS[0].id;
+  }
+  LISTS.forEach(normaliseListe);
+  ouvre(LISTS.find(x => x.id === actif) || LISTS[0]);
+  /* premier lancement, ou reprise de l'ancien format : on fixe l'etat
+     tout de suite plutot que d'attendre la premiere modification */
+  if(!localStorage.getItem(LKEY)) saveR();
+}
+
+/* ---- gestion des listes ---- */
+function nouvelleListe(){
+  const L = listeVierge("Liste " + (LISTS.length + 1), R ? R.cap : 2000);
+  LISTS.push(L); ouvre(L); saveR(); renderList();
+}
+function dupliqueListe(){
+  if(!R) return;
+  const copie = JSON.parse(JSON.stringify(R));
+  copie.id = listeVierge().id;
+  copie.nom = R.nom + " (copie)";
+  LISTS.push(copie); ouvre(copie); saveR(); renderList();
+}
+function supprimeListe(){
+  if(!R || LISTS.length < 2){
+    alert("C'est ta seule liste : crées-en une autre avant de supprimer celle-ci.");
+    return;
+  }
+  if(!confirm("Supprimer « " + R.nom + " » et ses " + R.units.length + " unité" +
+    (R.units.length > 1 ? "s" : "") + " ? C'est définitif.")) return;
+  const i = LISTS.indexOf(R);
+  LISTS.splice(i, 1);
+  ouvre(LISTS[Math.max(0, i - 1)]);
+  saveR(); renderList();
+}
+/* le simulateur pioche ici : unites de la liste ouverte, avec la taille
+   et l'arme retenues, plus les personnages rattaches */
+window.ROSTER = {
+  actives: function(){
+    if(!R) return null;
+    const out = [];
+    R.units.forEach(ru=>{
+      const dom = ru.lo.slice().sort((a,b)=>b.n-a.n)[0];
+      out.push({ nom: ru.name, taille: ru.size, arme: dom ? dom.w : 0,
+                 groupe: ru.grp, perso: false });
+      ru.chars.forEach(c => out.push({ nom: c.name, taille: 1, arme: c.w|0,
+                 groupe: ru.grp, perso: true }));
+    });
+    return { liste: R.nom, unites: out };
+  }
+};
+
+function ouvreListe(id){
+  const L = LISTS.find(x => x.id === id); if(!L) return;
+  ouvre(L); saveR(); renderList();
 }
 
 /* ==========================================================
@@ -84,13 +177,17 @@ function unitPoints(ru){
 }
 const totalPoints = () => R.units.reduce((a,ru) => a + unitPoints(ru), 0);
 const totalDP = () => R.detach.reduce((a,n) => { const d = detachRow(n); return a + (d ? d[1] : 0); }, 0);
+/* budget de Points de Detachement : 3 a 2000 pts, au prorata ailleurs
+   (1 par tranche de 500 pts, minimum 1) */
+const capDP = () => Math.max(1, Math.round((R.cap || 2000) / 2000 * 3));
 
 function validate(){
   const w = [];
-  const pts = totalPoints();
-  if(pts > 2000) w.push("Liste à <b>" + pts + " pts</b> : " + (pts-2000) + " pts au-dessus de la limite Strike Force.");
-  const dp = totalDP();
-  if(dp > 3) w.push("<b>" + dp + " PD</b> utilisés sur 3 disponibles à 2000 pts.");
+  const pts = totalPoints(), cap = R.cap || 2000;
+  if(pts > cap) w.push("Liste à <b>" + pts + " pts</b> : " + (pts-cap) +
+    " pts au-dessus du plafond de " + cap + ".");
+  const dp = totalDP(), dpMax = capDP();
+  if(dp > dpMax) w.push("<b>" + dp + " PD</b> utilisés sur " + dpMax + " disponibles à " + cap + " pts.");
   const tags = {};
   R.detach.forEach(n => { const d = detachRow(n); if(d && d[2]){ (tags[d[2]] = tags[d[2]] || []).push(n); } });
   Object.keys(tags).forEach(t => { if(tags[t].length > 1)
@@ -260,13 +357,42 @@ function unitProfiles(ru){
 /* ==========================================================
    ECRAN « MA LISTE »
    ========================================================== */
+function renderLists(){
+  const host = el("listTabs"); if(!host) return;
+  host.innerHTML = "";
+  LISTS.forEach(L=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (L === R ? " on" : "");
+    const p = L.units.reduce((a,ru)=>{
+      const u = unitRow(ru.name); if(!u) return a;
+      let n = u[7][String(ru.size)] || 0;
+      ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) n += cu[7][String(cu[6][0])] || 0; });
+      const e = ru.enh && enhRow(ru.enh);
+      return a + n + (e && typeof e[1] === "number" ? e[1] : 0);
+    }, 0);
+    b.innerHTML = L.nom + '<small>' + p + ' / ' + L.cap + ' pts · ' + L.units.length + ' unité' +
+      (L.units.length > 1 ? 's' : '') + '</small>';
+    b.addEventListener("click", ()=> ouvreListe(L.id));
+    host.appendChild(b);
+  });
+  const nom = el("listName"), cap = el("listCap");
+  if(nom && document.activeElement !== nom) nom.value = R.nom;
+  if(cap && document.activeElement !== cap) cap.value = R.cap;
+  const hint = el("detHint");
+  if(hint) hint.textContent = capDP() + " Points de Détachement à " + R.cap +
+    " pts. Deux détachements ne peuvent pas partager le même tag d'exclusivité.";
+}
+
 function renderPtsBar(){
   const pts = totalPoints(), dp = totalDP();
   const b = el("ptsbar");
   if(!b) return;
+  const cap = R.cap || 2000, dpMax = capDP();
   b.innerHTML =
-    '<div class="c ' + (pts>2000?"over":(pts?"ok":"")) + '"><div class="k">Points</div><div class="v">' + pts + '</div></div>' +
-    '<div class="c ' + (dp>3?"over":"") + '"><div class="k">Détachement</div><div class="v">' + dp + ' / 3</div></div>' +
+    '<div class="c ' + (pts>cap?"over":(pts?"ok":"")) + '"><div class="k">Points</div><div class="v">' +
+      pts + ' <small style="font-size:11px;color:var(--tx3)">/ ' + cap + '</small></div></div>' +
+    '<div class="c ' + (dp>dpMax?"over":"") + '"><div class="k">Détachement</div><div class="v">' + dp + ' / ' + dpMax + '</div></div>' +
     '<div class="c"><div class="k">Unités</div><div class="v">' + R.units.length + '</div></div>';
 }
 function renderDetach(){
@@ -555,7 +681,7 @@ function renderWarn(){
   const w = validate(), host = el("rosterWarn");
   host.innerHTML = w.length ? '<div class="warnbox">' + w.join("<br>") + '</div>' : "";
 }
-function renderList(){ renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderStrats(); renderArms(); renderFireList(); }
+function renderList(){ renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderStrats(); renderArms(); renderFireList(); }
 
 /* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
 let pickMode = null, pickTarget = null;
@@ -926,15 +1052,18 @@ function renderCmp(){
    IMPORT / EXPORT
    ========================================================== */
 function exportImport(){
-  const txt = JSON.stringify(R);
-  const v = prompt("Copie ce texte pour sauvegarder ta liste, ou colle-en un autre pour l'importer :", txt);
+  const txt = JSON.stringify({nom:R.nom, cap:R.cap, detach:R.detach, units:R.units});
+  const v = prompt("Copie ce texte pour sauvegarder ta liste, ou colle-en un autre pour l'importer " +
+    "— la liste importée s'ajoutera aux tiennes :", txt);
   if(v === null || v === txt) return;
   try{
     const o = JSON.parse(v);
     if(!o || !Array.isArray(o.units)) throw 0;
-    R = {detach: o.detach || [], units: o.units};
-    R.units.forEach(u => { u.chars = u.chars || []; u.lo = u.lo || []; if(u.sel === undefined) u.sel = true;
-      if(!u.id) u.id = nextId++; if(!u.grp) u.grp = nomGroupe(); if(u.enh === undefined) u.enh = null; });
+    const L = listeVierge(o.nom || "Liste importée", o.cap || 2000);
+    L.detach = o.detach || [];
+    L.units = o.units;
+    normaliseListe(L);
+    LISTS.push(L); ouvre(L);
     saveR(); renderList();
   }catch(e){ alert("Liste illisible — rien n'a été modifié."); }
 }
@@ -973,6 +1102,7 @@ function unb64u(str){
 
 /* on ne transporte que ce qui n'est pas reconstructible : ni id ni points */
 const packList = () => ({
+  t: R.nom, p: R.cap,
   d: R.detach,
   u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0,
     g: ru.grp || "", e: ru.enh || "" }))
@@ -1001,12 +1131,16 @@ async function decodeList(code){
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
+/* une liste recue arrive a cote des tiennes, elle n'en ecrase aucune */
 function applyPacked(o){
   if(!o || !Array.isArray(o.u)) throw 0;
-  R = { detach: Array.isArray(o.d) ? o.d : [], units: o.u.map(u => ({
-    id: nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
+  const L = listeVierge(o.t || "Liste reçue", o.p || 2000);
+  L.detach = Array.isArray(o.d) ? o.d : [];
+  L.units = o.u.map(u => ({
+    id: L.nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
     grp: u.g || nomGroupe(), enh: u.e || null
-  })) };
+  }));
+  LISTS.push(L); ouvre(L);
   saveR(); renderList();
 }
 
@@ -1043,11 +1177,9 @@ async function readSharedLink(){
   try{
     const o = await decodeList(m[1]);
     const n = (o.u || []).length;
-    const msg = R.units.length
-      ? "Ce lien contient une liste de " + n + " unité" + (n>1?"s":"") +
-        ". La charger remplacera la liste enregistrée sur cet appareil. Continuer ?"
-      : "Charger la liste de " + n + " unité" + (n>1?"s":"") + " contenue dans ce lien ?";
-    if(confirm(msg)) applyPacked(o);
+    if(confirm("Ce lien contient « " + (o.t || "une liste") + " », " + n + " unité" +
+      (n>1?"s":"") + ". L'ajouter à tes listes ? Les tiennes ne sont pas touchées."))
+      applyPacked(o);
   }catch(e){ alert("Ce lien de partage est illisible — ta liste n'a pas été modifiée."); }
   /* on nettoie l'URL pour ne pas reproposer l'import a chaque rechargement */
   try{ history.replaceState(null, "", location.href.replace(/#.*$/, "")); }catch(e){}
@@ -1096,6 +1228,17 @@ el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 el("btnAddUnit").addEventListener("click", openUnitPick);
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport").addEventListener("click", exportImport);
+if(el("btnNewList")) el("btnNewList").addEventListener("click", nouvelleListe);
+if(el("btnDupList")) el("btnDupList").addEventListener("click", dupliqueListe);
+if(el("btnDelList")) el("btnDelList").addEventListener("click", supprimeListe);
+if(el("listName")) el("listName").addEventListener("change", ()=>{
+  R.nom = el("listName").value.trim() || "Liste"; saveR(); renderList();
+});
+if(el("listCap")) el("listCap").addEventListener("change", ()=>{
+  const v = parseInt(el("listCap").value, 10);
+  R.cap = (isFinite(v) && v >= 100) ? Math.min(10000, v) : 2000;
+  saveR(); renderList();
+});
 if(el("armMode")) el("armMode").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
     armMode = b.dataset.m;
@@ -1147,4 +1290,7 @@ renderList();
 renderCmpList();
 syncTarget();
 readSharedLink();
+/* coller un lien dans un onglet deja ouvert ne recharge pas la page :
+   le navigateur ne fait qu'un saut d'ancre, il faut l'ecouter */
+window.addEventListener("hashchange", readSharedLink);
 })();
