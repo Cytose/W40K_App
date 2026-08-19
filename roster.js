@@ -397,6 +397,15 @@ function renderPtsBar(){
 }
 function renderDetach(){
   const host = el("detList"); host.innerHTML = "";
+  /* plus de budget ou plus rien de compatible : on ferme la porte
+     plutot que de proposer un choix qui ne menerait qu'a une alerte */
+  const b = el("btnAddDetach");
+  if(b){
+    const libre = DETACHMENTS.some(d => !detachBloque(d));
+    b.disabled = !libre;
+    b.textContent = libre ? "+ Ajouter un détachement"
+      : (capDP() - totalDP() > 0 ? "Aucun détachement compatible" : "Budget de détachement épuisé");
+  }
   if(!R.detach.length){ host.innerHTML = '<div class="empty" style="padding:14px 4px">Aucun détachement choisi.</div>'; return; }
   R.detach.forEach((n,i)=>{
     const d = detachRow(n); if(!d) return;
@@ -1188,20 +1197,54 @@ async function readSharedLink(){
 /* ==========================================================
    INIT
    ========================================================== */
+/* pourquoi ce detachement est indisponible, "" s'il l'est */
+function detachBloque(d){
+  if(R.detach.indexOf(d[0]) >= 0) return "déjà pris";
+  const reste = capDP() - totalDP();
+  if(d[1] > reste) return reste > 0
+    ? "coûte " + d[1] + " PD, il n'en reste que " + reste
+    : "plus de Points de Détachement";
+  if(d[2] && R.detach.some(n => { const a = detachRow(n); return a && a[2] === d[2]; }))
+    return "tag " + d[2] + " déjà utilisé";
+  return "";
+}
+
 function initDetachSheet(){
   const host = el("dList"); host.innerHTML = "";
+  const reste = capDP() - totalDP();
+  const tete = document.createElement("div");
+  tete.className = "sheet-sep";
+  tete.textContent = reste > 0
+    ? reste + " Point" + (reste > 1 ? "s" : "") + " de Détachement disponible" + (reste > 1 ? "s" : "")
+    : "Budget de Points de Détachement épuisé";
+  host.appendChild(tete);
+
+  let dispo = 0;
   DETACHMENTS.forEach(d=>{
+    const raison = detachBloque(d), pris = R.detach.indexOf(d[0]) >= 0;
+    if(!raison) dispo++;
     const b = document.createElement("button");
-    b.type="button"; b.className = "opt" + (R.detach.includes(d[0]) ? " sel" : "");
+    b.type = "button";
+    b.className = "opt" + (pris ? " sel" : "") + (raison ? " opt-off" : "");
+    if(raison) b.disabled = true;
     b.innerHTML = '<span class="oi"><span class="o1">' + d[0] + '</span>' +
-      '<span class="o2">' + d[1] + ' PD · ' + d[3] + (d[2] ? ' · tag ' + d[2] : '') + '</span></span>' +
+      '<span class="o2">' + d[1] + ' PD · ' + d[3] + (d[2] ? ' · tag ' + d[2] : '') +
+      (raison ? ' — ' + raison : '') + '</span></span>' +
       (d[5] ? '<span class="otag">DÉS</span>' : '');
-    b.addEventListener("click", ()=>{
-      if(!R.detach.includes(d[0])) R.detach.push(d[0]);
+    if(!raison) b.addEventListener("click", ()=>{
+      R.detach.push(d[0]);
       closeSheet("sheetDetach"); saveR(); renderList();
     });
     host.appendChild(b);
   });
+  if(!dispo){
+    const m = document.createElement("div");
+    m.className = "sheet-empty";
+    m.textContent = reste > 0
+      ? "Aucun détachement compatible avec ceux déjà pris."
+      : "Retire un détachement pour en prendre un autre.";
+    host.appendChild(m);
+  }
 }
 
 el("tabs").querySelectorAll("button").forEach(b=>{
