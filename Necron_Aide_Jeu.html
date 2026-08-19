@@ -28,14 +28,14 @@
             aria-label="Passer en plein écran" title="Plein écran">⛶</button>
     <button class="ghost" id="btnSave" type="button">Enregistrer</button>
   </div>
-  <div class="summary" id="headSum">
+  <div class="summary" id="headSum" style="display:none">
     <div class="sum hero"><div class="k">Dégâts moyens</div><div class="v" id="sumDmg">—</div></div>
     <div class="sum"><div class="k">Figs tuées</div><div class="v" id="sumSlain">—</div></div>
     <div class="sum"><div class="k">Unité effacée</div><div class="v" id="sumWipe">—</div></div>
   </div>
 </header>
 <main class="wrap">
-<div class="screen on" id="scSim">
+<div class="screen" id="scSim">
   <div class="subtabs" id="simTabs">
     <button type="button" class="on" data-v="subAtk">Attaque</button>
     <button type="button" data-v="subFire">Tir cumulé</button>
@@ -264,7 +264,7 @@
     Tous les champs sont modifiables. Non affilié à Games Workshop.
   </footer>
 </div>
-<div class="screen" id="scList">
+<div class="screen on" id="scList">
   <div id="listIndex">
     <section class="card">
       <h2>Mes listes <span class="chev">▾</span></h2>
@@ -358,8 +358,8 @@
 </div>
 </main>
 <nav class="tabs" id="tabs">
-  <button type="button" data-s="scList"><span class="ti">☷</span>Listes</button>
-  <button type="button" class="on" data-s="scSim"><span class="ti">◈</span>Simulateur</button>
+  <button type="button" class="on" data-s="scList"><span class="ti">☷</span>Listes</button>
+  <button type="button" data-s="scSim"><span class="ti">◈</span>Simulateur</button>
   <button type="button" data-s="scPlay"><span class="ti">⚔</span>En partie</button>
 </nav>
 <div class="tip" id="tip"></div>
