@@ -892,6 +892,13 @@ function renderRoster(){
       row.innerHTML = '<span class="ln">' + (g ? g.libelle : w[1]) +
         ' <em>' + detail + '</em></span>';
       row.appendChild(stepper(()=>l.n, v=>{ l.n = v; if(v===0) ru.lo.splice(li,1); }, 0, 60));
+      const sw = document.createElement("button");
+      sw.type="button"; sw.className="xbtn"; sw.textContent="⇄"; sw.title="Changer d'arme";
+      sw.addEventListener("click", ()=> openWeaponPick(ru, li));
+      const rm = document.createElement("button");
+      rm.type="button"; rm.className="xbtn"; rm.textContent="×"; rm.title="Retirer cette arme";
+      rm.addEventListener("click", ()=>{ ru.lo.splice(li,1); saveR(); renderList(); });
+      row.appendChild(sw); row.appendChild(rm);
       div.appendChild(row);
     });
 
@@ -1211,8 +1218,10 @@ function openUnitPick(){
   window.__rosterPick = true; pickMode = "unit"; pickTarget = null;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
-function openWeaponPick(ru){
+let pickSlot = null;      /* index dans ru.lo quand on remplace une arme */
+function openWeaponPick(ru, slot){
   window.__rosterPick = true; pickMode = "weapon"; pickTarget = ru;
+  pickSlot = (slot === undefined) ? null : slot;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 function openCmpPick(src){
@@ -1234,7 +1243,10 @@ function renderPick(){
   const head = el("sheetUnit").querySelector("h3");
 
   if(pickMode === "weapon"){
-    head.textContent = "Ajouter une arme — " + pickTarget.name;
+    const remplace = pickSlot !== null && pickTarget.lo[pickSlot];
+    head.textContent = remplace
+      ? "Remplacer l'arme — " + pickTarget.name
+      : "Ajouter une arme — " + pickTarget.name;
     /* on équipe une arme, pas un profil : proposer « Rod of covenant (tir) »
        et « (càc) » séparément laissait croire qu'on peut prendre l'un sans
        l'autre, alors que le bâton donne les deux */
@@ -1248,11 +1260,33 @@ function renderPick(){
       b.innerHTML = '<span class="oi"><span class="o1">' + g.libelle + '</span>' +
         '<span class="o2">' + detail + '</span></span>' +
         (g.profils.length > 1 ? '<span class="otag">' + g.profils.length + ' PROFILS</span>' : '');
+      /* la case déjà servie par cette arme se marque, on ne la propose pas
+         comme remplacement d'elle-même */
+      const actuelle = remplace &&
+        groupeDe(pickTarget.name, pickTarget.lo[pickSlot].w) &&
+        groupeDe(pickTarget.name, pickTarget.lo[pickSlot].w).base === g.base;
+      if(actuelle) b.classList.add("sel");
       b.addEventListener("click", ()=>{
-        const ex = pickTarget.lo.find(l => groupeDe(pickTarget.name, l.w) &&
-                                           groupeDe(pickTarget.name, l.w).base === g.base);
-        if(ex) ex.n = Math.min(pickTarget.size, ex.n + 1);
-        else pickTarget.lo.push({w:g.principal, n:1});
+        if(remplace){
+          /* on garde le nombre de porteurs : c'est un échange d'arme, pas
+             une nouvelle ligne */
+          const n = pickTarget.lo[pickSlot].n;
+          const autre = pickTarget.lo.findIndex((l, i) => i !== pickSlot &&
+            groupeDe(pickTarget.name, l.w) && groupeDe(pickTarget.name, l.w).base === g.base);
+          if(autre >= 0){
+            /* l'arme choisie est déjà servie ailleurs : on fusionne */
+            pickTarget.lo[autre].n = Math.min(pickTarget.size, pickTarget.lo[autre].n + n);
+            pickTarget.lo.splice(pickSlot, 1);
+          } else {
+            pickTarget.lo[pickSlot] = { w: g.principal, n: n };
+          }
+        } else {
+          const ex = pickTarget.lo.find(l => groupeDe(pickTarget.name, l.w) &&
+                                             groupeDe(pickTarget.name, l.w).base === g.base);
+          if(ex) ex.n = Math.min(pickTarget.size, ex.n + 1);
+          else pickTarget.lo.push({w:g.principal, n:1});
+        }
+        pickSlot = null;
         closeSheet("sheetUnit"); saveR(); renderList();
       });
       host.appendChild(b);
@@ -1878,7 +1912,7 @@ el("phaseChips").querySelectorAll(".chip").forEach(b=>
     renderFireList();
   }));
 document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
-  b.addEventListener("click", ()=>{ pickMode = null; }));
+  b.addEventListener("click", ()=>{ pickMode = null; pickSlot = null; }));
 
 /* le simulateur possede sa propre liste d'unites : on remet son mode
    quand l'utilisateur rouvre la feuille depuis l'onglet Simulateur */

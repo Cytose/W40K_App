@@ -108,6 +108,10 @@ données de stratagèmes, aujourd'hui presque vides.
   profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
   toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
   tant qu'on ne les avait pas ajoutées à la main.
+- **Changer l'arme d'une ligne** — chaque ligne d'armement porte un bouton
+  d'échange et une croix. L'échange garde le nombre de porteurs et fusionne
+  la ligne si l'arme choisie est déjà servie ailleurs dans l'unité ; il
+  fallait auparavant descendre le compteur à zéro puis rajouter.
 - **Armes à plusieurs profils** — un bâton de lumière donne un tir *et* une
   frappe, un rayon thermique deux modes de tir. L'application équipe l'arme,
   pas le profil : porter le bâton met ses deux profils à disposition, et le
