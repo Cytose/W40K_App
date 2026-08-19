@@ -595,6 +595,47 @@ function renderRosterQuick(){
 }
 window.__syncRosterQuick = renderRosterQuick;
 
+/* ==========================================================
+   TAILLE D'AFFICHAGE
+   Les tailles du theme sont serrees ; sur un grand telephone
+   tenu a bout de bras, on veut pouvoir tout grossir sans
+   dependre du zoom du navigateur, qui casse la mise en page.
+   ========================================================== */
+const ZOOMS = [1, 1.15, 1.3, 1.45, 1.6];
+const ZKEY = "mathhammer.zoom.v1";
+let zoomI = 0;
+
+function appliqueZoom(annonce){
+  const r = document.documentElement;
+  r.style.setProperty("--ui", ZOOMS[zoomI]);
+  /* paliers de resserrement de l'en-tete : cumulatifs */
+  for(let i = 1; i <= 4; i++) r.classList.toggle("z" + i, zoomI >= i);
+  const o = el("btnZoomOut"), p = el("btnZoomIn");
+  if(o) o.disabled = zoomI === 0;
+  if(p) p.disabled = zoomI === ZOOMS.length - 1;
+  try{ localStorage.setItem(ZKEY, String(zoomI)); }catch(e){}
+  if(annonce){
+    const t = el("zoomTip"); if(!t) return;
+    t.textContent = "Affichage " + Math.round(ZOOMS[zoomI] * 100) + " %";
+    t.classList.add("on");
+    clearTimeout(window.__zt);
+    window.__zt = setTimeout(()=> t.classList.remove("on"), 900);
+  }
+}
+(function initZoom(){
+  try{
+    const v = parseInt(localStorage.getItem(ZKEY), 10);
+    if(isFinite(v) && v >= 0 && v < ZOOMS.length) zoomI = v;
+  }catch(e){}
+  appliqueZoom(false);
+})();
+if(el("btnZoomIn")) el("btnZoomIn").addEventListener("click", ()=>{
+  if(zoomI < ZOOMS.length - 1){ zoomI++; appliqueZoom(true); }
+});
+if(el("btnZoomOut")) el("btnZoomOut").addEventListener("click", ()=>{
+  if(zoomI > 0){ zoomI--; appliqueZoom(true); }
+});
+
 el("pickUnit").addEventListener("click", ()=>{ window.__rosterPick=false; el("uSearch").value=""; el("sheetUnit").querySelector("h3").textContent="Choisir l'unité"; renderUnitList(); openSheet("sheetUnit"); });
 el("pickTarget").addEventListener("click", ()=>{ el("tSearch").value=""; renderTargetList(); openSheet("sheetTarget"); });
 el("uSearch").addEventListener("input", renderUnitList);

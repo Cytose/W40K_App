@@ -6,6 +6,18 @@ pour **Warhammer 40 000, 11e édition**, orienté armée **Nécrons**.
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
 
+## Taille d'affichage
+
+Deux boutons `A−` / `A+` dans l'en-tête agrandissent toute l'interface par
+paliers de 100 à 160 %. Le réglage est mémorisé. À mesure qu'on grossit, la
+largeur utile se réduit : l'en-tête se resserre par paliers — sous-titre,
+puis emblème, puis nom — pour que ses commandes restent atteignables. Ces
+paliers sont posés par le script et non par des media queries, celles-ci
+continuant de voir la largeur d'origine sous `zoom`.
+
+Sur téléphone, installer l'application sur l'écran d'accueil supprime en plus
+la barre d'adresse du navigateur et rend l'affichage plein écran.
+
 ## Utiliser l'application
 
 Le plus simple est le fichier autonome **`Necron_Aide_Jeu.html`** : tout y est
