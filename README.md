@@ -50,7 +50,8 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 ## Les trois axes
 
 L'application est organisée en trois axes, qui correspondent aux trois moments
-d'une partie.
+d'une partie. Elle s'ouvre sur le premier : on construit sa liste avant de la
+mesurer, et on la mesure avant de la jouer.
 
 **Listes** — s'ouvre sur l'index de ce qu'on a construit. C'est là que vit le
 cycle de vie d'une liste : créer, et par le bouton `⋯` de chaque carte ouvrir,
