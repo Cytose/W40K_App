@@ -19,18 +19,6 @@ Une application déjà installée garde le mode qu'elle avait à l'installation 
 il faut la retirer de l'écran d'accueil et la réinstaller pour que le
 changement prenne effet.
 
-## Taille d'affichage
-
-Deux boutons `A−` / `A+` dans l'en-tête agrandissent toute l'interface par
-paliers de 100 à 160 %. Le réglage est mémorisé. À mesure qu'on grossit, la
-largeur utile se réduit : l'en-tête se resserre par paliers — sous-titre,
-puis emblème, puis nom — pour que ses commandes restent atteignables. Ces
-paliers sont posés par le script et non par des media queries, celles-ci
-continuant de voir la largeur d'origine sous `zoom`.
-
-Sur téléphone, installer l'application sur l'écran d'accueil supprime en plus
-la barre d'adresse du navigateur et rend l'affichage plein écran.
-
 ## Utiliser l'application
 
 Le plus simple est le fichier autonome **`Necron_Aide_Jeu.html`** : tout y est
@@ -65,8 +53,11 @@ L'application est organisée en trois axes, qui correspondent aux trois moments
 d'une partie.
 
 **Listes** — s'ouvre sur l'index de ce qu'on a construit. Toucher une liste
-entre dans son éditeur ; la barre de retour ramène à l'index. C'est là qu'on
-crée, modifie, duplique et supprime.
+entre dans son éditeur, présenté en **pavé** : une case carrée par unité, avec
+son groupe, ses points, sa taille et ses personnages ; une case bordée d'orange
+signale un rattachement ou une amélioration en faute. Toucher une case ouvre
+son panneau, la barre de retour ramène au pavé. En dessous, quatre cases mènent
+aux détachements, aux stratagèmes, à l'armement et aux réglages de la liste.
 
 **Simulateur** — quatre vues sous des sous-onglets : Attaque (une unité contre
 une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à côte)
