@@ -8,6 +8,7 @@
 
 /* UNITS : [nom, M, E, Svg, Invu, PV, tailles[], points{}, fnp, rôle, legends, notes] */
 const UNITS = [
+["Convergence of Dominion",0,9,3,0,7,[1,2,3],{"1":60,"2":120,"3":180},0,"",0,"NOUVEAU : fortification, immobile (M —). Profil et armement repris du catalogue BattleScribe ; les points n'ont pas pu être recoupés avec WarOrgan, à revérifier."],
 ["Necron Warriors",5,4,4,0,1,[10,20],{"10":80,"20":190},0,"",0,"Battleline. Their Number is Legion : relance du dé de Réanimation."],
 ["Immortals",5,5,3,0,1,[5,10],{"5":70,"10":140},0,"",0,"Battleline. Aucune règle défensive propre."],
 ["Lychguard",5,5,3,4,2,[5,10],{"5":80,"10":160},0,"",0,"Invu 4+ SEULEMENT avec bouclier de dispersion. Guardian Protocols : -1 pour blesser si un NOBLE mène l'unité et F > E."],
@@ -64,6 +65,7 @@ const UNITS = [
 
 /* WEAPONS : [unité, arme, "T"|"C", A par figurine, CT/CC, F, PA, D, drapeaux] */
 const WEAPONS = [
+["Convergence of Dominion","Transdimensional abductor","T","3",4,6,2,"3",""],
 ["Necron Warriors","Gauss flayer","T","1",4,4,0,"1","lethal rf:1"],
 ["Necron Warriors","Gauss reaper","T","2",4,4,1,"1","lethal"],
 ["Necron Warriors","Close combat weapon","C","1",4,4,0,"1",""],
@@ -486,10 +488,10 @@ const CAT = [
 ["Psychomancer","Personnage"],
 ["Geomancer","Personnage"],
 ["Catacomb Command Barge","Personnage"],
-["C'tan Shard of the Nightbringer","Epic Hero"],
-["C'tan Shard of the Deceiver","Epic Hero"],
-["C'tan Shard of the Void Dragon","Epic Hero"],
-["Transcendent C'tan","Personnage"],
+["C'tan Shard of the Nightbringer","Monstre"],
+["C'tan Shard of the Deceiver","Monstre"],
+["C'tan Shard of the Void Dragon","Monstre"],
+["Transcendent C'tan","Monstre"],
 ["Imotekh the Stormlord","Epic Hero"],
 ["Trazyn the Infinite","Epic Hero"],
 ["Orikan the Diviner","Epic Hero"],
@@ -498,6 +500,7 @@ const CAT = [
 ["Szarekh, The Silent King","Epic Hero"],
 ["Nemesor Zahndrekh","Epic Hero"],
 ["Vargard Obyron","Epic Hero"],
-["Lord","Personnage"]
+["Lord","Personnage"],
+["Convergence of Dominion","Fortification"]
 ];
 const CAT_ORDRE = ["Epic Hero","Personnage","Battleline","Infanterie","Bête","Monté","Véhicule","Monstre","Fortification","Autre"];

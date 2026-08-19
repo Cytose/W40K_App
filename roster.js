@@ -720,7 +720,9 @@ function renderPlay(){
     g.className = "pgrp";
     let html = '<h4>' + nomAffiche(ru) + '</h4>';
     const sc = socle(ru.name);
-    html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · M' + u[1] + '" · E' + u[2] +
+    /* une fortification ne bouge pas : son mouvement se note « — » */
+    const mv = u[1] ? 'M' + u[1] + '"' : 'immobile';
+    html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · ' + mv + ' · E' + u[2] +
       ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
       (sc ? ' · socle ' + sc + ' mm' : '') + '</i>';
     ru.lo.forEach(l=>{ const w = wl[l.w]; if(w && l.n)
