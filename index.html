@@ -282,6 +282,24 @@ input.sheet-search{
   border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:800;letter-spacing:.06em;
   text-transform:uppercase;cursor:pointer;flex:0 0 auto}
 .toast button:empty{display:none}
+/* panneau de partage */
+pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px solid var(--li);
+  border-radius:9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+  line-height:1.55;color:var(--tx2);white-space:pre-wrap;word-break:break-word;
+  max-height:300px;overflow:auto}
+#qrHost{display:flex;flex-direction:column;align-items:center;gap:8px;margin:10px 0 4px}
+#qrHost canvas{image-rendering:pixelated;border:8px solid #fff;border-radius:6px;background:#fff;
+  width:min(280px,72vw);height:auto}
+#qrHost p{margin:0;font-size:11.5px;color:var(--tx3);text-align:center}
+#importRap{margin-top:8px}
+#importRap .ir{padding:9px 11px;border:1px solid var(--li);border-radius:8px;background:var(--s1);
+  font-size:12px;line-height:1.5;color:var(--tx2);margin-bottom:6px}
+#importRap .ir b{color:var(--tx1)}
+#importRap .ir.warn{border-color:var(--warn);color:var(--warn)}
+@media print{
+  body{background:#fff;color:#000}
+  #tabs,.hbar,#pad,.backbar,.sheet,.toast,.tip{display:none !important}
+}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
 .opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
   white-space:normal;max-height:3.6em;overflow:hidden}
@@ -866,8 +884,41 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <label for="listCap">Plafond de points</label>
         <div class="ctl"><input type="number" id="listCap" min="100" max="10000" step="50"></div>
       </div>
-      <button class="btn" id="btnShare" type="button">Lien de partage</button>
-      <button class="btn" id="btnExport" type="button">Exporter / importer la liste</button>
+      <p class="hint">Partage, impression, QR code, sauvegarde et import sont regroupés dans « Partager ».</p>
+    </div>
+  </section>
+
+  <section class="card" id="cardPartage">
+    <h2>Partager la liste <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="padsep" style="margin-top:2px">Texte de la liste</div>
+      <pre class="listtxt" id="listTxt"></pre>
+      <div class="addrow">
+        <button type="button" id="btnCopyTxt">Copier</button>
+        <button type="button" id="btnShareTxt">Envoyer</button>
+        <button type="button" id="btnPrint">Imprimer</button>
+      </div>
+      <div class="padsep">Lien et QR code</div>
+      <p class="hint" style="margin-top:2px">Le lien porte la liste entière : il l'ouvre telle quelle sur un autre appareil, sans compte ni serveur.</p>
+      <div class="addrow">
+        <button type="button" id="btnShare2">Copier le lien</button>
+        <button type="button" id="btnQR">Afficher le QR code</button>
+      </div>
+      <div id="qrHost" hidden></div>
+      <div class="padsep">Toutes mes listes</div>
+      <p class="hint" style="margin-top:2px">Un fichier qui contient toutes tes listes, à ranger où tu veux. La restauration les ajoute aux tiennes, elle n'écrase rien.</p>
+      <div class="addrow">
+        <button type="button" id="btnBackup">Sauvegarder</button>
+        <button type="button" id="btnRestore">Restaurer</button>
+      </div>
+      <div class="padsep">Importer d'ailleurs</div>
+      <p class="hint" style="margin-top:2px">Un fichier .ros de BattleScribe ou de New Recruit. Le rapprochement se fait sur les noms : ce qui n'est pas reconnu est signalé.</p>
+      <div class="addrow">
+        <button type="button" id="btnImportRos">Fichier BattleScribe</button>
+        <button type="button" id="btnExport2">Coller du JSON</button>
+      </div>
+      <div id="importRap"></div>
+      <input type="file" id="fileIn" accept=".json,.ros,.rosz,.xml,text/plain" hidden>
     </div>
   </section>
 

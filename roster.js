@@ -540,7 +540,7 @@ function renderDef(){
    on revient. Le pavé pose chaque unité sur sa case ; toucher une
    case ouvre son panneau, le retour ramène au pavé.
    ========================================================== */
-const PANNEAUX = ["cardSettings", "cardDetach", "cardUnits", "cardStrat", "cardArms"];
+const PANNEAUX = ["cardSettings", "cardDetach", "cardUnits", "cardStrat", "cardArms", "cardPartage"];
 let unitOuverte = null;          /* id de l'unite affichee seule */
 
 function pointsUnite(ru){
@@ -638,6 +638,7 @@ function renderPad(){
     ["cardDetach",   "◈", "Détachements", dp + " / " + dpMax + " PD"],
     ["cardStrat",    "⚡", "Stratagèmes",  STRATS.filter(x => x[1] === "Core" || R.detach.indexOf(x[1]) >= 0).length + " fiches"],
     ["cardArms",     "⌖", "Armement",     WEAPONS.length ? R.units.length + " unité" + (R.units.length > 1 ? "s" : "") : ""],
+    ["cardPartage",  "⇪", "Partager",     R.units.length ? "texte, QR, fichier" : "liste vide"],
     ["cardSettings", "⚙", "Réglages",     R.cap + " pts"]
   ];
   gt.innerHTML = "";
@@ -1424,6 +1425,7 @@ function renderWarn(){
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
   renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad();
+  if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
   if(window.__syncRosterQuick) window.__syncRosterQuick();
 }
 
@@ -1936,6 +1938,371 @@ function renderCmp(){
 /* ==========================================================
    IMPORT / EXPORT
    ========================================================== */
+/* ==========================================================
+   PARTAGE : texte, impression, sauvegarde, import
+   ========================================================== */
+/* le texte que les organisateurs de tournoi attendent : lisible,
+   sans mise en forme, chaque unite avec son cout et son armement */
+function listeEnTexte(L){
+  L = L || R;
+  const lignes = [];
+  const pts = pointsDe(L);
+  lignes.push(L.nom + " — Nécrons — " + pts + " / " + L.cap + " pts");
+  lignes.push("Détachement : " + (L.detach.length ? L.detach.join(" + ") : "aucun"));
+  lignes.push("");
+
+  const parCat = {};
+  L.units.forEach(ru => {
+    const c = categorie(ru.name);
+    (parCat[c] = parCat[c] || []).push(ru);
+  });
+  CAT_ORDRE.forEach(cat => {
+    const lot = parCat[cat]; if(!lot || !lot.length) return;
+    lignes.push("+ " + cat.toUpperCase() + " +");
+    lignes.push("");
+    lot.forEach(ru => {
+      const u = unitRow(ru.name); if(!u) return;
+      const tete = (estGroupe(ru) && ru.grp ? ru.grp + " — " : "") +
+        ru.name + " ×" + ru.size + " (" + pointsUnite(ru) + " pts)";
+      lignes.push(tete);
+      const wl = unitWeps(ru.name);
+      ru.lo.forEach(l => {
+        if(!l.n) return;
+        const g = groupeDe(ru.name, l.w), w = wl[l.w];
+        if(!w) return;
+        lignes.push("  • " + l.n + "× " + (g ? g.libelle : w[1]));
+      });
+      ru.chars.forEach(c => {
+        const cu = unitRow(c.name); if(!cu) return;
+        lignes.push("  ‣ " + c.name + " (" + (cu[7][String(cu[6][0])] || 0) + " pts)");
+        const gc = groupeDe(c.name, c.w || 0);
+        if(gc) lignes.push("      • " + gc.libelle);
+      });
+      if(ru.enh){
+        const e = enhRow(ru.enh);
+        lignes.push("  ★ " + ru.enh + " (" + (e && typeof e[1] === "number" ? e[1] + " pts" : "coût inconnu") + ")");
+      }
+      lignes.push("");
+    });
+  });
+  lignes.push("Total : " + pts + " pts sur " + L.cap + ".");
+  const av = validate();
+  if(av.length) lignes.push("À vérifier : " + av.length + " avertissement" + (av.length > 1 ? "s" : "") +
+    " dans l'application.");
+  return lignes.join("\n");
+}
+
+function renderPartage(){
+  const z = el("listTxt"); if(!z) return;
+  z.textContent = listeEnTexte();
+  const q = el("qrHost"); if(q){ q.hidden = true; q.innerHTML = ""; }
+  const r = el("importRap"); if(r) r.innerHTML = "";
+}
+
+/* le presse-papier moderne n'existe pas partout : on retombe sur la
+   selection quand il manque */
+function copier(txt, quoi){
+  const fini = ok => toast(ok ? quoi + " copié." : "Copie refusée par le navigateur — sélectionne le texte à la main.", "", null);
+  if(navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(txt).then(()=> fini(true), ()=> fini(false));
+  else {
+    try{
+      const t = document.createElement("textarea");
+      t.value = txt; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      fini(document.execCommand("copy"));
+      document.body.removeChild(t);
+    }catch(e){ fini(false); }
+  }
+}
+
+/* impression : on ouvre une fenetre propre plutot que d'imprimer
+   l'application, dont la mise en page ne s'y prete pas */
+function imprimeListe(){
+  const w = window.open("", "_blank");
+  if(!w){ toast("Le navigateur a bloqué la fenêtre d'impression.", "", null); return; }
+  const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  w.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">' +
+    '<title>' + esc(R.nom) + '</title><style>' +
+    'body{font:13px/1.55 ui-monospace,Menlo,monospace;margin:26px;color:#111;max-width:720px}' +
+    'h1{font-size:17px;letter-spacing:.04em;margin:0 0 14px;border-bottom:2px solid #111;padding-bottom:6px}' +
+    'pre{white-space:pre-wrap;margin:0;font:inherit}' +
+    '@page{margin:16mm}</style></head><body><h1>' + esc(R.nom) + '</h1><pre>' +
+    esc(listeEnTexte()) + '</pre></body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 250);
+}
+
+/* sauvegarde de toutes les listes dans un fichier */
+function sauvegardeTout(){
+  const payload = { app: "necron-aide-jeu", v: 1, listes: LISTS };
+  const blob = new Blob([JSON.stringify(payload, null, 1)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "listes-necrons.json";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast(LISTS.length + " liste" + (LISTS.length > 1 ? "s" : "") + " sauvegardée" +
+    (LISTS.length > 1 ? "s" : "") + ".", "", null);
+}
+
+function rapport(lignes){
+  const host = el("importRap"); if(!host) return;
+  host.innerHTML = lignes.map(l =>
+    '<div class="ir' + (l.warn ? " warn" : "") + '">' + l.txt + '</div>').join("");
+}
+
+/* ==========================================================
+   QR CODE — encodeur autonome, mode octet, correction L.
+   Ecrit ici plutot qu'importe : l'application n'a aucune
+   dependance et doit tourner depuis un simple fichier.
+   ========================================================== */
+const QR = (function(){
+  /* corps de Galois GF(256), polynome 0x11D */
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  for(let i=0, x=1; i<255; i++){
+    EXP[i] = x; LOG[x] = i;
+    x <<= 1; if(x & 256) x ^= 0x11D;
+  }
+  for(let i=255; i<512; i++) EXP[i] = EXP[i-255];
+  const mul = (a,b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+  /* polynome generateur de n symboles de correction */
+  function gen(n){
+    let p = [1];
+    for(let i=0; i<n; i++){
+      const q = new Array(p.length + 1).fill(0);
+      for(let j=0; j<p.length; j++){
+        q[j] ^= p[j];                    /* x · p */
+        q[j+1] ^= mul(p[j], EXP[i]);     /* α^i · p */
+      }
+      p = q;
+    }
+    return p;
+  }
+  function ecc(data, n){
+    const g = gen(n), res = new Array(data.length + n).fill(0);
+    for(let i=0; i<data.length; i++) res[i] = data[i];
+    for(let i=0; i<data.length; i++){
+      const c = res[i];
+      if(!c) continue;
+      for(let j=0; j<g.length; j++) res[i+j] ^= mul(g[j], c);
+    }
+    return res.slice(data.length);
+  }
+
+  /* niveau L : [symboles de correction par bloc, blocs G1, donnees G1, blocs G2, donnees G2] */
+  const BLOCS = [null,
+   [7,1,19,0,0],[10,1,34,0,0],[15,1,55,0,0],[20,1,80,0,0],[26,1,108,0,0],
+   [18,2,68,0,0],[20,2,78,0,0],[24,2,97,0,0],[30,2,116,0,0],[18,2,68,2,69],
+   [20,4,81,0,0],[24,2,92,2,93],[26,4,107,0,0],[30,3,115,1,116],[22,5,87,1,88],
+   [24,5,98,1,99],[28,1,107,5,108],[30,5,120,1,121],[28,3,113,4,114],[28,3,107,5,108],
+   [28,4,116,4,117],[28,2,111,7,112],[30,4,121,5,122],[30,6,117,4,118],[26,8,106,4,107],
+   [28,10,114,2,115],[30,8,122,4,123],[30,3,117,10,118],[30,7,116,7,117],[30,5,115,10,116],
+   [30,13,115,3,116],[30,17,115,0,0],[30,17,115,1,116],[30,13,115,6,116],[30,12,121,7,122],
+   [30,6,121,14,122],[30,17,122,4,123],[30,4,122,18,123],[30,20,117,4,118],[30,19,118,6,119]];
+
+  const ALIGN = [null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],
+   [6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],
+   [6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],
+   [6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],
+   [6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],
+   [6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],
+   [6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],
+   [6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+
+  const donneesDe = v => { const b = BLOCS[v]; return b[1]*b[2] + b[3]*b[4]; };
+
+  /* BCH : 10 bits pour le format, 12 pour la version */
+  function bch(v, poly, n){
+    let d = v << n;
+    const lg = x => { let l = 0; while(x){ l++; x >>= 1; } return l; };
+    const lp = lg(poly);
+    while(lg(d) >= lp) d ^= poly << (lg(d) - lp);
+    return d;
+  }
+
+  function encode(txt){
+    const bytes = new TextEncoder().encode(txt);
+    let v = 0;
+    for(let i=1; i<=40; i++){
+      const cc = i < 10 ? 8 : 16;
+      if(donneesDe(i) * 8 >= 4 + cc + bytes.length * 8){ v = i; break; }
+    }
+    if(!v) throw new Error("trop long pour un QR code");
+
+    /* flux binaire : mode octet, longueur, donnees, terminaison */
+    const bits = [];
+    const put = (val, n) => { for(let i=n-1; i>=0; i--) bits.push((val >> i) & 1); };
+    put(4, 4);
+    put(bytes.length, v < 10 ? 8 : 16);
+    bytes.forEach(b => put(b, 8));
+    const cap = donneesDe(v) * 8;
+    for(let i=0; i<4 && bits.length < cap; i++) bits.push(0);
+    while(bits.length % 8) bits.push(0);
+    const mots = [];
+    for(let i=0; i<bits.length; i+=8){
+      let b = 0; for(let j=0; j<8; j++) b = (b << 1) | bits[i+j];
+      mots.push(b);
+    }
+    const REMPLIS = [0xEC, 0x11];
+    for(let i=0; mots.length < donneesDe(v); i++) mots.push(REMPLIS[i % 2]);
+
+    /* decoupage en blocs, correction, entrelacement */
+    const [nec, b1, d1, b2, d2] = BLOCS[v];
+    const blocs = [], eccs = [];
+    let p = 0;
+    for(let i=0; i<b1; i++){ blocs.push(mots.slice(p, p+d1)); p += d1; }
+    for(let i=0; i<b2; i++){ blocs.push(mots.slice(p, p+d2)); p += d2; }
+    blocs.forEach(b => eccs.push(ecc(b, nec)));
+    const flux = [];
+    const maxD = Math.max(d1, d2);
+    for(let i=0; i<maxD; i++) blocs.forEach(b => { if(i < b.length) flux.push(b[i]); });
+    for(let i=0; i<nec; i++) eccs.forEach(e => flux.push(e[i]));
+
+    /* trame */
+    const n = v * 4 + 17;
+    const m = [], res = [];
+    for(let i=0; i<n; i++){ m.push(new Uint8Array(n)); res.push(new Uint8Array(n)); }
+    const pose = (r, c, val) => { m[r][c] = val; res[r][c] = 1; };
+
+    const reperes = (r, c) => {
+      for(let i=-1; i<=7; i++) for(let j=-1; j<=7; j++){
+        const y = r+i, x = c+j;
+        if(y < 0 || y >= n || x < 0 || x >= n) continue;
+        const bord = (i >= 0 && i <= 6 && (j === 0 || j === 6)) ||
+                     (j >= 0 && j <= 6 && (i === 0 || i === 6));
+        const coeur = i >= 2 && i <= 4 && j >= 2 && j <= 4;
+        pose(y, x, (bord || coeur) ? 1 : 0);
+      }
+    };
+    reperes(0, 0); reperes(0, n-7); reperes(n-7, 0);
+
+    /* les trois coins portent deja un repere : ces mires-la n'existent pas.
+       Toutes les autres se posent, y compris sur la ligne de synchronisation. */
+    const A = ALIGN[v], der = A[A.length-1];
+    A.forEach(r => A.forEach(c => {
+      if((r === 6 && c === 6) || (r === 6 && c === der) || (r === der && c === 6)) return;
+      for(let i=-2; i<=2; i++) for(let j=-2; j<=2; j++)
+        pose(r+i, c+j, (Math.abs(i) === 2 || Math.abs(j) === 2 || (i === 0 && j === 0)) ? 1 : 0);
+    }));
+
+    for(let i=8; i<n-8; i++){ pose(6, i, i % 2 === 0 ? 1 : 0); pose(i, 6, i % 2 === 0 ? 1 : 0); }
+    pose(n-8, 8, 1);
+
+    /* emplacements du format, reserves avant le remplissage */
+    for(let i=0; i<9; i++){ if(!res[8][i]) pose(8, i, 0); if(!res[i][8]) pose(i, 8, 0); }
+    for(let i=0; i<8; i++){ if(!res[8][n-1-i]) pose(8, n-1-i, 0); if(!res[n-1-i][8]) pose(n-1-i, 8, 0); }
+    if(v >= 7){
+      const vb = (v << 12) | bch(v, 0x1F25, 12);
+      for(let i=0; i<18; i++){
+        const b = (vb >> i) & 1;
+        pose(Math.floor(i/3), n-11 + (i%3), b);
+        pose(n-11 + (i%3), Math.floor(i/3), b);
+      }
+    }
+
+    /* remplissage en zigzag, de droite a gauche */
+    let bit = 0, montant = true;
+    const flot = [];
+    flux.forEach(b => { for(let i=7; i>=0; i--) flot.push((b >> i) & 1); });
+    for(let col = n-1; col > 0; col -= 2){
+      if(col === 6) col--;
+      for(let k=0; k<n; k++){
+        const r = montant ? n-1-k : k;
+        for(let d=0; d<2; d++){
+          const c = col - d;
+          if(res[r][c]) continue;
+          m[r][c] = bit < flot.length ? flot[bit] : 0;
+          bit++;
+        }
+      }
+      montant = !montant;
+    }
+
+    /* masques : on garde celui qui penalise le moins */
+    const MASQUES = [
+      (r,c)=>(r+c)%2===0, (r)=>r%2===0, (r,c)=>c%3===0, (r,c)=>(r+c)%3===0,
+      (r,c)=>(Math.floor(r/2)+Math.floor(c/3))%2===0, (r,c)=>(r*c)%2+(r*c)%3===0,
+      (r,c)=>((r*c)%2+(r*c)%3)%2===0, (r,c)=>((r+c)%2+(r*c)%3)%2===0
+    ];
+    let best = null, bestP = Infinity;
+    for(let k=0; k<8; k++){
+      const g = m.map(l => Uint8Array.from(l));
+      for(let r=0; r<n; r++) for(let c=0; c<n; c++)
+        if(!res[r][c] && MASQUES[k](r,c)) g[r][c] ^= 1;
+      /* format : 01 pour le niveau L, puis le numero de masque */
+      const fb = (((1 << 3) | k) << 10 | bch((1 << 3) | k, 0x537, 10)) ^ 0x5412;
+      for(let i=0; i<15; i++){
+        const b = (fb >> i) & 1;
+        /* copie verticale : colonne 8 en haut, puis en bas */
+        if(i < 6) g[i][8] = b;
+        else if(i < 8) g[i+1][8] = b;
+        else g[n-15+i][8] = b;
+        /* copie horizontale : ligne 8 a droite, puis a gauche */
+        if(i < 8) g[8][n-1-i] = b;
+        else if(i === 8) g[8][7] = b;
+        else g[8][14-i] = b;
+      }
+      g[n-8][8] = 1;
+      const p = penalite(g, n);
+      if(p < bestP){ bestP = p; best = g; }
+    }
+    return best;
+  }
+
+  function penalite(g, n){
+    let p = 0, sombres = 0;
+    const serie = (get) => {
+      for(let a=0; a<n; a++){
+        let run = 1;
+        for(let b=1; b<n; b++){
+          if(get(a,b) === get(a,b-1)) run++;
+          else { if(run >= 5) p += 3 + (run - 5); run = 1; }
+        }
+        if(run >= 5) p += 3 + (run - 5);
+      }
+    };
+    serie((a,b)=>g[a][b]); serie((a,b)=>g[b][a]);
+    for(let r=0; r<n-1; r++) for(let c=0; c<n-1; c++){
+      const v = g[r][c];
+      if(v === g[r][c+1] && v === g[r+1][c] && v === g[r+1][c+1]) p += 3;
+    }
+    const MOTIF = [1,0,1,1,1,0,1,0,0,0,0];
+    const cherche = (get) => {
+      for(let a=0; a<n; a++) for(let b=0; b+11<=n; b++){
+        let ok = true;
+        for(let i=0; i<11; i++) if(get(a,b+i) !== MOTIF[i]){ ok = false; break; }
+        if(ok) p += 40;
+        ok = true;
+        for(let i=0; i<11; i++) if(get(a,b+i) !== MOTIF[10-i]){ ok = false; break; }
+        if(ok) p += 40;
+      }
+    };
+    cherche((a,b)=>g[a][b]); cherche((a,b)=>g[b][a]);
+    for(let r=0; r<n; r++) for(let c=0; c<n; c++) if(g[r][c]) sombres++;
+    p += Math.floor(Math.abs(sombres * 100 / (n*n) - 50) / 5) * 10;
+    return p;
+  }
+
+  return { encode: encode };
+})();
+
+/* dessine la matrice dans un canvas, marge de quatre modules */
+function dessineQR(txt, taille){
+  const m = QR.encode(txt), n = m.length, q = 4, tot = n + q*2;
+  const px = Math.max(1, Math.floor((taille || 560) / tot));
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = tot * px;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = "#000";
+  for(let r=0; r<n; r++) for(let c=0; c<n; c++)
+    if(m[r][c]) g.fillRect((c+q)*px, (r+q)*px, px, px);
+  return { canvas: cv, version: (n - 17) / 4 };
+}
+
 function exportImport(){
   const txt = JSON.stringify({nom:R.nom, cap:R.cap, detach:R.detach, units:R.units});
   const v = prompt("Copie ce texte pour sauvegarder ta liste, ou colle-en un autre pour l'importer " +
@@ -2054,6 +2421,104 @@ async function shareLink(){
     }catch(e){}
   }
   prompt("Copie ce lien pour ouvrir la liste sur un autre appareil :", url);
+}
+
+/* le lien, tel quel : le QR code et la copie s'en servent tous deux */
+async function lienDeListe(){
+  if(location.protocol === "file:") return "";
+  if(!R.units.length) return "";
+  try{ return location.href.replace(/#.*$/, "") + "#l=" + await encodeList(); }
+  catch(e){ return ""; }
+}
+
+async function afficheQR(){
+  const host = el("qrHost"); if(!host) return;
+  const url = await lienDeListe();
+  host.hidden = false;
+  if(!url){
+    host.innerHTML = '<p>' + (location.protocol === "file:"
+      ? "Cette copie est ouverte depuis un fichier local : le lien n'aurait de sens que sur cet ordinateur. Sauvegarde tes listes dans un fichier pour les transporter."
+      : "Ta liste est vide — ajoute au moins une unité.") + '</p>';
+    return;
+  }
+  host.innerHTML = "";
+  try{
+    const q = dessineQR(url);
+    host.appendChild(q.canvas);
+    const p = document.createElement("p");
+    p.textContent = "Version " + q.version + " · " + url.length +
+      " caractères. Vise-le avec l'autre appareil pour y ouvrir la liste.";
+    host.appendChild(p);
+  }catch(e){
+    host.innerHTML = '<p>Liste trop longue pour tenir dans un QR code (' + url.length +
+      ' caractères). Passe par le lien ou par la sauvegarde en fichier.</p>';
+  }
+}
+
+/* ==========================================================
+   IMPORT BATTLESCRIBE
+   Un .ros est du XML : on y cherche les selections qui portent
+   un profil d'unite, on rapproche les noms de notre catalogue
+   et on dit franchement ce qui n'a pas ete reconnu.
+   ========================================================== */
+function importeRos(txt){
+  let doc;
+  try{ doc = new DOMParser().parseFromString(txt, "application/xml"); }
+  catch(e){ rapport([{txt:"Fichier illisible.", warn:true}]); return; }
+  if(doc.querySelector("parsererror")){
+    rapport([{txt:"Ce fichier n'est pas un XML valide. Un .rosz est une archive : décompresse-la d'abord, le .ros est dedans.", warn:true}]);
+    return;
+  }
+  const nom = (doc.documentElement.getAttribute("name") || "Liste importée").trim();
+  const cle = s => String(s).toLowerCase().replace(/\[legends\]/g, "").replace(/[^a-z0-9]/g, "");
+  const catalogue = {};
+  UNITS.forEach(u => catalogue[cle(u[0])] = u);
+
+  const trouvees = [], inconnues = [];
+  const selections = doc.getElementsByTagName("selection");
+  for(let i=0; i<selections.length; i++){
+    const sel = selections[i];
+    const type = sel.getAttribute("type");
+    if(type !== "unit" && type !== "model") continue;
+    const n = (sel.getAttribute("name") || "").trim();
+    if(!n) continue;
+    const u = catalogue[cle(n)];
+    /* une entree imbriquee dans une unite deja reconnue est une figurine
+       de cette unite, pas une unite de plus */
+    const parent = sel.parentNode && sel.parentNode.parentNode;
+    const dansUnite = parent && parent.nodeName === "selection" &&
+      (parent.getAttribute("type") === "unit" || parent.getAttribute("type") === "model");
+    if(dansUnite) continue;
+    if(u) trouvees.push({ u: u, n: parseInt(sel.getAttribute("number"), 10) || 1, brut: n });
+    else if(inconnues.indexOf(n) < 0) inconnues.push(n);
+  }
+
+  if(!trouvees.length){
+    rapport([{txt:"Aucune unité nécron reconnue dans ce fichier. Il vient peut-être d'une autre faction.", warn:true}]);
+    return;
+  }
+  const L = listeVierge(nom, R.cap || 2000);
+  L.nextId = 1;
+  trouvees.forEach(t => {
+    const u = t.u;
+    /* la taille du .ros ne se lit pas de facon fiable : on prend la plus
+       petite compatible et on laisse regler a la main */
+    const wl = unitWeps(u[0]);
+    let di = wl.findIndex(w => w[2] === "T"); if(di < 0) di = 0;
+    const sz = u[6][0];
+    L.units.push({ id: L.nextId++, name: u[0], size: sz, lo:[{w:di, n:sz}],
+      chars: [], sel: true, grp: "", enh: null });
+  });
+  normaliseListe(L);
+  LISTS.push(L); ouvre(L);
+  saveR(); renderList();
+  const lignes = [{txt: "<b>" + L.units.length + " unité" + (L.units.length > 1 ? "s" : "") +
+    "</b> importée" + (L.units.length > 1 ? "s" : "") + " dans « " + nom + " ». " +
+    "Effectifs et armement sont posés au minimum : à régler unité par unité."}];
+  if(inconnues.length) lignes.push({warn:true, txt: "<b>" + inconnues.length +
+    " entrée" + (inconnues.length > 1 ? "s non reconnues" : " non reconnue") + "</b> : " +
+    inconnues.slice(0, 12).join(", ") + (inconnues.length > 12 ? "…" : "") + "."});
+  rapport(lignes);
 }
 
 async function readSharedLink(){
@@ -2184,7 +2649,57 @@ function syncTarget(){
 el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
-el("btnExport").addEventListener("click", exportImport);
+el("btnExport2").addEventListener("click", exportImport);
+el("btnCopyTxt").addEventListener("click", ()=> copier(listeEnTexte(), "Le texte de la liste"));
+el("btnPrint").addEventListener("click", imprimeListe);
+el("btnShare2").addEventListener("click", shareLink);
+el("btnQR").addEventListener("click", afficheQR);
+el("btnBackup").addEventListener("click", sauvegardeTout);
+el("btnShareTxt").addEventListener("click", async ()=>{
+  const txt = listeEnTexte();
+  if(navigator.share){
+    try{ await navigator.share({ title: R.nom, text: txt }); return; }
+    catch(e){ if(e && e.name === "AbortError") return; }
+  }
+  copier(txt, "Le texte de la liste");
+});
+
+/* un seul champ de fichier sert aux deux entrees : on retient ce
+   qu'on attend avant de l'ouvrir */
+let attenteFichier = null;
+el("btnRestore").addEventListener("click", ()=>{ attenteFichier = "json"; el("fileIn").click(); });
+el("btnImportRos").addEventListener("click", ()=>{ attenteFichier = "ros"; el("fileIn").click(); });
+el("fileIn").addEventListener("change", ()=>{
+  const f = el("fileIn").files && el("fileIn").files[0];
+  el("fileIn").value = "";
+  if(!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    const txt = String(fr.result || "");
+    if(attenteFichier === "ros"){ importeRos(txt); return; }
+    try{
+      const o = JSON.parse(txt);
+      const lot = Array.isArray(o) ? o : (o && o.listes);
+      if(!Array.isArray(lot) || !lot.length) throw 0;
+      let n = 0;
+      lot.forEach(L => {
+        if(!L || !Array.isArray(L.units)) return;
+        const neuve = listeVierge(L.nom || "Liste restaurée", L.cap || 2000);
+        neuve.detach = L.detach || [];
+        neuve.units = L.units;
+        normaliseListe(neuve);
+        LISTS.push(neuve); n++;
+      });
+      if(!n) throw 0;
+      saveR(); renderList(); renderIndex();
+      rapport([{txt: "<b>" + n + " liste" + (n > 1 ? "s" : "") + "</b> restaurée" +
+        (n > 1 ? "s" : "") + ". Rien n'a été écrasé : elles s'ajoutent aux tiennes."}]);
+    }catch(e){
+      rapport([{txt:"Ce fichier ne contient pas de listes lisibles.", warn:true}]);
+    }
+  };
+  fr.readAsText(f);
+});
 if(el("listName")) el("listName").addEventListener("change", ()=>{
   R.nom = el("listName").value.trim() || "Liste"; saveR(); renderList();
 });
@@ -2205,7 +2720,7 @@ if(el("armMode")) el("armMode").querySelectorAll(".chip").forEach(b=>
     el("armMode").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
     renderArms();
   }));
-el("btnShare").addEventListener("click", shareLink);
+
 el("uSearch").addEventListener("input", ()=>{ if(window.__rosterPick && pickMode) renderPick(); });
 el("phaseChips").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
