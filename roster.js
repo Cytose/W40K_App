@@ -720,6 +720,14 @@ function applyPacked(o){
 }
 
 async function shareLink(){
+  /* depuis un fichier ouvert en local, le lien porte un chemin file:// qui
+     ne veut rien dire sur une autre machine : on renvoie vers l'export */
+  if(location.protocol === "file:"){
+    alert("Cette copie est ouverte depuis un fichier local : un lien de partage n'y " +
+      "serait valable que sur cet ordinateur.\n\nUtilise « Exporter / importer la liste » " +
+      "pour passer ta liste d'un appareil à l'autre.");
+    return;
+  }
   if(!R.units.length){ alert("Ta liste est vide — ajoute au moins une unité avant de la partager."); return; }
   let url;
   try{ url = location.href.replace(/#.*$/, "") + "#l=" + await encodeList(); }
