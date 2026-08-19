@@ -26,7 +26,7 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | Fichier | Rôle |
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
-| `data.js` | 52 datasheets, 141 profils d'armes, 12 détachements, mots-clés |
+| `data.js` | 52 datasheets, 141 profils d'armes, 12 détachements, mots-clés, rattachements, améliorations, socles |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | onglets Ma liste, Tir cumulé et Comparer |
@@ -48,6 +48,20 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
   Contribution de chaque unité et puissance perdue.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
   par dégâts pour 100 points.
+- **Groupes rattachés** — chaque unité de la liste porte un nom fabriqué tout
+  seul (« Cohorte de Nécrodermis de Thanatos », 5 184 combinaisons), qu'on peut
+  réécrire ou retirer au sort. C'est ce nom qu'on annonce en partie.
+- **Rattachement** — le choix d'un personnage est trié selon sa règle Leader :
+  ceux qui peuvent rejoindre l'unité d'abord, escortes Cryptek comprises, les
+  autres relégués et signalés. Un rattachement hors règles reste possible mais
+  lève un avertissement.
+- **Mots-clés du groupe** — l'unité affiche ses mots-clés plus ceux qu'apporte
+  chaque personnage rattaché, en couleur distincte : un Technomancer sur des
+  Immortals rend le groupe CRYPTEK, ce qui décide des stratagèmes applicables.
+- **Améliorations** — celles des détachements retenus, avec leur coût compté
+  dans le total. Contrôles : trois au maximum, jamais deux fois la même, ni sur
+  un groupe sans personnage, ni sur un Epic Hero.
+- **Empreinte de socle** — affichée sur l'unité et sur chaque personnage.
 - **Lien de partage** — la liste entière est encodée dans l'URL (JSON réduit,
   gzip, base64url) : on s'envoie le lien et la liste s'ouvre sur l'autre
   appareil, sans serveur ni compte. Une liste de 2000 points tient en moins de
@@ -67,7 +81,30 @@ fin de phase de Commandement et ne réduisent rien au moment de l'encaissement.
 ## Données
 
 Faction Pack Necrons v1.0 (Games Workshop, légal au 20/06/2026) recoupé avec
-Wahapedia. Les points viennent de Wahapedia et non du Munitorum Field Manual :
-à revérifier. Tous les champs restent modifiables dans l'application.
+Wahapedia. Les points viennent de Wahapedia et non du Munitorum Field Manual ;
+la vérification menée en 08/2026 (plus bas) les confirme partout où une
+référence a pu être trouvée. Tous les champs restent modifiables dans
+l'application.
 
 Non affilié à Games Workshop.
+
+## Vérification des données, 08/2026
+
+Les 52 unités ont été confrontées au catalogue BattleScribe
+[BSData/wh40k-10e](https://github.com/BSData/wh40k-10e) rev.106 — dépôt qui
+porte encore le nom de la 10e mais contient les nouveautés de la 11e.
+
+Résultat : **aucune divergence sur les profils d'armes** (125 appariés), une
+seule sur les caractéristiques (Night Scythe, mouvement 14″ ici contre 20″
+là-bas), et 36 écarts de points. Sur les douze valeurs lisibles dans WarOrgan
+— dataset Warhammer 40k 11th du 06/08/2026 — `data.js` est d'accord douze fois
+sur douze, le catalogue seulement sept. Les points d'ici sont donc les bons et
+c'est BSData qui est en retard ; les vingt-quatre autres écarts n'ont pas pu
+être tranchés faute de référence.
+
+Le catalogue a servi de source pour les rattachements (règle Leader de chaque
+personnage) et les améliorations. Il ignore encore celles de Skyshroud
+Spearhead, relevées sur WarOrgan ; un coût inconnu vaut `null` et ne compte pas.
+Les empreintes de socle ne viennent d'aucune de ces deux sources : seules
+Immortals 32, Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 sont
+confirmées, le reste suit les socles habituels et reste à vérifier.

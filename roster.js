@@ -20,6 +20,52 @@ function loadR(){
     if(o && o.R){ R = o.R; nextId = o.nextId || 1; }
   }catch(e){}
   R.detach = R.detach || []; R.units = R.units || [];
+  /* listes d'avant les groupes : on leur en fabrique un */
+  R.units.forEach(ru => { if(!ru.grp) ru.grp = nomGroupe(); });
+}
+
+/* ==========================================================
+   GROUPES RATTACHES
+   Une unite de la liste porte un nom de groupe fabrique tout
+   seul : c'est ce nom qu'on annonce en partie (« la Phalange
+   d'Obsidienne tire »), sans avoir a le saisir. On peut le
+   reecrire a la main ou en retirer un autre au hasard.
+   ========================================================== */
+const auHasard = t => t[Math.floor(Math.random() * t.length)];
+function nomGroupe(){
+  return auHasard(GRPN.forme) + " " + auHasard(GRPN.qualif) + " " + auHasard(GRPN.origine);
+}
+
+/* un personnage ne peut rejoindre que les unites listees par sa
+   regle Leader ; une escorte suit sa propre liste */
+function peutRejoindre(perso, unite){
+  const l = ATTACH[perso] || RETINUE[perso];
+  return !l ? null : l.indexOf(unite) >= 0;
+}
+
+/* mots-cles portes par le groupe : ceux de l'unite plus ceux de
+   chaque personnage rattache — c'est ce qui decide si un
+   stratageme CRYPTEK ou NOBLE peut viser le groupe */
+function motsClesGroupe(ru){
+  const out = [];
+  const ajoute = (nom, source) => {
+    Object.keys(KW).forEach(k => {
+      if(has(k, nom) && !out.some(o => o.kw === k)) out.push({kw:k, source:source});
+    });
+  };
+  ajoute(ru.name, "");
+  ru.chars.forEach(c => ajoute(c.name, c.name));
+  return out;
+}
+
+const socle = nom => (BASES && BASES[nom]) || "";
+
+/* ameliorations ouvertes par les detachements retenus */
+const enhDispo = () => ENHANCEMENTS.filter(e => R.detach.indexOf(e[2]) >= 0);
+const enhRow = nom => ENHANCEMENTS.find(e => e[0] === nom);
+function enhPts(ru){
+  const e = ru.enh && enhRow(ru.enh);
+  return e && typeof e[1] === "number" ? e[1] : 0;
 }
 
 const KWSET = {};
@@ -34,7 +80,7 @@ function unitPoints(ru){
   const u = unitRow(ru.name); if(!u) return 0;
   let p = u[7][String(ru.size)] || 0;
   ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) p += cu[7][String(cu[6][0])] || 0; });
-  return p;
+  return p + enhPts(ru);
 }
 const totalPoints = () => R.units.reduce((a,ru) => a + unitPoints(ru), 0);
 const totalDP = () => R.detach.reduce((a,n) => { const d = detachRow(n); return a + (d ? d[1] : 0); }, 0);
@@ -64,7 +110,26 @@ function validate(){
     if(sup > 1) w.push("<b>" + ru.name + "</b> : deux Supports sur la même unité, un seul est autorisé.");
     const tot = ru.lo.reduce((a,l) => a + l.n, 0);
     if(tot > ru.size) w.push("<b>" + ru.name + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
+    ru.chars.forEach(c => {
+      if(peutRejoindre(c.name, ru.name) === false)
+        w.push("<b>" + c.name + "</b> ne peut pas rejoindre <b>" + ru.name +
+          "</b> : sa règle Leader ne cite pas cette unité.");
+    });
+    if(ru.enh && R.detach.indexOf((enhRow(ru.enh)||[])[2]) < 0)
+      w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name +
+        " : elle appartient à un détachement que tu n'as pas pris.");
+    const perso = ru.chars.some(c => (unitRow(c.name)||[])[9]);
+    if(ru.enh && !perso)
+      w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name +
+        " : elle se porte par un personnage, or ce groupe n'en a aucun.");
+    if(ru.enh && ru.chars.some(c => has("epic", c.name)))
+      w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name +
+        " : un Epic Hero ne peut pas recevoir d'amélioration.");
   });
+  const enhs = R.units.map(x => x.enh).filter(Boolean);
+  enhs.forEach((e, i) => { if(enhs.indexOf(e) !== i)
+    w.push("Amélioration <b>" + e + "</b> prise deux fois : une seule par armée."); });
+  if(enhs.length > 3) w.push("<b>" + enhs.length + " améliorations</b> : trois au maximum.");
   return w;
 }
 
@@ -248,10 +313,25 @@ function renderRoster(){
     const div = document.createElement("div");
     div.className = "runit";
 
+    /* bandeau du groupe : son nom, qu'on peut reecrire ou retirer au sort */
+    const gh = document.createElement("div");
+    gh.className = "ghead";
+    const gi = document.createElement("input");
+    gi.type = "text"; gi.className = "gname"; gi.value = ru.grp || "";
+    gi.setAttribute("aria-label", "Nom du groupe");
+    gi.addEventListener("change", ()=>{ ru.grp = gi.value.trim() || nomGroupe(); saveR(); renderList(); });
+    const gr = document.createElement("button");
+    gr.type="button"; gr.className="xbtn"; gr.textContent="⟳"; gr.title="Un autre nom";
+    gr.addEventListener("click", ()=>{ ru.grp = nomGroupe(); saveR(); renderList(); });
+    gh.appendChild(gi); gh.appendChild(gr);
+    div.appendChild(gh);
+
     const head = document.createElement("div");
     head.className = "rhead";
+    const sc = socle(ru.name);
     head.innerHTML = '<div class="rn"><b>' + ru.name + '</b><i>×' + ru.size + ' · E' + u[2] +
-      ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV</i></div>' +
+      ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV · socle ' +
+      (sc ? sc + ' mm' : '—') + '</i></div>' +
       '<span class="rpts">' + unitPoints(ru) + ' pts</span><button class="xbtn" type="button">×</button>';
     head.querySelector(".xbtn").addEventListener("click", ()=>{ R.units.splice(ui,1); saveR(); renderList(); });
     div.appendChild(head);
@@ -288,9 +368,12 @@ function renderRoster(){
       const cl = unitWeps(c.name), w = cl[c.w] || cl[0];
       const row = document.createElement("div");
       row.className = "lo";
-      const role = (unitRow(c.name)||[])[9] || "";
+      const role = (unitRow(c.name)||[])[9] || (RETINUE[c.name] ? "Escorte" : "");
+      const scc = socle(c.name);
+      const hors = peutRejoindre(c.name, ru.name) === false;
       row.innerHTML = '<span class="ln" style="color:var(--glow)">' + c.name +
-        ' <em>' + role + (w ? ' · ' + w[1] : '') + '</em></span>';
+        (hors ? ' <b class="alerte" title="Ce personnage ne figure pas dans la liste des unités qu\'il peut rejoindre">!</b>' : '') +
+        ' <em>' + role + (scc ? ' · socle ' + scc + ' mm' : '') + (w ? ' · ' + w[1] : '') + '</em></span>';
       const nx = document.createElement("button");
       nx.className="xbtn"; nx.type="button"; nx.textContent="⟳"; nx.title="Changer d'arme";
       nx.addEventListener("click", ()=>{ c.w = (c.w + 1) % cl.length; saveR(); renderList(); });
@@ -301,6 +384,31 @@ function renderRoster(){
       div.appendChild(row);
     });
 
+    /* amelioration portee par le groupe */
+    if(ru.enh){
+      const e = enhRow(ru.enh);
+      const row = document.createElement("div");
+      row.className = "lo";
+      row.innerHTML = '<span class="ln" style="color:var(--cyan,#5CE8E8)">' + ru.enh +
+        ' <em>' + (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') +
+        (e ? ' · ' + e[2] : '') + '</em></span>';
+      const rm = document.createElement("button");
+      rm.className="xbtn"; rm.type="button"; rm.textContent="×";
+      rm.addEventListener("click", ()=>{ ru.enh = null; saveR(); renderList(); });
+      row.appendChild(rm);
+      div.appendChild(row);
+    }
+
+    /* mots-cles du groupe : ceux apportes par un personnage sont signales */
+    const kws = motsClesGroupe(ru);
+    if(kws.length){
+      const kwl = document.createElement("div");
+      kwl.className = "kwline";
+      kwl.innerHTML = kws.map(k => '<span class="gkw' + (k.source ? ' gkwadd' : '') + '"' +
+        (k.source ? ' title="apporté par ' + k.source + '"' : '') + '>' + k.kw.toUpperCase() + '</span>').join("");
+      div.appendChild(kwl);
+    }
+
     const add = document.createElement("div");
     add.className = "addrow";
     const bw = document.createElement("button");
@@ -309,7 +417,10 @@ function renderRoster(){
     const bc = document.createElement("button");
     bc.type="button"; bc.textContent="+ Personnage";
     bc.addEventListener("click", ()=> openCharPick(ru));
-    add.appendChild(bw); add.appendChild(bc);
+    const be = document.createElement("button");
+    be.type="button"; be.textContent = ru.enh ? "⇄ Amélioration" : "+ Amélioration";
+    be.addEventListener("click", ()=> openEnhPick(ru));
+    add.appendChild(bw); add.appendChild(bc); add.appendChild(be);
     div.appendChild(add);
     host.appendChild(div);
   });
@@ -341,6 +452,10 @@ function openCharPick(ru){
   window.__rosterPick = true; pickMode = "char"; pickTarget = ru;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
+function openEnhPick(ru){
+  window.__rosterPick = true; pickMode = "enh"; pickTarget = ru;
+  el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
+}
 const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 function renderPick(){
   const q = norm(el("uSearch").value.trim());
@@ -366,19 +481,66 @@ function renderPick(){
     return;
   }
   if(pickMode === "char"){
-    head.textContent = "Attacher un personnage — " + pickTarget.name;
-    UNITS.filter(u => u[9] && (!q || norm(u[0]).includes(q))).forEach(u=>{
+    head.textContent = "Rattacher à " + pickTarget.name;
+    const cible = pickTarget.name;
+    /* eligibles : personnages dont la regle Leader cite cette unite,
+       plus les escortes qui peuvent s'y greffer */
+    const candidats = UNITS.filter(u => (u[9] || RETINUE[u[0]]) && (!q || norm(u[0]).includes(q)));
+    const ok = candidats.filter(u => peutRejoindre(u[0], cible) === true);
+    const inconnu = candidats.filter(u => peutRejoindre(u[0], cible) === null);
+    const non = candidats.filter(u => peutRejoindre(u[0], cible) === false);
+
+    const bouton = (u, etat) => {
       const b = document.createElement("button");
-      b.type="button"; b.className="opt";
+      b.type="button"; b.className = "opt" + (etat === "non" ? " opt-off" : "");
+      const role = u[9] || "Escorte";
+      const sc = socle(u[0]);
       b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">' +
-        u[9] + ' · E' + u[2] + ' · ' + u[5] + ' PV · ' + (u[7][String(u[6][0])]||0) + ' pts</span></span>' +
-        '<span class="otag">' + u[9].toUpperCase() + '</span>';
+        role + ' · E' + u[2] + ' · ' + u[5] + ' PV' + (sc ? ' · socle ' + sc + ' mm' : '') +
+        ' · ' + (u[7][String(u[6][0])]||0) + ' pts</span></span>' +
+        '<span class="otag">' + role.toUpperCase() + '</span>';
       b.addEventListener("click", ()=>{
         pickTarget.chars.push({name:u[0], w:0});
         closeSheet("sheetUnit"); saveR(); renderList();
       });
+      return b;
+    };
+    const titre = t => {
+      const d = document.createElement("div");
+      d.className = "sheet-sep"; d.textContent = t; host.appendChild(d);
+    };
+    if(ok.length){ titre("Peuvent rejoindre " + cible); ok.forEach(u => host.appendChild(bouton(u, "ok"))); }
+    if(inconnu.length){ titre("Sans règle de rattachement connue"); inconnu.forEach(u => host.appendChild(bouton(u, "?"))); }
+    if(non.length){ titre("Hors règles — cette unité n'est pas dans leur liste"); non.forEach(u => host.appendChild(bouton(u, "non"))); }
+    if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucun personnage ne correspond.</div>';
+    return;
+  }
+  if(pickMode === "enh"){
+    head.textContent = "Amélioration — " + pickTarget.name;
+    const dispo = enhDispo().filter(e => !q || norm(e[0]).includes(q));
+    if(!R.detach.length){
+      host.innerHTML = '<div class="sheet-empty">Choisis d\'abord un détachement : ' +
+        'les améliorations en dépendent.</div>';
+      return;
+    }
+    /* une amelioration ne se prend qu'une fois dans l'armee */
+    const prises = R.units.filter(x => x !== pickTarget).map(x => x.enh).filter(Boolean);
+    dispo.forEach(e=>{
+      const deja = prises.indexOf(e[0]) >= 0;
+      const b = document.createElement("button");
+      b.type="button"; b.className = "opt" + (deja ? " opt-off" : "") + (pickTarget.enh === e[0] ? " sel" : "");
+      b.innerHTML = '<span class="oi"><span class="o1">' + e[0] + '</span><span class="o2">' +
+        (typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + ' · ' + e[2] +
+        (deja ? ' · déjà prise ailleurs' : '') + '</span>' +
+        (e[3] ? '<span class="o3">' + e[3] + '</span>' : '') + '</span>';
+      b.addEventListener("click", ()=>{
+        pickTarget.enh = (pickTarget.enh === e[0]) ? null : e[0];
+        closeSheet("sheetUnit"); saveR(); renderList();
+      });
       host.appendChild(b);
     });
+    if(!host.children.length) host.innerHTML =
+      '<div class="sheet-empty">Aucune amélioration pour les détachements retenus.</div>';
     return;
   }
   if(pickMode && pickMode.indexOf("cmp:") === 0){
@@ -417,7 +579,8 @@ function renderPick(){
       const wl = unitWeps(u[0]);
       let di = wl.findIndex(w => w[2] === "T");
       if(di < 0) di = 0;
-      R.units.push({id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true});
+      R.units.push({id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true,
+        grp:nomGroupe(), enh:null});
       closeSheet("sheetUnit"); saveR(); renderList();
     });
     host.appendChild(b);
@@ -645,7 +808,7 @@ function exportImport(){
     if(!o || !Array.isArray(o.units)) throw 0;
     R = {detach: o.detach || [], units: o.units};
     R.units.forEach(u => { u.chars = u.chars || []; u.lo = u.lo || []; if(u.sel === undefined) u.sel = true;
-      if(!u.id) u.id = nextId++; });
+      if(!u.id) u.id = nextId++; if(!u.grp) u.grp = nomGroupe(); if(u.enh === undefined) u.enh = null; });
     saveR(); renderList();
   }catch(e){ alert("Liste illisible — rien n'a été modifié."); }
 }
@@ -685,7 +848,8 @@ function unb64u(str){
 /* on ne transporte que ce qui n'est pas reconstructible : ni id ni points */
 const packList = () => ({
   d: R.detach,
-  u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0 }))
+  u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0,
+    g: ru.grp || "", e: ru.enh || "" }))
 });
 
 async function encodeList(){
@@ -714,7 +878,8 @@ async function decodeList(code){
 function applyPacked(o){
   if(!o || !Array.isArray(o.u)) throw 0;
   R = { detach: Array.isArray(o.d) ? o.d : [], units: o.u.map(u => ({
-    id: nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0
+    id: nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
+    grp: u.g || nomGroupe(), enh: u.e || null
   })) };
   saveR(); renderList();
 }

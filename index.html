@@ -228,6 +228,25 @@ input.sheet-search{
 .opt .otag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--tx3);
   border:1px solid var(--line);padding:2px 6px}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
+.opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
+  white-space:normal;max-height:3.6em;overflow:hidden}
+.opt.opt-off{opacity:.5}
+.opt.opt-off .otag{border-style:dashed}
+.sheet-sep{margin:14px 2px 2px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tx3);border-bottom:1px solid var(--line);padding-bottom:5px}
+
+/* ---------- groupe rattache ---------- */
+.ghead{display:flex;align-items:center;gap:6px;margin:-2px 0 8px}
+input[type=text].gname{flex:1;min-width:0;max-width:none;width:auto;height:auto;border-radius:0;
+  background:transparent;border:0;border-bottom:1px dashed var(--line);
+  color:var(--glow);font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;text-align:left;padding:3px 0;}
+input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
+.kwline{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.gkw{font-size:9.5px;font-weight:700;letter-spacing:.07em;color:var(--tx3);
+  border:1px solid var(--line);padding:2px 5px}
+.gkw.gkwadd{color:var(--cyan);border-color:var(--cyan)}
+.alerte{color:var(--warn);cursor:help}
 /* ---------- onglets & ecrans ---------- */
 .screen{display:none}
 .screen.on{display:block}
