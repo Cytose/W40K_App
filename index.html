@@ -347,6 +347,16 @@ pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px 
   color:var(--glow);border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.05em;
   text-transform:uppercase;cursor:pointer;font-family:inherit;flex:0 0 auto}
 .gplay:disabled{border-color:var(--li);color:var(--tx3);cursor:default}
+.strat .sedit{padding:2px 11px 12px}
+.strat .sedit label{display:block;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);margin:8px 0 3px;font-weight:700}
+.strat .sedit input,.strat .sedit textarea{width:100%;max-width:none;box-sizing:border-box;
+  background:var(--s0);border:1px solid var(--li);border-radius:7px;color:var(--tx1);
+  font-family:inherit;font-size:12.5px;padding:8px 9px;text-align:left;height:auto}
+.strat .sedit textarea{min-height:74px;resize:vertical;line-height:1.5}
+.strat .sedit .addrow{margin-top:10px}
+.strat .sbody .vide{color:var(--tx3);font-style:italic}
+.strat .smod{font-size:10px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
 .opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
   white-space:normal;max-height:3.6em;overflow:hidden}
@@ -994,8 +1004,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <section class="card collapsed" id="cardStrat">
     <h2>Stratagèmes <span class="chev">▾</span></h2>
     <div class="body">
-      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte.</p>
+      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte. Le texte officiel n'étant dans aucune source ouverte, il se saisit ici — en anglais, tel qu'il figure sur ta fiche — et reste enregistré sur cet appareil.</p>
       <div id="stratList"></div>
+      <div class="addrow"><button type="button" id="btnAddStrat">+ Ajouter un stratagème</button></div>
     </div>
   </section>
 

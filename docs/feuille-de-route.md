@@ -205,3 +205,35 @@ Convergence of Dominion.
 | **Traduire ou non les aptitudes** | anglais fidèle contre français maison |
 | **La composition de Convergence of Dominion** | 1 à 3 éléments est une invention |
 | **L'ordre des chantiers** | celui proposé est discutable |
+
+
+---
+
+## 7. Où en est le chantier
+
+Décision du 19/08/2026 : limite d'améliorations à 4 pour 2000 points,
+stratagèmes laissés en anglais, feu vert sur l'ensemble.
+
+| Chantier | État |
+|---|---|
+| 1. Enrichir les données | **fait** — 141 portées sur 142, CO, Cd, 53 jeux d'aptitudes, transports, règle de faction, glossaire de 31 mots-clés |
+| 2. Fiche d'unité | **fait** — depuis la liste, depuis le catalogue avant d'ajouter, depuis l'axe En partie |
+| 3. Fluidifier l'éditeur | **fait** — catalogue persistant, budget en direct, taille minimale, fourchette de prix, recherche par mot-clé, appui long, annulation, écran large |
+| 4. Entrées et sorties | **fait** — texte tournoi, presse-papier, impression, lien, QR code, sauvegarde fichier, import `.ros` |
+| 5. Axe En partie | **fait** — tour, phase, PC, PV par unité, réanimation, score, stratagèmes jouables, journal |
+| 6. Finitions | **fait** — limite d'améliorations 2/4, Disposition de Force en saisie libre, `package.json` |
+
+### Ce qui reste en suspens
+
+- **Le texte des stratagèmes** — absent du catalogue BattleScribe comme du
+  fichier de système, et la presse spécialisée n'en donne que des paraphrases.
+  Plutôt que d'inscrire une règle approximative dans une aide de jeu,
+  l'application permet désormais de la saisir : elle reste sur l'appareil et
+  voyage dans la sauvegarde.
+- **La composition de Convergence of Dominion** — 1 à 3 éléments reste une
+  invention.
+- **La portée de l'Aeonstave blast du Chronomancer** — le catalogue ne connaît
+  que le « Chronomancer's stave », de corps à corps : il n'a pas suivi le
+  dernier faction pack.
+- **Les aptitudes sont en anglais** — texte du catalogue, non traduit.
+- **La branche par défaut du dépôt** est toujours la branche de travail.

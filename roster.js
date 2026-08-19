@@ -640,7 +640,7 @@ function renderPad(){
   const dp = totalDP(), dpMax = capDP();
   const outils = [
     ["cardDetach",   "◈", "Détachements", dp + " / " + dpMax + " PD"],
-    ["cardStrat",    "⚡", "Stratagèmes",  STRATS.filter(x => x[1] === "Core" || R.detach.indexOf(x[1]) >= 0).length + " fiches"],
+    ["cardStrat",    "⚡", "Stratagèmes",  stratsListe().length + " fiches"],
     ["cardArms",     "⌖", "Armement",     WEAPONS.length ? R.units.length + " unité" + (R.units.length > 1 ? "s" : "") : ""],
     ["cardPartage",  "⇪", "Partager",     R.units.length ? "texte, QR, fichier" : "liste vide"],
     ["cardSettings", "⚙", "Réglages",     R.cap + " pts"]
@@ -971,7 +971,7 @@ function renderPartie(){
 
   /* --- stratagemes jouables --- */
   const gs = el("gstrat"); gs.innerHTML = "";
-  const lot = STRATS.filter(x => x[1] === "Core" || R.detach.indexOf(x[1]) >= 0);
+  const lot = stratsListe();
   lot.forEach(st=>{
     const cout = st[3] || 1;
     const d = document.createElement("div");
@@ -1375,6 +1375,42 @@ function renderRoster(){
    Ceux des detachements retenus, puis ceux de base. Le texte
    n'est renseigne que pour ce qui a pu etre verifie.
    ========================================================== */
+/* ==========================================================
+   STRATAGEMES SAISIS A LA MAIN
+   Le texte officiel ne figure ni dans le catalogue BattleScribe
+   ni dans le fichier de systeme, et la presse specialisee n'en
+   donne que des paraphrases : hors de question de les inscrire
+   ici. On offre donc de le saisir, en anglais, et de le garder.
+   ========================================================== */
+const SKEY = "mathhammer.strats.v1";
+let SUSER = { fiches: {}, ajouts: [] };
+function loadS(){
+  try{
+    const o = JSON.parse(localStorage.getItem(SKEY) || "null");
+    if(o && o.fiches) SUSER = { fiches: o.fiches, ajouts: o.ajouts || [] };
+  }catch(e){}
+}
+function saveS(){ try{ localStorage.setItem(SKEY, JSON.stringify(SUSER)); }catch(e){} }
+const clefStrat = (det, nom) => det + "|" + nom;
+
+/* la table de base, completee de ce qui a ete saisi */
+function stratsDe(g){
+  const lot = STRATS.filter(x => x[1] === g).map(x => x.slice());
+  SUSER.ajouts.filter(a => a[1] === g).forEach(a => lot.push(a.slice()));
+  return lot.map(x=>{
+    const f = SUSER.fiches[clefStrat(x[1], x[0])];
+    if(f){
+      if(f.cp !== undefined && f.cp !== "") x[3] = parseInt(f.cp, 10) || 1;
+      if(f.type) x[2] = f.type;
+      x[4] = f.quand || x[4]; x[5] = f.cible || x[5]; x[6] = f.effet || x[6];
+      x.saisi = true;
+    }
+    return x;
+  });
+}
+/* tous les stratagemes utilisables par la liste ouverte */
+const stratsListe = () => R.detach.concat(["Core"]).reduce((a, g) => a.concat(stratsDe(g)), []);
+
 function renderStrats(){
   const host = el("stratList"); if(!host) return;
   host.innerHTML = "";
@@ -1382,7 +1418,7 @@ function renderStrats(){
   groupes.push("Core");
   let rien = true;
   groupes.forEach(g=>{
-    const lot = STRATS.filter(x => x[1] === g);
+    const lot = stratsDe(g);
     if(!lot.length) return;
     rien = false;
     const sep = document.createElement("div");
@@ -1397,13 +1433,53 @@ function renderStrats(){
       t.type = "button";
       t.innerHTML = '<span class="sn"><b>' + nom + '</b><i>' +
         (type && type !== "Core" ? type : (det === "Core" ? "Stratagème de base" : det)) +
+        (x.saisi ? ' <span class="smod">saisi</span>' : '') +
         '</i></span><span class="cp">' + cp + ' PC</span>';
       const body = document.createElement("div");
       body.className = "sbody";
-      body.innerHTML = effet
-        ? '<dl><dt>Quand</dt><dd>' + quand + '</dd><dt>Cible</dt><dd>' + cible +
-          '</dd><dt>Effet</dt><dd>' + effet + '</dd></dl>'
-        : '<p class="vide">Texte non renseigné — aucune source vérifiable n\'a pu être trouvée pour ce stratagème.</p>';
+      const rendu = ()=>{
+        body.innerHTML = effet
+          ? '<dl><dt>Quand</dt><dd>' + quand + '</dd><dt>Cible</dt><dd>' + (cible || "—") +
+            '</dd><dt>Effet</dt><dd>' + effet + '</dd></dl>'
+          : '<p class="vide">Texte non renseigné. Recopie-le depuis ta fiche : il restera sur cet appareil.</p>';
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "ghost";
+        b.style.cssText = "margin:6px 11px 10px";
+        b.textContent = effet ? "Corriger le texte" : "Saisir le texte";
+        b.addEventListener("click", ()=> edite());
+        body.appendChild(b);
+      };
+      const edite = ()=>{
+        const f = SUSER.fiches[clefStrat(det, nom)] || {};
+        body.innerHTML = "";
+        const box = document.createElement("div");
+        box.className = "sedit";
+        box.innerHTML =
+          '<label>Coût en PC</label><input type="number" min="0" max="9" value="' + cp + '" data-f="cp">' +
+          '<label>Type</label><input type="text" value="' + (type && type !== "Core" ? type : "") +
+            '" placeholder="Battle Tactic, Epic Deed…" data-f="type">' +
+          '<label>Quand</label><textarea data-f="quand" placeholder="When…">' + (quand || "") + '</textarea>' +
+          '<label>Cible</label><textarea data-f="cible" placeholder="Target…">' + (cible || "") + '</textarea>' +
+          '<label>Effet</label><textarea data-f="effet" placeholder="Effect…">' + (effet || "") + '</textarea>';
+        const row = document.createElement("div");
+        row.className = "addrow";
+        const ok = document.createElement("button");
+        ok.type = "button"; ok.textContent = "Enregistrer";
+        ok.addEventListener("click", ()=>{
+          const v = {};
+          box.querySelectorAll("[data-f]").forEach(i => v[i.dataset.f] = i.value.trim());
+          SUSER.fiches[clefStrat(det, nom)] = v;
+          saveS(); renderStrats(); renderPartie();
+          toast(nom + " enregistré.", "", null);
+        });
+        const non = document.createElement("button");
+        non.type = "button"; non.textContent = "Annuler";
+        non.addEventListener("click", rendu);
+        row.appendChild(ok); row.appendChild(non);
+        box.appendChild(row);
+        body.appendChild(box);
+      };
+      rendu();
       t.addEventListener("click", ()=> d.classList.toggle("open"));
       d.appendChild(t); d.appendChild(body);
       host.appendChild(d);
@@ -2255,7 +2331,7 @@ function imprimeListe(){
 
 /* sauvegarde de toutes les listes dans un fichier */
 function sauvegardeTout(){
-  const payload = { app: "necron-aide-jeu", v: 1, listes: LISTS };
+  const payload = { app: "necron-aide-jeu", v: 1, listes: LISTS, strats: SUSER };
   const blob = new Blob([JSON.stringify(payload, null, 1)], {type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -2870,6 +2946,17 @@ el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport2").addEventListener("click", exportImport);
+el("btnAddStrat").addEventListener("click", ()=>{
+  if(!R.detach.length){ toast("Choisis d'abord un détachement.", "", null); return; }
+  const nom = prompt("Nom du stratagème, tel qu'il figure sur ta fiche :", "");
+  if(!nom || !nom.trim()) return;
+  const det = R.detach.length === 1 ? R.detach[0]
+    : (prompt("De quel détachement ?\n" + R.detach.join("\n"), R.detach[0]) || "").trim();
+  if(R.detach.indexOf(det) < 0){ toast("Détachement inconnu.", "", null); return; }
+  SUSER.ajouts.push([nom.trim(), det, "", 1, "", "", ""]);
+  saveS(); renderStrats(); renderPartie();
+  toast(nom.trim() + " ajouté — touche-le pour saisir son texte.", "", null);
+});
 if(el("listDispo")) el("listDispo").addEventListener("change", ()=>{
   R.fd = el("listDispo").value.trim(); saveR(); renderList();
 });
@@ -2941,6 +3028,15 @@ el("fileIn").addEventListener("change", ()=>{
         LISTS.push(neuve); n++;
       });
       if(!n) throw 0;
+      /* les stratagemes saisis voyagent avec les listes : ils se completent,
+         ce qui est deja saisi ici n'est pas ecrase */
+      if(o && o.strats && o.strats.fiches){
+        Object.keys(o.strats.fiches).forEach(k => { if(!SUSER.fiches[k]) SUSER.fiches[k] = o.strats.fiches[k]; });
+        (o.strats.ajouts || []).forEach(a => {
+          if(!SUSER.ajouts.some(x => x[0] === a[0] && x[1] === a[1])) SUSER.ajouts.push(a);
+        });
+        saveS();
+      }
       saveR(); renderList(); renderIndex();
       rapport([{txt: "<b>" + n + " liste" + (n > 1 ? "s" : "") + "</b> restaurée" +
         (n > 1 ? "s" : "") + ". Rien n'a été écrasé : elles s'ajoutent aux tiennes."}]);
@@ -3019,7 +3115,7 @@ el("cmpPhase").querySelectorAll(".chip").forEach(b=>
     renderCmpList();
   }));
 
-loadR(); loadCmp();
+loadR(); loadCmp(); loadS();
 PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
 initDetachSheet();
 renderList();
