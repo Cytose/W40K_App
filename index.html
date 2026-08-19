@@ -58,6 +58,35 @@ header{
   background:var(--s2);color:var(--tx2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
 }
 .ghost:active{background:var(--s3)}
+.zoomer{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;flex:0 0 auto}
+.zoomer button{min-height:34px;padding:0 9px;border:0;background:var(--s2);color:var(--tx2);
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1}
+.zoomer button:active{background:var(--s3)}
+.zoomer button:disabled{opacity:.35;cursor:default}
+.zoomer sub,.zoomer sup{font-size:9px}
+/* le zoom s'applique a la page entiere : l'en-tete colle, la barre d'onglets
+   reste en bas, seul le contenu grandit */
+:root{zoom:var(--ui,1)}
+.zoomtip{position:fixed;left:50%;bottom:calc(58px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);z-index:60;padding:7px 14px;background:var(--s3);
+  border:1px solid var(--glow);color:var(--glow);font-size:12px;font-weight:700;
+  letter-spacing:.06em;pointer-events:none;opacity:0;transition:opacity .18s;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.zoomtip.on{opacity:1}
+/* Agrandir l'affichage retrecit la largeur utile, mais les media queries
+   continuent de voir la largeur d'origine : elles ne peuvent pas servir de
+   garde-fou. L'en-tete se resserre donc par palier de zoom, pose par le
+   script, sans quoi ses commandes sortent de l'ecran. */
+.z1 .logo small{display:none}
+.z1 .hbar{gap:7px;padding:8px 9px 6px}
+.z1 .logo{font-size:12.5px;letter-spacing:.09em}
+.z1 .ghost{padding:0 9px;font-size:11.5px}
+.z2 .mark{display:none}
+.z2 .logo{font-size:11.5px;max-width:9ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.z3 .logo{display:none}
+.z3 .ghost{padding:0 8px;font-size:11px}
+.z4 .sum .k{font-size:8.5px}
 .summary{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
 .sum{background:var(--s1);padding:8px 6px 9px;text-align:center;min-width:0}
 .sum .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -252,9 +281,11 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 
 /* ---------- sous-onglets d'un axe ---------- */
 .subtabs{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:12px;
+  overflow-x:auto;scrollbar-width:none;
   clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
-.subtabs button{flex:1;min-width:0;padding:9px 4px;background:var(--s1);border:0;color:var(--tx3);
-  font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.05em;cursor:pointer}
+.subtabs::-webkit-scrollbar{display:none}
+.subtabs button{flex:1 0 auto;min-width:0;padding:9px 10px;background:var(--s1);border:0;color:var(--tx3);
+  font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap}
 .subtabs button.on{background:var(--glow-soft);color:var(--glow)}
 .sub{display:none}
 .sub.on{display:block}
@@ -430,6 +461,10 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </svg>
     <div class="logo">Mathhammer<small>Nécrons — 40K 11<sup>e</sup> éd.</small></div>
     <div class="spacer"></div>
+    <div class="zoomer" role="group" aria-label="Taille d'affichage">
+      <button type="button" id="btnZoomOut" aria-label="Réduire l'affichage">A<sub>−</sub></button>
+      <button type="button" id="btnZoomIn" aria-label="Agrandir l'affichage">A<sup>+</sup></button>
+    </div>
     <button class="ghost" id="btnSave" type="button">Enregistrer</button>
   </div>
   <div class="summary" id="headSum">
@@ -782,6 +817,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </section>
 </div>
 </main>
+<div class="zoomtip" id="zoomTip" aria-live="polite"></div>
 
 <nav class="tabs" id="tabs">
   <button type="button" data-s="scList"><span class="ti">☷</span>Listes</button>
