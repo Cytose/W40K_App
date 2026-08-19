@@ -104,9 +104,9 @@ window.ROSTER = {
     R.units.forEach(ru=>{
       const dom = ru.lo.slice().sort((a,b)=>b.n-a.n)[0];
       out.push({ nom: ru.name, taille: ru.size, arme: dom ? dom.w : 0,
-                 groupe: ru.grp, perso: false });
+                 groupe: nomAffiche(ru), perso: false });
       ru.chars.forEach(c => out.push({ nom: c.name, taille: 1, arme: c.w|0,
-                 groupe: ru.grp, perso: true }));
+                 groupe: nomAffiche(ru), perso: true }));
     });
     return { liste: R.nom, unites: out };
   }
@@ -185,6 +185,13 @@ const KWSET = {};
 Object.keys(KW).forEach(k => KWSET[k] = new Set(KW[k]));
 const has = (kw, name) => KWSET[kw] ? KWSET[kw].has(name) : false;
 const detachRow = n => DETACHMENTS.find(d => d[0] === n);
+const CATMAP = {};
+CAT.forEach(([n, c]) => CATMAP[n] = c);
+const categorie = n => CATMAP[n] || "Autre";
+/* un nom de groupe ne vaut que pour un ensemble : seule, une unite
+   s'annonce par son propre nom */
+const estGroupe = ru => ru.chars.length > 0;
+const nomAffiche = ru => (estGroupe(ru) && ru.grp) ? ru.grp : ru.name;
 
 /* ==========================================================
    POINTS & VALIDATION
@@ -221,7 +228,7 @@ function validate(){
       (lim===1 ? " (Epic Hero)" : lim===6 ? " (Battleline)" : " (règle des trois)") + ".");
   });
   R.units.forEach(ru => {
-    const nom = ru.grp ? ru.grp + " (" + ru.name + ")" : ru.name;
+    const nom = estGroupe(ru) && ru.grp ? ru.grp + " (" + ru.name + ")" : ru.name;
     const led = compteRole(ru, "Leader"), sup = compteRole(ru, "Support"),
           esc = compteRole(ru, "Escorte");
     if(led > 1) w.push("<b>" + nom + "</b> : " + led + " chefs, un seul est autorisé.");
@@ -563,7 +570,7 @@ function renderPad(){
     b.className = "tile" + (uniteSuspecte(ru) ? " warnmark" : "");
     const nAtt = ru.chars.length;
     b.innerHTML =
-      (ru.grp ? '<span class="tg">' + ru.grp + '</span>' : '') +
+      (estGroupe(ru) && ru.grp ? '<span class="tg">' + ru.grp + '</span>' : '') +
       '<span class="tn">' + ru.name + '</span>' +
       '<span class="tb"><span class="tp">' + pointsUnite(ru) + '<small>points</small></span>' +
       '<span class="tx">×' + ru.size + (nAtt ? '<br>+' + nAtt + ' perso' + (nAtt > 1 ? 's' : '') : '') + '</span></span>' +
@@ -609,7 +616,7 @@ function ouvrePanneau(id, uid){
   let titre = "Retour au pavé";
   if(uid){
     const ru = R.units.find(x => x.id === uid);
-    if(ru) titre = ru.grp || ru.name;
+    if(ru) titre = nomAffiche(ru);
   }
   el("panelTitle").textContent = titre;
   renderList();
@@ -711,7 +718,7 @@ function renderPlay(){
     const wl = unitWeps(ru.name);
     const g = document.createElement("div");
     g.className = "pgrp";
-    let html = '<h4>' + (ru.grp || ru.name) + '</h4>';
+    let html = '<h4>' + nomAffiche(ru) + '</h4>';
     const sc = socle(ru.name);
     html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · M' + u[1] + '" · E' + u[2] +
       ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
@@ -820,18 +827,21 @@ function renderRoster(){
     const div = document.createElement("div");
     div.className = "runit";
 
-    /* bandeau du groupe : son nom, qu'on peut reecrire ou retirer au sort */
-    const gh = document.createElement("div");
-    gh.className = "ghead";
-    const gi = document.createElement("input");
-    gi.type = "text"; gi.className = "gname"; gi.value = ru.grp || "";
-    gi.setAttribute("aria-label", "Nom du groupe");
-    gi.addEventListener("change", ()=>{ ru.grp = gi.value.trim() || nomGroupe(); saveR(); renderList(); });
-    const gr = document.createElement("button");
-    gr.type="button"; gr.className="xbtn"; gr.textContent="⟳"; gr.title="Un autre nom";
-    gr.addEventListener("click", ()=>{ ru.grp = nomGroupe(); saveR(); renderList(); });
-    gh.appendChild(gi); gh.appendChild(gr);
-    div.appendChild(gh);
+    /* une unite seule n'est pas un groupe : le nom n'apparait qu'une fois
+       un personnage rattache, puisque c'est ce qui en fait un ensemble */
+    if(ru.chars.length){
+      const gh = document.createElement("div");
+      gh.className = "ghead";
+      const gi = document.createElement("input");
+      gi.type = "text"; gi.className = "gname"; gi.value = ru.grp || "";
+      gi.setAttribute("aria-label", "Nom du groupe");
+      gi.addEventListener("change", ()=>{ ru.grp = gi.value.trim() || nomGroupe(); saveR(); renderList(); });
+      const gr = document.createElement("button");
+      gr.type="button"; gr.className="xbtn"; gr.textContent="⟳"; gr.title="Un autre nom";
+      gr.addEventListener("click", ()=>{ ru.grp = nomGroupe(); saveR(); renderList(); });
+      gh.appendChild(gi); gh.appendChild(gr);
+      div.appendChild(gh);
+    }
 
     const head = document.createElement("div");
     head.className = "rhead";
@@ -839,8 +849,7 @@ function renderRoster(){
     head.innerHTML = '<div class="rn"><b>' + ru.name + '</b><i>×' + ru.size + ' · E' + u[2] +
       ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV · socle ' +
       (sc ? sc + ' mm' : '—') + '</i></div>' +
-      '<span class="rpts">' + unitPoints(ru) + ' pts</span><button class="xbtn" type="button">×</button>';
-    head.querySelector(".xbtn").addEventListener("click", ()=>{ R.units.splice(ui,1); saveR(); renderList(); });
+      '<span class="rpts">' + unitPoints(ru) + ' pts</span>';
     div.appendChild(head);
 
     if(u[6].length > 1){
@@ -916,6 +925,33 @@ function renderRoster(){
       div.appendChild(kwl);
     }
 
+    /* Équipement — les armes de tir se répartissent entre figurines, les
+       armes de mêlée sont portées par toutes : elles n'apparaissaient donc
+       nulle part tant qu'on ne les avait pas ajoutées à la main. */
+    const eq = document.createElement("div");
+    eq.className = "eqbloc";
+    const pris = {};
+    ru.lo.forEach(l => { if(l.n > 0) pris[l.w] = (pris[l.w] || 0) + l.n; });
+    const lignes = wl.map((w, i) => ({ w:w, i:i, n:pris[i] || 0 }));
+    const tir = lignes.filter(x => x.w[2] === "T"), cac = lignes.filter(x => x.w[2] === "C");
+    const table = (titre, lot) => {
+      if(!lot.length) return "";
+      let h = '<div class="eqt">' + titre + '</div><div class="eqwrap"><table class="arms">' +
+        '<thead><tr><th style="text-align:left">Arme</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+      lot.forEach(x=>{
+        const w = x.w, mots = w[8] ? motsArme(w[8]) : "";
+        h += '<tr class="' + (x.n ? '' : 'off') + '"><td class="an">' +
+          (x.n ? '<b class="q">×' + x.n + ' </b>' : '') + w[1] +
+          (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+          '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
+          '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
+      });
+      return h + '</tbody></table></div>';
+    };
+    eq.innerHTML = table("Tir", tir) + table("Corps à corps", cac) +
+      '<p class="hint">Les armes de mêlée équipent toute l\'unité : elles ne se répartissent pas.</p>';
+    div.appendChild(eq);
+
     const add = document.createElement("div");
     add.className = "addrow";
     const bw = document.createElement("button");
@@ -929,6 +965,19 @@ function renderRoster(){
     be.addEventListener("click", ()=> openEnhPick(ru));
     add.appendChild(bw); add.appendChild(bc); add.appendChild(be);
     div.appendChild(add);
+
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "btn danger";
+    del.textContent = "Retirer « " + ru.name + " » de la liste";
+    del.addEventListener("click", ()=>{
+      if(!confirm("Retirer " + ru.name + " ×" + ru.size +
+        (ru.chars.length ? " et ses " + ru.chars.length + " personnage" + (ru.chars.length>1?"s":"") : "") +
+        " de la liste ?")) return;
+      const i = R.units.indexOf(ru);
+      if(i >= 0) R.units.splice(i, 1);
+      saveR(); fermePanneau();
+    });
+    div.appendChild(del);
     host.appendChild(div);
   });
 }
@@ -1036,7 +1085,8 @@ function renderArms(){
 
     const g = document.createElement("div");
     g.className = "armgrp";
-    g.innerHTML = '<h4>' + (ru.grp || ru.name) + ' <span>· ' + ru.name + ' ×' + ru.size + '</span></h4>';
+    g.innerHTML = '<h4>' + nomAffiche(ru) + (estGroupe(ru) ? ' <span>· ' + ru.name + '</span>' : '') +
+      ' <span>×' + ru.size + '</span></h4>';
     const wrap = document.createElement("div");
     wrap.className = "armwrap";
     let html = '<table class="arms"><thead><tr><th style="text-align:left">Arme</th>' +
@@ -1208,7 +1258,13 @@ function renderPick(){
     return;
   }
   head.textContent = "Ajouter une unité";
-  UNITS.filter(u => !q || norm(u[0]).includes(q) || unitWeps(u[0]).some(w => norm(w[1]).includes(q))).forEach(u=>{
+  /* rangé par grande catégorie : on cherche « un véhicule », « un héros »,
+     rarement un nom précis dans une liste de cinquante-deux entrées */
+  const retenues = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
+    unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q));
+  const parCat = {};
+  retenues.forEach(u => (parCat[categorie(u[0])] = parCat[categorie(u[0])] || []).push(u));
+  const bouton = u => {
     const b = document.createElement("button");
     b.type="button"; b.className="opt";
     const sz = u[6][u[6].length-1];
@@ -1228,8 +1284,18 @@ function renderPick(){
       if(el("listEditor") && !el("listEditor").hidden) ouvrePanneau("cardUnits", neuve.id);
       else renderList();
     });
-    host.appendChild(b);
+    return b;
+  };
+  CAT_ORDRE.forEach(cat=>{
+    const lot = parCat[cat];
+    if(!lot || !lot.length) return;
+    const sep = document.createElement("div");
+    sep.className = "sheet-sep";
+    sep.textContent = cat + "  ·  " + lot.length;
+    host.appendChild(sep);
+    lot.forEach(u => host.appendChild(bouton(u)));
   });
+  if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune unité trouvée.</div>';
 }
 
 /* ==========================================================
