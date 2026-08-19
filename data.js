@@ -8,7 +8,7 @@
 
 /* UNITS : [nom, M, E, Svg, Invu, PV, tailles[], points{}, fnp, rôle, legends, notes] */
 const UNITS = [
-["Convergence of Dominion",0,9,3,0,7,[1,2,3],{"1":60,"2":120,"3":180},0,"",0,"NOUVEAU : fortification, immobile (M —). Profil et armement repris du catalogue BattleScribe ; les points n'ont pas pu être recoupés avec WarOrgan, à revérifier."],
+["Convergence of Dominion",0,9,3,0,7,[1,2,3],{"1":60,"2":120,"3":180},0,"",0,"Fortification, immobile (M —). 60 points par élément, confirmé. Profil et armement repris du catalogue BattleScribe. La composition de 1 à 3 éléments n'a pas de source : à corriger si l'unité se prend autrement."],
 ["Necron Warriors",5,4,4,0,1,[10,20],{"10":80,"20":190},0,"",0,"Battleline. Their Number is Legion : relance du dé de Réanimation."],
 ["Immortals",5,5,3,0,1,[5,10],{"5":70,"10":140},0,"",0,"Battleline. Aucune règle défensive propre."],
 ["Lychguard",5,5,3,4,2,[5,10],{"5":80,"10":160},0,"",0,"Invu 4+ SEULEMENT avec bouclier de dispersion. Guardian Protocols : -1 pour blesser si un NOBLE mène l'unité et F > E."],
