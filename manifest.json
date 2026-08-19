@@ -1,0 +1,13 @@
+{
+  "name": "Mathhammer — Necrons",
+  "short_name": "Mathhammer",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B0F0C",
+  "theme_color": "#0B0F0C",
+  "lang": "fr",
+  "description": "Simulateur de sequence d'attaque Warhammer 40 000 (11e edition), profils Necrons.",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
