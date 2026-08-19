@@ -438,3 +438,66 @@ const MENACES = [
 ["Épée tronçonneuse","3",3,4,1,"1","","Mêlée d'infanterie de base"],
 ["Gantelet énergétique","3",4,8,2,"2","","Mêlée lourde, frappe les blindages"]
 ];
+
+/* ============================================================
+   CATÉGORIES
+   [nom, catégorie principale] — la première qui s'applique dans
+   l'ordre Epic Hero, Personnage, Battleline, Infanterie, Bête,
+   Monté, Véhicule, Monstre. Reprises des mots-clés du catalogue
+   BattleScribe, elles servent à ranger le choix d'unité.
+   ============================================================ */
+const CAT = [
+["Necron Warriors","Battleline"],
+["Immortals","Battleline"],
+["Lychguard","Infanterie"],
+["Deathmarks","Infanterie"],
+["Flayed Ones","Infanterie"],
+["Triarch Praetorians","Infanterie"],
+["Cryptothralls","Infanterie"],
+["Skorpekh Destroyers","Infanterie"],
+["Ophydian Destroyers","Infanterie"],
+["Lokhust Destroyers","Monté"],
+["Lokhust Heavy Destroyers","Monté"],
+["Tomb Blades","Monté"],
+["Canoptek Scarab Swarms","Bête"],
+["Canoptek Wraiths","Bête"],
+["Canoptek Spyders","Véhicule"],
+["Canoptek Reanimator","Véhicule"],
+["Canoptek Doomstalker","Véhicule"],
+["Canoptek Macrocytes","Bête"],
+["Canoptek Tomb Crawlers","Bête"],
+["Triarch Stalker","Véhicule"],
+["Doomsday Ark","Véhicule"],
+["Ghost Ark","Véhicule"],
+["Annihilation Barge","Véhicule"],
+["Monolith","Véhicule"],
+["Obelisk","Véhicule"],
+["Tesseract Vault","Véhicule"],
+["Doom Scythe","Véhicule"],
+["Night Scythe","Véhicule"],
+["Overlord","Personnage"],
+["Royal Warden","Personnage"],
+["Lokhust Lord","Personnage"],
+["Skorpekh Lord","Personnage"],
+["Hexmark Destroyer","Personnage"],
+["Technomancer","Personnage"],
+["Plasmancer","Personnage"],
+["Chronomancer","Personnage"],
+["Psychomancer","Personnage"],
+["Geomancer","Personnage"],
+["Catacomb Command Barge","Personnage"],
+["C'tan Shard of the Nightbringer","Epic Hero"],
+["C'tan Shard of the Deceiver","Epic Hero"],
+["C'tan Shard of the Void Dragon","Epic Hero"],
+["Transcendent C'tan","Personnage"],
+["Imotekh the Stormlord","Epic Hero"],
+["Trazyn the Infinite","Epic Hero"],
+["Orikan the Diviner","Epic Hero"],
+["Illuminor Szeras","Epic Hero"],
+["Nekrosor Ammentar","Epic Hero"],
+["Szarekh, The Silent King","Epic Hero"],
+["Nemesor Zahndrekh","Epic Hero"],
+["Vargard Obyron","Epic Hero"],
+["Lord","Personnage"]
+];
+const CAT_ORDRE = ["Epic Hero","Personnage","Battleline","Infanterie","Bête","Monté","Véhicule","Monstre","Fortification","Autre"];

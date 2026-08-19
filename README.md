@@ -94,9 +94,19 @@ données de stratagèmes, aujourd'hui presque vides.
 - **Simulateur depuis la liste** — le sélecteur d'unité du simulateur propose
   d'abord ce que contient la liste ouverte, avec la taille et l'arme retenues
   et les personnages rattachés, avant le catalogue complet.
-- **Groupes rattachés** — chaque unité de la liste porte un nom fabriqué tout
-  seul (« Cohorte de Nécrodermis de Thanatos », 5 184 combinaisons), qu'on peut
-  réécrire ou retirer au sort. C'est ce nom qu'on annonce en partie.
+- **Groupes rattachés** — dès qu'un personnage rejoint une unité, l'ensemble
+  porte un nom fabriqué tout seul (« Cohorte de Nécrodermis de Thanatos »,
+  5 184 combinaisons), qu'on peut réécrire ou retirer au sort. C'est ce nom
+  qu'on annonce en partie. Une unité seule garde le sien : elle n'est pas un
+  groupe, le champ n'apparaît pas.
+- **Équipement de l'unité** — deux tableaux, tir et corps à corps, avec le
+  profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
+  toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
+  tant qu'on ne les avait pas ajoutées à la main.
+- **Choix d'unité rangé** — le sélecteur groupe les 52 unités par grande
+  catégorie (Epic Hero, Personnage, Battleline, Infanterie, Bête, Monté,
+  Véhicule), reprises des mots-clés du catalogue BattleScribe. La recherche
+  accepte aussi un nom de catégorie.
 - **Rattachement** — le choix d'un personnage est trié selon sa règle Leader :
   ceux qui peuvent rejoindre l'unité d'abord, escortes Cryptek comprises, les
   autres relégués et signalés. Un rattachement hors règles reste possible mais
