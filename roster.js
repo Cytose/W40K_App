@@ -625,6 +625,33 @@ function fermePanneau(){
   window.scrollTo(0, 0);
 }
 
+/* actions de cycle de vie d'une liste : elles vivent la ou l'on choisit sa
+   liste, pas dans l'editeur — celui-ci ne porte que ce qui la qualifie */
+function ouvreActions(L){
+  el("listActTitle").textContent = L.nom;
+  const host = el("listActList");
+  host.innerHTML = "";
+  const item = (titre, sous, action, danger) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt";
+    b.innerHTML = '<span class="oi"><span class="o1"' + (danger ? ' style="color:var(--warn)"' : '') +
+      '>' + titre + '</span><span class="o2">' + sous + '</span></span>';
+    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); action(); });
+    host.appendChild(b);
+  };
+  item("Ouvrir", "Modifier cette liste", ()=> ouvreEditeur(L.id));
+  item("Dupliquer", "Une copie de « " + L.nom + " », unités comprises",
+    ()=>{ ouvre(L); dupliqueListe(); ouvreEditeur(); });
+  if(LISTS.length > 1)
+    item("Supprimer", L.units.length + " unité" + (L.units.length > 1 ? "s" : "") + " perdue" +
+      (L.units.length > 1 ? "s" : "") + ", définitivement",
+      ()=>{ ouvre(L); supprimeListe(); renderIndex(); }, true);
+  else
+    item("Supprimer", "Impossible : c'est ta seule liste", ()=>{}, false);
+  openSheet("sheetListAct");
+}
+
 function renderIndex(){
   const host = el("listCards"); if(!host) return;
   host.innerHTML = "";
@@ -634,6 +661,8 @@ function renderIndex(){
   }
   LISTS.forEach(L=>{
     const p = pointsDe(L), over = p > L.cap;
+    const rangee = document.createElement("div");
+    rangee.className = "lrow";
     const b = document.createElement("button");
     b.type = "button";
     b.className = "lcard" + (L === R ? " on" : "");
@@ -644,7 +673,14 @@ function renderIndex(){
       '<span class="det">' + (L.detach.join(" · ") || "aucun détachement") + '</span></span>' +
       '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
     b.addEventListener("click", ()=> ouvreEditeur(L.id));
-    host.appendChild(b);
+    const m = document.createElement("button");
+    m.type = "button";
+    m.className = "lmore";
+    m.setAttribute("aria-label", "Actions sur « " + L.nom + " »");
+    m.textContent = "⋯";
+    m.addEventListener("click", e => { e.stopPropagation(); ouvreActions(L); });
+    rangee.appendChild(b); rangee.appendChild(m);
+    host.appendChild(rangee);
   });
 }
 
@@ -708,24 +744,6 @@ function renderPlay(){
 }
 
 function renderLists(){
-  const host = el("listTabs"); if(!host) return;
-  host.innerHTML = "";
-  LISTS.forEach(L=>{
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "chip" + (L === R ? " on" : "");
-    const p = L.units.reduce((a,ru)=>{
-      const u = unitRow(ru.name); if(!u) return a;
-      let n = u[7][String(ru.size)] || 0;
-      ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) n += cu[7][String(cu[6][0])] || 0; });
-      const e = ru.enh && enhRow(ru.enh);
-      return a + n + (e && typeof e[1] === "number" ? e[1] : 0);
-    }, 0);
-    b.innerHTML = L.nom + '<small>' + p + ' / ' + L.cap + ' pts · ' + L.units.length + ' unité' +
-      (L.units.length > 1 ? 's' : '') + '</small>';
-    b.addEventListener("click", ()=> ouvreListe(L.id));
-    host.appendChild(b);
-  });
   const nom = el("listName"), cap = el("listCap");
   if(nom && document.activeElement !== nom) nom.value = R.nom;
   if(cap && document.activeElement !== cap) cap.value = R.cap;
@@ -1672,9 +1690,6 @@ el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 el("btnAddUnit").addEventListener("click", openUnitPick);
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport").addEventListener("click", exportImport);
-if(el("btnNewList")) el("btnNewList").addEventListener("click", nouvelleListe);
-if(el("btnDupList")) el("btnDupList").addEventListener("click", dupliqueListe);
-if(el("btnDelList")) el("btnDelList").addEventListener("click", supprimeListe);
 if(el("listName")) el("listName").addEventListener("change", ()=>{
   R.nom = el("listName").value.trim() || "Liste"; saveR(); renderList();
 });
