@@ -250,6 +250,16 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .gkw.gkwadd{color:var(--cyan);border-color:var(--cyan)}
 .alerte{color:var(--warn);cursor:help}
 
+/* ---------- acces rapide a la liste depuis le simulateur ---------- */
+#rosterQuick{margin-top:9px}
+#rosterQuick .lbl{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3);
+  display:block;margin-bottom:5px}
+#rosterQuick .lbl b{color:var(--glow);font-weight:700}
+#rosterQuick .chip{flex-direction:column;align-items:flex-start;padding:5px 10px;min-height:0;
+  line-height:1.3;text-align:left}
+#rosterQuick .chip small{display:block;font-size:9.5px;font-weight:600;color:var(--tx3)}
+#rosterQuick .chip.on small{color:var(--glow)}
+
 /* ---------- onglets de listes ---------- */
 #listTabs .chip{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #listTabs .chip small{display:block;font-size:9.5px;font-weight:600;color:var(--tx3);letter-spacing:.03em}
@@ -392,6 +402,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <span class="pk"><span class="p1" id="puName">Immortals</span><span class="p2" id="puSub">—</span></span>
         <span class="arrow">›</span>
       </button>
+      <div id="rosterQuick"></div>
       <div class="chips" id="weaponChips"></div>
       <div class="chips tight" id="sizeChips"></div>
       <div class="profile" id="profBox"></div>

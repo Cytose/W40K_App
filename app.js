@@ -108,6 +108,11 @@ const unitRow  = n => UNITS.find(u => u[0] === n);
 const unitWeps = n => WEAPONS.filter(w => w[0] === n);
 
 function applyWeapon(){
+  if(window.__syncRosterQuickPending !== true){
+    window.__syncRosterQuickPending = true;
+    setTimeout(()=>{ window.__syncRosterQuickPending = false;
+      if(window.__syncRosterQuick) window.__syncRosterQuick(); }, 0);
+  }
   const u = unitRow(curUnit), list = unitWeps(curUnit);
   if(!u || !list.length) return;
   if(curWeapon >= list.length) curWeapon = 0;
@@ -553,6 +558,43 @@ el("modeChips").querySelectorAll(".chip").forEach(b=>
     render();
   }));
 el("awakened").addEventListener("change", e=>{ S.hitMod = e.target.checked ? 1 : 0; pushState(); render(); });
+/* les unites de la liste ouverte, en acces direct sous le selecteur :
+   on veut mesurer son armee sans passer par une feuille */
+function renderRosterQuick(){
+  const host = el("rosterQuick"); if(!host) return;
+  const r = window.ROSTER && window.ROSTER.actives();
+  host.innerHTML = "";
+  if(!r || !r.unites.length) return;
+  const lbl = document.createElement("span");
+  lbl.className = "lbl";
+  lbl.innerHTML = 'Dans <b>' + r.liste + '</b>';
+  host.appendChild(lbl);
+  const wrap = document.createElement("div");
+  wrap.className = "chips tight";
+  const vus = new Set();
+  r.unites.forEach(x=>{
+    const cle = x.nom + "|" + x.taille + "|" + x.arme;
+    if(vus.has(cle)) return;
+    vus.add(cle);
+    const u = unitRow(x.nom); if(!u) return;
+    const wl = unitWeps(x.nom), w = wl[x.arme] || wl[0];
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (x.nom === curUnit && x.taille === curSize && x.arme === curWeapon ? " on" : "");
+    b.innerHTML = x.nom + (x.perso ? "" : " ×" + x.taille) +
+      '<small>' + (w ? w[1] : "—") + '</small>';
+    b.addEventListener("click", ()=>{
+      curUnit = x.nom; curWeapon = x.arme;
+      const tailles = u[6];
+      curSize = tailles.indexOf(x.taille) >= 0 ? x.taille : tailles[tailles.length-1];
+      applyWeapon();
+    });
+    wrap.appendChild(b);
+  });
+  host.appendChild(wrap);
+}
+window.__syncRosterQuick = renderRosterQuick;
+
 el("pickUnit").addEventListener("click", ()=>{ window.__rosterPick=false; el("uSearch").value=""; el("sheetUnit").querySelector("h3").textContent="Choisir l'unité"; renderUnitList(); openSheet("sheetUnit"); });
 el("pickTarget").addEventListener("click", ()=>{ el("tSearch").value=""; renderTargetList(); openSheet("sheetTarget"); });
 el("uSearch").addEventListener("input", renderUnitList);
