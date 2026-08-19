@@ -6,6 +6,19 @@ pour **Warhammer 40 000, 11e édition**, orienté armée **Nécrons**.
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
 
+## Plein écran
+
+Un bouton `⛶` dans l'en-tête bascule la page en plein écran : la barre
+d'adresse du navigateur disparaît, ce qui rend une bonne part de la hauteur.
+Il n'apparaît que là où l'API existe — donc pas sur Safari iOS, où seule
+l'installation sur l'écran d'accueil donne le plein écran.
+
+Le manifeste demande `display: "fullscreen"`, avec `display_override` pour
+retomber sur `standalone` puis `minimal-ui` là où le plein écran est refusé.
+Une application déjà installée garde le mode qu'elle avait à l'installation :
+il faut la retirer de l'écran d'accueil et la réinstaller pour que le
+changement prenne effet.
+
 ## Taille d'affichage
 
 Deux boutons `A−` / `A+` dans l'en-tête agrandissent toute l'interface par
