@@ -384,3 +384,37 @@ origine: ["de Mandragora","de Thanatos","de Solemnace","de Gidrim","de Nihilakh"
   "de Novokh","de Nephrekh","de Ogdobekh","d'Antinomia","de Charnovokh","de Maynarkh",
   "de Szarekhan","d'Oruscar","de Thokt","de Ithakas"]
 };
+
+/* ============================================================
+   STRATAGEMES
+   [nom, detachement ou "Core", type, cout PC, quand, cible, effet]
+   Aucune source verifiable n'existe pour la 11e : le catalogue
+   BattleScribe ne contient aucun stratageme de detachement. Ne
+   figure donc ici que ce qui est lisible sur les captures
+   WarOrgan — nom, detachement, type, cout — et le seul texte
+   qui y apparaissait deplie. Les champs vides s'affichent comme
+   « texte non renseigné » : les completer ne demande que de
+   remplir les trois dernieres colonnes.
+   ============================================================ */
+const STRATS = [
+["Molecular Targeting","Cryptek Conclave","Battle Tactic",1,
+ "Ta phase de Tir ou de Combat.",
+ "Une unité NECRONS de ton armée qui n'a pas encore été choisie pour tirer ou combattre cette phase.",
+ "Jusqu'à la fin de la phase, chaque fois qu'une figurine de l'unité attaque, tu peux ignorer tout ou partie des modificateurs à sa Capacité de Tir ou de Combat et au jet de touche. Si l'unité a le mot-clé CRYPTEK, tu peux aussi ignorer les modificateurs au jet de blessure."],
+["Microscarab Swarm","Cryptek Conclave","Wargear",1,"","",""],
+["Animus Curse","Cryptek Conclave","Wargear",1,"","",""],
+["Synergistic Empowerment","Cryptek Conclave","Strategic Ploy",1,"","",""],
+["Untapped Power","Cryptek Conclave","Battle Tactic",1,"","",""],
+["Potentiality Syphon","Cryptek Conclave","Strategic Ploy",1,"","",""],
+["Omnilocked Strafing","Skyshroud Spearhead","",1,"","",""],
+["Swift as Death","Skyshroud Spearhead","",1,"","",""],
+["Evasive Protocols","Skyshroud Spearhead","",1,"","",""],
+["Command Re-Roll","Core","Core",1,"","",""],
+["Epic Challenge","Core","Core",1,"","",""],
+["Insane Bravery","Core","Core",1,"","",""],
+["Explosives","Core","Core",1,"","",""],
+["Crushing Impact","Core","Core",1,"","",""],
+["Rapid Ingress","Core","Core",1,"","",""],
+["Fire Overwatch","Core","Core",1,"","",""],
+["Smokescreen","Core","Core",1,"","",""]
+];

@@ -425,11 +425,137 @@ function renderRoster(){
     host.appendChild(div);
   });
 }
+/* ==========================================================
+   STRATAGEMES
+   Ceux des detachements retenus, puis ceux de base. Le texte
+   n'est renseigne que pour ce qui a pu etre verifie.
+   ========================================================== */
+function renderStrats(){
+  const host = el("stratList"); if(!host) return;
+  host.innerHTML = "";
+  const groupes = R.detach.slice();
+  groupes.push("Core");
+  let rien = true;
+  groupes.forEach(g=>{
+    const lot = STRATS.filter(x => x[1] === g);
+    if(!lot.length) return;
+    rien = false;
+    const sep = document.createElement("div");
+    sep.className = "stratsep";
+    sep.textContent = g === "Core" ? "Stratagèmes de base" : g;
+    host.appendChild(sep);
+    lot.forEach(x=>{
+      const [nom, det, type, cp, quand, cible, effet] = x;
+      const d = document.createElement("div");
+      d.className = "strat";
+      const t = document.createElement("button");
+      t.type = "button";
+      t.innerHTML = '<span class="sn"><b>' + nom + '</b><i>' +
+        (type && type !== "Core" ? type : (det === "Core" ? "Stratagème de base" : det)) +
+        '</i></span><span class="cp">' + cp + ' PC</span>';
+      const body = document.createElement("div");
+      body.className = "sbody";
+      body.innerHTML = effet
+        ? '<dl><dt>Quand</dt><dd>' + quand + '</dd><dt>Cible</dt><dd>' + cible +
+          '</dd><dt>Effet</dt><dd>' + effet + '</dd></dl>'
+        : '<p class="vide">Texte non renseigné — aucune source vérifiable n\'a pu être trouvée pour ce stratagème.</p>';
+      t.addEventListener("click", ()=> d.classList.toggle("open"));
+      d.appendChild(t); d.appendChild(body);
+      host.appendChild(d);
+    });
+  });
+  if(rien) host.innerHTML = '<div class="empty">Choisis un détachement pour voir ses stratagèmes.</div>';
+}
+
+/* ==========================================================
+   ARMEMENT A PLAT
+   Tous les profils de la liste dans un seul tableau, comme le
+   « Show All Weapons » de WarOrgan : en partie on cherche une
+   arme, pas une unite.
+   ========================================================== */
+let armMode = "prises";
+function motsArme(flags){
+  const f = parseFlags(flags), k = [];
+  if(f.lethal)  k.push("Lethal Hits");
+  if(f.dev)     k.push("Devastating Wounds");
+  if(f.torrent) k.push("Torrent");
+  if(f.blast)   k.push("Blast");
+  if(f.twin)    k.push("Twin-linked");
+  if(f.sust)    k.push("Sustained Hits " + f.sust);
+  if(f.rf)      k.push("Rapid Fire " + f.rf);
+  if(f.melta)   k.push("Melta " + f.melta);
+  if(f.anti)    k.push("Anti-X " + f.anti + "+");
+  if(f.assault) k.push("Assault");
+  if(f.heavy)   k.push("Heavy");
+  if(f.precision) k.push("Precision");
+  if(f.hazard)  k.push("Hazardous");
+  if(f.pistol)  k.push("Pistol");
+  if(f.indirect) k.push("Indirect");
+  return k.join(" · ");
+}
+function renderArms(){
+  const host = el("armList"); if(!host) return;
+  host.innerHTML = "";
+  if(!R.units.length){
+    host.innerHTML = '<div class="empty">Ta liste est vide.</div>';
+    return;
+  }
+  R.units.forEach(ru=>{
+    const wl = unitWeps(ru.name); if(!wl.length) return;
+    /* combien de figurines portent chaque arme, personnages compris */
+    const pris = {};
+    ru.lo.forEach(l => { if(l.n > 0) pris[l.w] = (pris[l.w] || 0) + l.n; });
+
+    const lignes = [];
+    wl.forEach((w, i)=>{
+      const n = pris[i] || 0;
+      if(armMode === "prises" && !n) return;
+      if(armMode === "tir" && w[2] !== "T") return;
+      if(armMode === "cac" && w[2] !== "C") return;
+      lignes.push({w:w, n:n, unite:ru.name});
+    });
+    /* armes des personnages rattaches : celle qui est selectionnee */
+    ru.chars.forEach(c=>{
+      const cw = unitWeps(c.name);
+      cw.forEach((w, i)=>{
+        const equipee = (c.w || 0) === i;
+        if(armMode === "prises" && !equipee) return;
+        if(armMode === "tir" && w[2] !== "T") return;
+        if(armMode === "cac" && w[2] !== "C") return;
+        lignes.push({w:w, n:equipee ? 1 : 0, unite:c.name, perso:true});
+      });
+    });
+    if(!lignes.length) return;
+
+    const g = document.createElement("div");
+    g.className = "armgrp";
+    g.innerHTML = '<h4>' + (ru.grp || ru.name) + ' <span>· ' + ru.name + ' ×' + ru.size + '</span></h4>';
+    const wrap = document.createElement("div");
+    wrap.className = "armwrap";
+    let html = '<table class="arms"><thead><tr><th style="text-align:left">Arme</th>' +
+      '<th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+    lignes.forEach(L=>{
+      const w = L.w, mots = w[8] ? motsArme(w[8]) : "";
+      html += '<tr class="' + (L.n ? '' : 'off') + '"><td class="an">' +
+        (L.n ? '<b class="q">' + (L.perso ? '' : '×' + L.n + ' ') + '</b>' : '') + w[1] +
+        (w[2] === "C" ? ' <em style="color:var(--tx3)">càc</em>' : '') +
+        (L.perso ? ' <em style="color:var(--tx3)">· ' + L.unite + '</em>' : '') +
+        (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+        '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
+        '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
+    });
+    wrap.innerHTML = html + '</tbody></table>';
+    g.appendChild(wrap);
+    host.appendChild(g);
+  });
+  if(!host.children.length) host.innerHTML = '<div class="empty">Rien à afficher avec ce filtre.</div>';
+}
+
 function renderWarn(){
   const w = validate(), host = el("rosterWarn");
   host.innerHTML = w.length ? '<div class="warnbox">' + w.join("<br>") + '</div>' : "";
 }
-function renderList(){ renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderFireList(); }
+function renderList(){ renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderStrats(); renderArms(); renderFireList(); }
 
 /* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
 let pickMode = null, pickTarget = null;
@@ -970,6 +1096,12 @@ el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 el("btnAddUnit").addEventListener("click", openUnitPick);
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport").addEventListener("click", exportImport);
+if(el("armMode")) el("armMode").querySelectorAll(".chip").forEach(b=>
+  b.addEventListener("click", ()=>{
+    armMode = b.dataset.m;
+    el("armMode").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
+    renderArms();
+  }));
 el("btnShare").addEventListener("click", shareLink);
 el("uSearch").addEventListener("input", ()=>{ if(window.__rosterPick && pickMode) renderPick(); });
 el("phaseChips").querySelectorAll(".chip").forEach(b=>
