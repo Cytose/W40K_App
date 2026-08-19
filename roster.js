@@ -385,6 +385,104 @@ function unitProfiles(ru){
 /* ==========================================================
    ECRAN « MA LISTE »
    ========================================================== */
+/* points d'une liste quelconque, sans passer par la liste ouverte */
+function pointsDe(L){
+  return L.units.reduce((a,ru)=>{
+    const u = unitRow(ru.name); if(!u) return a;
+    let n = u[7][String(ru.size)] || 0;
+    ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) n += cu[7][String(cu[6][0])] || 0; });
+    const e = ru.enh && enhRow(ru.enh);
+    return a + n + (e && typeof e[1] === "number" ? e[1] : 0);
+  }, 0);
+}
+
+/* ==========================================================
+   INDEX DES LISTES
+   L'axe s'ouvre ici : on voit ce qu'on a, on entre dans l'une
+   d'elles pour la modifier.
+   ========================================================== */
+function renderIndex(){
+  const host = el("listCards"); if(!host) return;
+  host.innerHTML = "";
+  if(!LISTS.length){
+    host.innerHTML = '<div class="empty" style="padding:16px 4px">Aucune liste. Crées-en une pour commencer.</div>';
+    return;
+  }
+  LISTS.forEach(L=>{
+    const p = pointsDe(L), over = p > L.cap;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "lcard" + (L === R ? " on" : "");
+    b.innerHTML =
+      '<span class="li"><b>' + L.nom + '</b>' +
+      '<i>' + L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
+        ' · ' + L.detach.length + ' détachement' + (L.detach.length > 1 ? 's' : '') + '</i>' +
+      '<span class="det">' + (L.detach.join(" · ") || "aucun détachement") + '</span></span>' +
+      '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
+    b.addEventListener("click", ()=> ouvreEditeur(L.id));
+    host.appendChild(b);
+  });
+}
+
+/* ==========================================================
+   LISTE EN LECTURE
+   Ce qu'on regarde en partie : les groupes, leurs figurines et
+   leur armement, sans rien pouvoir modifier par megarde.
+   ========================================================== */
+function renderPlay(){
+  const host = el("playList"); if(!host) return;
+  host.innerHTML = "";
+  if(!R || !R.units.length){
+    host.innerHTML = '<div class="empty" style="padding:16px 4px">La liste ouverte est vide.</div>';
+    return;
+  }
+  const tete = document.createElement("div");
+  tete.className = "ptsbar";
+  const p = pointsDe(R);
+  tete.innerHTML =
+    '<div class="c ' + (p > R.cap ? "over" : "ok") + '"><div class="k">' + R.nom +
+      '</div><div class="v">' + p + ' <small style="font-size:11px;color:var(--tx3)">/ ' + R.cap + '</small></div></div>' +
+    '<div class="c"><div class="k">Détachement</div><div class="v">' + totalDP() + ' / ' + capDP() + '</div></div>' +
+    '<div class="c"><div class="k">Unités</div><div class="v">' + R.units.length + '</div></div>';
+  host.appendChild(tete);
+
+  R.units.forEach(ru=>{
+    const u = unitRow(ru.name); if(!u) return;
+    const wl = unitWeps(ru.name);
+    const g = document.createElement("div");
+    g.className = "pgrp";
+    let html = '<h4>' + (ru.grp || ru.name) + '</h4>';
+    const sc = socle(ru.name);
+    html += '<div class="pu"><b>' + ru.name + '</b><i>×' + ru.size + ' · M' + u[1] + '" · E' + u[2] +
+      ' · Svg ' + u[3] + '+' + (u[4] ? '/' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
+      (sc ? ' · socle ' + sc + ' mm' : '') + '</i>';
+    ru.lo.forEach(l=>{ const w = wl[l.w]; if(w && l.n)
+      html += '<span class="pw">×' + l.n + ' ' + w[1] + ' — A' + w[3] + ' ' + w[4] + '+ F' + w[5] +
+        ' PA' + (w[6] ? '-' + w[6] : '0') + ' D' + w[7] + '</span>'; });
+    html += '</div>';
+    ru.chars.forEach(c=>{
+      const cu = unitRow(c.name), cw = unitWeps(c.name)[c.w || 0];
+      if(!cu) return;
+      html += '<div class="pu"><b style="color:var(--glow)">' + c.name + '</b><i>' +
+        (roleDe(c.name) || '') + ' · E' + cu[2] + ' · ' + cu[5] + ' PV' +
+        (socle(c.name) ? ' · socle ' + socle(c.name) + ' mm' : '') + '</i>' +
+        (cw ? '<span class="pw">' + cw[1] + ' — A' + cw[3] + ' ' + cw[4] + '+ F' + cw[5] +
+          ' PA' + (cw[6] ? '-' + cw[6] : '0') + ' D' + cw[7] + '</span>' : '') + '</div>';
+    });
+    if(ru.enh){
+      const e = enhRow(ru.enh);
+      html += '<div class="pu"><b style="color:var(--cyan)">' + ru.enh + '</b><i>' +
+        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + '</i></div>';
+    }
+    const kws = motsClesGroupe(ru);
+    if(kws.length) html += '<div class="pu"><div class="kwline" style="margin:0">' +
+      kws.map(k => '<span class="gkw' + (k.source ? ' gkwadd' : '') + '">' + k.kw.toUpperCase() + '</span>').join("") +
+      '</div></div>';
+    g.innerHTML = html;
+    host.appendChild(g);
+  });
+}
+
 function renderLists(){
   const host = el("listTabs"); if(!host) return;
   host.innerHTML = "";
@@ -720,7 +818,7 @@ function renderWarn(){
 }
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
-  renderStrats(); renderArms(); renderFireList();
+  renderStrats(); renderArms(); renderFireList(); renderIndex();
   if(window.__syncRosterQuick) window.__syncRosterQuick();
 }
 
@@ -1282,17 +1380,50 @@ function initDetachSheet(){
   }
 }
 
-el("tabs").querySelectorAll("button").forEach(b=>{
+/* ==========================================================
+   NAVIGATION
+   Trois axes : les listes, le simulateur, l'aide de jeu.
+   L'axe des listes s'ouvre sur leur index ; on entre dans
+   l'editeur en touchant une liste, on en ressort par la barre
+   de retour.
+   ========================================================== */
+function vaVers(id){
+  el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.s === id));
+  document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("on", sc.id === id));
+  window.scrollTo(0,0);
+  el("headSum").style.display = (id === "scSim" && el("subAtk").classList.contains("on")) ? "" : "none";
+  if(id === "scList") renderList();
+  if(id === "scPlay") renderPlay();
+}
+el("tabs").querySelectorAll("button").forEach(b=>
+  b.addEventListener("click", ()=> vaVers(b.dataset.s)));
+
+/* sous-onglets du simulateur */
+el("simTabs").querySelectorAll("button").forEach(b=>{
   b.addEventListener("click", ()=>{
-    el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
-    document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("on", sc.id===b.dataset.s));
+    el("simTabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
+    document.querySelectorAll("#scSim .sub").forEach(v=>v.classList.toggle("on", v.id === b.dataset.v));
     window.scrollTo(0,0);
-    el("headSum").style.display = (b.dataset.s === "scSim") ? "" : "none";
-    if(b.dataset.s === "scFire"){ syncTarget(); renderFireList(); }
-    if(b.dataset.s === "scList") renderList();
-    if(b.dataset.s === "scCmp"){ syncTarget(); renderCmpList(); }
+    el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
+    if(b.dataset.v === "subFire"){ syncTarget(); renderFireList(); }
+    if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
   });
 });
+
+/* index <-> editeur */
+function ouvreEditeur(id){
+  if(id) ouvreListe(id);
+  el("listIndex").hidden = true;
+  el("listEditor").hidden = false;
+  renderList(); window.scrollTo(0,0);
+}
+function fermeEditeur(){
+  el("listEditor").hidden = true;
+  el("listIndex").hidden = false;
+  renderIndex(); window.scrollTo(0,0);
+}
+el("btnBackIndex").addEventListener("click", fermeEditeur);
+el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
 function syncTarget(){
   el("ptName3").textContent = SIM.tgtName;
   el("ptSub3").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
@@ -1341,15 +1472,15 @@ origPick.addEventListener("click", ()=>{ pickMode = null; window.__rosterPick = 
 
 /* la cible change dans l'onglet Simulateur -> repercuter ici */
 const obs = new MutationObserver(()=>{
-  if(el("scFire").classList.contains("on")){ syncTarget(); renderFireList(); }
-  if(el("scCmp").classList.contains("on")){ syncTarget(); renderCmpList(); }
+  if(el("subFire").classList.contains("on")){ syncTarget(); renderFireList(); }
+  if(el("subCmp").classList.contains("on")){ syncTarget(); renderCmpList(); }
 });
 obs.observe(el("ptSub"), {childList:true, characterData:true, subtree:true});
 
 // insere la barre de points sous l'en-tete
 const bar = document.createElement("div");
 bar.className = "ptsbar"; bar.id = "ptsbar";
-el("scList").insertBefore(bar, el("scList").firstChild);
+el("listEditor").insertBefore(bar, el("listEditor").children[1] || null);
 
 el("btnCmpRoster").addEventListener("click", ()=> openCmpPick("roster"));
 el("btnCmpCat").addEventListener("click", ()=> openCmpPick("cat"));
@@ -1365,6 +1496,7 @@ el("cmpPhase").querySelectorAll(".chip").forEach(b=>
 loadR(); loadCmp();
 initDetachSheet();
 renderList();
+renderIndex();
 renderCmpList();
 syncTarget();
 readSharedLink();
