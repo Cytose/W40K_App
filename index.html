@@ -495,6 +495,51 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 
 /* ---------- pave de l'editeur ---------- */
 #pad{margin-top:2px}
+/* « ce qu'il reste a finir » : rien d'illegal, seulement l'inacheve.
+   Replie par defaut — c'est un pense-bete, pas une alarme. */
+.todobar{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;
+  padding:9px 11px;background:var(--s1);border:1px solid var(--line);border-radius:9px;
+  color:var(--tx2);font:inherit;font-size:11.5px;text-align:left;cursor:pointer}
+.todobar .tchev{flex:0 0 auto;color:var(--glow);font-size:9px}
+.todobar .tt{flex:0 0 auto;font-weight:800;color:var(--tx)}
+.todobar .tc{flex:1;min-width:0;color:var(--tx3);font-size:10.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.todobar.on{border-color:var(--line-hi)}
+.todobar.on .tc{display:none}
+.todobox{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.todo{display:block;width:100%;padding:9px 11px;background:var(--s1);
+  border:1px solid var(--line);border-left:3px solid var(--line-hi);border-radius:8px;
+  color:var(--tx2);font:inherit;text-align:left}
+button.todo{cursor:pointer}
+button.todo:active{background:var(--s2)}
+.todo b{display:block;font-size:12px;font-weight:800;color:var(--tx);line-height:1.3}
+.todo i{display:block;font-style:normal;font-size:11px;color:var(--tx3);line-height:1.4;margin-top:2px}
+.todo.tdo-det{border-left-color:var(--cyan)}
+.todo.tdo-pts{border-left-color:var(--glow)}
+.todo.tdo-enh{border-left-color:var(--warn)}
+.todo.tdo-att{border-left-color:var(--green)}
+.todo.tdo-arm{border-left-color:var(--line-hi)}
+
+/* barre de recherche du pave : chercher dans SA liste, pas au catalogue */
+.padfind{display:flex;align-items:center;gap:7px;margin-top:9px}
+.padfind[hidden]{display:none}
+.padfind input{flex:1;min-width:0;height:38px;padding:0 12px;background:var(--s1);
+  border:1px solid var(--line);border-radius:8px;color:var(--tx);font:inherit;font-size:13px}
+.padfind input:focus{outline:none;border-color:var(--line-hi)}
+.padfind .ghost{flex:0 0 auto;width:38px;height:38px;padding:0;font-size:18px;line-height:1}
+/* en-tetes de role, quand le pave est regroupe */
+.padrole{grid-column:1/-1;display:flex;align-items:center;gap:8px;width:100%;
+  margin-top:4px;padding:6px 2px 5px;background:none;border:0;border-bottom:1px solid var(--line);
+  color:var(--tx2);font:inherit;font-size:10px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;text-align:left;cursor:pointer}
+.padrole .rchev{flex:0 0 auto;color:var(--glow);font-size:9px}
+.padrole .rnom{flex:1;min-width:0}
+.padrole .rcnt{flex:0 0 auto;font-size:9.5px;color:var(--tx3);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;
+  font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.padrole.on{color:var(--glow);border-bottom-color:var(--line-hi)}
+.padrole.on .rcnt{color:var(--tx2);border-color:var(--line-hi)}
+.padvide{grid-column:1/-1;padding:14px 4px;color:var(--tx3);font-size:12px;text-align:center}
 .padgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
 .tile{
   position:relative;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;
@@ -508,6 +553,17 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tile .tn{font-size:11px;font-weight:800;line-height:1.15;margin-top:2px;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* le detail d'une case : personnages rattaches, optimisation, arme
+   dominante. Occupe le vide entre le nom et la ligne des points, et se
+   coupe proprement quand il y en a trop. */
+.tile .td{display:flex;flex-direction:column;gap:1px;margin-top:4px;min-height:0;
+  overflow:hidden;font-size:8px;line-height:1.3}
+.tile .td span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .td .dp{color:var(--tx2);font-weight:700}
+.tile .td .dp::before{content:"\2023\00a0";color:var(--glow)}
+.tile .td .de{color:var(--warn)}
+.tile .td .de::before{content:"\2605\00a0"}
+.tile .td .dw{color:var(--tx3)}
 .tile .tb{display:flex;align-items:flex-end;justify-content:space-between;gap:3px;margin-top:auto}
 .tile .tp{font-size:15px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums;line-height:1}
 .tile .tp small{display:block;font-size:7.5px;font-weight:600;color:var(--tx3);letter-spacing:.04em}
@@ -1051,9 +1107,15 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <button class="backbar" id="btnBackIndex" type="button" hidden><span class="ar">‹</span><span class="bt">Mes listes</span></button>
     <div id="pad" class="pad">
       <div id="rosterWarn"></div>
+      <div id="rosterTodo"></div>
       <div class="padbar">
         <span id="padCount"></span>
+        <button type="button" class="ghost" id="btnPadGrp" title="Regrouper les cases par rôle">Par rôle</button>
         <button type="button" class="ghost" id="btnReorder">Réorganiser</button>
+      </div>
+      <div class="padfind" id="padFind" hidden>
+        <input type="search" id="padQ" placeholder="Chercher dans ma liste…" autocomplete="off">
+        <button type="button" class="ghost" id="btnPadQClear" hidden aria-label="Effacer">×</button>
       </div>
       <div class="padgrid" id="padUnits"></div>
       <p class="padhint" id="padHint" hidden>Appui long sur une case : régler, fiche, dupliquer, retirer.</p>

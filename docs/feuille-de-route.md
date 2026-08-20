@@ -1096,3 +1096,68 @@ quand la source existera.
 
 Enfin, le MFM appelle « The Silent King » ce que l'application nomme « Szarekh,
 The Silent King ». Même unité, même prix.
+
+---
+
+## 20. Le pavé dit ce qu'il contient, et ce qu'il reste à faire
+
+Retour de l'utilisateur : « on améliore encore la création de liste ». Trois
+directions retenues sur quatre proposées.
+
+### Les cases parlent
+
+Une case du pavé portait le nom, les points et l'effectif — et un grand vide au
+milieu. « +1 perso » ne disait pas **qui**, et deux Destroyers Lourds identiques
+étaient indiscernables l'un de l'autre.
+
+La case porte maintenant, dans ce vide : le **nom des personnages rattachés**,
+l'**optimisation** si elle est prise, et l'**arme dominante** de l'unité. Le
+**rang de copie** s'affiche en bas à droite — mais seulement sur les unités dont
+le prix bouge d'une copie à l'autre. Sur une unité à tarif fixe, « 2ᵉ copie »
+n'aurait été que du bruit.
+
+### Le pavé se regroupe et se cherche
+
+Deux commandes apparaissent quand la liste grossit : **Par rôle** à partir de
+quatre unités, la **recherche** à partir de six.
+
+Le regroupement a d'abord été écrit tout ouvert. C'était pire que rien : chaque
+en-tête prend une ligne entière, un rôle à une seule unité laisse deux colonnes
+vides, et une liste de huit unités passait de trois rangées à huit. Replié par
+défaut, avec un seul rôle ouvert à la fois, il devient ce qu'il aurait dû être
+dès le départ — **la répartition de l'armée en cinq lignes**, combien d'unités
+et combien de points par rôle, et on n'ouvre que celui qu'on vient régler.
+
+La recherche porte sur le nom de l'unité, le nom du groupe qu'on lui a donné et
+le nom des personnages rattachés : chercher « overlord » retrouve l'escouade
+qu'il mène, pas seulement une figurine.
+
+Le mode **Réorganiser** ignore les deux : il rétablit le pavé entier, à plat, et
+efface le filtre en cours. On ne déplace pas une case dans un pavé filtré ou
+replié sous peine de la poser ailleurs qu'où on croit.
+
+### Ce qu'il reste à finir
+
+`validate()` disait ce qui est **illégal**. Rien ne disait ce qui est simplement
+**inachevé** — ces choses qu'on découvre une fois la liste imprimée et la partie
+commencée.
+
+Un bandeau replié en haut du pavé les recense :
+
+| ce qui est signalé | pourquoi |
+|---|---|
+| aucun détachement | il commande optimisations, stratagèmes et mots-clés d'armes |
+| PD non dépensés | il reste de quoi prendre un détachement |
+| points inutilisés | avec le nombre d'unités qui tiennent encore, quand le reste commence à serrer |
+| optimisations ouvertes jamais prises | et combien sont déjà posées |
+| personnage laissé seul | avec la liste des unités qu'il pouvait rejoindre |
+| emplacement d'armement facultatif vide | facultatif, mais gratuit |
+
+Chaque ligne est cliquable et mène là où on la corrige.
+
+### Ce qui n'a pas été fait
+
+La quatrième direction proposée — **guider une liste neuve** (nommer, choisir le
+plafond et le détachement avant d'entrer dans l'éditeur) — n'a pas été retenue
+par l'utilisateur. Le bandeau ci-dessus en couvre déjà la moitié : une liste
+neuve affiche « Aucun détachement » dès la première unité posée.

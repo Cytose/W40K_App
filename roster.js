@@ -1149,6 +1149,34 @@ function armeGlisse(b){
   b.addEventListener("click", e=>{ if(modeRange) e.preventDefault(); });
 }
 
+/* Affichage du pave. Trois etats, tous d'affichage seul : jamais
+   enregistres, jamais partages, sans effet sur la liste elle-meme.
+   Le mode « Reorganiser » les ignore tous : on ne deplace pas une case
+   dans un pave filtre ou replie, sous peine de la poser ailleurs qu'ou
+   on croit. */
+let padGroupe = false;
+let padQ = "";
+let padRoleOuvert = "";
+
+/* Une case du pave portait le nom, les points et l'effectif — et un grand
+   vide au milieu. « +1 perso » ne disait pas qui, et deux Destroyers Lourds
+   identiques etaient indiscernables. Ces trois ou quatre lignes disent ce
+   qu'on cherche justement a verifier d'un coup d'oeil avant une partie. */
+function detailCase(ru){
+  const out = [];
+  ru.chars.forEach(c => out.push({ cl: "dp", t: c.name }));
+  if(ru.enh) out.push({ cl: "de", t: nomEnh(ru.enh) });
+  const i = armePrincipale(ru), wl = unitWeps(ru.name);
+  if(wl && wl[i]){
+    const g = groupeDe(ru.name, i);
+    out.push({ cl: "dw", t: g ? g.libelle : wl[i][1] });
+  }
+  return out;
+}
+/* le nom d'affichage d'une optimisation, sans son « (Aura) » ni sa
+   parenthese de type : la case n'a pas la place */
+const nomEnh = n => String(n).replace(/\s*\([^)]*\)\s*$/, "");
+
 function renderPad(){
   const gu = el("padUnits"), gt = el("padTools");
   if(!gu || !gt) return;
@@ -1166,19 +1194,45 @@ function renderPad(){
     br.disabled = R.units.length < 2;
   }
 
+  /* les commandes d'affichage n'ont de sens qu'a partir de quelques cases,
+     et disparaissent pendant la reorganisation */
+  const bg = el("btnPadGrp");
+  if(bg){
+    bg.hidden = modeRange || R.units.length < 4;
+    bg.classList.toggle("on", padGroupe);
+    bg.textContent = padGroupe ? "À plat" : "Par rôle";
+  }
+  const pf = el("padFind");
+  if(pf) pf.hidden = modeRange || R.units.length < 6;
+  const pq = el("padQ");
+  if(pq && pq.value !== padQ) pq.value = padQ;
+  const pqc = el("btnPadQClear");
+  if(pqc) pqc.hidden = !padQ;
+
   gu.innerHTML = "";
-  R.units.forEach((ru, iu)=>{
+  /* Le filtre porte sur ce qu'on a sous les yeux : le nom de l'unite, celui
+     du groupe qu'on lui a donne, et celui des personnages rattaches — on
+     cherche « overlord » pour retrouver l'escouade qu'il mene. */
+  const q = modeRange ? "" : norm(padQ.trim());
+  const retenue = ru => !q || norm(ru.name).includes(q) ||
+    norm(ru.grp || "").includes(q) || ru.chars.some(c => norm(c.name).includes(q));
+  const dessine = (ru, iu)=>{
     const u = unitRow(ru.name); if(!u) return;
     const b = document.createElement("button");
     b.type = "button";
     b.className = "tile" + (uniteSuspecte(ru) ? " warnmark" : "");
     b.dataset.uid = ru.id;
-    const nAtt = ru.chars.length;
+    /* le rang ne s'affiche que la ou il change le prix : sur une unite a
+       tarif fixe, « 2e copie » serait du bruit */
+    const rg = rangUnite(ru);
+    const rang = (prixEvolue(u) && rg > 1) ? rg + "\u1d49 copie" : "";
     b.innerHTML =
       (estGroupe(ru) && ru.grp ? '<span class="tg">' + ru.grp + '</span>' : '') +
       '<span class="tn">' + ru.name + '</span>' +
+      '<span class="td">' + detailCase(ru).map(d =>
+        '<span class="' + d.cl + '">' + d.t + '</span>').join("") + '</span>' +
       '<span class="tb"><span class="tp">' + pointsUnite(ru) + '<small>points</small></span>' +
-      '<span class="tx">×' + ru.size + (nAtt ? '<br>+' + nAtt + ' perso' + (nAtt > 1 ? 's' : '') : '') + '</span></span>' +
+      '<span class="tx">×' + ru.size + (rang ? '<br>' + rang : '') + '</span></span>' +
       (uniteSuspecte(ru) ? '<span class="tmark"></span>' : '');
     if(modeRange){
       const mv = document.createElement("span");
@@ -1205,10 +1259,50 @@ function renderPad(){
       b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
     }
     gu.appendChild(b);
-  });
+  };
+
+  const vues = R.units.map((ru, iu)=>({ru, iu})).filter(x => retenue(x.ru));
+  if(padGroupe && !modeRange){
+    /* regroupe par role, dans l'ordre du catalogue ; a l'interieur d'un
+       role, l'ordre de la liste est conserve */
+    /* Replie d'office, et un seul role ouvert a la fois. Le laisser tout
+       ouvert allongeait le pave au lieu de le raccourcir : chaque en-tete
+       prend une ligne entiere et un role a une seule unite laisse deux
+       colonnes vides. Plie, c'est la repartition de l'armee en cinq
+       lignes — combien d'unites, combien de points par role — et on
+       n'ouvre que celui qu'on vient regler. */
+    const parRole = {};
+    vues.forEach(x => (parRole[categorie(x.ru.name)] = parRole[categorie(x.ru.name)] || []).push(x));
+    CAT_ORDRE.forEach(cat=>{
+      const lot = parRole[cat]; if(!lot || !lot.length) return;
+      const ouvert = !!q || padRoleOuvert === cat;
+      const pts = lot.reduce((a, x) => a + pointsUnite(x.ru), 0);
+      const t = document.createElement("button");
+      t.type = "button"; t.className = "padrole" + (ouvert ? " on" : "");
+      t.innerHTML = '<span class="rchev">' + (ouvert ? "▾" : "▸") + '</span>' +
+        '<span class="rnom">' + cat + '</span>' +
+        '<span class="rcnt">' + lot.length + ' · ' + pts + ' pts</span>';
+      t.addEventListener("click", ()=>{
+        padRoleOuvert = (padRoleOuvert === cat) ? "" : cat;
+        renderPad();
+      });
+      gu.appendChild(t);
+      if(ouvert) lot.forEach(x => dessine(x.ru, x.iu));
+    });
+  } else {
+    vues.forEach(x => dessine(x.ru, x.iu));
+  }
+  if(q && !vues.length){
+    const v = document.createElement("div");
+    v.className = "padvide";
+    v.textContent = "Aucune unité de ta liste ne correspond à « " + padQ.trim() + " ».";
+    gu.appendChild(v);
+  }
   const hint = el("padHint");
-  if(hint) hint.hidden = modeRange || !R.units.length;
+  if(hint) hint.hidden = modeRange || !R.units.length ||
+    (padGroupe && !q && !padRoleOuvert);
   if(modeRange){ gt.innerHTML = ""; return; }
+  if(q){ if(hint) hint.hidden = true; gt.innerHTML = ""; return; }
   const plus = document.createElement("button");
   plus.type = "button";
   plus.className = "tile add";
@@ -2549,8 +2643,114 @@ function renderWarn(){
   const w = validate(), host = el("rosterWarn");
   host.innerHTML = w.length ? '<div class="warnbox">' + w.join("<br>") + '</div>' : "";
 }
+
+/* ==========================================================
+   CE QU'IL RESTE A FAIRE
+   validate() dit ce qui est illegal ; ceci dit ce qui est
+   simplement inacheve. Rien ici n'empeche de jouer — ce sont
+   les choses qu'on decouvre trop tard, une fois la liste
+   imprimee et la partie commencee : des points jamais
+   depenses, une optimisation ouverte et jamais prise, un
+   personnage laisse seul quand il pouvait mener une escouade.
+   ========================================================== */
+let todoOuvert = false;
+
+function bilanListe(){
+  const out = [];
+  if(!R.units.length) return out;
+
+  /* le detachement conditionne les optimisations et les stratagemes :
+     sans lui, la moitie de la liste ne veut rien dire */
+  if(!R.detach.length)
+    out.push({cl:"tdo-det", t:"Aucun détachement", d:"Il commande les optimisations, les stratagèmes et les mots-clés d'armes.", go:"cardDetach"});
+  else {
+    const dp = totalDP(), dpMax = capDP();
+    if(dp < dpMax)
+      out.push({cl:"tdo-det", t:(dpMax - dp) + " PD non dépensé" + (dpMax - dp > 1 ? "s" : ""),
+                d:"Tu peux encore prendre un détachement.", go:"cardDetach"});
+  }
+
+  const pts = totalPoints(), cap = R.cap || 2000;
+  if(pts < cap){
+    const reste = cap - pts;
+    /* dire ce qui rentre encore vaut mieux qu'un nombre nu */
+    /* combien d'unites rentrent encore : le chiffre ne dit quelque chose
+       que quand le reste commence a serrer — a mille points de marge,
+       « cinquante unites rentrent » n'apprend rien */
+    const rentre = UNITS.filter(u => !u[10] && ptsPour(u, u[6][0], rangProchain(u[0])) <= reste).length;
+    out.push({cl:"tdo-pts", t:reste + " pts inutilisés sur " + cap,
+              d:!rentre ? "Plus aucune unité du catalogue ne tient dans ce reste."
+                : rentre <= 12 ? "Il ne reste que " + rentre + " unité" + (rentre > 1 ? "s" : "") +
+                    " du catalogue à tenir dans ce budget."
+                : "De quoi ajouter encore plusieurs unités."});
+  }
+
+  /* optimisations ouvertes par les detachements et jamais prises */
+  if(R.detach.length){
+    const prises = R.units.filter(ru => ru.enh).length;
+    const dispo = enhDispo();
+    const posables = dispo.filter(e => R.units.some(ru => !ru.enh && porteursPossibles(ru, e).length));
+    if(dispo.length && posables.length && prises < dispo.length)
+      out.push({cl:"tdo-enh", t:posables.length + " optimisation" + (posables.length > 1 ? "s" : "") +
+                  " disponible" + (posables.length > 1 ? "s" : "") + (prises ? " en plus" : ""),
+                d:prises ? prises + " déjà prise" + (prises > 1 ? "s" : "") + " dans la liste."
+                         : "Tes détachements en ouvrent, aucune n'est prise."});
+  }
+
+  /* un personnage seul dans son coin qui pouvait mener une escouade */
+  const seuls = R.units.filter(ru => {
+    if(ru.chars.length || ru.size !== 1) return false;
+    const r = roleDe(ru.name);
+    if(r !== "Leader" && r !== "Support") return false;
+    return R.units.some(x => x !== ru && peutRejoindre(ru.name, x.name) === true);
+  });
+  seuls.forEach(ru=>{
+    const cibles = R.units.filter(x => x !== ru && peutRejoindre(ru.name, x.name) === true)
+                          .map(x => nomAffiche(x));
+    out.push({cl:"tdo-att", t:ru.name + " est seul",
+              d:"Peut rejoindre " + cibles.slice(0,3).join(", ") +
+                (cibles.length > 3 ? " et " + (cibles.length - 3) + " autres." : "."), uid:ru.id});
+  });
+
+  /* emplacements d'armement facultatifs jamais servis */
+  R.units.forEach(ru=>{
+    const libres = armSlots(ru.name).filter((sl, si) => sl.min < 1 && !totalSlot(ru, si)).length;
+    if(libres) out.push({cl:"tdo-arm", t:nomAffiche(ru) + " : " + libres + " option d'armement non prise" +
+                  (libres > 1 ? "s" : ""),
+                d:"Ces emplacements sont facultatifs — mais gratuits.", uid:ru.id});
+  });
+
+  return out;
+}
+
+function renderTodo(){
+  const host = el("rosterTodo"); if(!host) return;
+  const lot = bilanListe();
+  if(!lot.length){ host.innerHTML = ""; return; }
+  host.innerHTML = "";
+  const t = document.createElement("button");
+  t.type = "button"; t.className = "todobar" + (todoOuvert ? " on" : "");
+  t.innerHTML = '<span class="tchev">' + (todoOuvert ? "▾" : "▸") + '</span>' +
+    '<span class="tt">' + lot.length + ' chose' + (lot.length > 1 ? 's' : '') + ' à finir</span>' +
+    '<span class="tc">' + lot.slice(0,2).map(x => x.t).join(" · ") + '</span>';
+  t.addEventListener("click", ()=>{ todoOuvert = !todoOuvert; renderTodo(); });
+  host.appendChild(t);
+  if(!todoOuvert) return;
+  const box = document.createElement("div");
+  box.className = "todobox";
+  lot.forEach(x=>{
+    const l = document.createElement(x.go || x.uid ? "button" : "div");
+    l.className = "todo " + x.cl;
+    if(x.go || x.uid) l.type = "button";
+    l.innerHTML = '<b>' + x.t + '</b><i>' + x.d + '</i>';
+    if(x.go) l.addEventListener("click", ()=> ouvrePanneau(x.go));
+    else if(x.uid) l.addEventListener("click", ()=> ouvrePanneau("cardUnits", x.uid));
+    box.appendChild(l);
+  });
+  host.appendChild(box);
+}
 function renderList(){
-  renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn();
+  renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderTodo();
   renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad(); renderPartie();
   renderDispo();
   if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
@@ -3803,7 +4003,21 @@ el("btnBack").addEventListener("click", ()=>{
 });
 if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
   finGlisse();
-  modeRange = !modeRange; renderPad();
+  modeRange = !modeRange;
+  /* on reorganise sur le pave entier : un filtre ou un repli fausserait
+     la place ou la case retombe */
+  if(modeRange) padQ = "";
+  renderPad();
+});
+if(el("btnPadGrp")) el("btnPadGrp").addEventListener("click", ()=>{
+  padGroupe = !padGroupe; renderPad();
+});
+if(el("padQ")) el("padQ").addEventListener("input", e=>{
+  padQ = e.target.value; renderPad();
+});
+if(el("btnPadQClear")) el("btnPadQClear").addEventListener("click", ()=>{
+  padQ = ""; renderPad();
+  const c = el("padQ"); if(c) c.focus();
 });
 el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
 function syncTarget(){
