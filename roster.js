@@ -250,8 +250,8 @@ window.ROSTER = {
     const ru = R.units.find(u => String(u.id) === String(id));
     if(!ru) return null;
     return {
-      id: ru.id, nom: nomAffiche(ru), unite: ru.name, taille: ru.size,
-      persos: ru.chars.map(c => c.name),
+      id: ru.id, nom: nomRepere(ru), unite: ru.name, taille: ru.size,
+      persos: ru.chars.map(c => c.name), armes: armementCourt(ru),
       profils: profilsPhase(ru, ph).map(p => Object.assign({}, p)),
       conditions: conditionsDe(ru, ph)
     };
@@ -267,8 +267,9 @@ window.ROSTER = {
   simListe: function(){
     if(!R) return null;
     return { nom: R.nom, unites: R.units.map(ru => ({
-      id: ru.id, nom: nomAffiche(ru), unite: ru.name, taille: ru.size,
-      persos: ru.chars.map(c => c.name),
+      id: ru.id, nom: nomRepere(ru), unite: ru.name, taille: ru.size,
+      persos: ru.chars.map(c => c.name), armes: armementCourt(ru),
+      enh: ru.enh ? nomEnh(ru.enh) : "",
       cat: (typeof categorie === "function") ? categorie(ru.name) : "",
       nT: profilsPhase(ru, "T").length,
       nC: profilsPhase(ru, "C").length })) };
@@ -1313,6 +1314,40 @@ function detailCase(ru){
 /* le nom d'affichage d'une optimisation, sans son « (Aura) » ni sa
    parenthese de type : la case n'a pas la place */
 const nomEnh = n => String(n).replace(/\s*\([^)]*\)\s*$/, "");
+
+/* L'armement d'une unite en une ligne : « 2× Destructeur gauss ·
+   1× Exterminateur enmitique ». C'est souvent la seule chose qui
+   distingue deux escouades du meme nom et du meme effectif, et ni le
+   comparateur ni le selecteur d'unite ne le montraient : trois
+   Destroyers Lourds a grosse arme et trois a arme de saturation
+   s'affichaient exactement pareil. */
+function armementCourt(ru){
+  const wl = unitWeps(ru.name), port = portParArme(ru), vus = {}, out = [];
+  Object.keys(port).map(Number).sort((a,b) => a - b).forEach(i=>{
+    const n = port[i], w = wl[i];
+    if(!n || !w) return;
+    const g = groupeDe(ru.name, i);
+    if(g){ if(vus[g.base]) return; vus[g.base] = 1; }
+    out.push({ gen: w[1] === "Close combat weapon",
+               t: n + "\u00d7 " + (g ? g.libelle : w[1]) });
+  });
+  /* « Close combat weapon » est l'arme de melee par defaut : toute
+     figurine la porte, aucune unite ne s'en distingue. On la tait quand
+     il reste autre chose a dire, et on la garde quand c'est tout ce que
+     l'unite a — les Ecorcheurs n'ont que leurs griffes. */
+  const utiles = out.filter(x => !x.gen);
+  return (utiles.length ? utiles : out).map(x => x.t).join(" · ");
+}
+/* Et quand deux unites de la liste portent quand meme le meme nom
+   affiche, on les numerote : « #1 », « #2 ». Sans reperage, choisir
+   l'une ou l'autre revient a tirer au sort. */
+function numeroDoublon(ru, L){
+  const src = ((L || R) || {}).units || [];
+  const nom = nomAffiche(ru);
+  const lot = src.filter(x => nomAffiche(x) === nom);
+  return lot.length < 2 ? "" : " #" + (lot.indexOf(ru) + 1);
+}
+const nomRepere = ru => nomAffiche(ru) + numeroDoublon(ru);
 
 function renderPad(){
   const gu = el("padUnits"), gt = el("padTools");
@@ -3354,17 +3389,20 @@ function renderPick(){
     if(fromRoster){
       const deja = new Set(CMP.filter(c => c.src === "roster").map(c => String(c.id)));
       R.units.filter(ru => !q || norm(nomAffiche(ru)).includes(q) || norm(ru.name).includes(q) ||
+                           norm(armementCourt(ru)).includes(q) ||
                            ru.chars.some(c => norm(c.name).includes(q)))
         .forEach(ru=>{
           const u = unitRow(ru.name); if(!u) return;
           const nT = profilsPhase(ru, "T").length, nC = profilsPhase(ru, "C").length;
           const b = document.createElement("button");
           b.type="button"; b.className="opt" + (deja.has(String(ru.id)) ? " sel" : "");
-          b.innerHTML = '<span class="oi"><span class="o1">' + nomAffiche(ru) + '</span>' +
+          b.innerHTML = '<span class="oi"><span class="o1">' + nomRepere(ru) + '</span>' +
             '<span class="o2">' + ru.name + ' ×' + ru.size +
             (ru.chars.length ? ' · ' + ru.chars.map(c=>c.name).join(", ") : '') +
             (ru.enh ? ' · ' + nomEnh(ru.enh) : '') +
-            ' · ' + pointsUnite(ru) + ' pts · ' + nT + ' profil' + (nT>1?'s':'') +
+            ' · ' + pointsUnite(ru) + ' pts</span>' +
+            '<span class="oarm">' + (armementCourt(ru) || '—') + '</span>' +
+            '<span class="o2">' + nT + ' profil' + (nT>1?'s':'') +
             ' de tir, ' + nC + ' au corps à corps</span></span>' +
             (deja.has(String(ru.id)) ? '<span class="otag">DÉJÀ LÀ</span>' : '');
           b.addEventListener("click", ()=>{
@@ -3546,7 +3584,7 @@ function cmpPoints(c){
 function cmpNom(c){
   if(c.src === "roster"){
     const ru = cmpUnite(c);
-    return ru ? nomAffiche(ru) : "unité retirée";
+    return ru ? nomRepere(ru) : "unité retirée";
   }
   return c.name;
 }
@@ -3575,12 +3613,14 @@ function renderCmpList(){
         row.appendChild(rm); host.appendChild(row); return;
       }
       const n = cmpProfiles(c).length;
-      row.innerHTML = '<span class="cn"><b>' + nomAffiche(ru) + '</b><i>' +
+      const arm = armementCourt(ru);
+      row.innerHTML = '<span class="cn"><b>' + nomRepere(ru) + '</b><i>' +
         ru.name + ' ×' + ru.size +
         (ru.chars.length ? ' · ' + ru.chars.map(x=>x.name).join(", ") : '') +
         (ru.enh ? ' · ' + nomEnh(ru.enh) : '') +
-        ' · ' + (n ? n + ' profil' + (n>1?'s':'') : 'aucune arme pour cette phase') +
-        ' · ' + cmpPoints(c) + ' pts</i></span>';
+        ' · ' + cmpPoints(c) + ' pts</i>' +
+        (arm ? '<u>' + arm + '</u>' : '') +
+        (n ? '' : '<u class="rien">aucune arme pour cette phase</u>') + '</span>';
       row.appendChild(rm); host.appendChild(row); return;
     }
 
