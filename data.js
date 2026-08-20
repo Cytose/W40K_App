@@ -76,6 +76,33 @@ const UNITS = [
    les options d'un meme emplacement. Une unite absente de cette
    table porte toutes ses armes d'office.
    ============================================================ */
+/* Le Munitorum Field Manual ne facture pas une unite au meme prix selon
+   le nombre de copies deja prises : « YOUR 1ST UNIT COSTS 50 pts »,
+   « YOUR 3RD + UNIT COSTS 60 pts ». Le champ UNITS[7] accepte donc deux
+   formes — un simple bareme {effectif: points} quand le prix ne bouge
+   jamais, ou une liste de paliers [[rang, bareme], ...] ou chaque palier
+   s'applique a partir de ce rang-la. Les trente-six unites a prix fixe
+   gardent la forme courte.
+
+   Ces quatre aides vivent ici, avec le format qu'elles decrivent : le
+   simulateur les lit autant que l'editeur de liste. */
+const paliersPts = u => {
+  const t = u && u[7];
+  if(!t) return [[1, {}]];
+  return Array.isArray(t) ? t : [[1, t]];
+};
+function baremePts(u, rang){
+  const p = paliersPts(u);
+  let bar = p[0][1];
+  for(let i = 0; i < p.length; i++) if((rang || 1) >= p[i][0]) bar = p[i][1];
+  return bar;
+}
+/* prix d'une unite pour un effectif et un rang donnes */
+const ptsPour = (u, taille, rang) => baremePts(u, rang)[String(taille)] || 0;
+/* le prix bouge-t-il d'un rang a l'autre ? sert a n'afficher le rang que
+   la ou il change quelque chose */
+const prixEvolue = u => paliersPts(u).length > 1;
+
 const ARMEMENT = {
  "Convergence of Dominion" : { f:[0], s:[] }, /* d'office : Transdimensional abductor */
  "Necron Warriors" : { f:[2], s:[{min:1, o:[[0],[1]]}] }, /* d'office : Close combat weapon */
