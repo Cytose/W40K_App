@@ -1,8 +1,8 @@
 (function(){
 "use strict";
 const el = id => document.getElementById(id);
-const {scaleDice, analytic, simulateCombined, simulate} = ENG;
-const {S, unitRow, unitWeps, parseFlags, drawBars, binned, pct, num} = SIM;
+const {scaleDice, analytic, simulateCombined, simulate, seuilTues, auMoins} = ENG;
+const {S, unitRow, unitWeps, parseFlags, drawBars, binned, pct, num, rendSeuils} = SIM;
 
 /* ==========================================================
    ETAT DE LA LISTE
@@ -54,6 +54,22 @@ function normaliseListe(L){
     return false;
   });
   L.units.forEach(ru => {
+    /* le personnage rattache passe lui aussi aux emplacements */
+    (ru.chars || []).forEach(c=>{
+      if(c.lo) return;
+      const sl = armSlots(c.name);
+      c.lo = [];
+      if(c.w !== undefined && c.w !== null){
+        let vs = -1, vo = -1, taille = 1e9;
+        sl.forEach((x, si) => x.o.forEach((o, oi) => {
+          if(o.indexOf(c.w) >= 0 && o.length < taille){ taille = o.length; vs = si; vo = oi; }
+        }));
+        if(vs >= 0) c.lo.push({s:vs, o:vo});
+      }
+      sl.forEach((x, si)=>{ if(x.min >= 1 && !c.lo.some(l => l.s === si)) c.lo.push({s:si, o:0}); });
+      delete c.w;
+      MIGRE = true;
+    });
     ru.chars = (ru.chars || []).filter(c => {
       if(unitRow(c.name)) return true;
       RETIREES.push(c.name);
@@ -175,7 +191,7 @@ window.ROSTER = {
     R.units.forEach(ru=>{
       out.push({ nom: ru.name, taille: ru.size, arme: armePrincipale(ru),
                  groupe: nomAffiche(ru), perso: false });
-      ru.chars.forEach(c => out.push({ nom: c.name, taille: 1, arme: c.w|0,
+      ru.chars.forEach(c => out.push({ nom: c.name, taille: 1, arme: armePersoPrincipale(c),
                  groupe: nomAffiche(ru), perso: true }));
     });
     return { liste: R.nom, unites: out };
@@ -270,6 +286,34 @@ function portParArme(ru){
   });
   return out;
 }
+/* Un personnage rattache porte lui aussi des armes d'office et fait ses
+   propres choix d'emplacement — un Overlord prend sa lame et sa fleche
+   tachyon, ou sa faux, ou son baton. Il tient une seule figurine, donc
+   chaque arme compte pour une. */
+function portParArmePerso(c){
+  const out = {}, slots = armSlots(c.name);
+  armFixes(c.name).forEach(i => { out[i] = 1; });
+  (c.lo || []).forEach(l => {
+    const sl = slots[l.s]; if(!sl) return;
+    const o = sl.o[l.o]; if(!o) return;
+    o.forEach(i => { out[i] = (out[i] || 0) + 1; });
+  });
+  return out;
+}
+/* les groupes d'arme qu'il porte, pour l'affichage */
+function groupesPortes(nom, port){
+  const vus = {}, out = [];
+  Object.keys(port).forEach(k=>{
+    const i = +k;
+    const g = groupeDe(nom, i);
+    const cle = g ? g.base : String(i);
+    if(vus[cle]) return;
+    vus[cle] = 1;
+    out.push(g || {libelle: (unitWeps(nom)[i] || [])[1] || "?", profils: [{w: unitWeps(nom)[i], i: i}], base: cle});
+  });
+  return out;
+}
+
 /* la meme chose ramenee au groupe d'arme : un baton de lumiere qui donne
    un tir et une frappe ne compte qu'une fois */
 function portParGroupe(ru){
@@ -280,6 +324,20 @@ function portParGroupe(ru){
   });
   return out;
 }
+/* armement de depart d'un personnage : la premiere option de chaque
+   emplacement obligatoire */
+function loPersoParDefaut(nom){
+  const out = [];
+  armSlots(nom).forEach((sl, si)=>{ if(sl.min >= 1) out.push({s:si, o:0}); });
+  return out;
+}
+/* son arme la plus parlante, pour la passerelle vers le simulateur */
+function armePersoPrincipale(c){
+  const port = portParArmePerso(c);
+  const k = Object.keys(port);
+  return k.length ? +k[0] : 0;
+}
+
 /* l'arme la plus portee de l'unite, pour ouvrir le simulateur dessus */
 function armePrincipale(ru){
   const port = portParArme(ru);
@@ -564,14 +622,16 @@ function unitProfiles(ru){
       out.push(p);
     }
   }
+  /* le personnage rattache apporte tout son armement, pas une seule arme */
   ru.chars.forEach(c=>{
-    const cl = unitWeps(c.name);
-    let w = cl[c.w];
-    if(!w || w[2] !== phase) w = cl.find(x => x[2] === phase);
-    if(!w) return;
-    const p = weaponProfile(c.name, w, 1, ru);
-    p.label = c.name + " — " + w[1];
-    out.push(p);
+    const cl = unitWeps(c.name), portC = portParArmePerso(c);
+    Object.keys(portC).forEach(k=>{
+      const i = +k, w = cl[i], n = portC[i];
+      if(!w || w[2] !== phase || n <= 0) return;
+      const p = weaponProfile(c.name, w, n, ru);
+      p.label = c.name + " — " + w[1] + (n > 1 ? " ×" + n : "");
+      out.push(p);
+    });
   });
   return out;
 }
@@ -1226,8 +1286,9 @@ function renderPlay(){
     ru.chars.forEach(c=>{
       const cu = unitRow(c.name);
       if(!cu) return;
-      const gc = groupeDe(c.name, c.w || 0);
-      const cws = gc ? gc.profils.map(p => p.w) : [unitWeps(c.name)[c.w || 0]].filter(Boolean);
+      const cws = [];
+      const portC = portParArmePerso(c), clc = unitWeps(c.name);
+      Object.keys(portC).forEach(k => { if(clc[+k]) cws.push(clc[+k]); });
       html += '<div class="pu"><b style="color:var(--glow)">' + c.name + '</b><i>' +
         (roleDe(c.name) || '') + ' · E' + cu[2] + ' · ' + cu[5] + ' PV' +
         (socle(c.name) ? ' · socle ' + socle(c.name) + ' mm' : '') + '</i>' +
@@ -1481,29 +1542,66 @@ function renderRoster(){
     });
 
     ru.chars.forEach((c, ci)=>{
-      const cl = unitWeps(c.name), gAct = groupeDe(c.name, c.w || 0);
-      const w = gAct ? {1: gAct.libelle} : (cl[c.w] || cl[0]);
       const row = document.createElement("div");
-      row.className = "lo";
+      row.className = "lo lo-perso";
       const role = (unitRow(c.name)||[])[9] || (RETINUE[c.name] ? "Escorte" : "");
       const scc = socle(c.name);
       const hors = peutRejoindre(c.name, ru.name) === false;
       row.innerHTML = '<span class="ln" style="color:var(--glow)">' + c.name +
         (hors ? ' <b class="alerte" title="Ce personnage ne figure pas dans la liste des unités qu\'il peut rejoindre">!</b>' : '') +
-        ' <em>' + role + (scc ? ' · socle ' + scc + ' mm' : '') + (w ? ' · ' + w[1] : '') + '</em></span>';
-      const nx = document.createElement("button");
-      nx.className="xbtn"; nx.type="button"; nx.textContent="⟳"; nx.title="Changer d'arme";
-      nx.addEventListener("click", ()=>{
-        const gs = groupesArmes(c.name);
-        const iAct = gs.findIndex(g => g.profils.some(p => p.i === (c.w || 0)));
-        c.w = gs[(iAct + 1 + gs.length) % gs.length].principal;
-        saveR(); renderList();
-      });
+        ' <em>' + role + (scc ? ' · socle ' + scc + ' mm' : '') + '</em></span>';
       const rm = document.createElement("button");
       rm.className="xbtn"; rm.type="button"; rm.textContent="×";
       rm.addEventListener("click", ()=>{ ru.chars.splice(ci,1); saveR(); renderList(); });
-      row.appendChild(nx); row.appendChild(rm);
+      row.appendChild(rm);
       div.appendChild(row);
+
+      /* son armement : les armes d'office, puis un choix par emplacement.
+         Un Overlord dans un groupe doit pouvoir prendre sa faux ou son
+         baton, comme s'il jouait seul. */
+      const detailC = indices => {
+        const vus = {}, bouts = [];
+        indices.forEach(i=>{
+          const g = groupeDe(c.name, i);
+          const cle = g ? g.base : String(i);
+          if(vus[cle]) return; vus[cle] = 1;
+          (g ? g.profils : (unitWeps(c.name)[i] ? [{w:unitWeps(c.name)[i]}] : [])).forEach(pr =>
+            bouts.push((pr.w[2] === "C" ? "càc" : "tir") + " A" + pr.w[3] + " F" + pr.w[5] +
+              " PA" + (pr.w[6] ? "-" + pr.w[6] : "0") + " D" + pr.w[7]));
+        });
+        return bouts.join("  ·  ");
+      };
+      const fixesC = armFixes(c.name).filter(i=>{
+        const g = groupeDe(c.name, i);
+        return !g || g.principal === i;
+      });
+      fixesC.forEach(i=>{
+        const g = groupeDe(c.name, i);
+        const r = document.createElement("div");
+        r.className = "lo lo-fixe lo-sous";
+        r.innerHTML = '<span class="ln">' + (g ? g.libelle : (unitWeps(c.name)[i]||[])[1]) +
+          ' <em>' + detailC([i]) + '</em></span><span class="lofix">d\'office</span>';
+        div.appendChild(r);
+      });
+      armSlots(c.name).forEach((sl, si)=>{
+        sl.o.forEach((opt, oi)=>{
+          const pris = (c.lo || []).some(l => l.s === si && l.o === oi);
+          const r = document.createElement("div");
+          r.className = "lo lo-sous" + (pris ? " lo-on" : "");
+          r.innerHTML = '<span class="ln">' + libelleOption(c.name, opt) +
+            ' <em>' + detailC(opt) + '</em></span>';
+          const b = document.createElement("button");
+          b.type = "button"; b.className = "chip" + (pris ? " on" : "");
+          b.textContent = pris ? "prise" : "prendre";
+          b.addEventListener("click", ()=>{
+            c.lo = (c.lo || []).filter(l => l.s !== si);
+            if(!pris || sl.min >= 1) c.lo.push({s:si, o:oi});
+            saveR(); renderList();
+          });
+          r.appendChild(b);
+          div.appendChild(r);
+        });
+      });
     });
 
     /* amelioration portee par le groupe */
@@ -1577,7 +1675,8 @@ function renderRoster(){
       return h + '</tbody></table></div>';
     };
     eq.innerHTML = table("Tir", tir) + table("Corps à corps", cac) +
-      '<p class="hint">Les armes de mêlée équipent toute l\'unité : elles ne se répartissent pas.</p>';
+      '<p class="hint">Tout l\'armement du groupe, personnages rattachés compris. ' +
+      'Le nombre en tête est le nombre de figurines qui portent l\'arme.</p>';
     div.appendChild(eq);
 
     const add = document.createElement("div");
@@ -1928,9 +2027,9 @@ function renderArms(){
     }));
     /* armes des personnages rattaches : celle qui est selectionnee */
     ru.chars.forEach(c=>{
-      const gAct = groupeDe(c.name, c.w || 0);
+      const portC = portParArmePerso(c);
       groupesArmes(c.name).forEach(g => g.profils.forEach(p=>{
-        const equipee = !!(gAct && gAct.base === g.base), w = p.w;
+        const equipee = g.profils.some(x => portC[x.i] > 0), w = p.w;
         if(armMode === "prises" && !equipee) return;
         if(armMode === "tir" && w[2] !== "T") return;
         if(armMode === "cac" && w[2] !== "C") return;
@@ -2074,7 +2173,7 @@ function renderPick(){
         ' · ' + (u[7][String(u[6][0])]||0) + ' pts' + (refus ? ' — ' + refus : '') + '</span></span>' +
         '<span class="otag">' + role.toUpperCase() + '</span>';
       if(!refus) b.addEventListener("click", ()=>{
-        pickTarget.chars.push({name:u[0], w:0});
+        pickTarget.chars.push({name:u[0], lo: loPersoParDefaut(u[0])});
         closeSheet("sheetUnit"); saveR(); renderList();
       });
       const rangee = document.createElement("div");
@@ -2291,9 +2390,11 @@ function renderFire(){
 
   el("fDmg").textContent = num(sim.meanDealt);
   el("fSlain").textContent = num(sim.meanSlain);
-  el("fWipe").textContent = pct(sim.slainDist[M]);
+  el("fWipe").textContent = String(seuilTues(sim.slainDist, 0.75));
+  rendSeuils(el("fSeuils"), sim.slainDist);
   el("fSub").textContent = "Figurines tuées sur " + sim.N.toLocaleString("fr-FR") +
-    " simulations complètes de la phase, dans l'ordre de la liste.";
+    " simulations complètes de la phase, dans l'ordre de la liste. Balaye une unité de " +
+    M + " figurine" + (M > 1 ? "s" : "") + " " + pct(auMoins(sim.slainDist, M)) + " du temps.";
   drawBars(el("fHist"), binned(sim.slainDist, 26), "var(--green)", (i,v)=>
     "<b>" + i + "</b> figurine" + (i>1?"s":"") + "<br>probabilité <b>" + pct(v) + "</b>");
 
@@ -2479,8 +2580,8 @@ function listeEnTexte(L){
       ru.chars.forEach(c => {
         const cu = unitRow(c.name); if(!cu) return;
         lignes.push("  ‣ " + c.name + " (" + (cu[7][String(cu[6][0])] || 0) + " pts)");
-        const gc = groupeDe(c.name, c.w || 0);
-        if(gc) lignes.push("      • " + gc.libelle);
+        groupesPortes(c.name, portParArmePerso(c)).forEach(g =>
+          lignes.push("      • " + g.libelle));
       });
       if(ru.enh){
         const e = enhRow(ru.enh);

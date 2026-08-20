@@ -600,6 +600,15 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .lo{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6)}
 .lo .ln{flex:1;min-width:0;font-size:12.5px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lo .ln em{font-style:normal;color:var(--tx3);font-size:11px}
+/* armement d'un personnage rattache : decale sous sa ligne */
+.seuils{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 4px}
+.seuil{border:1px solid var(--line);background:var(--s2);border-radius:4px;padding:8px 4px;text-align:center}
+.seuil .sk{display:block;font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--tx3);line-height:1.25}
+.seuil .sv{display:block;font-size:19px;font-weight:700;color:var(--glow);font-variant-numeric:tabular-nums;margin-top:3px}
+.seuil.faible .sv{color:var(--tx2)}
+.lo-sous{padding-left:16px;border-top:1px dashed rgba(51,69,58,.5)}
+.lo-sous .ln{font-size:12px}
+.lo-perso{border-top:1px solid rgba(92,232,232,.25)}
 /* option retenue dans un emplacement : son libelle ressort */
 .lo-on .ln{color:var(--tx)}
 /* arme portee d'office : pas de compteur, elle ne se choisit pas */
@@ -658,7 +667,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="summary" id="headSum" style="display:none">
     <div class="sum hero"><div class="k">Dégâts moyens</div><div class="v" id="sumDmg">—</div></div>
     <div class="sum"><div class="k">Figs tuées</div><div class="v" id="sumSlain">—</div></div>
-    <div class="sum"><div class="k">Unité effacée</div><div class="v" id="sumWipe">—</div></div>
+    <div class="sum"><div class="k">3 fois sur 4</div><div class="v" id="sumWipe">—</div></div>
   </div>
 </header>
 
@@ -760,14 +769,17 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <p class="chart-sub" id="cumSub">Cumulé.</p>
       <svg id="cum" class="chart" role="img" aria-label="Probabilité cumulée"></svg>
 
+      <div class="chart-title" style="margin-top:18px">Combien de figurines tombent</div>
+      <p class="chart-sub">Le nombre de figurines couchées selon la certitude qu'on veut. « 3 fois sur 4 : 6 » se lit : au moins 6 figurines tombent dans trois parties sur quatre. La cible n'est pas plafonnée à son effectif — le tir continue sur des figurines fraîches.</p>
+      <div class="seuils" id="rSeuils"></div>
+
       <div style="margin-top:16px">
         <div class="kv"><span>Dégâts moyens infligés</span><b id="rDmg">—</b></div>
         <div class="kv"><span>Dégâts « perdus » (surtue)</span><b id="rWaste">—</b></div>
         <div class="kv"><span>Figurines tuées (moyenne)</span><b id="rSlain">—</b></div>
         <div class="kv"><span>Figurines tuées (médiane)</span><b id="rMed">—</b></div>
         <div class="kv"><span>Au moins 1 figurine tuée</span><b id="rOne">—</b></div>
-        <div class="kv"><span>Unité entièrement détruite</span><b id="rWipe">—</b></div>
-        <div class="kv"><span>PV restants (moyenne)</span><b id="rLeft">—</b></div>
+        <div class="kv"><span id="rWipeL">Balaye l'unité ciblée</span><b id="rWipe">—</b></div>
       </div>
 
       <button class="btn" id="btnTable" type="button">Afficher le tableau de données</button>
@@ -814,8 +826,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <div class="summary" style="margin:0 -14px 10px;border-top:0">
         <div class="sum hero"><div class="k">Dégâts cumulés</div><div class="v" id="fDmg">—</div></div>
         <div class="sum"><div class="k">Figs tuées</div><div class="v" id="fSlain">—</div></div>
-        <div class="sum"><div class="k">Unité effacée</div><div class="v" id="fWipe">—</div></div>
+        <div class="sum"><div class="k">3 fois sur 4</div><div class="v" id="fWipe">—</div></div>
       </div>
+      <div class="chart-title">Combien de figurines tombent</div>
+      <p class="chart-sub">Le nombre de figurines couchées selon la certitude qu'on veut, la cible n'étant pas plafonnée à son effectif.</p>
+      <div class="seuils" id="fSeuils"></div>
       <div class="chart-title">Distribution du résultat</div>
       <p class="chart-sub" id="fSub"></p>
       <svg id="fHist" class="chart" role="img" aria-label="Distribution du résultat cumulé"></svg>
