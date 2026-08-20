@@ -174,7 +174,9 @@ consultable en dessous, en lecture seule.
   (Leader / Support) **avec leur propre armement**, validation (règle des
   trois, Battleline, Epic Hero).
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
-  par dégâts pour 100 points. « Depuis ma liste » y verse des **unités
+  par dégâts pour 100 points. Les deux mesures — puissance brute et
+  rendement au point — se lisent côte à côte sur une seule ligne par
+  unité, chaque colonne à sa propre échelle. « Depuis ma liste » y verse des **unités
   entières** — armement réel, personnages rattachés, amélioration et octrois du
   détachement — de sorte qu'on peut opposer la même escouade menée par deux
   personnages différents et lire ce que chaque aura rapporte. « Du catalogue »

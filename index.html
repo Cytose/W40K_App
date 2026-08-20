@@ -961,15 +961,28 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 /* une unité retirée de la liste depuis qu'on l'a mise en comparaison */
 .cmprow.mort{opacity:.5}
 .cmprow.mort .cn b{color:var(--warn)}
-.hbar-row{padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
-.hbar-row:first-child{border-top:0}
-.hbar-top{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
-.hbar-top .hn{flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hbar-top .hv{flex:0 0 auto;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--glow)}
-.hbar-top .hp{flex:0 0 auto;font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
-.hbar-track{height:12px;background:var(--s2);clip-path:polygon(0 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%)}
-.hbar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--glow))}
-.hbar-fill.alt{background:linear-gradient(90deg,#1F7A8C,var(--cyan))}
+/* les deux mesures côte à côte : elles se lisaient l'une sous l'autre,
+   ce qui faisait deux graphiques et deux fois le nom de chaque unité */
+.cmp2{margin-top:2px}
+.cmp2 .c2th{display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);padding-bottom:5px;border-bottom:1px solid rgba(51,69,58,.6)}
+.cmp2 .c2r{padding:8px 0;border-top:1px solid rgba(51,69,58,.6)}
+.cmp2 .c2r:first-of-type{border-top:0}
+.cmp2 .c2n{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
+.cmp2 .c2n b{flex:1;min-width:0;font-size:13px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.cmp2 .c2n i{flex:0 0 auto;font-style:normal;font-size:11px;color:var(--tx3);
+  font-variant-numeric:tabular-nums}
+.cmp2 .c2g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cmp2 .c2v{display:block;font-size:13.5px;font-weight:800;line-height:1.1;
+  font-variant-numeric:tabular-nums;color:var(--glow);margin-bottom:3px}
+.cmp2 .c2c.b .c2v{color:var(--cyan)}
+.cmp2 .c2v small{font-size:9.5px;font-weight:600;color:var(--tx3);margin-left:2px}
+.cmp2 .c2t{height:10px;background:var(--s2);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%)}
+.cmp2 .c2f{height:100%;background:linear-gradient(90deg,var(--green),var(--glow))}
+.cmp2 .c2c.b .c2f{background:linear-gradient(90deg,#1F7A8C,var(--cyan))}
 
 </style>
 </head>
@@ -1197,12 +1210,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <section class="card" id="cardCmpRes">
     <h2>Verdict <span class="chev">▾</span></h2>
     <div class="body">
-      <div class="chart-title">Rentabilité — dégâts pour 100 points</div>
-      <p class="chart-sub">La mesure qui compte pour arbitrer une liste : ce que chaque unité rend contre cette cible, ramené à son coût.</p>
-      <div id="cmpEff"></div>
-      <div class="chart-title">Puissance brute — dégâts par unité</div>
-      <p class="chart-sub">Sans tenir compte du coût. Utile pour savoir qui peut faire tomber la cible en un tour.</p>
-      <div id="cmpAbs"></div>
+      <div class="chart-title">Puissance et rentabilité</div>
+      <p class="chart-sub">À gauche ce que l'unité inflige, à droite ce qu'elle rend pour 100 points. Chaque colonne est à son échelle : la barre la plus longue de la colonne est celle qui gagne sur cette mesure. Classé par rentabilité.</p>
+      <div class="cmp2" id="cmpDuo"></div>
       <div class="chart-title">Détail</div>
       <p class="chart-sub" id="cmpDetSub"></p>
       <div id="cmpTable"></div>

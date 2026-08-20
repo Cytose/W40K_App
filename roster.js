@@ -3615,22 +3615,35 @@ function renderCmpList(){
   if(lab) lab.hidden = !CMP.some(c => c.src !== "roster");
   renderCmp();
 }
-function hbars(host, rows, fmt, alt){
-  const max = Math.max.apply(null, rows.map(r => r.v)) || 1;
-  host.innerHTML = rows.map(r =>
-    '<div class="hbar-row"><div class="hbar-top"><span class="hn">' + r.n + '</span>' +
-    '<span class="hv">' + fmt(r.v) + '</span><span class="hp">' + r.p + ' pts</span></div>' +
-    '<div class="hbar-track"><div class="hbar-fill' + (alt ? " alt" : "") +
-    '" style="width:' + Math.max(1.5, r.v/max*100) + '%"></div></div></div>').join("");
+/* Les deux mesures d'une unite, cote a cote sur une seule ligne. Elles
+   occupaient deux graphiques empiles, donc deux fois le nom de chaque
+   unite et deux titres : sur telephone il fallait faire defiler pour
+   comparer une unite a elle-meme. Chaque colonne garde sa propre
+   echelle — la plus longue barre d'une colonne est celle qui gagne sur
+   cette mesure — et un espace insecable colle l'unite a son nombre. */
+function duoBars(host, rows){
+  const maxA = Math.max.apply(null, rows.map(r => r.brut)) || 1;
+  const maxB = Math.max.apply(null, rows.map(r => r.eff)) || 1;
+  const col = (v, max, cls, unite) =>
+    '<div class="c2c' + cls + '"><span class="c2v">' + num(v) +
+    '<small>\u00a0' + unite + '</small></span>' +
+    '<div class="c2t"><div class="c2f" style="width:' +
+    Math.max(1.5, v/max*100) + '%"></div></div></div>';
+  host.innerHTML =
+    '<div class="c2th"><span>Puissance brute</span><span>Pour 100 points</span></div>' +
+    rows.map(r =>
+      '<div class="c2r"><div class="c2n"><b>' + r.n + '</b><i>' + r.p + ' pts</i></div>' +
+      '<div class="c2g">' + col(r.brut, maxA, "", "PV") +
+                            col(r.eff, maxB, " b", "PV") + '</div></div>').join("");
 }
 function renderCmp(){
-  const hostE = el("cmpEff"), hostA = el("cmpAbs"), hostT = el("cmpTable");
-  if(CMP.length < 1){
-    hostE.innerHTML = hostA.innerHTML = hostT.innerHTML = ""; el("cmpNote").textContent = ""; return;
-  }
+  const hostD = el("cmpDuo"), hostT = el("cmpTable");
+  const vide = () => { hostD.innerHTML = hostT.innerHTML = "";
+                       el("cmpDetSub").textContent = ""; };
+  if(CMP.length < 1){ vide(); el("cmpNote").textContent = ""; return; }
   const vivantes = CMP.filter(c => c.src !== "roster" || cmpUnite(c));
   if(!vivantes.length){
-    hostE.innerHTML = hostA.innerHTML = hostT.innerHTML = "";
+    vide();
     el("cmpNote").textContent = "Les unités comparées ont toutes quitté la liste.";
     return;
   }
@@ -3647,9 +3660,7 @@ function renderCmp(){
               wipe:auMoins(sim.slainDist, S.models), eff: pts ? sim.meanRaw/pts*100 : 0});
   });
   const byEff = res.slice().sort((a,b)=> b.eff - a.eff);
-  const byAbs = res.slice().sort((a,b)=> b.raw - a.raw);
-  hbars(hostE, byEff.map(r=>({n:r.n, v:r.eff, p:r.pts})), v=>num(v)+" PV", false);
-  hbars(hostA, byAbs.map(r=>({n:r.n, v:r.raw||0, p:r.pts})), v=>num(v)+" PV", true);
+  duoBars(hostD, byEff.map(r=>({n:r.n, brut:r.raw||0, eff:r.eff, p:r.pts})));
 
   /* « Efface » ne veut rien dire sans dire de quoi : on met l'effectif
      de la cible dans l'en-tete, et le detail au survol. */
