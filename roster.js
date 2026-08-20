@@ -3132,7 +3132,7 @@ function renderList(){
   renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad(); renderPartie();
   renderDispo();
   if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
-  if(window.__syncRosterQuick) window.__syncRosterQuick();
+  if(window.__relitUniteChargee) window.__relitUniteChargee();
 }
 
 /* ---------- ajout d'unite / arme / personnage via la feuille ---------- */
