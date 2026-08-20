@@ -1234,6 +1234,114 @@ const OCTROIS_DETACH = {
  ]
 };
 
+/* ============================================================
+   APTITUDES DE FICHE QUI TOUCHENT LA SEQUENCE D'ATTAQUE
+
+   Une arme porte ses mots-cles ; une unite porte les siens. Les
+   Immortels relancent leurs blessures de 1 sans que rien ne soit
+   coche, parce que leur fiche le dit. Ces aptitudes doivent donc
+   entrer dans le profil au meme titre que l'aura du Plasmancien.
+
+   Deux tableaux, et la frontiere entre eux est la seule chose qui
+   compte : APTIS_UNITE ne contient que l'INCONDITIONNEL, ce qui
+   vaut a chaque attaque sans rien demander. Tout ce qui depend de
+   la situation — la cible tient un objectif, l'unite a charge, la
+   figurine est abimee — vit dans APTIS_COND et n'agit que si le
+   joueur le declare. Melanger les deux ferait mentir chaque calcul
+   dans le sens de l'attaquant.
+
+   champ : critH, critW, hitMod, wndMod, rrH, rrW  (ou mot : un
+           mot-cle d'arme accorde, meme vocabulaire que parseFlags)
+   port  : "T" tir, "C" corps a corps, "" les deux
+   ============================================================ */
+const APTIS_UNITE = {
+ "Immortals" : [
+   { champ:"rrW", val:"ones", port:"", nom:"Éradication Implacable",
+     texte:"À chaque attaque d'une figurine de cette unité, relancez tout jet de Blessure de 1." }
+ ],
+ "Skorpekh Destroyers" : [
+   { champ:"rrH", val:"ones", port:"C", nom:"Assaut Tourbillonnant",
+     texte:"À chaque attaque de mêlée d'une figurine de cette unité, relancez tout jet de Touche de 1." }
+ ]
+};
+
+/* Aptitudes conditionnelles : le nom officiel, la condition en clair,
+   et l'effet qu'elles produisent si le joueur declare la condition
+   remplie. Elles n'agissent jamais d'elles-memes. */
+const APTIS_COND = {
+ "Immortals" : [
+   { champ:"rrW", val:"failed", port:"", nom:"Éradication Implacable",
+     quand:"La cible est à portée d'un objectif",
+     texte:"Si la cible est une unité ennemie à portée d'un pion d'objectif, vous pouvez relancer le jet de Blessure au lieu des seuls 1." }
+ ],
+ "Skorpekh Destroyers" : [
+   { champ:"rrH", val:"failed", port:"C", nom:"Assaut Tourbillonnant",
+     quand:"L'unité a chargé ce tour",
+     texte:"Si cette unité a fait un mouvement de charge à ce tour, vous pouvez relancer le jet de Touche au lieu des seuls 1." }
+ ],
+ "Lokhust Destroyers" : [
+   { champ:"rrH", val:"ones", port:"T", nom:"Câblés pour la Destruction",
+     quand:"La cible est l'unité ennemie éligible la plus proche",
+     texte:"À chaque attaque de tir visant l'unité ennemie éligible la plus proche, relancez tout jet de Touche de 1." },
+   { champ:"rrH", val:"failed", port:"T", nom:"Câblés pour la Destruction",
+     quand:"…et elle est sur un objectif adverse",
+     texte:"Si la cible est en outre à portée d'un pion d'objectif contrôlé par votre adversaire, vous pouvez relancer le jet de Touche." }
+ ],
+ "Lokhust Heavy Destroyers" : [
+   { champ:"rrW", val:"ones", port:"T", nom:"Optimisés pour le Carnage",
+     quand:"L'arme est accordée à la cible",
+     texte:"Exterminateur enmitique contre une unité qui n'est ni MONSTRE ni VÉHICULE, ou destructeur Gauss contre un MONSTRE ou un VÉHICULE : relancez tout jet de Blessure de 1." }
+ ],
+ "Flayed Ones" : [
+   { champ:"critH", val:2, port:"C", nom:"Faim de Chair",
+     quand:"La cible est sous son demi-effectif",
+     texte:"À chaque attaque de mêlée d'une figurine de cette unité contre une cible En Dessous de son Demi-effectif, un jet de touche réussi donne une touche critique." }
+ ],
+ "Doomsday Ark" : [
+   { mot:"dev", port:"T", nom:"Oblitération Écrasante",
+     quand:"Le véhicule est resté immobile",
+     texte:"Si cette figurine reste immobile à votre phase de Mouvement, jusqu'à la fin du tour son canon apocalyptique a l'aptitude [BLESSURES DÉVASTATRICES]." }
+ ],
+ "Lokhust Lord" : [
+   { champ:"rrH", val:"failed", port:"", nom:"Mû par la Haine",
+     quand:"La cible est sous son demi-effectif",
+     texte:"À chaque attaque de cette figurine contre une unité En Dessous de son Demi-effectif, vous pouvez relancer le jet de Touche et le jet de Blessure." },
+   { champ:"rrW", val:"failed", port:"", nom:"Mû par la Haine",
+     quand:"La cible est sous son demi-effectif",
+     texte:"Voir ci-dessus : la relance porte aussi sur le jet de Blessure." }
+ ],
+ "Orikan the Diviner" : [
+   { champ:"critW", val:2, port:"C", nom:"Les Astres Sont Alignés",
+     quand:"Aptitude déclenchée (une fois par partie)",
+     texte:"Jusqu'à la fin de la phase, triplez les Attaques et la Force du Bâton de Demain, et tout jet de Blessure réussi de cette figurine donne une blessure critique. Le triplement des Attaques et de la Force n'est pas appliqué automatiquement — à saisir à la main." }
+ ]
+};
+
+/* Auras qui profitent a une AUTRE unite que celle qui les porte : la
+   condition tient a la distance, que l'application ne connait pas. Elles
+   n'apparaissent donc que si la figurine source est dans la liste et que
+   l'unite chargee porte le mot-cle vise — et restent a declarer. */
+const AURAS_ARMEE = [
+ { source:"Illuminor Szeras", kw:["battleline"], champ:"apMod", val:1,
+   nom:"Augmentation Mécanique (Aura)",
+   quand:"L'unité est à 3\" d'Illuminor Szeras",
+   texte:"Tant qu'une unité de BATTLELINE NÉCRONS amie est à 3\" de cette figurine, à chaque attaque d'une figurine de cette unité, améliorez de 1 la caractéristique de Pénétration d'Armure." }
+];
+
+/* Figurines dont la fiche impose « -1 pour toucher » sous un seuil de
+   points de vie. La valeur est le seuil : au-dessous ou egal, le malus
+   s'applique. Le simulateur en fait un raccourci, jamais un automatisme :
+   il ne sait pas combien de PV il reste a la figurine. */
+const ABIMEES = {
+ "Canoptek Doomstalker" : 4,
+ "Doomsday Ark" : 5,
+ "Monolith" : 7,
+ "Obelisk" : 8,
+ "Doom Scythe" : 4,
+ "Night Scythe" : 4,
+ "Szarekh, The Silent King" : 6
+};
+
 /* Par personnage rattaché : ce que son aptitude accorde à l'unité
    qu'il mène. Ces aptitudes ne valent que « tant que cette figurine
    mène une unité » : un personnage seul n'en profite pas. */
@@ -1245,6 +1353,10 @@ const AURAS_PERSO = {
  "Lokhust Lord" : [
    { champ:"critH", val:5, port:"T", nom:"Culte Destroyer",
      texte:"Tant que cette figurine mène une unité, à chaque attaque de tir d'une figurine de cette unité, un jet de touche non modifié réussi de 5+ donne une touche critique." }
+ ],
+ "Skorpekh Lord" : [
+   { mot:"lethal", port:"C", nom:"Uni dans la Destruction",
+     texte:"Tant que cette figurine mène une unité, les armes de mêlée des figurines de cette unité ont l'aptitude [TOUCHES LÉTHALES]." }
  ],
  "Technomancer" : [
    { champ:"fnp", val:5, port:"", nom:"Rites de Réanimation",

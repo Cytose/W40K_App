@@ -31,6 +31,7 @@ let atkPhase = "T";          /* phase choisie quand une unite est chargee */
 let atkUnitId = null;
 let atkUnit = null;          /* ce que ROSTER.simUnite a rendu */
 let atkOff = {};             /* profils decoches, par etiquette */
+let condOn = {};             /* aptitudes conditionnelles declarees */
 
 /* ==========================================================
    DÉS
@@ -93,7 +94,9 @@ function buildSegs(){
     opts.forEach(([v,label])=>{
       const b = document.createElement("button");
       b.type="button"; b.textContent=label; b.dataset.v=String(v);
-      b.addEventListener("click", ()=>{ S[key]=v; syncSeg(id,key); render(); });
+      b.addEventListener("click", ()=>{ S[key]=v; syncSeg(id,key);
+        if(atkMode === "unite") renderAtkUnite();
+        render(); });
       host.appendChild(b);
     });
     syncSeg(id,key);
@@ -382,8 +385,17 @@ const borne1 = v => Math.max(-1, Math.min(1, v));
    dix fois arme par arme. Les modificateurs de la fiche et ceux de
    l'ecran s'additionnent avant le plafond a plus ou moins un ; une
    relance de l'ecran ne peut qu'ameliorer celle de l'arme. */
+/* Les conditions declarees ne touchent que les profils qu'elles visent :
+   « Mû par la Haine » est l'aptitude du Seigneur Lokhust et ne vaut que
+   pour ses armes a lui, pas pour l'escouade qu'il mene. Une condition
+   sans porteur — une aura d'armee — vaut pour toute l'unite. */
+function condPour(p){
+  if(!atkUnit || !atkUnit.conditions) return [];
+  return atkUnit.conditions.filter(c => condOn[c.id] &&
+    (!c.sur || c.sur === p.porteur));
+}
 function profilPourMoteur(p){
-  return Object.assign({}, p, {
+  const q = Object.assign({}, p, {
     tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
     fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover,
     hitMod: borne1((p.hitMod || 0) + S.hitMod),
@@ -392,9 +404,59 @@ function profilPourMoteur(p){
     rrH: plusFort(p.rrH || "none", S.rrH),
     rrW: plusFort(p.rrW || "none", S.rrW)
   });
+  condPour(p).forEach(c=>{
+    if(c.mot) q[c.mot === "sust" ? "sustainedOn" : c.mot] = true;
+    else if(c.champ === "critH") q.critH = Math.min(q.critH, c.val);
+    else if(c.champ === "critW") q.critW = Math.min(q.critW, c.val);
+    else if(c.champ === "rrH") q.rrH = plusFort(q.rrH, c.val);
+    else if(c.champ === "rrW") q.rrW = plusFort(q.rrW, c.val);
+    else if(c.champ === "hitMod") q.hitMod = borne1(q.hitMod + c.val);
+    else if(c.champ === "wndMod") q.wndMod = borne1(q.wndMod + c.val);
+    else if(c.champ === "apMod") q.apMod = (q.apMod || 0) + c.val;
+    else if(c.champ === "dmgMod") q.dmgMod = (q.dmgMod || 0) + c.val;
+  });
+  return q;
 }
 const profilsActifs = () => !atkUnit ? [] :
   atkUnit.profils.filter(p => !atkOff[p.label]);
+
+/* Ce que le moteur va reellement faire de ce profil, dit en clair.
+   Un crit 5+ applique mais invisible ne se verifie pas, et un joueur
+   qui ne peut pas verifier ne fait pas confiance au chiffre. Les
+   pastilles se lisent donc sur le profil DEJA retouche, pas sur la
+   fiche : ce qui s'affiche est ce qui sera calcule. */
+const RR_MOT = {ones:"des 1", failed:"des ratés"};
+function pastilles(q, brut){
+  const out = [];
+  /* d'ou vient ce mot-cle : de la fiche de l'arme, ou d'une regle qui le
+     lui accorde. La distinction compte — c'est elle qui dit au joueur si
+     son detachement fait bien ce qu'il croit. */
+  const donne = m => (brut.octrois || []).filter(o => o.mot === m)
+                       .map(o => o.nom + " · " + o.source).join(" ; ");
+  const kw = (t, m) => { const d = m ? donne(m) : "";
+    out.push({t: (d ? "+ " : "") + t, cl: d ? "m" : "k", d: d}); };
+  if(q.torrent) kw("TORRENT", "torrent");
+  if(q.lethal) kw("LÉTHAL", "lethal");
+  if(q.dev) kw("DÉVASTATRICES", "dev");
+  if(q.sustainedOn) kw("SOUTENU " + q.sustainedN, "sust");
+  if(q.blast) kw("DÉFLAGRATION", "blast");
+  if(q.rapidOn) kw("TIR RAPIDE " + q.rapidN, "rf");
+  if(q.meltaOn) kw("FONTE " + q.meltaN, "melta");
+  if(q.assault) kw("ASSAUT", "assault");
+  if(q.heavy) kw("LOURD", "heavy");
+  /* la provenance : ce que la fiche seule ne donnait pas */
+  const dit = c => (brut.octrois || []).filter(o => o.champ === c || (c === "mot" && o.mot))
+                     .map(o => o.nom + " · " + o.source).join(" ; ");
+  if(q.critH < 6) out.push({t:"Touche crit. " + q.critH + "+", cl:"m", d:dit("critH")});
+  if(q.critW < 6) out.push({t:"Blessure crit. " + q.critW + "+", cl:"m", d:dit("critW")});
+  if(q.rrH !== "none") out.push({t:"Relance touche " + RR_MOT[q.rrH], cl:"m", d:dit("rrH")});
+  if(q.rrW !== "none") out.push({t:"Relance blessure " + RR_MOT[q.rrW], cl:"m", d:dit("rrW")});
+  if(q.hitMod) out.push({t:(q.hitMod > 0 ? "+" : "−") + "1 pour toucher", cl:"m", d:""});
+  if(q.wndMod) out.push({t:(q.wndMod > 0 ? "+" : "−") + "1 pour blesser", cl:"m", d:""});
+  if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:""});
+  if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:""});
+  return out;
+}
 
 function chargeUnite(id){
   if(!window.ROSTER || !window.ROSTER.simUnite) return;
@@ -445,11 +507,16 @@ function renderAtkUnite(){
     row.type = "button";
     row.className = "profrow" + (actif ? " on" : "");
     const q = profilPourMoteur(p);
+    const past = pastilles(q, p);
     row.innerHTML = '<span class="pbox">' + (actif ? "✓" : "") + '</span>' +
       '<span class="pmain"><b>' + p.label + '</b>' +
       '<i>A ' + q.attacks + ' · ' + (p.kind === "C" ? "CC" : "CT") + ' ' + q.bs + '+' +
       ' · F ' + q.str + ' · PA ' + (ENG.apEffectif(q) ? "-" + ENG.apEffectif(q) : "0") +
-      ' · D ' + q.dmg + '</i></span>';
+      ' · D ' + q.dmg + '</i>' +
+      (past.length ? '<span class="pkw">' + past.map(x =>
+        '<span class="pk-' + x.cl + '"' + (x.d ? ' title="' + x.d.replace(/"/g, "&quot;") + '"' : '') +
+        '>' + x.t + (x.d ? '<em>' + x.d + '</em>' : '') + '</span>').join("") + '</span>' : '') +
+      '</span>';
     row.addEventListener("click", ()=>{
       atkOff[p.label] = actif; renderAtkUnite(); render();
     });
@@ -483,7 +550,7 @@ function renderRosterUnitList(){
       x.nC + ' au corps à corps</span></span>' +
       (n ? '' : '<span class="otag">RIEN ICI</span>');
     b.addEventListener("click", ()=>{
-      atkOff = {};
+      atkOff = {}; condOn = {};
       closeSheet("sheetRosterUnit");
       chargeUnite(x.id);
     });
@@ -521,7 +588,31 @@ function renderPresets(){
     b.type = "button";
     b.className = "vpre" + (on ? " on" : "");
     b.innerHTML = pr.nom + (pr.aide ? '<small>' + pr.aide + '</small>' : '');
-    b.addEventListener("click", ()=>{ pr.met(!on); pushState(); majVite(); render(); });
+    b.addEventListener("click", ()=>{ pr.met(!on); pushState(); renderAtkUnite(); majVite(); render(); });
+    host.appendChild(b);
+  });
+  /* Les aptitudes que porte l'unite chargee et qui attendent une
+     condition. Elles arrivent sous leur nom officiel : le joueur
+     reconnait sa fiche, et sait donc si la condition est remplie. */
+  const cond = (atkMode === "unite" && atkUnit && atkUnit.conditions) || [];
+  if(!cond.length) return;
+  const sep = document.createElement("div");
+  sep.className = "vsep";
+  sep.textContent = "Aptitudes de " + atkUnit.nom;
+  host.appendChild(sep);
+  cond.forEach(c=>{
+    const on = !!condOn[c.id];
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "vpre vcond" + (on ? " on" : "");
+    b.title = c.texte;
+    b.innerHTML = c.nom + '<small>' + c.quand + '</small>';
+    b.addEventListener("click", ()=>{
+      condOn[c.id] = !on;
+      /* les lignes de profil montrent le profil retouche : sans ce
+         redessin, le calcul changeait et l'affichage mentait */
+      renderAtkUnite(); majVite(); render();
+    });
     host.appendChild(b);
   });
 }
@@ -531,7 +622,8 @@ function majVite(){
   renderPresets();
   const n = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
             (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
-            (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0);
+            (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) +
+            Object.keys(condOn).filter(k => condOn[k]).length;
   const c = el("viteCount");
   if(c){ c.textContent = n ? n + " active" + (n > 1 ? "s" : "") : "aucune"; c.className = n ? "on" : ""; }
   const box = el("viteBox");
@@ -779,7 +871,7 @@ if(el("atkPhaseChips")) el("atkPhaseChips").querySelectorAll(".chip").forEach(b=
     majAtkMode();
     /* changer de phase change les armes : les decochages d'avant ne
        veulent plus rien dire */
-    atkOff = {};
+    atkOff = {}; condOn = {};
     rechargeUnite();
   }));
 if(el("pickRosterUnit")) el("pickRosterUnit").addEventListener("click", ()=>{
@@ -880,6 +972,8 @@ global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
   atk: function(){
     return { mode: atkMode, phase: atkPhase, unite: atkUnit ? atkUnit.nom : null,
       profils: atkUnit ? atkUnit.profils.map(p => p.label) : [],
+      conditions: atkUnit && atkUnit.conditions
+        ? atkUnit.conditions.map(c => (condOn[c.id] ? "✓ " : "· ") + c.nom + " — " + c.quand) : [],
       actifs: profilsActifs().map(p => p.label),
       moteur: profilsActifs().map(p => {
         const q = profilPourMoteur(p);
