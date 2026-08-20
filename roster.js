@@ -184,7 +184,44 @@ function supprimeListe(){
 }
 /* le simulateur pioche ici : unites de la liste ouverte, avec la taille
    et l'arme retenues, plus les personnages rattaches */
+/* Les profils d'une unite de la liste pour une phase donnee, sans toucher
+   a la phase courante de l'ecran « Tir cumule » : le simulateur choisit la
+   sienne de son cote. */
+function profilsPhase(ru, ph){
+  const avant = phase;
+  phase = (ph === "C") ? "C" : "T";
+  const out = unitProfiles(ru);
+  phase = avant;
+  return out;
+}
+
 window.ROSTER = {
+  /* ---- ce que le simulateur charge : une unite entiere, tous profils ----
+     Les armes de l'escouade et celles des personnages rattaches, avec les
+     octrois du detachement deja appliques. C'est la meme construction que
+     le tir cumule, offerte a l'onglet Attaque pour qu'il puisse mesurer
+     une unite complete et non une seule arme. */
+  simUnite: function(id, ph){
+    if(!R) return null;
+    const ru = R.units.find(u => String(u.id) === String(id));
+    if(!ru) return null;
+    return {
+      id: ru.id, nom: nomAffiche(ru), unite: ru.name, taille: ru.size,
+      persos: ru.chars.map(c => c.name),
+      profils: profilsPhase(ru, ph).map(p => Object.assign({}, p))
+    };
+  },
+  /* l'inventaire des unites de la liste, avec de quoi montrer d'avance
+     combien de profils chacune apporte dans chaque phase */
+  simListe: function(){
+    if(!R) return null;
+    return { nom: R.nom, unites: R.units.map(ru => ({
+      id: ru.id, nom: nomAffiche(ru), unite: ru.name, taille: ru.size,
+      persos: ru.chars.map(c => c.name),
+      cat: (typeof categorie === "function") ? categorie(ru.name) : "",
+      nT: profilsPhase(ru, "T").length,
+      nC: profilsPhase(ru, "C").length })) };
+  },
   /* crochet de verification : le total en points, et le detail unite par
      unite avec le rang de chaque copie */
   points: function(){

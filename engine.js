@@ -3,8 +3,14 @@
    Un profil "S" contient l'attaquant ET la cible :
    attaquant : attacks, bs, str, ap, dmg, torrent, lethal, dev,
                sustainedOn/sustainedN, blast, rapidOn/rapidN,
-               meltaOn/meltaN, critH, critW, hitMod, wndMod, rrH, rrW
+               meltaOn/meltaN, critH, critW, hitMod, wndMod, rrH, rrW,
+               apMod, dmgMod
    cible     : tough, sv, inv, wounds, models, fnp, dmgRed, cover
+
+   apMod et dmgMod sont les retouches de partie : une regle qui ameliore
+   la penetration d'armure de 1 (« +1 » : une PA -1 devient -2) ou qui
+   ajoute un point de degats. Ils s'ecrivent a part du profil d'arme,
+   qui reste celui de la fiche.
    ========================================================== */
 (function(global){
 "use strict";
@@ -58,10 +64,15 @@ function woundTarget(str, tou){
   if(2*str <= tou) return 6;
   return 5;
 }
+/* penetration d'armure reellement appliquee : celle de l'arme, plus la
+   retouche de partie. Elle ne descend pas sous zero — une regle qui
+   degrade une PA 0 ne rend pas la sauvegarde meilleure que nature. */
+const apEffectif = s => Math.max(0, (s.ap || 0) + (s.apMod || 0));
 function saveTarget(s){
   if(s.sv >= 7 && !s.inv) return 99;
-  let arm = s.sv >= 7 ? 99 : s.sv + s.ap;
-  if(s.cover && s.sv < 7 && !(s.sv <= 3 && s.ap === 0)) arm -= 1;
+  const ap = apEffectif(s);
+  let arm = s.sv >= 7 ? 99 : s.sv + ap;
+  if(s.cover && s.sv < 7 && !(s.sv <= 3 && ap === 0)) arm -= 1;
   let t = arm;
   if(s.inv) t = Math.min(t, s.inv);
   return t;
@@ -71,7 +82,7 @@ const passProb = t => t >= 7 ? 0 : Math.min(5/6, (7 - Math.max(t,2))/6);
 /* degats moyens par attaque non sauvegardee, reduction incluse (plancher 1) */
 function meanDamagePerHit(s){
   const d = parseDice(s.dmg) || {n:0,f:0,b:1};
-  const bonus = (s.meltaOn ? s.meltaN : 0) - (s.dmgRed||0);
+  const bonus = (s.meltaOn ? s.meltaN : 0) + (s.dmgMod||0) - (s.dmgRed||0);
   if(d.n === 0) return Math.max(1, d.b + bonus);
   if(Math.pow(d.f, d.n) <= 20000){
     let sum = 0, count = 0;
@@ -129,7 +140,7 @@ function prep(s){
     wSet: sets(woundTarget(s.str, s.tough), s.wndMod, s.critW),
     st: saveTarget(s),
     sustD: s.sustainedOn ? (parseDice(s.sustainedN) || {n:0,f:0,b:1}) : null,
-    bonus: (s.meltaOn ? s.meltaN : 0) - (s.dmgRed||0),
+    bonus: (s.meltaOn ? s.meltaN : 0) + (s.dmgMod||0) - (s.dmgRed||0),
     torrent: !!s.torrent, lethal: !!s.lethal, dev: !!s.dev,
     fnp: s.fnp|0, rrH: s.rrH, rrW: s.rrW
   };
@@ -263,6 +274,6 @@ function simulateCombined(list, N){
 }
 
 global.ENG = {parseDice, diceMean, diceRoll, scaleDice, sets, probs, woundTarget,
-              saveTarget, passProb, meanDamagePerHit, analytic, simulate, simulateCombined,
-              seuilTues, auMoins};
+              saveTarget, apEffectif, passProb, meanDamagePerHit, analytic, simulate,
+              simulateCombined, seuilTues, auMoins};
 })(typeof window !== "undefined" ? window : globalThis);

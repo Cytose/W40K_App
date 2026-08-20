@@ -540,6 +540,49 @@ button.todo:active{background:var(--s2)}
 .padrole.on{color:var(--glow);border-bottom-color:var(--line-hi)}
 .padrole.on .rcnt{color:var(--tx2);border-color:var(--line-hi)}
 .padvide{grid-column:1/-1;padding:14px 4px;color:var(--tx3);font-size:12px;text-align:center}
+/* ---- simulateur : l'unité entière comme attaquant ---- */
+.proflbl{display:flex;align-items:center;gap:8px;margin:10px 0 6px;
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3)}
+.proflbl span{flex:1;min-width:0}
+.ghost.mini{height:28px;padding:0 9px;font-size:11px;flex:0 0 auto}
+.profrow{display:flex;align-items:flex-start;gap:9px;width:100%;margin-top:5px;
+  padding:8px 10px;background:var(--s1);border:1px solid var(--line);border-radius:8px;
+  color:var(--tx3);font:inherit;text-align:left;cursor:pointer}
+.profrow.on{border-color:var(--line-hi);color:var(--tx2)}
+.profrow:active{background:var(--s2)}
+.profrow .pbox{flex:0 0 auto;width:17px;height:17px;margin-top:1px;border-radius:4px;
+  border:1px solid var(--line-hi);color:var(--s0);background:transparent;
+  font-size:12px;font-weight:900;line-height:15px;text-align:center}
+.profrow.on .pbox{background:var(--glow);border-color:var(--glow)}
+.profrow .pmain{flex:1;min-width:0}
+.profrow b{display:block;font-size:12px;font-weight:700;color:var(--tx3);line-height:1.3}
+.profrow.on b{color:var(--tx)}
+.profrow i{display:block;font-style:normal;font-size:10.5px;color:var(--tx3);
+  line-height:1.4;margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ---- retouches de partie : la zone rapide ---- */
+.vite{margin-top:12px;padding:11px 12px 10px;background:var(--s1);
+  border:1px solid var(--line);border-radius:10px}
+.vite.actif{border-color:var(--line-hi)}
+.vitehead{display:flex;align-items:baseline;gap:8px;font-size:10.5px;font-weight:800;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--tx2)}
+.vitehead #viteCount{margin-left:auto;font-size:10px;font-weight:700;
+  letter-spacing:.04em;text-transform:none;color:var(--tx3)}
+.vitehead #viteCount.on{color:var(--glow)}
+.vitepres{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.vpre{padding:6px 9px;background:transparent;border:1px solid var(--line);
+  border-radius:7px;color:var(--tx3);font:inherit;font-size:11.5px;font-weight:600;
+  line-height:1.2;text-align:left;cursor:pointer}
+.vpre small{display:block;font-size:9.5px;font-weight:400;color:var(--tx3);margin-top:1px}
+.vpre.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
+.vpre.on small{color:var(--tx2)}
+.vitegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:11px}
+.vc{min-width:0}
+.vc .vk{display:block;font-size:10px;letter-spacing:.04em;color:var(--tx3);margin-bottom:3px}
+.vc .seg{width:100%;justify-content:flex-start;flex-wrap:nowrap;gap:4px}
+.vc .seg button{flex:1 1 0;min-width:0;padding:0}
+@media (max-width:360px){ .vitegrid{grid-template-columns:1fr} }
+
 .padgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
 .tile{
   position:relative;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;
@@ -830,7 +873,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <button class="ghost back" id="btnBack" type="button" hidden><span class="ar">‹</span><span class="bt">Mes listes</span></button>
     <button class="ghost icon" id="btnFull" type="button" hidden
             aria-label="Passer en plein écran" title="Plein écran">⛶</button>
-    <button class="ghost" id="btnSave" type="button">Enregistrer</button>
   </div>
   <div class="summary" id="headSum" style="display:none">
     <div class="sum hero"><div class="k">Dégâts moyens</div><div class="v" id="sumDmg">—</div></div>
@@ -852,15 +894,46 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <section class="card" id="cardAtk">
     <h2>Attaquant <span class="chev">▾</span></h2>
     <div class="body">
-      <button class="picker" id="pickUnit" type="button">
-        <span class="pk"><span class="p1" id="puName">Immortals</span><span class="p2" id="puSub">—</span></span>
-        <span class="arrow">›</span>
-      </button>
-      <div id="rosterQuick"></div>
-      <div class="chips" id="weaponChips"></div>
-      <div class="chips tight" id="sizeChips"></div>
-      <div class="profile" id="profBox"></div>
-      <label class="toggle"><input type="checkbox" id="awakened"><span class="box">✓</span><span class="txt">Personnage nécron à la tête<em>Awakened Dynasty — Command Protocols : +1 au jet de touche</em></span></label>
+      <div class="chips tight" id="atkModeChips">
+        <button type="button" class="chip on" data-am="profil">Une arme</button>
+        <button type="button" class="chip" data-am="unite">Une unité entière</button>
+      </div>
+
+      <div id="atkProfil">
+        <button class="picker" id="pickUnit" type="button">
+          <span class="pk"><span class="p1" id="puName">Immortals</span><span class="p2" id="puSub">—</span></span>
+          <span class="arrow">›</span>
+        </button>
+        <div id="rosterQuick"></div>
+        <div class="chips" id="weaponChips"></div>
+        <div class="chips tight" id="sizeChips"></div>
+        <div class="profile" id="profBox"></div>
+      </div>
+
+      <div id="atkUnite" hidden>
+        <button class="picker" id="pickRosterUnit" type="button">
+          <span class="pk"><span class="p1" id="ruName">Aucune unité chargée</span><span class="p2" id="ruSub">Choisis une unité de ta liste</span></span>
+          <span class="arrow">›</span>
+        </button>
+        <div class="chips tight" id="atkPhaseChips">
+          <button type="button" class="chip on" data-ap="T">Phase de tir</button>
+          <button type="button" class="chip" data-ap="C">Corps à corps</button>
+        </div>
+        <div id="atkProfils"></div>
+      </div>
+      <div class="vite" id="viteBox">
+        <div class="vitehead">Retouches de partie<span id="viteCount"></span></div>
+        <div class="vitepres" id="vitePresets"></div>
+        <div class="vitegrid">
+          <div class="vc"><span class="vk">Toucher</span><div class="seg small" id="segHitMod"></div></div>
+          <div class="vc"><span class="vk">Blesser</span><div class="seg small" id="segWndMod"></div></div>
+          <div class="vc"><span class="vk">Pénétration d'armure</span><div class="seg small" id="segApMod"></div></div>
+          <div class="vc"><span class="vk">Dégâts</span><div class="seg small" id="segDmgMod"></div></div>
+          <div class="vc"><span class="vk">Relance de touche</span><div class="seg small" id="segRrH"></div></div>
+          <div class="vc"><span class="vk">Relance de blessure</span><div class="seg small" id="segRrW"></div></div>
+        </div>
+        <p class="hint">« +1 » en pénétration rend la PA meilleure : une PA -1 devient -2. Les modificateurs de touche et de blessure restent plafonnés à ±1 comme dans les règles ; un 1 naturel rate toujours, un critique réussit toujours. Ces retouches s'appliquent à tous les profils chargés.</p>
+      </div>
       <details style="margin-top:6px">
         <summary style="font-size:11.5px;color:var(--tx3);cursor:pointer;padding:6px 0">Ajuster le profil à la main</summary>
         <div class="row"><label for="wName">Nom</label><div class="ctl"><input type="text" id="wName" style="max-width:148px;text-align:left"></div></div>
@@ -908,17 +981,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
 
-  <section class="card" id="cardMods">
-    <h2>Modificateurs &amp; relances <span class="chev">▾</span></h2>
-    <div class="body">
-      <div class="row stack"><label>Modif. pour toucher</label><div class="ctl"><div class="seg small" id="segHitMod"></div></div></div>
-      <div class="row stack"><label>Modif. pour blesser</label><div class="ctl"><div class="seg small" id="segWndMod"></div></div></div>
-      <div class="row stack"><label>Relance de touche</label><div class="ctl"><div class="seg small" id="segRrH"></div></div></div>
-      <div class="row stack"><label>Relance de blessure</label><div class="ctl"><div class="seg small" id="segRrW"></div></div></div>
-      <p class="hint">Modificateurs plafonnés à ±1 comme dans les règles. Un 1 naturel rate toujours, un critique réussit toujours. « Ratés » relance tous les jets ratés.</p>
-    </div>
-  </section>
-
   <section class="card" id="cardRes">
     <h2>Résultats <span class="chev">▾</span></h2>
     <div class="body">
@@ -952,14 +1014,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 
       <button class="btn" id="btnTable" type="button">Afficher le tableau de données</button>
       <div id="tableWrap" style="display:none;margin-top:10px"></div>
-    </div>
-  </section>
-
-  <section class="card collapsed" id="cardSaved">
-    <h2>Mes profils enregistrés <span class="chev">▾</span></h2>
-    <div class="body">
-      <p class="hint" id="savedHint">Rien d'enregistré. « Enregistrer » en haut mémorise l'attaquant + la cible sur ce téléphone.</p>
-      <div class="chips tight" id="savedList" style="flex-wrap:wrap;overflow:visible"></div>
     </div>
   </section>
 
@@ -1281,6 +1335,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="pickbar" id="uBudget" hidden></div>
   <input class="sheet-search" id="uSearch" type="text" placeholder="Rechercher une unité…" autocomplete="off">
   <div class="sheet-list" id="uList"></div>
+</div>
+
+<div class="sheet" id="sheetRosterUnit">
+  <div class="sheet-head"><h3>Charger une unité de ta liste</h3><button class="ghost" data-close="sheetRosterUnit" type="button">Fermer</button></div>
+  <div class="sheet-list" id="ruList"></div>
 </div>
 
 <div class="sheet" id="sheetTarget">

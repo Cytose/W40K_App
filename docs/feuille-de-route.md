@@ -1161,3 +1161,73 @@ La quatrième direction proposée — **guider une liste neuve** (nommer, choisi
 plafond et le détachement avant d'entrer dans l'éditeur) — n'a pas été retenue
 par l'utilisateur. Le bandeau ci-dessus en couvre déjà la moitié : une liste
 neuve affiche « Aucun détachement » dès la première unité posée.
+
+---
+
+## 21. Le simulateur prend une unité entière
+
+Retour de l'utilisateur : « le but du jeu, c'est de pouvoir charger une liste
+pour voir les unités complètes avec tous les profils d'armes… entièrement
+l'unité complète ».
+
+### Une arme, ou une unité
+
+L'onglet Attaque ne savait mesurer qu'**une** arme. C'est la bonne réponse à
+« que vaut ce fusil », mais on ne tire jamais un fusil : on tire une unité,
+avec ses armes spéciales, son arme de mêlée par défaut et l'armement du
+personnage qui la mène.
+
+Une bascule ouvre un second mode. Il charge une unité de la liste avec **tous**
+ses profils — escouade et personnages rattachés, octrois de détachement déjà
+appliqués — et les fait tirer dans l'ordre sur la même cible. Le moteur savait
+déjà le faire : `simulateCombined` sert le tir cumulé depuis le chantier 13.
+Elle est simplement offerte à l'onglet Attaque, qui lui apporte ce que le tir
+cumulé n'a pas : l'entonnoir, les histogrammes, les seuils de certitude et les
+modificateurs.
+
+Chaque profil se décoche. La phase se choisit — tir ou corps à corps — et
+change les armes, donc remet les décochages à zéro : ils ne voudraient plus
+rien dire.
+
+### Les retouches de partie
+
+La zone des modificateurs vivait dans une carte repliée, sous les résultats.
+Or c'est là que les règles de la partie viennent modifier une arme, et cela
+change à chaque tour. Elle remonte sous l'attaquant, toujours visible, avec le
+compte des retouches actives — **un +1 oublié fausse toute une soirée de
+calculs**.
+
+Deux réglages manquaient :
+
+| | |
+|---|---|
+| **Pénétration d'armure** | −1 / 0 / +1 / +2. « +1 » améliore : une PA -1 devient -2. Plancher à zéro — dégrader une PA 0 ne rend pas la sauvegarde meilleure que nature. |
+| **Dégâts** | −1 / 0 / +1 / +2, plancher à 1 point comme la fonte et la réduction. |
+
+Quatre raccourcis nomment les situations qui reviennent : cible à couvert, +1
+pour toucher, relance des 1, cible sur objectif. Pas plus : les valeurs brutes
+sont dans les segments juste dessous, et un raccourci qui double un segment
+n'est que du bruit.
+
+Sur une unité chargée, ces retouches s'appliquent à **tous** les profils d'un
+coup. Les modificateurs de la fiche et ceux de l'écran s'additionnent avant le
+plafond à ±1 ; une relance de l'écran ne peut qu'améliorer celle de l'arme,
+jamais l'affaiblir.
+
+### Deux suppressions
+
+**Les profils enregistrés** ne servaient à rien : supprimés, avec le bouton
+« Enregistrer » de l'en-tête qui les alimentait. Ce bouton était trompeur — il
+restait visible dans l'éditeur de liste, où l'on pouvait croire qu'il
+enregistrait la liste, alors que celle-ci se sauve à chaque changement.
+
+**La case « Personnage nécron à la tête »** écrivait le même champ que la zone
+rapide. Deux commandes pour une valeur finissent toujours par se contredire ;
+son sens est repris dans le raccourci « +1 pour toucher ».
+
+### Ce qui n'a pas bougé
+
+La sélection de la cible, à la demande expresse de l'utilisateur. Les trois
+indicateurs en tête d'écran — dégâts moyens, figurines tuées, trois fois sur
+quatre — qu'il a explicitement gardés parce qu'ils évitent de descendre
+jusqu'en bas.

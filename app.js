@@ -10,11 +10,27 @@ const S = {
   tough:4, sv:3, inv:0, wounds:2, models:5, fnp:0, dmgRed:0, cover:false,
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
-  critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none"
+  critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none",
+  apMod:0, dmgMod:0
 };
 let viewMode = "auto";
 let curUnit = "Immortals", curWeapon = 0, curSize = 10;
 let tgtTab = "generic";
+
+/* ==========================================================
+   L'ATTAQUANT : UNE ARME, OU UNE UNITE ENTIERE
+   Mesurer une arme seule repond a « que vaut ce fusil ». Mais on ne
+   tire jamais un fusil : on tire une unite, avec ses armes speciales,
+   son arme de melee par defaut et l'armement du personnage qui la mene.
+   Le second mode charge donc tous les profils d'une unite de la liste
+   et les fait tirer dans l'ordre sur la meme cible, comme le tir cumule
+   le fait deja entre unites.
+   ========================================================== */
+let atkMode = "profil";      /* "profil" | "unite" */
+let atkPhase = "T";          /* phase choisie quand une unite est chargee */
+let atkUnitId = null;
+let atkUnit = null;          /* ce que ROSTER.simUnite a rendu */
+let atkOff = {};             /* profils decoches, par etiquette */
 
 /* ==========================================================
    DÉS
@@ -61,6 +77,8 @@ const SEGS = [
   ["segCritW","critW",[[2,"2+"],[3,"3+"],[4,"4+"],[5,"5+"],[6,"6+"]]],
   ["segHitMod","hitMod",[[-1,"−1"],[0,"0"],[1,"+1"]]],
   ["segWndMod","wndMod",[[-1,"−1"],[0,"0"],[1,"+1"]]],
+  ["segApMod","apMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"]]],
+  ["segDmgMod","dmgMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"]]],
   ["segRrH","rrH",[["none","—"],["ones","1"],["failed","Ratés"]]],
   ["segRrW","rrW",[["none","—"],["ones","1"],["failed","Ratés"]]]
 ];
@@ -352,29 +370,172 @@ function renderTargetList(){
 }
 
 /* ==========================================================
-   PROFILS ENREGISTRÉS
+   L'UNITE ENTIERE COMME ATTAQUANT
    ========================================================== */
-const KEY = "mathhammer.necrons.v2";
-let memStore = null;
-const loadProfiles = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return memStore || []; } };
-const saveProfiles = l => { memStore = l; try { localStorage.setItem(KEY, JSON.stringify(l)); } catch(e){} };
-function renderProfiles(){
-  const list = loadProfiles(), host = el("savedList");
+const FORCE_RR = {none:0, ones:1, failed:2};
+const plusFort = (a, b) => (FORCE_RR[a] || 0) >= (FORCE_RR[b] || 0) ? a : b;
+const borne1 = v => Math.max(-1, Math.min(1, v));
+
+/* Un profil charge n'apporte que son arme. La cible et les retouches de
+   partie viennent de l'ecran : c'est ce qui permet de regler « couvert,
+   Lourd, relance des 1 » une seule fois pour toute l'unite au lieu de
+   dix fois arme par arme. Les modificateurs de la fiche et ceux de
+   l'ecran s'additionnent avant le plafond a plus ou moins un ; une
+   relance de l'ecran ne peut qu'ameliorer celle de l'arme. */
+function profilPourMoteur(p){
+  return Object.assign({}, p, {
+    tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
+    fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover,
+    hitMod: borne1((p.hitMod || 0) + S.hitMod),
+    wndMod: borne1((p.wndMod || 0) + S.wndMod),
+    apMod: S.apMod, dmgMod: S.dmgMod,
+    rrH: plusFort(p.rrH || "none", S.rrH),
+    rrW: plusFort(p.rrW || "none", S.rrW)
+  });
+}
+const profilsActifs = () => !atkUnit ? [] :
+  atkUnit.profils.filter(p => !atkOff[p.label]);
+
+function chargeUnite(id){
+  if(!window.ROSTER || !window.ROSTER.simUnite) return;
+  const u = window.ROSTER.simUnite(id, atkPhase);
+  if(!u) return;
+  atkUnitId = id; atkUnit = u;
+  renderAtkUnite(); render();
+}
+function rechargeUnite(){
+  if(atkUnitId !== null) chargeUnite(atkUnitId);
+  else { renderAtkUnite(); render(); }
+}
+
+function renderAtkUnite(){
+  const nom = el("ruName"), sub = el("ruSub"), host = el("atkProfils");
+  if(!nom || !host) return;
+  if(!atkUnit){
+    nom.textContent = "Aucune unité chargée";
+    sub.textContent = "Choisis une unité de ta liste";
+    host.innerHTML = '<p class="hint">Rien n\'est chargé. Le bouton ci-dessus liste les unités de la liste ouverte, avec leurs personnages rattachés.</p>';
+    return;
+  }
+  nom.textContent = atkUnit.nom;
+  sub.textContent = atkUnit.unite + " ×" + atkUnit.taille +
+    (atkUnit.persos.length ? "  ·  " + atkUnit.persos.join(", ") : "");
   host.innerHTML = "";
-  el("savedHint").style.display = list.length ? "none" : "block";
-  list.forEach((p,i)=>{
+  if(!atkUnit.profils.length){
+    host.innerHTML = '<p class="hint">Cette unité n\'a aucune arme ' +
+      (atkPhase === "C" ? "de mêlée" : "de tir") + '.</p>';
+    return;
+  }
+  const lbl = document.createElement("div");
+  lbl.className = "proflbl";
+  const n = profilsActifs().length;
+  lbl.innerHTML = '<span>' + n + ' profil' + (n > 1 ? 's' : '') + ' sur ' +
+    atkUnit.profils.length + ' tirent sur la cible</span>' +
+    '<button type="button" class="ghost mini" id="btnAllProf">' +
+    (n === atkUnit.profils.length ? "Tout décocher" : "Tout cocher") + '</button>';
+  host.appendChild(lbl);
+  lbl.querySelector("#btnAllProf").addEventListener("click", ()=>{
+    const tout = n === atkUnit.profils.length;
+    atkUnit.profils.forEach(p => { atkOff[p.label] = tout; });
+    renderAtkUnite(); render();
+  });
+  atkUnit.profils.forEach(p=>{
+    const actif = !atkOff[p.label];
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "profrow" + (actif ? " on" : "");
+    const q = profilPourMoteur(p);
+    row.innerHTML = '<span class="pbox">' + (actif ? "✓" : "") + '</span>' +
+      '<span class="pmain"><b>' + p.label + '</b>' +
+      '<i>A ' + q.attacks + ' · ' + (p.kind === "C" ? "CC" : "CT") + ' ' + q.bs + '+' +
+      ' · F ' + q.str + ' · PA ' + (ENG.apEffectif(q) ? "-" + ENG.apEffectif(q) : "0") +
+      ' · D ' + q.dmg + '</i></span>';
+    row.addEventListener("click", ()=>{
+      atkOff[p.label] = actif; renderAtkUnite(); render();
+    });
+    host.appendChild(row);
+  });
+}
+
+/* le choix de l'unite a charger */
+function renderRosterUnitList(){
+  const host = el("ruList"); if(!host) return;
+  host.innerHTML = "";
+  const r = window.ROSTER && window.ROSTER.simListe && window.ROSTER.simListe();
+  if(!r || !r.unites.length){
+    host.innerHTML = '<div class="sheet-empty">Aucune liste ouverte, ou liste vide. ' +
+      'Monte une liste dans l\'onglet Listes : elle apparaîtra ici.</div>';
+    return;
+  }
+  const tete = document.createElement("div");
+  tete.className = "sheet-sep";
+  tete.textContent = r.nom;
+  host.appendChild(tete);
+  r.unites.forEach(x=>{
     const b = document.createElement("button");
-    b.type="button"; b.className="chip"; b.textContent = p.name + "  ×";
-    b.addEventListener("click", ev=>{
-      const r = b.getBoundingClientRect();
-      if(ev.clientX > r.right - 26){ const l = loadProfiles(); l.splice(i,1); saveProfiles(l); renderProfiles(); return; }
-      Object.assign(S, p.state);
-      if(p.unit){ curUnit = p.unit; curWeapon = p.weapon|0; curSize = p.size|0; refreshAttacker(); }
-      tgtName = p.tgtName || tgtName; tgtUnit = p.tgtUnit ? unitRow(p.tgtUnit) : null;
-      refreshTarget(); pushState(); render();
+    b.type = "button";
+    b.className = "opt" + (String(x.id) === String(atkUnitId) ? " sel" : "");
+    const n = atkPhase === "C" ? x.nC : x.nT;
+    b.innerHTML = '<span class="oi"><span class="o1">' + x.nom + '</span><span class="o2">' +
+      x.unite + ' ×' + x.taille +
+      (x.persos.length ? ' · ' + x.persos.join(", ") : '') +
+      ' · ' + x.nT + ' profil' + (x.nT > 1 ? 's' : '') + ' de tir, ' +
+      x.nC + ' au corps à corps</span></span>' +
+      (n ? '' : '<span class="otag">RIEN ICI</span>');
+    b.addEventListener("click", ()=>{
+      atkOff = {};
+      closeSheet("sheetRosterUnit");
+      chargeUnite(x.id);
     });
     host.appendChild(b);
   });
+}
+
+/* ==========================================================
+   RETOUCHES DE PARTIE — les raccourcis
+   Ce ne sont pas des regles de l'application mais les situations qui
+   reviennent a chaque tour : on entre dans un couvert, on reste
+   immobile avec une arme lourde, on tire sur un objectif tenu. Chacune
+   se pose et se retire d'une touche.
+   ========================================================== */
+/* Quatre situations, pas sept raccourcis : les valeurs brutes sont deja
+   sous la main dans les segments juste dessous. Ce qui merite un bouton,
+   c'est ce qui porte un nom a la table — « je suis dans un couvert »,
+   « je n'ai pas bouge », « je tire sur un objectif ». */
+const PRESETS = [
+  {id:"cover", nom:"Cible à couvert", aide:"+1 en sauvegarde",
+   lis:()=> S.cover,            met:v=>{ S.cover = v; }},
+  {id:"heavy", nom:"+1 pour toucher", aide:"Lourd immobile, Protocoles…",
+   lis:()=> S.hitMod === 1,     met:v=>{ S.hitMod = v ? 1 : 0; }},
+  {id:"rr1",   nom:"Relance des 1",   aide:"aux jets de touche",
+   lis:()=> S.rrH === "ones",   met:v=>{ S.rrH = v ? "ones" : "none"; }},
+  {id:"rrw",   nom:"Cible sur objectif", aide:"relance les blessures ratées",
+   lis:()=> S.rrW === "failed", met:v=>{ S.rrW = v ? "failed" : "none"; }}
+];
+function renderPresets(){
+  const host = el("vitePresets"); if(!host) return;
+  host.innerHTML = "";
+  PRESETS.forEach(pr=>{
+    const on = pr.lis();
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "vpre" + (on ? " on" : "");
+    b.innerHTML = pr.nom + (pr.aide ? '<small>' + pr.aide + '</small>' : '');
+    b.addEventListener("click", ()=>{ pr.met(!on); pushState(); majVite(); render(); });
+    host.appendChild(b);
+  });
+}
+/* combien de retouches sont actives : on doit pouvoir le voir sans
+   deplier, parce qu'un +1 oublie fausse toute une soiree de calculs */
+function majVite(){
+  renderPresets();
+  const n = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
+            (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
+            (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0);
+  const c = el("viteCount");
+  if(c){ c.textContent = n ? n + " active" + (n > 1 ? "s" : "") : "aucune"; c.className = n ? "on" : ""; }
+  const box = el("viteBox");
+  if(box) box.classList.toggle("actif", n > 0);
 }
 
 /* ==========================================================
@@ -475,8 +636,26 @@ function drawBars(svg, data, color, tipFmt){
    ========================================================== */
 let lastSim = null, lastData = null;
 function render(){
-  const a = analytic(S);
-  const sim = simulate(S, a.A > 120 ? 8000 : 30000);
+  majVite();
+  /* Deux facons de mesurer, un seul rendu. En mode « une arme » on
+     simule le profil de l'ecran ; en mode « unite entiere » tous les
+     profils coches tirent dans l'ordre sur le meme vivier de figurines,
+     de sorte que la surtue de l'arme lourde profite — ou nuit — aux
+     suivantes, exactement comme en partie. */
+  const lot = (atkMode === "unite") ? profilsActifs().map(profilPourMoteur) : null;
+  let a, sim;
+  if(lot){
+    if(!lot.length){ videResultats(); return; }
+    a = lot.map(analytic).reduce((acc, x)=>({
+      A: acc.A + x.A, hits: acc.hits + x.hits, wounds: acc.wounds + x.wounds,
+      unsaved: acc.unsaved + x.unsaved, rawDmg: acc.rawDmg + x.rawDmg,
+      wt: x.wt, st: x.st
+    }));
+    sim = ENG.simulateCombined(lot, a.A > 120 ? 8000 : 30000);
+  } else {
+    a = analytic(S);
+    sim = simulate(S, a.A > 120 ? 8000 : 30000);
+  }
   lastSim = sim;
   const M = S.models;
   const wipe = auMoins(sim.slainDist, M), atLeast1 = 1 - sim.slainDist[0];
@@ -486,10 +665,10 @@ function render(){
   el("sumWipe").textContent = String(seuilTues(sim.slainDist, 0.75));
 
   const steps = [
-    ["Attaques", a.A, ""],
-    ["Touches", a.hits, S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,S.bs - S.hitMod))+"+"],
-    ["Blessures", a.wounds, "sur "+a.wt+"+"],
-    ["Non sauv.", a.unsaved, a.st>=7 ? "aucune svg" : "svg "+a.st+"+"],
+    ["Attaques", a.A, lot ? lot.length + " profil" + (lot.length > 1 ? "s" : "") : ""],
+    ["Touches", a.hits, lot ? "" : (S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,S.bs - S.hitMod))+"+")],
+    ["Blessures", a.wounds, lot ? "" : "sur "+a.wt+"+"],
+    ["Non sauv.", a.unsaved, lot ? "" : (a.st>=7 ? "aucune svg" : "svg "+a.st+"+")],
     ["Dégâts bruts", a.rawDmg, S.fnp ? "après FNP" : (S.dmgRed ? "après -"+S.dmgRed : "")]
   ];
   const mx = Math.max.apply(null, steps.map(s=>s[1])) || 1;
@@ -534,6 +713,18 @@ function render(){
   rendSeuils(el("rSeuils"), sim.slainDist);
   if(el("tableWrap").style.display !== "none") renderTable();
 }
+
+/* aucun profil coche : on le dit plutot que de laisser les anciens
+   chiffres a l'ecran, ou l'on croirait mesurer quelque chose */
+function videResultats(){
+  lastSim = null; lastData = null;
+  ["sumDmg","sumSlain","sumWipe","rDmg","rWaste","rSlain","rMed","rOne","rWipe"]
+    .forEach(id => { const e = el(id); if(e) e.textContent = "—"; });
+  const f = el("funnel");
+  if(f) f.innerHTML = '<p class="hint" style="margin:0">Aucun profil sélectionné : coche au moins une arme.</p>';
+  ["hist","cum"].forEach(id => { const e = el(id); if(e) e.innerHTML = ""; });
+  const sl = el("rSeuils"); if(sl) sl.innerHTML = "";
+}
 function renderTable(){
   if(!lastData) return;
   const {data, unit} = lastData;
@@ -558,23 +749,48 @@ el("btnTable").addEventListener("click", ()=>{
   el("btnTable").textContent = open ? "Masquer le tableau de données" : "Afficher le tableau de données";
   if(open) renderTable();
 });
-el("btnSave").addEventListener("click", ()=>{
-  const name = prompt("Nom du profil :", S.wName + " → " + tgtName);
-  if(!name) return;
-  const l = loadProfiles();
-  l.push({name:name.slice(0,44), state:JSON.parse(JSON.stringify(S)),
-          unit:curUnit, weapon:curWeapon, size:curSize,
-          tgtName:tgtName, tgtUnit:tgtUnit ? tgtUnit[0] : null});
-  saveProfiles(l); renderProfiles();
-  el("cardSaved").classList.remove("collapsed");
-});
 el("modeChips").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
     viewMode = b.dataset.m;
     el("modeChips").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
     render();
   }));
-el("awakened").addEventListener("change", e=>{ S.hitMod = e.target.checked ? 1 : 0; pushState(); render(); });
+
+/* ---------- bascule « une arme » / « une unité entière » ---------- */
+function majAtkMode(){
+  const chips = el("atkModeChips");
+  if(chips) chips.querySelectorAll(".chip").forEach(b => b.classList.toggle("on", b.dataset.am === atkMode));
+  const pr = el("atkProfil"), un = el("atkUnite");
+  if(pr) pr.hidden = atkMode !== "profil";
+  if(un) un.hidden = atkMode !== "unite";
+  const ph = el("atkPhaseChips");
+  if(ph) ph.querySelectorAll(".chip").forEach(b => b.classList.toggle("on", b.dataset.ap === atkPhase));
+}
+if(el("atkModeChips")) el("atkModeChips").querySelectorAll(".chip").forEach(b=>
+  b.addEventListener("click", ()=>{
+    atkMode = b.dataset.am;
+    majAtkMode();
+    if(atkMode === "unite" && !atkUnit) renderAtkUnite();
+    render();
+  }));
+if(el("atkPhaseChips")) el("atkPhaseChips").querySelectorAll(".chip").forEach(b=>
+  b.addEventListener("click", ()=>{
+    atkPhase = b.dataset.ap;
+    majAtkMode();
+    /* changer de phase change les armes : les decochages d'avant ne
+       veulent plus rien dire */
+    atkOff = {};
+    rechargeUnite();
+  }));
+if(el("pickRosterUnit")) el("pickRosterUnit").addEventListener("click", ()=>{
+  renderRosterUnitList(); openSheet("sheetRosterUnit");
+});
+/* la liste peut changer pendant qu'on simule : on relit l'unite chargee */
+const _syncQuick = window.__syncRosterQuick;
+window.__syncRosterQuick = function(){
+  if(_syncQuick) _syncQuick();
+  if(atkMode === "unite" && atkUnitId !== null) rechargeUnite();
+};
 /* les unites de la liste ouverte, en acces direct sous le selecteur :
    on veut mesurer son armee sans passer par une feuille */
 function renderRosterQuick(){
@@ -649,14 +865,29 @@ el("tTabs").querySelectorAll(".chip").forEach(b=>
   }));
 window.addEventListener("resize", hideTip);
 
-buildSegs(); bindFields(); renderProfiles();
-applyGenericTarget("Space Marine");
+buildSegs(); bindFields();applyGenericTarget("Space Marine");
 applyWeapon();
+majAtkMode(); renderAtkUnite(); majVite();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load", ()=> navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
 global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
   applyGenericTarget, applyNecronTarget, drawBars, binned, pct, num, rendSeuils,
-  get tgtName(){ return tgtName; }, get tgtUnit(){ return tgtUnit; }};
+  get tgtName(){ return tgtName; }, get tgtUnit(){ return tgtUnit; },
+  /* crochets de verification : dans quel mode on est, ce qui est charge,
+     et les profils reellement envoyes au moteur */
+  atk: function(){
+    return { mode: atkMode, phase: atkPhase, unite: atkUnit ? atkUnit.nom : null,
+      profils: atkUnit ? atkUnit.profils.map(p => p.label) : [],
+      actifs: profilsActifs().map(p => p.label),
+      moteur: profilsActifs().map(p => {
+        const q = profilPourMoteur(p);
+        return { label: p.label, attacks: q.attacks, bs: q.bs, str: q.str,
+                 ap: q.ap, apEff: ENG.apEffectif(q), dmg: q.dmg, dmgMod: q.dmgMod,
+                 hitMod: q.hitMod, wndMod: q.wndMod, rrH: q.rrH, rrW: q.rrW };
+      }) };
+  },
+  charge: function(id, ph){ atkMode = "unite"; if(ph) atkPhase = ph; atkOff = {};
+    majAtkMode(); chargeUnite(id); }};
 })(window);
