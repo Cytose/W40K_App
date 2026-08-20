@@ -4,7 +4,7 @@
    attaquant : attacks, bs, str, ap, dmg, torrent, lethal, dev,
                sustainedOn/sustainedN, blast, rapidOn/rapidN,
                meltaOn/meltaN, critH, critW, hitMod, wndMod, rrH, rrW,
-               apMod, dmgMod
+               apMod, dmgMod, ignoresCover, indirect
    cible     : tough, sv, inv, wounds, models, fnp, dmgRed, cover
 
    apMod et dmgMod sont les retouches de partie : une regle qui ameliore
@@ -72,12 +72,32 @@ function saveTarget(s){
   if(s.sv >= 7 && !s.inv) return 99;
   const ap = apEffectif(s);
   let arm = s.sv >= 7 ? 99 : s.sv + ap;
-  if(s.cover && s.sv < 7 && !(s.sv <= 3 && ap === 0)) arm -= 1;
+  if(s.cover && !s.ignoresCover && s.sv < 7 && !(s.sv <= 3 && ap === 0)) arm -= 1;
   let t = arm;
   if(s.inv) t = Math.min(t, s.inv);
   return t;
 }
 const passProb = t => t >= 7 ? 0 : Math.min(5/6, (7 - Math.max(t,2))/6);
+
+/* Deux mots-cles d'arme ne se lisent pas dans la sequence mais la
+   deplacent avant qu'elle ne commence :
+
+   — Tir indirect : on tire sans voir la cible. Le jet de touche subit
+     un -1 et la cible beneficie du couvert, qu'elle soit a l'abri ou
+     non. Ce n'est pas automatique — une arme a tir indirect qui voit
+     sa cible tire normalement — d'ou le drapeau pose par le joueur.
+   — Ignore le couvert : le couvert de la cible ne compte pas. Il
+     l'emporte donc sur le couvert que le tir indirect vient d'offrir.
+
+   Le -1 s'ajoute aux autres modificateurs de touche puis le tout est
+   plafonne a plus ou moins un, comme le veut la regle. */
+function normalise(s){
+  if(!s.indirect) return s;
+  const q = Object.assign({}, s);
+  q.hitMod = Math.max(-1, Math.min(1, (q.hitMod || 0) - 1));
+  q.cover = true;
+  return q;
+}
 
 /* degats moyens par attaque non sauvegardee, reduction incluse (plancher 1) */
 function meanDamagePerHit(s){
@@ -97,7 +117,8 @@ function meanDamagePerHit(s){
 }
 
 /* ---------- esperances exactes ---------- */
-function analytic(s){
+function analytic(s0){
+  const s = normalise(s0);
   const atk = parseDice(s.attacks) || {n:0,f:0,b:0};
   const blast = s.blast ? Math.floor(s.models/5) : 0;
   const rapid = s.rapidOn ? s.rapidN : 0;
@@ -130,7 +151,8 @@ function analytic(s){
 
 /* ---------- precalcul pour la simulation ---------- */
 const roll = () => 1 + (Math.random()*6|0);
-function prep(s){
+function prep(s0){
+  const s = normalise(s0);
   return {
     atk: parseDice(s.attacks) || {n:0,f:0,b:0},
     dmgD: parseDice(s.dmg) || {n:0,f:0,b:1},
@@ -275,5 +297,6 @@ function simulateCombined(list, N){
 
 global.ENG = {parseDice, diceMean, diceRoll, scaleDice, sets, probs, woundTarget,
               saveTarget, apEffectif, passProb, meanDamagePerHit, analytic, simulate,
+              normalise,
               simulateCombined, seuilTues, auMoins};
 })(typeof window !== "undefined" ? window : globalThis);
