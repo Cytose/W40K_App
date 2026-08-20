@@ -569,3 +569,102 @@ Rien n'est perdu : la chance de balayer une unité de M figurines vaut
 exactement P(tuées ≥ M) sur cette même distribution, et reste affichée. La
 surtue devient plus honnête aussi — elle ne mesure plus « j'ai manqué de
 cibles » mais le vrai débordement de dégâts sur la figurine qui tombe.
+
+---
+
+## 14. Retour sur l'application en main — 20/08/2026
+
+Retour vocal de Kévin, l'application ouverte sous les yeux. Quatre points,
+tous vérifiés dans le code avant d'être corrigés.
+
+### Le retour en arrière n'était pas là où on le cherche
+
+« Le petit bouton pour retourner en arrière n'est pas prévisible à chaque fois
+que je me loupe. Par contre le bouton Enregistrer, Réorganiser et plein écran,
+eux je les vois bien. »
+
+Deux causes distinctes.
+
+La première est un défaut de cascade : `.backbar` impose `display:flex`, ce qui
+l'emportait sur le `display:none` que l'attribut `hidden` applique par la
+feuille de style de l'agent. Les **deux** barres de retour — « Mes listes » et
+« Retour au pavé » — restaient donc affichées en permanence, y compris quand
+elles ne menaient nulle part. Un `.backbar[hidden]{display:none}` referme le
+trou.
+
+La seconde est structurelle : ces barres vivent dans le flux du document, en
+haut. Dès qu'on descend dans une unité, elles sortent de l'écran. Le retour
+rejoint donc l'en-tête collante, à côté d'« Enregistrer », et devient
+contextuel — « ‹ Mes listes » sur le pavé, « ‹ Le pavé » dans un panneau. Sur
+un téléphone étroit le nom de l'application s'efface pour lui laisser la place ;
+au-delà de 520 px les deux tiennent.
+
+La barre « Mes listes » en page, devenue un doublon, disparaît. Celle du
+panneau reste : elle porte le nom du groupe ouvert.
+
+### « Réorganiser » ne faisait rien
+
+Le mode existait bel et bien : `modeRange` bascule, le libellé passe à
+« Terminé », chaque case reçoit ses flèches ◀ ▶. Mais le CSS les révélait par
+`.pad.range .tile .tmove{display:flex}` alors que l'élément est un `<div
+id="pad">` **sans classe `pad`**. Le sélecteur ne correspondait à rien : les
+flèches restaient en `display:none`, et le bouton semblait mort.
+
+Une classe ajoutée à l'élément, et l'ordre se règle case par case.
+
+### L'armement du groupe ne montrait pas celui des personnages
+
+Le récapitulatif en bas de l'unité annonçait « Tout l'armement du groupe,
+personnages rattachés compris » — et ne lisait que `groupesArmes(ru.name)`,
+c'est-à-dire l'escouade seule. La faux d'un Overlord et la lance d'un
+Plasmancien n'y figuraient nulle part.
+
+Il balaie maintenant l'escouade puis chaque personnage, et nomme le porteur
+quand ce n'est pas l'escouade. Il liste aussi **toute** l'armurerie de la
+fiche, y compris les options laissées de côté, grisées : on voit ce qu'on n'a
+pas pris autant que ce qu'on porte.
+
+Un défaut d'affichage attrapé au passage : un profil de corps à corps qui
+partage sa ligne avec un profil de tir héritait de sa portée — la lance
+plasmique s'affichait « 18" » en mêlée. Une arme de mêlée n'a pas de portée.
+
+### Les améliorations, lisibles avant d'être choisies
+
+« Il faudrait que je puisse lire ce qu'elles font avant de les sélectionner. »
+
+Le texte était bien rendu, mais tronqué à `max-height:3.6em; overflow:hidden`
+sans aucun moyen de le dérouler. Le plafond saute ; la phrase de restriction —
+« Figurine de CRYPTEK seulement. » — se détache en tête, en vert quand le
+groupe peut la porter, en ambre sinon.
+
+### Vérification du compte : ce n'est pas toujours quatre
+
+« Normalement, il n'y a que quatre de disponibles, je ne sais pas, revérifier. »
+
+Vérifié contre le pack de faction v1.1 :
+
+| Détachement | Optimisations |
+|---|---|
+| Main de la Dynastie | 2 |
+| Fer de Lance Linceul Céleste | 2 |
+| L'Arsenal du Phaëron | 2 |
+| Arsenal Brise-astres | 4 |
+| Conclave de Crypteks | 4 |
+| Légion Maudite | 4 |
+| Panthéon de Malheur | **0** |
+| Les cinq détachements du codex | 4 chacun |
+
+Les quatre par détachement viennent du codex. Le pack de faction en donne deux
+pour ses trois premiers détachements, et **aucune** pour le Panthéon de
+Malheur, qui impose à la place des Aptitudes d'Entrave Nécrodermique — une par
+Écharde C'tan, obligatoires et facturées. Le total de 38 est donc juste.
+
+Pour que ce compte ne passe plus pour un oubli, le tiroir des améliorations
+l'affiche détachement par détachement, en tête de liste.
+
+**Reste ouvert** : cinq optimisations n'ont pas de coût en points — les deux de
+la Main de la Dynastie, la Réanimation Récursive et les deux de l'Arsenal du
+Phaëron. Le pack ne les donne pas (elles vivent dans l'Inventaire du
+Munitorum) et le catalogue BattleScribe ne connaît pas encore ces
+détachements de juillet 2026. Elles comptent pour 0 point dans le total de la
+liste, et l'affichage le dit — « coût inconnu ».

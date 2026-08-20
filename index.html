@@ -53,6 +53,15 @@ header{
 .logo{font-size:14px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--glow);line-height:1.15}
 .logo small{display:block;font-size:9.5px;font-weight:500;letter-spacing:.09em;color:var(--tx3);text-transform:none}
 .hbar .spacer{flex:1}
+/* le retour vit dans l'en-tete collante : il reste sous le pouce ou que
+   l'on soit descendu dans la liste, comme Enregistrer */
+.ghost.back{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+/* sur un telephone l'en-tete ne tient pas le nom de l'appli en plus du
+   retour : c'est le retour qui compte. Au-dela, les deux tiennent. */
+.hbar.retour .logo{display:none}
+@media (min-width:520px){.hbar.retour .logo{display:block}}
+.ghost.back .ar{color:var(--glow);font-size:16px;line-height:1;flex:0 0 auto}
+.ghost.back .bt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ghost{
   min-height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);
   background:var(--s2);color:var(--tx2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
@@ -358,8 +367,16 @@ pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px 
 .strat .sbody .vide{color:var(--tx3);font-style:italic}
 .strat .smod{font-size:10px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
 .sheet-empty{padding:26px 6px;text-align:center;color:var(--tx3);font-size:13px}
-.opt .o3{display:block;font-size:11px;color:var(--tx2);margin-top:5px;line-height:1.45;
-  white-space:normal;max-height:3.6em;overflow:hidden}
+.opt .o3{display:block;font-size:11.5px;color:var(--tx2);margin-top:6px;line-height:1.5;
+  white-space:normal}
+.opt .o4{display:block;font-size:11px;color:var(--glow);margin-top:5px;line-height:1.45;
+  font-weight:600}
+.opt.opt-off .o4{color:var(--warn)}
+/* combien chaque detachement retenu ouvre d'ameliorations */
+.enhcount{display:flex;flex-wrap:wrap;gap:6px;margin:2px 2px 4px}
+.enhcount span{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);
+  border:1px solid var(--line);background:var(--s1);padding:3px 7px}
+.enhcount b{color:var(--glow);font-variant-numeric:tabular-nums}
 .opt.opt-off{opacity:.5}
 .opt:disabled{cursor:not-allowed}
 .addrow button:disabled{opacity:.45;cursor:not-allowed}
@@ -398,6 +415,9 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
   clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
 .backbar .ar{color:var(--glow);font-size:16px;line-height:1}
 .backbar:active{background:var(--s2)}
+/* display:flex l'emportait sur le display:none que [hidden] applique :
+   les deux barres de retour restaient visibles en permanence */
+.backbar[hidden]{display:none}
 
 /* ---------- repartition des armes ---------- */
 .repart{margin:10px 0 2px;padding:7px 10px;font-size:11.5px;color:var(--tx2);
@@ -559,6 +579,9 @@ table.arms{min-width:340px}
 table.arms td.an{white-space:normal;min-width:118px}
 table.arms tr.off td{opacity:.45}
 table.arms .n{font-size:9.5px;color:var(--tx3);display:block;line-height:1.35;margin-top:1px}
+/* qui porte l'arme, quand ce n'est pas l'escouade : un personnage rattache */
+table.arms .src{font-size:9.5px;color:var(--glow);display:block;line-height:1.35;margin-top:1px;
+  letter-spacing:.04em}
 table.arms .q{color:var(--glow);font-weight:700}
 /* ---------- onglets & ecrans ---------- */
 .screen{display:none}
@@ -660,6 +683,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </svg>
     <div class="logo">Mathhammer<small>Nécrons — 40K 11<sup>e</sup> éd.</small></div>
     <div class="spacer"></div>
+    <button class="ghost back" id="btnBack" type="button" hidden><span class="ar">‹</span><span class="bt">Mes listes</span></button>
     <button class="ghost icon" id="btnFull" type="button" hidden
             aria-label="Passer en plein écran" title="Plein écran">⛶</button>
     <button class="ghost" id="btnSave" type="button">Enregistrer</button>
@@ -936,8 +960,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </section>
   </div>
   <div id="listEditor" hidden>
-    <button class="backbar" id="btnBackIndex" type="button"><span class="ar">‹</span><span class="bt">Mes listes</span></button>
-    <div id="pad">
+    <button class="backbar" id="btnBackIndex" type="button" hidden><span class="ar">‹</span><span class="bt">Mes listes</span></button>
+    <div id="pad" class="pad">
       <div id="rosterWarn"></div>
       <div class="padbar">
         <span id="padCount"></span>
