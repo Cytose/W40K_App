@@ -726,6 +726,19 @@ button.todo:active{background:var(--s2)}
 .vsep{flex:0 0 100%;margin:5px 0 1px;font-size:9.5px;font-weight:800;letter-spacing:.09em;
   text-transform:uppercase;color:var(--tx3)}
 .vpre.vcond{border-style:dashed}
+/* un stratagème se paie : le coût passe avant le nom */
+.vpre.vstrat{border-color:rgba(31,122,140,.55)}
+.vpre.vstrat.on{border-color:var(--cyan);color:var(--cyan);background:rgba(31,122,140,.14)}
+.vpre.vstrat .pc{display:inline-block;margin-right:6px;padding:1px 5px;
+  background:var(--s2);border-radius:4px;font-size:9px;font-weight:800;
+  letter-spacing:.05em;color:var(--cyan)}
+.vpre.vstrat.on .pc{background:rgba(31,122,140,.3)}
+/* ce que le détachement fait déjà : à lire, pas à cocher */
+.vinfo{flex:0 0 100%;padding:7px 9px;background:var(--s2);border-radius:7px;
+  border-left:2px solid var(--line-hi)}
+.vinfo b{display:block;font-size:11.5px;font-weight:700;color:var(--tx2)}
+.vinfo i{display:block;font-style:normal;font-size:9.5px;color:var(--tx3);margin-top:1px}
+.vinfo span{display:block;font-size:10.5px;color:var(--tx3);line-height:1.4;margin-top:4px}
 .vpre.vcond.on{border-style:solid}
 .vitegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:11px}
 .vc{min-width:0}

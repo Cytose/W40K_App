@@ -11,7 +11,7 @@ const S = {
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
   critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none",
-  apMod:0, dmgMod:0, ignoresCover:false, indirect:false,
+  apMod:0, dmgMod:0, ignoresCover:false, indirect:false, ignoreMalus:false,
   /* ce que la cible EST — plusieurs règles ne valent que contre un
      certain genre d'unité, et le moteur ne connaissait d'elle que des
      chiffres */
@@ -619,6 +619,7 @@ function profilPourMoteur(p){
     meltaOn: !!p.meltaOn && !!S.meltaOn,
     /* le couvert ignore s'ajoute — l'arme l'a, ou la partie l'accorde */
     ignoresCover: !!p.ignoresCover || !!S.ignoresCover,
+    ignoreMalus: !!S.ignoreMalus,
     /* le tir indirect demande les deux : que l'arme le permette, et que
        le joueur declare qu'il tire sans voir */
     indirect: !!p.indirectCap && !!S.indirect
@@ -667,6 +668,7 @@ function pastilles(q, brut){
   if(!q.rapidOn && brut.rapidOn) out.push({t:"TIR RAPIDE " + brut.rapidN, cl:"d", d:"hors mi-portée"});
   if(!q.meltaOn && brut.meltaOn) out.push({t:"FONTE " + brut.meltaN, cl:"d", d:"hors mi-portée"});
   if(q.ignoresCover) kw("IGNORE LE COUVERT", "ignorescover");
+  if(q.ignoreMalus) out.push({t:"MALUS IGNORÉS", cl:"m", d:"aucun malus au jet de touche"});
   if(q.indirect) out.push({t:"TIR INDIRECT", cl:"m", d:"−1 pour toucher, cible à couvert"});
   else if(brut.indirectCap) out.push({t:"TIR INDIRECT", cl:"d", d:"la cible est en vue"});
   /* les mots-cles que la sequence d'attaque ne traduit pas : ils se
@@ -887,9 +889,33 @@ function renderPresets(){
       host.appendChild(b);
     });
   }
+  /* Les stratagemes de mes detachements qui changent vraiment un jet.
+     Une pastille les pose et les retire comme n'importe quelle
+     retouche : leur cout en PC est ecrit, la depense reste au joueur. */
+  const DEFAUT_STRAT = { apMod:0, wndMod:0, hitMod:0, rrH:"none", rrW:"none",
+                         sustainedOn:false, sustainedN:"1", ignoreMalus:false };
+  const st = (atkMode === "unite" && atkUnit && window.ROSTER && window.ROSTER.stratsSimu)
+    ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase) : [];
+  if(st.length){
+    sep("Stratagèmes");
+    st.forEach(x=>{
+      const cles = Object.keys(x.effet);
+      const on = cles.every(k => S[k] === x.effet[k]);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "vpre vstrat" + (on ? " on" : "");
+      b.title = x.detach;
+      b.innerHTML = '<span class="pc">' + x.pc + ' PC</span>' + x.nom +
+        '<small>' + x.aide + '</small>';
+      b.addEventListener("click", ()=>{
+        cles.forEach(k => { S[k] = on ? DEFAUT_STRAT[k] : x.effet[k]; });
+        pushState(); renderAtkUnite(); majVite(); render();
+      });
+      host.appendChild(b);
+    });
+  }
   const cond = (atkMode === "unite" && atkUnit && atkUnit.conditions) || [];
-  if(!cond.length) return;
-  sep("Aptitudes de " + atkUnit.nom);
+  if(cond.length) sep("Aptitudes de " + atkUnit.nom);
   cond.forEach(c=>{
     const on = !!condOn[c.id];
     const b = document.createElement("button");
@@ -905,6 +931,22 @@ function renderPresets(){
     });
     host.appendChild(b);
   });
+
+  /* Ce que le detachement fait DEJA, sans rien cocher. C'est applique
+     depuis le debut mais rien ne le disait : on ne verifie pas ce qu'on
+     ne voit pas. Lecture seule — ce n'est pas une retouche. */
+  const regles = (atkMode === "unite" && window.ROSTER && window.ROSTER.reglesDetach)
+    ? window.ROSTER.reglesDetach() : [];
+  if(!regles.length) return;
+  sep("Ce que fait ton détachement");
+  regles.forEach(r=>{
+    const d = document.createElement("div");
+    d.className = "vinfo";
+    d.innerHTML = '<b>' + r.nom + '</b><i>' + r.detach +
+      (r.conditionnel ? ' · sous condition, voir plus haut' : '') + '</i>' +
+      '<span>' + r.texte + '</span>';
+    host.appendChild(d);
+  });
 }
 /* combien de retouches sont actives : on doit pouvoir le voir sans
    deplier, parce qu'un +1 oublie fausse toute une soiree de calculs */
@@ -914,7 +956,7 @@ function majVite(){
     (S.torrent ? 1 : 0) + (S.lethal ? 1 : 0) + (S.dev ? 1 : 0) +
     (S.sustainedOn ? 1 : 0) + (S.blast ? 1 : 0) + (S.rapidOn ? 1 : 0) +
     (S.meltaOn ? 1 : 0) + (S.critH < 6 ? 1 : 0) + (S.critW < 6 ? 1 : 0) +
-    (S.ignoresCover ? 1 : 0) + (S.indirect ? 1 : 0);
+    (S.ignoresCover ? 1 : 0) + (S.indirect ? 1 : 0) + (S.ignoreMalus ? 1 : 0);
   const nSit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
     ? window.ROSTER.situations().filter(x => x.on).length : 0;
   const n = nSit + (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
@@ -1163,13 +1205,13 @@ el("modeChips").querySelectorAll(".chip").forEach(b=>
    a l'arme les siennes en sortant. */
 const CAPF = ["torrent","lethal","dev","sustainedOn","sustainedN","blast",
               "rapidOn","rapidN","meltaOn","meltaN","critH","critW",
-              "ignoresCover","indirect"];
+              "ignoresCover","indirect","ignoreMalus"];
 let capMemo = null;
 function videCaps(){
   S.torrent = false; S.lethal = false; S.dev = false;
   S.sustainedOn = false; S.sustainedN = "1"; S.blast = false;
   S.rapidOn = false; S.meltaOn = false;
-  S.ignoresCover = false; S.indirect = false;
+  S.ignoresCover = false; S.indirect = false; S.ignoreMalus = false;
   S.critH = 6; S.critW = 6;
 }
 function majLibelleCaps(){

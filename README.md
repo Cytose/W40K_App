@@ -181,6 +181,11 @@ consultable en dessous, en lecture seule.
   Véhicule, Monstre, Personnage, Volant), deviné de l'archétype ou de la
   datasheet choisie et rectifiable d'une touche. Les règles conditionnées par
   le genre de la cible s'appliquent alors toutes seules, et disent pourquoi.
+- **Stratagèmes dans les retouches** — sur quarante-trois fiches, six touchent
+  la séquence d'attaque : elles apparaissent en pastilles, avec leur coût en PC,
+  filtrées par détachement retenu, par phase et par mots-clés de l'unité
+  chargée. Les règles du détachement, qui s'appliquent sans qu'on les coche,
+  s'y lisent en clair juste dessous.
 - **Combien il en faut** — plusieurs unités tirent dans l'ordre sur la même
   cible, et l'écran lit après chaque activation ce qui reste debout et la
   chance d'avoir tout couché : « il en faut 3 pour coucher un Char lourd trois
