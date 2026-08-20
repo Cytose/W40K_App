@@ -6,7 +6,7 @@ const el = id => document.getElementById(id);
    ÉTAT
    ========================================================== */
 const S = {
-  wName:"", attacks:"20", bs:3, str:5, ap:1, dmg:"1",
+  wName:"", attacks:"20", kind:"T", bs:3, str:5, ap:1, dmg:"1",
   tough:4, sv:3, inv:0, wounds:2, models:5, fnp:0, dmgRed:0, cover:false,
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
@@ -177,6 +177,7 @@ function applyWeapon(){
   if(sizes.indexOf(curSize) < 0) curSize = sizes[sizes.length-1];
 
   S.wName   = w[1];
+  S.kind    = w[2];
   S.attacks = scaleDice(w[3], curSize);
   S.bs = w[4]; S.str = w[5]; S.ap = w[6]; S.dmg = w[7];
   S.torrent = !!f.torrent;
@@ -633,7 +634,17 @@ function pastilles(q, brut){
   if(q.critW < 6) out.push({t:"Blessure crit. " + q.critW + "+", cl:"m", d:dit("critW")});
   if(q.rrH !== "none") out.push({t:"Relance touche " + RR_MOT[q.rrH], cl:"m", d:dit("rrH")});
   if(q.rrW !== "none") out.push({t:"Relance blessure " + RR_MOT[q.rrW], cl:"m", d:dit("rrW")});
-  if(q.hitMod) out.push({t:(q.hitMod > 0 ? "+" : "−") + "1 pour toucher", cl:"m", d:""});
+  /* le modificateur de touche porte sa cause : un -1 qui arrive sans nom
+     ne se verifie pas, et le couvert comme le tir indirect passent
+     desormais par la, pas par la sauvegarde. Quand un bonus les annule,
+     on le dit plutot que de ne rien afficher. */
+  const causeH = [];
+  if(q.cover) causeH.push("cible à couvert");
+  if(q.indirect) causeH.push("tir indirect");
+  if(q.hitMod) out.push({t:(q.hitMod > 0 ? "+" : "−") + "1 pour toucher", cl:"m",
+                         d:causeH.join(" ; ")});
+  else if(causeH.length) out.push({t:causeH.join(" + ").toUpperCase(), cl:"d",
+                                   d:"compensé par un bonus"});
   if(q.wndMod) out.push({t:(q.wndMod > 0 ? "+" : "−") + "1 pour blesser", cl:"m", d:""});
   if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:""});
   if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:""});
@@ -758,7 +769,7 @@ function renderRosterUnitList(){
    c'est ce qui porte un nom a la table — « je suis dans un couvert »,
    « je n'ai pas bouge », « je tire sur un objectif ». */
 const PRESETS = [
-  {id:"cover", nom:"Cible à couvert", aide:"+1 en sauvegarde",
+  {id:"cover", nom:"Cible à couvert", aide:"−1 pour toucher",
    lis:()=> S.cover,            met:v=>{ S.cover = v; }},
   {id:"heavy", nom:"+1 pour toucher", aide:"Lourd immobile, Protocoles…",
    lis:()=> S.hitMod === 1,     met:v=>{ S.hitMod = v ? 1 : 0; }},
@@ -969,9 +980,13 @@ function render(){
   el("sumSlain").textContent = num(sim.meanSlain);
   el("sumWipe").textContent = String(seuilTues(sim.slainDist, 0.75));
 
+  /* le seuil de touche affiche doit etre celui que le moteur applique :
+     le couvert et le tir indirect passent par la normalisation, pas par
+     le modificateur de l'ecran */
+  const Sn = ENG.normalise(S);
   const steps = [
     ["Attaques", a.A, lot ? lot.length + " profil" + (lot.length > 1 ? "s" : "") : ""],
-    ["Touches", a.hits, lot ? "" : (S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,S.bs - S.hitMod))+"+")],
+    ["Touches", a.hits, lot ? "" : (S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,Sn.bs - Sn.hitMod))+"+")],
     ["Blessures", a.wounds, lot ? "" : "sur "+a.wt+"+"],
     ["Non sauv.", a.unsaved, lot ? "" : (a.st>=7 ? "aucune svg" : "svg "+a.st+"+")],
     ["Dégâts bruts", a.rawDmg, S.fnp ? "après FNP" : (S.dmgRed ? "après -"+S.dmgRed : "")]
