@@ -11,7 +11,11 @@ const S = {
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
   critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none",
-  apMod:0, dmgMod:0, ignoresCover:false, indirect:false
+  apMod:0, dmgMod:0, ignoresCover:false, indirect:false,
+  /* ce que la cible EST — plusieurs règles ne valent que contre un
+     certain genre d'unité, et le moteur ne connaissait d'elle que des
+     chiffres */
+  kwCible:{}
 };
 let viewMode = "auto";
 let curUnit = "Immortals", curWeapon = 0, curSize = 10;
@@ -261,6 +265,9 @@ let tgtName = "Space Marine", tgtUnit = null, tgtSize = 5;
    d'autres factions. */
 const CLE_CIBLES = "mathhammer.cibles.v1";
 const CHAMPS_CIBLE = ["tough","sv","inv","wounds","models","fnp","dmgRed"];
+/* les mots-cles font partie de la cible : une cible gardee sans eux
+   rappellerait des chiffres justes et des regles fausses */
+const clesKw = o => Object.keys(o || {}).filter(k => o[k]).sort().join(",");
 let ciblesGardees = [];
 function chargeCibles(){
   try{ const b = JSON.parse(localStorage.getItem(CLE_CIBLES) || "[]");
@@ -274,7 +281,8 @@ const resumeCible = c => "E" + c.tough + " · Svg " + c.sv + "+" +
   (c.inv ? "/" + c.inv + "++" : "") + " · " + c.wounds + " PV ×" + c.models +
   (c.fnp ? " · FNP " + c.fnp + "+" : "") + (c.dmgRed ? " · -" + c.dmgRed + " D" : "");
 /* la cible de l'ecran est-elle exactement celle-ci ? */
-const memeCible = c => CHAMPS_CIBLE.every(k => S[k] === c[k]);
+const memeCible = c => CHAMPS_CIBLE.every(k => S[k] === c[k]) &&
+  clesKw(S.kwCible) === (c.kw || []).slice().sort().join(",");
 
 function gardeCible(){
   const propose = tgtName && tgtName !== "Space Marine" ? tgtName : "";
@@ -282,6 +290,7 @@ function gardeCible(){
   if(!nom) return;
   const c = {nom: nom};
   CHAMPS_CIBLE.forEach(k => c[k] = S[k]);
+  c.kw = Object.keys(S.kwCible).filter(k => S.kwCible[k]);
   const i = ciblesGardees.findIndex(x => x.nom === nom);
   if(i >= 0) ciblesGardees[i] = c; else ciblesGardees.push(c);
   sauveCibles(); tgtName = nom; tgtUnit = null;
@@ -289,6 +298,7 @@ function gardeCible(){
 }
 function appliqueCibleGardee(c){
   CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
+  poseKwCible(c.kw);
   tgtName = c.nom; tgtUnit = null;
   refreshTarget(); pushState(); render();
 }
@@ -312,10 +322,30 @@ function renderCiblesGardees(){
     host.appendChild(b);
   });
 }
+/* Les mots-cles de la cible se devinent de ce qu'on vient de choisir —
+   un Char lourd est un vehicule, un Monolithe aussi — et restent
+   modifiables : l'application ne connait pas les armees adverses, et
+   l'archetype « Space Marine » couvre autant une escouade tactique
+   qu'un personnage a pied. */
+function poseKwCible(liste){
+  S.kwCible = {};
+  (liste || []).forEach(k => { S.kwCible[k] = true; });
+}
+/* la categorie d'une unite necron : « categorie() » vit dans roster.js,
+   hors de portee d'ici, mais la table brute est dans data.js */
+const catDe = nom => {
+  const t = (typeof CAT !== "undefined") ? CAT.find(x => x[0] === nom) : null;
+  return t ? t[1] : "Autre";
+};
+const kwDeCategorie = cat => {
+  const tbl = (typeof KW_CATEGORIE !== "undefined") ? KW_CATEGORIE : {};
+  return (tbl[cat] || []).slice();
+};
 function applyGenericTarget(name){
   const p = GENERIC_TARGETS.find(t => t[0] === name);
   if(!p) return;
   Object.assign(S, p[1]);
+  poseKwCible((typeof KW_ARCHETYPE !== "undefined" ? KW_ARCHETYPE : {})[name]);
   tgtName = name; tgtUnit = null;
   refreshTarget(); pushState(); render();
 }
@@ -327,6 +357,7 @@ function applyNecronTarget(name, size){
   S.models = (name === "Szarekh, The Silent King") ? 1 : size;
   S.fnp = u[8];
   S.dmgRed = /Necrodermis|Implacable Resilience|-1 D.gât/.test(u[11]) ? 1 : 0;
+  poseKwCible(kwDeCategorie(catDe(name)));
   tgtName = name; tgtUnit = u; tgtSize = size;
   refreshTarget(); pushState(); render();
 }
@@ -340,8 +371,29 @@ function majResumeCible(){
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
   renderCiblesGardees();
 }
+/* les mots-cles, en pastilles, sous le profil de la cible */
+function renderKwCible(){
+  const host = el("kwCible"); if(!host) return;
+  const tbl = (typeof MOTS_CIBLE !== "undefined") ? MOTS_CIBLE : [];
+  host.innerHTML = "";
+  tbl.forEach(([k, nom])=>{
+    const on = !!S.kwCible[k];
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "kwc" + (on ? " on" : "");
+    b.textContent = nom;
+    b.addEventListener("click", ()=>{
+      if(on) delete S.kwCible[k]; else S.kwCible[k] = true;
+      /* une regle peut s'allumer ou s'eteindre : les profils changent */
+      renderKwCible();
+      if(atkMode === "unite") rechargeUnite(); else render();
+    });
+    host.appendChild(b);
+  });
+}
 function refreshTarget(){
   majResumeCible();
+  renderKwCible();
   const sc = el("tSizeChips"); sc.innerHTML = "";
   if(tgtUnit && tgtUnit[6].length > 1){
     sc.style.display = "";
@@ -486,6 +538,9 @@ function renderTargetList(){
       b.addEventListener("click", ()=>{
         closeSheet("sheetTarget");
         CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
+        /* une unite de ma liste sait ce qu'elle est : simListe donne
+           deja sa categorie */
+        poseKwCible(kwDeCategorie(x.cat || catDe(x.unite)));
         tgtName = x.nom; tgtUnit = null;
         refreshTarget(); pushState(); render();
       });

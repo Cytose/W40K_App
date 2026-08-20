@@ -177,6 +177,10 @@ consultable en dessous, en lecture seule.
   d'exclusivité), unités, armement par emplacement, personnages attachés
   (Leader / Support) **avec leur propre armement**, validation (règle des
   trois, Battleline, Epic Hero).
+- **Mots-clés de la cible** — la cible porte ce qu'elle *est* (Infanterie,
+  Véhicule, Monstre, Personnage, Volant), deviné de l'archétype ou de la
+  datasheet choisie et rectifiable d'une touche. Les règles conditionnées par
+  le genre de la cible s'appliquent alors toutes seules, et disent pourquoi.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
   par dégâts pour 100 points. Les deux mesures — puissance brute et
   rendement au point — se lisent côte à côte sur une seule ligne par

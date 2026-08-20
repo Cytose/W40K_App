@@ -338,6 +338,78 @@ const KW = {
 };
 
 /* ============================================================
+   MOTS-CLÉS DE LA CIBLE
+   Le moteur ne connaissait de la cible que ses caractéristiques
+   chiffrées. Or plusieurs règles ne valent que contre un certain
+   genre d'unité — « relance des 1 pour blesser contre les VÉHICULES »,
+   « Anti-Volant 4+ ». Sans mot-clé, l'application ne pouvait ni les
+   appliquer ni s'en abstenir : elle les ignorait ou les accordait
+   toujours, deux façons de mentir.
+   ============================================================ */
+const MOTS_CIBLE = [
+  ["inf",   "Infanterie"],
+  ["veh",   "Véhicule"],
+  ["mon",   "Monstre"],
+  ["perso", "Personnage"],
+  ["vol",   "Volant"]
+];
+/* Ce que porte chaque archétype générique. Ce sont mes propres
+   attributions, pas une source officielle : les archétypes eux-mêmes
+   sont des approximations, et rien n'empêche de les corriger d'une
+   touche sur l'écran. */
+const KW_ARCHETYPE = {
+  "Garde impérial"     : ["inf"],
+  "Ork Boy"            : ["inf"],
+  "Space Marine"       : ["inf"],
+  "Marine Gravis"      : ["inf"],
+  "Terminator"         : ["inf"],
+  "Custodes"           : ["inf"],
+  "Aeldari (Guardian)" : ["inf"],
+  "Genestealer"        : ["inf"],
+  "Guerrier tyranide"  : ["inf"],
+  "Transport (T9)"     : ["veh"],
+  "Char lourd (T11)"   : ["veh"],
+  "Knight (T12)"       : ["veh"]
+};
+/* Et ce que porte une unité nécron, déduit de sa catégorie et des
+   tables de mots-clés déjà en place. */
+const KW_CATEGORIE = {
+  "Epic Hero"  : ["perso"],
+  "Personnage" : ["perso"],
+  "Battleline" : ["inf"],
+  "Infanterie" : ["inf"],
+  "Bête"       : [],
+  "Monté"      : [],
+  "Véhicule"   : ["veh"],
+  "Monstre"    : ["mon"],
+  "Fortification" : [],
+  "Autre"      : []
+};
+
+/* ============================================================
+   APTITUDES DONT LA CONDITION PORTE SUR LA CIBLE
+   Elles ne se cochent pas : l'application connaît les mots-clés de la
+   cible, elle sait donc toute seule si la règle s'applique. Changer la
+   cible suffit à les faire apparaître ou disparaître du profil.
+
+   [arme]   le nom exact de l'arme, ou "" pour toutes celles de l'unité
+   [vs]     les mots-clés de cible qui déclenchent — un seul suffit
+   [champ]  ce qui change dans le profil, même vocabulaire qu'AURAS_PERSO
+   ============================================================ */
+const APTIS_CIBLE = {
+ "Lokhust Heavy Destroyers": [
+   { arme:"Enmitic exterminator", vs:["inf"], champ:"rrW", val:"ones",
+     nom:"Rafale d'éradication",
+     source:"règle de fiche — à confirmer sur ta datasheet",
+     texte:"L'Exterminateur enmitique relance ses jets de blessure de 1 contre une unité d'INFANTERIE." },
+   { arme:"Gauss destructor", vs:["veh","mon"], champ:"rrW", val:"ones",
+     nom:"Tueur de colosses",
+     source:"règle de fiche — à confirmer sur ta datasheet",
+     texte:"Le Destructeur gauss relance ses jets de blessure de 1 contre une unité de VÉHICULE ou de MONSTRE." }
+ ]
+};
+
+/* ============================================================
    DETACHEMENTS
    [nom, PD, tag, nom de la regle, texte de la regle, cle d'effet,
     conditionnel, nom francais]
