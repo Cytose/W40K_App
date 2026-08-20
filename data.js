@@ -338,6 +338,46 @@ const KW = {
 };
 
 /* ============================================================
+   LES STRATAGÈMES QUI CHANGENT UN JET
+   Sur quarante-trois fiches, six seulement touchent la séquence
+   d'attaque. Les autres déplacent, réaniment, protègent, marquent un
+   objectif ou réagissent au tir adverse : ils n'ont rien à faire dans
+   une zone de retouches, et restent lisibles dans l'écran En partie
+   qui les donne tous, filtrés par phase et par camp.
+
+   [ph]     "T", "C", ou "TC" pour les deux
+   [unites] restreint à ces fiches — vide, toute unité nécron
+   [sauf]   exclut les unités qui portent l'un de ces mots-clés
+   [effet]  les champs de l'écran que la pastille pose et retire
+   ============================================================ */
+const STRAT_SIMU = [
+ { nom:"Tempête Cosmique", detach:"The Phaeron's Armoury", pc:1, ph:"T",
+   unites:["Obelisk","Tesseract Vault"], sauf:[],
+   aide:"+1 en PA — les Sphères Tesla seulement",
+   effet:{ apMod:1 } },
+ { nom:"Récupération Impitoyable", detach:"Starshatter Arsenal", pc:2, ph:"TC",
+   unites:[], sauf:["titanic"],
+   aide:"+1 pour blesser — cible à portée d'un objectif",
+   effet:{ wndMod:1 } },
+ { nom:"Ciblage Moléculaire", detach:"Cryptek Conclave", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"ignore les malus au jet de touche",
+   effet:{ ignoreMalus:true } },
+ { nom:"Malédiction Spirituelle", detach:"Cryptek Conclave", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"relance des touches ratées contre l'unité qui a tué un Cryptek",
+   effet:{ rrH:"failed" } },
+ { nom:"Meurtre Méthodique", detach:"Cursed Legion", pc:1, ph:"TC",
+   unites:[], sauf:["monster","vehicle"],
+   aide:"Touches Soutenues 1",
+   effet:{ sustainedOn:true, sustainedN:"1" } },
+ { nom:"Ciblage d'Aura Entrophasique", detach:"Pantheon of Woe", pc:1, ph:"TC",
+   unites:[], sauf:["monster"],
+   aide:"relance des 1 pour toucher — et pour blesser si la cible est effritée",
+   effet:{ rrH:"ones" } }
+];
+
+/* ============================================================
    MOTS-CLÉS DE LA CIBLE
    Le moteur ne connaissait de la cible que ses caractéristiques
    chiffrées. Or plusieurs règles ne valent que contre un certain

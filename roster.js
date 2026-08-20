@@ -256,6 +256,29 @@ window.ROSTER = {
       conditions: conditionsDe(ru, ph)
     };
   },
+  /* Les stratagemes de mes detachements qui touchent la sequence
+     d'attaque, pour l'unite chargee et la phase choisie. */
+  stratsSimu: function(nomUnite, persos, ph){
+    if(!R || typeof STRAT_SIMU === "undefined") return [];
+    const noms = [nomUnite].concat(persos || []).filter(Boolean);
+    const porte = k => noms.some(n => porteMot(k, n));
+    return STRAT_SIMU.filter(st=>{
+      if(R.detach.indexOf(st.detach) < 0) return false;
+      if(st.ph !== "TC" && st.ph !== (ph || "T")) return false;
+      if(st.unites.length && !st.unites.some(u => noms.indexOf(u) >= 0)) return false;
+      if((st.sauf || []).some(k => porte(k))) return false;
+      return true;
+    }).map(st => ({ nom:st.nom, pc:st.pc, aide:st.aide, effet:st.effet,
+                    detach:nomDetach(st.detach) }));
+  },
+  /* Les regles de detachement en vigueur, dites en clair : elles
+     s'appliquent sans qu'on les coche, et rien ne le montrait. */
+  reglesDetach: function(){
+    if(!R) return [];
+    return R.detach.map(n=>{ const d = detachRow(n); return d ? {
+      detach: nomDetach(d[0]), nom: d[3], texte: d[4],
+      conditionnel: !!d[6] } : null; }).filter(Boolean);
+  },
   /* Les conditions de detachement : sept regles qui ne valent que si
      quelque chose est vrai ce tour-ci. Le simulateur les propose avec
      les autres retouches de partie ; elles ne touchent que les unites

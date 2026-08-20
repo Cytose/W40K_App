@@ -4,7 +4,7 @@
    attaquant : attacks, bs, str, ap, dmg, torrent, lethal, dev,
                sustainedOn/sustainedN, blast, rapidOn/rapidN,
                meltaOn/meltaN, critH, critW, hitMod, wndMod, rrH, rrW,
-               apMod, dmgMod, ignoresCover, indirect, kind
+               apMod, dmgMod, ignoresCover, indirect, ignoreMalus, kind
    cible     : tough, sv, inv, wounds, models, fnp, dmgRed, cover
 
    apMod et dmgMod sont les retouches de partie : une regle qui ameliore
@@ -96,6 +96,15 @@ const passProb = t => t >= 7 ? 0 : Math.min(5/6, (7 - Math.max(t,2))/6);
    plafonne a plus ou moins un, comme le veut la regle : une cible a
    couvert visee par un tir indirect ne subit qu'un seul -1. */
 function normalise(s){
+  /* « ignore les malus au jet de touche » : le -1 du couvert et celui
+     du tir indirect en sont, puisqu'en 11e edition tous deux passent
+     par le jet de touche. Le bonus, lui, reste. */
+  if(s.ignoreMalus){
+    const q0 = Object.assign({}, s);
+    q0.hitMod = Math.max(0, q0.hitMod || 0);
+    q0.cover = false;
+    return q0;
+  }
   const indirect = !!s.indirect;
   const couvert = (!!s.cover || indirect) && !s.ignoresCover && s.kind !== "C";
   /* on recopie aussi quand le couvert est coche mais ne s'applique pas —
