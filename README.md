@@ -60,8 +60,11 @@ ouverte — son nom et son plafond. Toucher une liste entre dans son éditeur,
 présenté en **pavé** : une case carrée par unité, avec
 son groupe, ses points, sa taille et ses personnages ; une case bordée d'orange
 signale un rattachement ou une amélioration en faute. Toucher une case ouvre
-son panneau, la barre de retour ramène au pavé. En dessous, quatre cases mènent
-aux détachements, aux stratagèmes, à l'armement et aux réglages de la liste.
+son panneau. Le retour vit dans l'en-tête collante, à côté d'« Enregistrer » :
+il reste sous le pouce où qu'on soit descendu, et il est contextuel —
+« ‹ Mes listes » sur le pavé, « ‹ Le pavé » dans un panneau. En dessous, quatre
+cases mènent aux détachements, aux stratagèmes, à l'armement et aux réglages de
+la liste.
 
 **Simulateur** — quatre vues sous des sous-onglets : Attaque (une unité contre
 une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à côte)
@@ -116,10 +119,11 @@ liste ouverte reste consultable en dessous, en lecture seule.
   juste après l'originale et s'ouvre aussitôt. Un groupe dupliqué reçoit son
   propre nom. La validation signale ensuite ce qui dépasse — règle des trois,
   Epic Hero en double.
-- **Équipement de l'unité** — deux tableaux, tir et corps à corps, avec le
-  profil complet de chaque arme et ses mots-clés. Les armes de mêlée équipent
-  toute l'unité et ne se répartissent pas : elles n'apparaissaient nulle part
-  tant qu'on ne les avait pas ajoutées à la main.
+- **Équipement du groupe** — deux tableaux, tir et corps à corps, avec le
+  profil complet de chaque arme et ses mots-clés. Ils couvrent toute
+  l'armurerie de la fiche : l'escouade **et** chaque personnage rattaché, dont
+  le nom est porté sous l'arme, options laissées de côté comprises — grisées,
+  pour qu'on voie ce qu'on n'a pas pris autant que ce qu'on porte.
 - **Réordonner les unités** — un bouton bascule le pavé en mode réorganisation :
   chaque case reçoit deux flèches qui la font avancer ou reculer, les cases
   d'outils et d'ajout s'effacent, et toucher une case ne l'ouvre plus. L'ordre
@@ -179,6 +183,13 @@ liste ouverte reste consultable en dessous, en lecture seule.
   fiche vise l'unité — et un bouton fait tourner entre les porteurs éligibles
   quand le groupe en compte plusieurs. Le porteur suit le lien de partage et
   figure dans le texte exporté.
+
+  Chaque entrée porte **son texte de règle en entier** : c'est ce qu'elle fait
+  qui décide du choix, pas son nom. Le tiroir affiche aussi, en tête, combien
+  d'améliorations chaque détachement retenu ouvre — ce n'est pas toujours
+  quatre. Le codex en donne quatre par détachement, le pack de faction deux
+  pour ses trois premiers, et **aucune** pour le Panthéon de Malheur, qui
+  impose à la place des Aptitudes d'Entrave Nécrodermique.
 
   Contrôles : le plafond du format, jamais deux fois la même, et un signal
   quand personne dans le groupe ne peut la porter. Un Epic Hero n'est jamais

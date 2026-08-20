@@ -903,6 +903,7 @@ function ouvrePanneau(id, uid){
   unitOuverte = uid || null;
   el("pad").hidden = true;
   el("btnBackPad").hidden = false;
+  majRetour();
   PANNEAUX.forEach(p=>{
     const c = el(p); if(!c) return;
     c.hidden = (p !== id);
@@ -922,6 +923,7 @@ function fermePanneau(){
   unitOuverte = null; modeRange = false;
   el("pad").hidden = false;
   el("btnBackPad").hidden = true;
+  majRetour();
   PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
   renderList();
   window.scrollTo(0, 0);
@@ -1460,7 +1462,6 @@ function renderRoster(){
       div.appendChild(sc);
     }
 
-    const grp = groupesArmes(ru.name);
 
     /* Les armes d'office se listent sans compteur : toutes les figurines
        les ont. Seules les armes au choix se repartissent — cinq fusils
@@ -1653,11 +1654,25 @@ function renderRoster(){
     eq.className = "eqbloc";
     /* une arme équipée met tous ses profils à disposition : le nombre de
        porteurs vaut donc pour chacun d'eux */
-    const prisGrp = portParGroupe(ru);
+    /* Le recapitulatif annoncait « personnages rattaches compris » alors
+       qu'il ne lisait que les armes de l'escouade : la faux d'un Overlord
+       et la lance d'un Plasmancien n'y figuraient nulle part. Il balaie
+       maintenant l'escouade puis chaque personnage, en nommant le porteur
+       quand ce n'est pas l'escouade elle-meme. */
     const lignes = [];
-    grp.forEach(g => g.profils.forEach(p =>
-      lignes.push({ w:p.w, i:p.i, n:prisGrp[g.base] || 0,
-                    lbl: g.libelle, modes: g.profils.length > 1 })));
+    /* toute l'armurerie de la fiche, pas seulement ce qui est equipe :
+       une option laissee de cote reste grisee, on voit ce qu'on n'a pas
+       pris autant que ce qu'on porte */
+    const verse = (nom, port, source) => {
+      groupesArmes(nom).forEach(g =>{
+        let n = 0;
+        g.profils.forEach(pr => { n = Math.max(n, port[pr.i] || 0); });
+        g.profils.forEach(pr => lignes.push({ w:pr.w, n:n, source:source }));
+      });
+    };
+    verse(ru.name, portParArme(ru), "");
+    ru.chars.forEach(c => verse(c.name, portParArmePerso(c), c.name));
+
     const tir = lignes.filter(x => x.w[2] === "T"), cac = lignes.filter(x => x.w[2] === "C");
     const table = (titre, lot) => {
       if(!lot.length) return "";
@@ -1667,6 +1682,7 @@ function renderRoster(){
         const w = x.w, mots = w[8] ? motsArme(w[8]) : "";
         h += '<tr class="' + (x.n ? '' : 'off') + '"><td class="an">' +
           (x.n ? '<b class="q">×' + x.n + ' </b>' : '') + w[1] +
+          (x.source ? '<span class="src">' + x.source + '</span>' : '') +
           (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
           '<td>' + portee(w) + '</td>' +
           '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
@@ -1676,7 +1692,8 @@ function renderRoster(){
     };
     eq.innerHTML = table("Tir", tir) + table("Corps à corps", cac) +
       '<p class="hint">Tout l\'armement du groupe, personnages rattachés compris. ' +
-      'Le nombre en tête est le nombre de figurines qui portent l\'arme.</p>';
+      'Le nombre en tête est le nombre de figurines qui portent l\'arme' +
+      (ru.chars.length ? ', et le nom celui du personnage qui la porte' : '') + '.</p>';
     div.appendChild(eq);
 
     const add = document.createElement("div");
@@ -1892,7 +1909,10 @@ function groupeDe(nom, i){
    mots-cles : ce qu'on consulte avant d'ajouter une unite et
    ce qu'on relit en partie.
    ========================================================== */
-const portee = w => w[9] || (w[2] === "C" ? "càc" : "—");
+/* une arme de melee n'a pas de portee : quand un profil de cac herite
+   du champ de son jumeau de tir — la lance plasmique donne les deux —
+   c'est « càc » qu'il faut lire */
+const portee = w => w[2] === "C" ? "càc" : (w[9] || "—");
 const aptitudesDe = nom => (typeof APTITUDES !== "undefined" && APTITUDES[nom]) || [];
 const transportDe = nom => (typeof TRANSPORTS !== "undefined" && TRANSPORTS[nom]) || "";
 
@@ -2149,6 +2169,9 @@ function renderPick(){
   const q = norm(el("uSearch").value.trim());
   const host = el("uList"); host.innerHTML = "";
   const head = el("sheetUnit").querySelector("h3");
+  el("uSearch").placeholder =
+    pickMode === "enh" ? "Rechercher une amélioration…" :
+    pickMode === "char" ? "Rechercher un personnage…" : "Rechercher une unité…";
 
   if(pickMode === "char"){
     head.textContent = "Rattacher à " + pickTarget.name;
@@ -2203,6 +2226,18 @@ function renderPick(){
         'les améliorations en dépendent.</div>';
       return;
     }
+    /* Un detachement n'en ouvre pas toujours quatre : ceux du pack de
+       faction en donnent deux, et le Pantheon de Malheur aucune — il
+       impose des Entraves Necrodermiques a la place. Le compte est donc
+       affiche detachement par detachement, pour qu'un total inattendu
+       ne passe pas pour un oubli. */
+    const compte = document.createElement("div");
+    compte.className = "enhcount";
+    compte.innerHTML = R.detach.map(n=>{
+      const k = ENHANCEMENTS.filter(e => e[2] === n).length;
+      return '<span><b>' + k + '</b> ' + nomDetach(n) + '</span>';
+    }).join("");
+    host.appendChild(compte);
     /* une amelioration ne se prend qu'une fois dans l'armee */
     const prises = R.units.filter(x => x !== pickTarget).map(x => x.enh).filter(Boolean);
     /* celles que ce groupe peut vraiment porter d'abord : la fiche
@@ -2226,10 +2261,15 @@ function renderPick(){
       const porte = x.ok.length
         ? ' · portée par ' + nomPorteur(pickTarget, x.ok[0])
         : ' · ' + (enhRestriction(e) || "aucun porteur possible ici");
+      /* le texte en entier : c'est ce qu'elle fait qui decide du choix,
+         pas son nom. La phrase de restriction se detache du reste. */
+      const txt = e[3] || "", res = enhRestriction(e);
+      const corps = res && txt.indexOf(res) === 0 ? txt.slice(res.length).trim() : txt;
       b.innerHTML = '<span class="oi"><span class="o1">' + e[0] + '</span><span class="o2">' +
         (typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + ' · ' + nomDetach(e[2]) +
         (deja ? ' · déjà prise ailleurs' : porte) + '</span>' +
-        (e[3] ? '<span class="o3">' + e[3] + '</span>' : '') + '</span>';
+        (res ? '<span class="o4">' + res + '</span>' : '') +
+        (corps ? '<span class="o3">' + corps + '</span>' : '') + '</span>';
       b.addEventListener("click", ()=>{
         if(pickTarget.enh === e[0]){ pickTarget.enh = null; pickTarget.enhP = ""; }
         else { pickTarget.enh = e[0]; pickTarget.enhP = x.ok[0] || ""; }
@@ -2237,7 +2277,7 @@ function renderPick(){
       });
       host.appendChild(b);
     });
-    if(!host.children.length) host.innerHTML =
+    if(!tri.length) host.innerHTML =
       '<div class="sheet-empty">Aucune amélioration pour les détachements retenus.</div>';
     return;
   }
@@ -3208,6 +3248,7 @@ function vaVers(id){
   el("headSum").style.display = (id === "scSim" && el("subAtk").classList.contains("on")) ? "" : "none";
   if(id === "scList") renderList();
   if(id === "scPlay") renderPlay();
+  majRetour();
 }
 el("tabs").querySelectorAll("button").forEach(b=>
   b.addEventListener("click", ()=> vaVers(b.dataset.s)));
@@ -3231,14 +3272,35 @@ function ouvreEditeur(id){
   el("listIndex").hidden = true;
   el("listEditor").hidden = false;
   fermePanneau();
+  majRetour();
 }
 function fermeEditeur(){
   el("listEditor").hidden = true;
   el("listIndex").hidden = false;
+  majRetour();
   renderIndex(); window.scrollTo(0,0);
 }
 el("btnBackIndex").addEventListener("click", fermeEditeur);
 el("btnBackPad").addEventListener("click", fermePanneau);
+/* Le meme retour, mais dans l'en-tete collante : les barres de retour en
+   place restent en haut du document et disparaissent des qu'on descend
+   dans une unite. Celui-ci suit le pouce, comme « Enregistrer ». */
+function majRetour(){
+  const b = el("btnBack"); if(!b) return;
+  const surListes = el("scList") && el("scList").classList.contains("on");
+  const dansEditeur = surListes && !el("listEditor").hidden;
+  const dansPanneau = dansEditeur && !el("btnBackPad").hidden;
+  b.hidden = !dansEditeur;
+  const hb = document.querySelector(".hbar");
+  if(hb) hb.classList.toggle("retour", dansEditeur);
+  if(!dansEditeur) return;
+  b.querySelector(".bt").textContent = dansPanneau ? "Le pavé" : "Mes listes";
+  b.setAttribute("aria-label", dansPanneau ? "Revenir au pavé" : "Revenir à mes listes");
+}
+el("btnBack").addEventListener("click", ()=>{
+  if(el("listEditor").hidden) return;
+  if(!el("btnBackPad").hidden) fermePanneau(); else fermeEditeur();
+});
 if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
   modeRange = !modeRange; renderPad();
 });
