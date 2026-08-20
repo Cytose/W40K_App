@@ -1059,11 +1059,16 @@ function renderDef(){
   const sim = simulate(prof, 20000);
   const pv = cible.taille * u[5];
   const perte = sim.meanSlain, reste = Math.max(0, cible.taille - perte);
-  const efface = sim.slainDist[cible.taille] || 0;
+  /* « effacee » = il tombe AU MOINS autant de figurines que l'unite en
+     compte. La distribution n'est pas plafonnee a l'effectif — le tir
+     continue sur des figurines fraiches — donc lire la seule case
+     « exactement N » jetait toutes les surtues et sous-estimait la
+     probabilite, d'autant plus que le volume de tir montait. */
+  const efface = auMoins(sim.slainDist, cible.taille);
   /* combien de tireurs pour effacer l'unite une fois sur deux :
      dichotomie sur 1..60, six essais au lieu de soixante */
-  const efface50 = n => (simulate(Object.assign({}, prof, {attacks: scaleDice(m[1], n)}), 2500)
-                          .slainDist[cible.taille] || 0) >= 0.5;
+  const efface50 = n => auMoins(simulate(Object.assign({}, prof, {attacks: scaleDice(m[1], n)}), 2500)
+                                  .slainDist, cible.taille) >= 0.5;
   let seuil = null;
   if(efface50(60)){
     let bas = 1, haut = 60;
@@ -3639,14 +3644,23 @@ function renderCmp(){
     const sim = simulateCombined(ps, 20000);
     const pts = cmpPoints(c);
     res.push({n:cmpNom(c), pts, dmg:sim.meanDealt, raw:sim.meanRaw, slain:sim.meanSlain,
-              wipe:sim.slainDist[S.models], eff: pts ? sim.meanRaw/pts*100 : 0});
+              wipe:auMoins(sim.slainDist, S.models), eff: pts ? sim.meanRaw/pts*100 : 0});
   });
   const byEff = res.slice().sort((a,b)=> b.eff - a.eff);
   const byAbs = res.slice().sort((a,b)=> b.raw - a.raw);
   hbars(hostE, byEff.map(r=>({n:r.n, v:r.eff, p:r.pts})), v=>num(v)+" PV", false);
   hbars(hostA, byAbs.map(r=>({n:r.n, v:r.raw||0, p:r.pts})), v=>num(v)+" PV", true);
 
-  let html = '<table><thead><tr><th>Unité</th><th>Pts</th><th>Dégâts</th><th>Figs</th><th>Efface</th><th>/100 pts</th></tr></thead><tbody>';
+  /* « Efface » ne veut rien dire sans dire de quoi : on met l'effectif
+     de la cible dans l'en-tete, et le detail au survol. */
+  const cible = SIM.tgtName + " ×" + S.models;
+  el("cmpDetSub").textContent =
+    "Contre " + cible + ". « Dégâts » = puissance brute, avant plafonnement par les PV de la cible. " +
+    "« Figs » = figurines réellement couchées. « Efface » = probabilité de coucher les " +
+    S.models + " figurines de la cible en une activation.";
+  let html = '<table><thead><tr><th>Unité</th><th>Pts</th><th>Dégâts</th><th>Figs</th>' +
+    '<th title="Probabilité de coucher les ' + S.models + ' figurines de la cible">Efface ×' +
+    S.models + '</th><th>/100 pts</th></tr></thead><tbody>';
   byEff.forEach(r=>{
     html += "<tr><td>" + r.n + "</td><td>" + r.pts + "</td><td>" + num(r.raw||0) + "</td><td>" +
       num(r.slain) + "</td><td>" + pct(r.wipe||0) + "</td><td>" + num(r.eff) + "</td></tr>";
