@@ -100,10 +100,22 @@ au partage et aux réglages de la liste. Le catalogue d'unités s'ouvre sur son
 sommaire : dix barres de catégorie qui tiennent dans un écran, une seule ouverte
 à la fois ; une recherche en cours les rouvre toutes.
 
-**Simulateur** — quatre vues sous des sous-onglets : Attaque (une unité contre
-une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à côte)
-et Encaisser (une unité de la liste sous un volume de tir). Les unités de la
-liste ouverte sont accessibles en une touche.
+**Simulateur** — quatre vues sous des sous-onglets : Attaque, Tir cumulé
+(plusieurs unités dans l'ordre), Comparer (côte à côte) et Encaisser (une unité
+de la liste sous un volume de tir).
+
+L'onglet **Attaque** mesure soit **une arme** du catalogue, soit **une unité
+entière** de la liste — tous ses profils à la fois, armes de l'escouade et du
+personnage rattaché, octrois de détachement compris, tirant dans l'ordre sur la
+même cible. Chaque profil se décoche ; la phase de tir ou de corps à corps se
+choisit.
+
+Sous l'attaquant, les **retouches de partie** restent visibles avec le compte
+de celles qui sont actives : modificateurs de touche, de blessure, de
+**pénétration d'armure** et de **dégâts**, relances, et quatre raccourcis pour
+les situations qui reviennent — cible à couvert, +1 pour toucher, relance des
+1, cible sur objectif. Sur une unité chargée, elles s'appliquent à tous les
+profils d'un coup.
 
 **En partie** — le suivi d'une partie, enregistré en continu : tour, phase,
 points de commandement, unités encore debout, points de vie restants par unité
