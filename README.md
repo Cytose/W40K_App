@@ -303,10 +303,25 @@ fin de phase de Commandement et ne réduisent rien au moment de l'encaissement.
 ## Données
 
 Faction Pack Necrons v1.0 (Games Workshop, légal au 20/06/2026) recoupé avec
-Wahapedia. Les points viennent de Wahapedia et non du Munitorum Field Manual ;
-la vérification menée en 08/2026 (plus bas) les confirme partout où une
-référence a pu être trouvée. Tous les champs restent modifiables dans
-l'application.
+Wahapedia, puis avec le **Munitorum Field Manual** (pages Detachments et Units,
+relevées en 08/2026). Les 345 prix du MFM sont vérifiés programmatiquement, sans
+écart. Tous les champs restent modifiables dans l'application.
+
+Le MFM ne facture pas une unité au même prix selon le nombre de copies déjà
+prises — « YOUR 1ST TO 2ND UNITS COST 50 pts », « YOUR 3RD + UNIT COSTS
+60 pts ». Le champ des points accepte donc deux écritures : le barème simple
+`{effectif: points}` quand le prix ne bouge jamais, et la liste de paliers
+`[[rang, barème], …]` pour les dix-sept unités qui renchérissent. Le rang se
+compte sur toute l'armée, personnages rattachés compris ; le catalogue annonce
+le prix de la copie à venir, pas celui de la première.
+
+Le MFM donne les noms et les coûts, jamais les règles : les quatre optimisations
+du Panthéon de Malheur portent leur coût et une mention explicite à la place
+d'un texte inventé. Les dispositions de force sont rendues telles que le MFM les
+imprime, en anglais.
+
+Deux unités du MFM manquent encore, faute de fiche : Overlord with Translocation
+Shroud et Seraptek Heavy Construct.
 
 Non affilié à Games Workshop.
 
