@@ -806,6 +806,28 @@ function renderPresets(){
   /* Les aptitudes que porte l'unite chargee et qui attendent une
      condition. Elles arrivent sous leur nom officiel : le joueur
      reconnait sa fiche, et sait donc si la condition est remplie. */
+  /* Les conditions de detachement, recuperees de l'ecran « Tir cumule »
+     qui n'existe plus. Elles ne valent que pour une unite de la liste :
+     une arme mesuree seule ne connait aucun detachement. */
+  const sit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
+    ? window.ROSTER.situations() : [];
+  if(sit.length){
+    sep("Conditions du détachement");
+    sit.forEach(x=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "vpre vcond" + (x.on ? " on" : "");
+      b.title = x.source;
+      b.innerHTML = x.nom + '<small>' + x.source + '</small>';
+      b.addEventListener("click", ()=>{
+        window.ROSTER.poseSituation(x.cle, !x.on);
+        /* la condition change les profils eux-memes : il faut les
+           reconstruire, pas seulement les redessiner */
+        rechargeUnite(); majVite();
+      });
+      host.appendChild(b);
+    });
+  }
   const cond = (atkMode === "unite" && atkUnit && atkUnit.conditions) || [];
   if(!cond.length) return;
   sep("Aptitudes de " + atkUnit.nom);
@@ -834,7 +856,9 @@ function majVite(){
     (S.sustainedOn ? 1 : 0) + (S.blast ? 1 : 0) + (S.rapidOn ? 1 : 0) +
     (S.meltaOn ? 1 : 0) + (S.critH < 6 ? 1 : 0) + (S.critW < 6 ? 1 : 0) +
     (S.ignoresCover ? 1 : 0) + (S.indirect ? 1 : 0);
-  const n = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
+  const nSit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
+    ? window.ROSTER.situations().filter(x => x.on).length : 0;
+  const n = nSit + (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
             (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
             (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) + caps +
             Object.keys(condOn).filter(k => condOn[k]).length;

@@ -256,6 +256,12 @@ window.ROSTER = {
       conditions: conditionsDe(ru, ph)
     };
   },
+  /* Les conditions de detachement : sept regles qui ne valent que si
+     quelque chose est vrai ce tour-ci. Le simulateur les propose avec
+     les autres retouches de partie ; elles ne touchent que les unites
+     de la liste, jamais une arme mesuree seule. */
+  situations: function(){ return situationsDetach(); },
+  poseSituation: function(cle, on){ situ[cle] = !!on; },
   /* l'inventaire des unites de la liste, avec de quoi montrer d'avance
      combien de profils chacune apporte dans chaque phase */
   simListe: function(){
@@ -3129,7 +3135,7 @@ function renderTodo(){
 }
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderTodo();
-  renderStrats(); renderArms(); renderFireList(); renderIndex(); renderPad(); renderPartie();
+  renderStrats(); renderArms(); renderIndex(); renderPad(); renderPartie();
   renderDispo();
   if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
   if(window.__relitUniteChargee) window.__relitUniteChargee();
@@ -3335,13 +3341,40 @@ function renderPick(){
   if(pickMode && pickMode.indexOf("cmp:") === 0){
     const fromRoster = pickMode === "cmp:roster";
     head.textContent = fromRoster ? "Comparer — depuis ma liste" : "Comparer — catalogue";
-    const src = fromRoster
-      ? R.units.map(ru => ({name:ru.name, size:ru.size, w:armePrincipale(ru)}))
-      : UNITS.map(u => ({name:u[0], size:u[6][u[6].length-1], w:0}));
-    const seen = new Set();
-    src.filter(c => !q || norm(c.name).includes(q)).forEach(c=>{
-      if(fromRoster && seen.has(c.name + c.size)) return;
-      seen.add(c.name + c.size);
+    /* Depuis la liste, on choisit une UNITE, pas une fiche : c'est
+       l'unite entiere qui entre en comparaison, avec son armement, ses
+       personnages et son detachement. Deux escouades identiques menees
+       par deux personnages differents sont donc deux entrees distinctes,
+       et c'est exactement ce qu'on veut mesurer. */
+    if(fromRoster){
+      const deja = new Set(CMP.filter(c => c.src === "roster").map(c => String(c.id)));
+      R.units.filter(ru => !q || norm(nomAffiche(ru)).includes(q) || norm(ru.name).includes(q) ||
+                           ru.chars.some(c => norm(c.name).includes(q)))
+        .forEach(ru=>{
+          const u = unitRow(ru.name); if(!u) return;
+          const nT = profilsPhase(ru, "T").length, nC = profilsPhase(ru, "C").length;
+          const b = document.createElement("button");
+          b.type="button"; b.className="opt" + (deja.has(String(ru.id)) ? " sel" : "");
+          b.innerHTML = '<span class="oi"><span class="o1">' + nomAffiche(ru) + '</span>' +
+            '<span class="o2">' + ru.name + ' ×' + ru.size +
+            (ru.chars.length ? ' · ' + ru.chars.map(c=>c.name).join(", ") : '') +
+            (ru.enh ? ' · ' + nomEnh(ru.enh) : '') +
+            ' · ' + pointsUnite(ru) + ' pts · ' + nT + ' profil' + (nT>1?'s':'') +
+            ' de tir, ' + nC + ' au corps à corps</span></span>' +
+            (deja.has(String(ru.id)) ? '<span class="otag">DÉJÀ LÀ</span>' : '');
+          b.addEventListener("click", ()=>{
+            if(deja.has(String(ru.id))) return;
+            CMP.push({src:"roster", id:ru.id});
+            closeSheet("sheetUnit"); saveCmp(); renderCmpList();
+          });
+          host.appendChild(b);
+        });
+      if(!host.children.length) host.innerHTML =
+        '<div class="sheet-empty">Ta liste est vide, ou rien ne correspond.</div>';
+      return;
+    }
+    UNITS.map(u => ({name:u[0], size:u[6][u[6].length-1], w:0}))
+      .filter(c => !q || norm(c.name).includes(q)).forEach(c=>{
       const u = unitRow(c.name); if(!u) return;
       const b = document.createElement("button");
       b.type="button"; b.className="opt";
@@ -3443,121 +3476,51 @@ function renderPick(){
 }
 
 /* ==========================================================
-   ECRAN « TIR CUMULE »
+   CONDITIONS DE DÉTACHEMENT
+   Sept règles de détachement ne valent que si une condition est vraie
+   ce tour-ci — « entièrement dans la Matrice de Puissance », « cible à
+   portée d'un objectif ». Elles se cochaient dans l'écran « Tir cumulé »,
+   qui n'existe plus ; elles rejoignent les retouches de partie du
+   simulateur, aux côtés des aptitudes conditionnelles d'unité, qui sont
+   exactement de la même nature.
    ========================================================== */
-function renderFireList(){
-  const host = el("fireList"); if(!host) return;
-  host.innerHTML = "";
-  if(!R.units.length){
-    host.innerHTML = '<div class="empty">Aucune unité dans ta liste.<br>Va dans « Ma liste » pour en ajouter.</div>';
-    el("situBox").innerHTML = ""; renderFire(); return;
-  }
-  R.units.forEach(ru=>{
-    const profs = unitProfiles(ru);
-    const div = document.createElement("div");
-    div.className = "runit checkrow" + (ru.sel && profs.length ? " on sel" : "");
-    div.style.cursor = profs.length ? "pointer" : "default";
-    div.style.opacity = profs.length ? "1" : ".45";
-    const nA = profs.reduce((a,p)=> a + analytic(p).A, 0);
-    div.innerHTML = '<span class="cbox">✓</span><span class="rn" style="flex:1;min-width:0">' +
-      '<b style="display:block;font-size:14px">' + ru.name + '</b>' +
-      '<i style="display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:2px">' +
-      (profs.length ? profs.length + " profil" + (profs.length>1?"s":"") + " · " + num(nA) + " attaques"
-                    : "aucune arme pour cette phase") +
-      ' · ' + unitPoints(ru) + ' pts</i></span>';
-    if(profs.length) div.addEventListener("click", ()=>{ ru.sel = !ru.sel; saveR(); renderFireList(); });
-    host.appendChild(div);
-  });
-  renderSitu();
-  renderFire();
-}
-function renderSitu(){
-  const host = el("situBox"); if(!host) return;
-  const rules = activeRules().filter(d => d[6]);
-  if(!rules.length){ host.innerHTML = ""; return; }
-  host.innerHTML = '<p class="hint" style="margin-top:12px">Conditions de tes détachements — coche celles qui sont vraies ce tour-ci :</p>';
-  rules.forEach(d=>{
-    const lab = document.createElement("label");
-    lab.className = "toggle";
-    lab.innerHTML = '<input type="checkbox"' + (situ[d[5]] ? " checked" : "") + '><span class="box">✓</span>' +
-      '<span class="txt">' + (SITU_LABEL[d[5]] || d[3]) + '<em>' + d[0] + '</em></span>';
-    lab.querySelector("input").addEventListener("change", e=>{
-      situ[d[5]] = e.target.checked; renderFireList();
-    });
-    host.appendChild(lab);
-  });
+function situationsDetach(){
+  if(!R) return [];
+  return activeRules().filter(d => d[6]).map(d => ({
+    cle: d[5], nom: SITU_LABEL[d[5]] || d[3], source: d[0], on: !!situ[d[5]]
+  }));
 }
 
-function renderFire(){
-  const chosen = R.units.filter(ru => ru.sel);
-  const entries = [];
-  chosen.forEach(ru=>{
-    unitProfiles(ru).forEach(p => entries.push({ru, p}));
-  });
-  if(!entries.length){
-    el("fDmg").textContent = "—"; el("fSlain").textContent = "—"; el("fWipe").textContent = "—";
-    el("fTable").innerHTML = ""; el("fSub").textContent = "";
-    el("fHist").innerHTML = ""; el("fNote").textContent = "";
-    return;
-  }
-  const N = entries.length > 8 ? 12000 : 25000;
-  const sim = simulateCombined(entries.map(e => e.p), N);
-  const M = S.models;
-
-  el("fDmg").textContent = num(sim.meanDealt);
-  el("fSlain").textContent = num(sim.meanSlain);
-  el("fWipe").textContent = String(seuilTues(sim.slainDist, 0.75));
-  rendSeuils(el("fSeuils"), sim.slainDist);
-  el("fSub").textContent = "Figurines tuées sur " + sim.N.toLocaleString("fr-FR") +
-    " simulations complètes de la phase, dans l'ordre de la liste. Balaye une unité de " +
-    M + " figurine" + (M > 1 ? "s" : "") + " " + pct(auMoins(sim.slainDist, M)) + " du temps.";
-  drawBars(el("fHist"), binned(sim.slainDist, 26), "var(--green)", (i,v)=>
-    "<b>" + i + "</b> figurine" + (i>1?"s":"") + "<br>probabilité <b>" + pct(v) + "</b>");
-
-  /* agregation par unite */
-  const byUnit = new Map();
-  entries.forEach((e,i)=>{
-    const k = e.ru.id;
-    if(!byUnit.has(k)) byUnit.set(k, {ru:e.ru, dealt:0, raw:0, pts:unitPoints(e.ru), alone:0});
-    const o = byUnit.get(k);
-    o.dealt += sim.per[i].dealt;
-    o.raw   += sim.per[i].raw;
-  });
-  /* « seule » : ce que l'unite ferait en tirant la premiere sur une cible intacte */
-  byUnit.forEach(o=>{
-    const ps = unitProfiles(o.ru);
-    const s2 = simulateCombined(ps, 8000);
-    o.alone = s2 ? s2.meanDealt : 0;
-  });
-
-  const rows = [...byUnit.values()].sort((a,b)=> b.dealt - a.dealt);
-  const tot = rows.reduce((a,o)=> a + o.dealt, 0) || 1;
-  let html = '<table><thead><tr><th>Unité</th><th>Infligé</th><th>Seule</th><th>Part</th><th>/100 pts</th></tr></thead><tbody>';
-  rows.forEach(o=>{
-    html += "<tr><td>" + o.ru.name + "</td><td>" + num(o.dealt) + "</td><td>" + num(o.alone) +
-      "</td><td>" + Math.round(o.dealt/tot*100) + " %</td><td>" +
-      (o.pts ? num(o.alone/o.pts*100) : "—") + "</td></tr>";
-  });
-  html += "</tbody></table>";
-  el("fTable").innerHTML = html;
-
-  const waste = Math.max(0, sim.meanRaw - sim.meanDealt);
-  el("fNote").innerHTML = "Puissance brute totale <b>" + num(sim.meanRaw) + " PV</b>, dont <b>" +
-    num(waste) + " PV</b> perdus en surtue (" + Math.round(waste/Math.max(sim.meanRaw,0.001)*100) +
-    " %). La colonne « /100 pts » utilise la puissance de l'unité seule : c'est la mesure d'efficacité, indépendante de l'ordre de tir.";
-}
 
 
 /* ==========================================================
    ECRAN « COMPARER »
    ========================================================== */
-let CMP = [];          // {name, size, w}
+/* Deux sortes d'entrees, et c'est tout l'interet :
+   — {src:"roster", id}  une unite de la liste ouverte, ENTIERE : son
+     armement reel, ses personnages rattaches, les octrois de son
+     detachement. C'est ce qui permet de mettre face a face la meme
+     escouade menee par un Plasmancien et par un Psychomancien, et de
+     voir ce que chaque aura rapporte vraiment.
+   — {name, size, w}     une unite du catalogue, une arme a la fois,
+     hors de toute liste : la mesure brute d'une fiche. */
+let CMP = [];
 let cmpPhaseV = "T";
 
 function loadCmp(){ try{ CMP = JSON.parse(localStorage.getItem("mathhammer.cmp.v1") || "[]"); }catch(e){ CMP = []; } }
 function saveCmp(){ try{ localStorage.setItem("mathhammer.cmp.v1", JSON.stringify(CMP)); }catch(e){} }
 
+/* l'unite de la liste derriere une entree — absente si elle a ete
+   retiree de la liste depuis qu'on l'a mise en comparaison */
+function cmpUnite(c){
+  if(c.src !== "roster" || !R) return null;
+  return R.units.find(u => String(u.id) === String(c.id)) || null;
+}
 function cmpProfiles(c){
+  if(c.src === "roster"){
+    const ru = cmpUnite(c);
+    return ru ? profilsPhase(ru, cmpPhaseV) : [];
+  }
   const list = unitWeps(c.name);
   let w = list[c.w];
   if(!w || w[2] !== cmpPhaseV) w = list.find(x => x[2] === cmpPhaseV);
@@ -3568,8 +3531,19 @@ function cmpProfiles(c){
   return [p];
 }
 function cmpPoints(c){
+  if(c.src === "roster"){
+    const ru = cmpUnite(c);
+    return ru ? pointsUnite(ru) : 0;
+  }
   const u = unitRow(c.name);
   return u ? ptsPour(u, c.size, 1) : 0;
+}
+function cmpNom(c){
+  if(c.src === "roster"){
+    const ru = cmpUnite(c);
+    return ru ? nomAffiche(ru) : "unité retirée";
+  }
+  return c.name;
 }
 function renderCmpList(){
   const host = el("cmpList"); host.innerHTML = "";
@@ -3578,11 +3552,36 @@ function renderCmpList(){
     renderCmp(); return;
   }
   CMP.forEach((c,i)=>{
+    const row = document.createElement("div");
+    row.className = "cmprow";
+    const rm = document.createElement("button");
+    rm.className="xbtn"; rm.type="button"; rm.textContent="×";
+    rm.addEventListener("click", ()=>{ CMP.splice(i,1); saveCmp(); renderCmpList(); });
+
+    /* une unite de la liste : rien a regler ici, tout vient de la liste.
+       Changer son armement ou son personnage se fait dans l'editeur, et
+       la comparaison suit. */
+    if(c.src === "roster"){
+      const ru = cmpUnite(c);
+      if(!ru){
+        row.classList.add("mort");
+        row.innerHTML = '<span class="cn"><b>Unité retirée de la liste</b>' +
+          '<i>elle ne peut plus être comparée</i></span>';
+        row.appendChild(rm); host.appendChild(row); return;
+      }
+      const n = cmpProfiles(c).length;
+      row.innerHTML = '<span class="cn"><b>' + nomAffiche(ru) + '</b><i>' +
+        ru.name + ' ×' + ru.size +
+        (ru.chars.length ? ' · ' + ru.chars.map(x=>x.name).join(", ") : '') +
+        (ru.enh ? ' · ' + nomEnh(ru.enh) : '') +
+        ' · ' + (n ? n + ' profil' + (n>1?'s':'') : 'aucune arme pour cette phase') +
+        ' · ' + cmpPoints(c) + ' pts</i></span>';
+      row.appendChild(rm); host.appendChild(row); return;
+    }
+
     const u = unitRow(c.name); if(!u) return;
     const list = unitWeps(c.name);
     let w = list[c.w]; if(!w || w[2] !== cmpPhaseV) w = list.find(x=>x[2]===cmpPhaseV);
-    const row = document.createElement("div");
-    row.className = "cmprow";
     row.innerHTML = '<span class="cn"><b>' + c.name + '</b><i>×' + c.size + ' · ' +
       (w ? w[1] : "aucune arme pour cette phase") + ' · ' + cmpPoints(c) + ' pts</i></span>';
     const nx = document.createElement("button");
@@ -3601,13 +3600,14 @@ function renderCmpList(){
       c.size = u[6][(k + 1) % u[6].length];
       saveCmp(); renderCmpList();
     });
-    const rm = document.createElement("button");
-    rm.className="xbtn"; rm.type="button"; rm.textContent="×";
-    rm.addEventListener("click", ()=>{ CMP.splice(i,1); saveCmp(); renderCmpList(); });
     if(u[6].length > 1) row.appendChild(sz);
     row.appendChild(nx); row.appendChild(rm);
     host.appendChild(row);
   });
+  /* la case « menées par un personnage » ne sert qu'aux entrées du
+     catalogue : une unité de la liste porte ses vrais personnages */
+  const lab = el("cmpLed").closest("label");
+  if(lab) lab.hidden = !CMP.some(c => c.src !== "roster");
   renderCmp();
 }
 function hbars(host, rows, fmt, alt){
@@ -3623,13 +3623,22 @@ function renderCmp(){
   if(CMP.length < 1){
     hostE.innerHTML = hostA.innerHTML = hostT.innerHTML = ""; el("cmpNote").textContent = ""; return;
   }
+  const vivantes = CMP.filter(c => c.src !== "roster" || cmpUnite(c));
+  if(!vivantes.length){
+    hostE.innerHTML = hostA.innerHTML = hostT.innerHTML = "";
+    el("cmpNote").textContent = "Les unités comparées ont toutes quitté la liste.";
+    return;
+  }
   const res = [];
-  CMP.forEach(c=>{
+  /* une entree dont l'unite a quitte la liste n'a plus rien a dire : on
+     la garde dans la liste du haut, pour que le joueur la voie et la
+     retire, mais elle ne vient pas fausser le verdict d'un zero */
+  CMP.filter(c => c.src !== "roster" || cmpUnite(c)).forEach(c=>{
     const ps = cmpProfiles(c);
-    if(!ps.length){ res.push({n:c.name, pts:cmpPoints(c), dmg:0, slain:0, wipe:0, eff:0, none:true}); return; }
+    if(!ps.length){ res.push({n:cmpNom(c), pts:cmpPoints(c), dmg:0, slain:0, wipe:0, eff:0, none:true}); return; }
     const sim = simulateCombined(ps, 20000);
     const pts = cmpPoints(c);
-    res.push({n:c.name, pts, dmg:sim.meanDealt, raw:sim.meanRaw, slain:sim.meanSlain,
+    res.push({n:cmpNom(c), pts, dmg:sim.meanDealt, raw:sim.meanRaw, slain:sim.meanSlain,
               wipe:sim.slainDist[S.models], eff: pts ? sim.meanRaw/pts*100 : 0});
   });
   const byEff = res.slice().sort((a,b)=> b.eff - a.eff);
@@ -4338,7 +4347,6 @@ el("simTabs").querySelectorAll("button").forEach(b=>{
     document.querySelectorAll("#scSim .sub").forEach(v=>v.classList.toggle("on", v.id === b.dataset.v));
     window.scrollTo(0,0);
     el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
-    if(b.dataset.v === "subFire"){ syncTarget(); renderFireList(); }
     if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
     if(b.dataset.v === "subDef") renderDef();
   });
@@ -4401,13 +4409,9 @@ el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(
 function syncTarget(){
   el("ptName3").textContent = SIM.tgtName;
   el("ptSub3").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
-    " · " + S.wounds + " PV × " + S.models;
-  el("ptName2").textContent = SIM.tgtName;
-  el("ptSub2").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
     " · " + S.wounds + " PV × " + S.models + (S.fnp ? " · FNP " + S.fnp + "+" : "") +
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
 }
-el("pickTarget2").addEventListener("click", ()=> el("pickTarget").click());
 
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport2").addEventListener("click", exportImport);
@@ -4533,12 +4537,6 @@ if(el("armMode")) el("armMode").querySelectorAll(".chip").forEach(b=>
   }));
 
 el("uSearch").addEventListener("input", ()=>{ if(window.__rosterPick && pickMode) renderPick(); });
-el("phaseChips").querySelectorAll(".chip").forEach(b=>
-  b.addEventListener("click", ()=>{
-    phase = b.dataset.p;
-    el("phaseChips").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
-    renderFireList();
-  }));
 document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
   b.addEventListener("click", ()=>{
     /* on sort du catalogue : dire ce qu'on vient d'y poser, et proposer
@@ -4559,7 +4557,6 @@ origPick.addEventListener("click", ()=>{ pickMode = null; window.__rosterPick = 
 
 /* la cible change dans l'onglet Simulateur -> repercuter ici */
 const obs = new MutationObserver(()=>{
-  if(el("subFire").classList.contains("on")){ syncTarget(); renderFireList(); }
   if(el("subCmp").classList.contains("on")){ syncTarget(); renderCmpList(); }
 });
 obs.observe(el("ptSub"), {childList:true, characterData:true, subtree:true});

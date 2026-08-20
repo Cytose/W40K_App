@@ -42,7 +42,7 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | `data.js` | 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
-| `roster.js` | axes Listes et En partie, vues Tir cumulé et Comparer, fiche d'unité, partage, encodeur QR |
+| `roster.js` | axes Listes et En partie, vue Comparer, fiche d'unité, partage, encodeur QR |
 | `sw.js` | service worker (mode hors-ligne) |
 | `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
 | `vercel.json` | pointe le déploiement sur `dist/` |
@@ -100,9 +100,8 @@ au partage et aux réglages de la liste. Le catalogue d'unités s'ouvre sur son
 sommaire : dix barres de catégorie qui tiennent dans un écran, une seule ouverte
 à la fois ; une recherche en cours les rouvre toutes.
 
-**Simulateur** — quatre vues sous des sous-onglets : Attaque, Tir cumulé
-(plusieurs unités dans l'ordre), Comparer (côte à côte) et Encaisser (une unité
-de la liste sous un volume de tir).
+**Simulateur** — trois vues sous des sous-onglets : Attaque, Comparer (côte à
+côte) et Encaisser (une unité de la liste sous un volume de tir).
 
 L'onglet **Attaque** mesure soit **une arme** du catalogue, soit **une unité
 entière** de la liste — tous ses profils à la fois, armes de l'escouade et du
@@ -174,17 +173,12 @@ consultable en dessous, en lecture seule.
   d'exclusivité), unités, armement par emplacement, personnages attachés
   (Leader / Support) **avec leur propre armement**, validation (règle des
   trois, Battleline, Epic Hero).
-- **Tir cumulé** — plusieurs unités de la liste tirent sur la même cible dans
-  l'ordre : la surtue d'une unité pénalise les suivantes, comme en partie.
-  Chaque groupe entre **avec tout son armement** — armes d'office, armes au
-  choix, et l'armement complet de ses personnages rattachés — pour son coût
-  total. Mêmes seuils de certitude, contribution de chaque unité et puissance
-  perdue.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
-  par dégâts pour 100 points.
-- **Simulateur depuis la liste** — le sélecteur d'unité du simulateur propose
-  d'abord ce que contient la liste ouverte, avec la taille et l'arme retenues
-  et les personnages rattachés, avant le catalogue complet.
+  par dégâts pour 100 points. « Depuis ma liste » y verse des **unités
+  entières** — armement réel, personnages rattachés, amélioration et octrois du
+  détachement — de sorte qu'on peut opposer la même escouade menée par deux
+  personnages différents et lire ce que chaque aura rapporte. « Du catalogue »
+  mesure une fiche nue, une arme à la fois.
 - **Groupes rattachés** — dès qu'un personnage rejoint une unité, l'ensemble
   porte un nom fabriqué tout seul (« Cohorte de Nécrodermis de Thanatos »,
   5 184 combinaisons), qu'on peut réécrire ou retirer au sort. C'est ce nom
@@ -217,7 +211,7 @@ consultable en dessous, en lecture seule.
   en glissant, et le trou s'ouvre du côté de la case survolée dont on est le
   plus près. Deux flèches restent sur chaque case pour un déplacement d'un
   cran. Les cases d'outils et d'ajout s'effacent, et toucher une case ne
-  l'ouvre plus. L'ordre compte : c'est celui que suit le tir cumulé.
+  l'ouvre plus.
 
   Le glissement passe par les **Pointer Events**, pas par l'API drag-and-drop
   du HTML — celle-ci n'existe pas sur mobile, et c'est au doigt que le pavé se
