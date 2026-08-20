@@ -353,7 +353,57 @@ window.ROSTER = {
 
 function ouvreListe(id){
   const L = LISTS.find(x => x.id === id); if(!L) return;
-  ouvre(L); saveR(); renderList();
+  ouvre(L); saveR();
+  /* la partie suit la liste : on va chercher la sienne */
+  loadG();
+  renderList();
+  if(window.__relitUniteChargee) window.__relitUniteChargee();
+}
+
+/* ==========================================================
+   QUELLE LISTE EST EN SERVICE
+   Le simulateur et l'ecran de partie travaillent sur une liste, celle
+   qui est ouverte. Tant qu'il n'y en avait qu'une, ca allait de soi ;
+   des qu'il y en a trois, il faut pouvoir le dire et le voir. Le nom
+   s'affiche en tete des deux ecrans et se change d'une touche.
+   ========================================================== */
+function ouvreChoixListe(){
+  el("listActTitle").textContent = "Quelle liste ?";
+  const host = el("listActList");
+  host.innerHTML = "";
+  if(!LISTS.length){
+    host.innerHTML = '<div class="sheet-empty">Aucune liste. Crées-en une dans l\'onglet Listes.</div>';
+    openSheet("sheetListAct"); return;
+  }
+  LISTS.forEach(L=>{
+    const g = partieEnCours(L.id);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt" + (L === R ? " sel" : "");
+    b.innerHTML = '<span class="oi"><span class="o1">' + L.nom + '</span>' +
+      '<span class="o2">' + L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
+      ' · ' + pointsDe(L) + ' / ' + L.cap + ' pts' +
+      (L.detach.length ? ' · ' + L.detach.map(nomDetach).join(" · ") : '') + '</span>' +
+      (g ? '<span class="o4">Partie en cours — round ' + g.tour + ', ' +
+           (g.moi ? "ton tour" : "tour adverse") + '</span>' : '') + '</span>' +
+      (L === R ? '<span class="otag">EN SERVICE</span>' : '');
+    b.addEventListener("click", ()=>{
+      closeSheet("sheetListAct");
+      if(L !== R) ouvreListe(L.id);
+    });
+    host.appendChild(b);
+  });
+  openSheet("sheetListAct");
+}
+function renderBarreListe(){
+  const n = R ? R.nom : "aucune liste";
+  const pts = R ? pointsDe(R) + " / " + R.cap + " pts" : "";
+  ["Sim", "Play"].forEach(k=>{
+    const nom = el("ln" + k), sub = el("lp" + k);
+    if(nom) nom.textContent = n;
+    if(sub) sub.textContent = LISTS.length > 1
+      ? pts + " · " + LISTS.length + " listes" : pts;
+  });
 }
 
 /* ==========================================================
@@ -1549,6 +1599,9 @@ function ouvreActions(L){
     host.appendChild(b);
   };
   item("Ouvrir", "Modifier cette liste", ()=> ouvreEditeur(L.id));
+  if(L !== R) item("Mettre en service",
+    "C'est elle que le simulateur et l'écran de partie utiliseront",
+    ()=> ouvreListe(L.id));
   item("Dupliquer", "Une copie de « " + L.nom + " », unités comprises",
     ()=>{ ouvre(L); dupliqueListe(); ouvreEditeur(); });
   if(LISTS.length > 1)
@@ -1624,7 +1677,8 @@ function renderIndex(){
       '<span class="li"><b>' + L.nom + '</b>' +
       '<i>' + L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
         ' · ' + L.detach.length + ' détachement' + (L.detach.length > 1 ? 's' : '') + '</i>' +
-      '<span class="det">' + (L.detach.map(nomDetach).join(" · ") || "aucun détachement") + '</span></span>' +
+      '<span class="det">' + (L.detach.map(nomDetach).join(" · ") || "aucun détachement") + '</span>' +
+      (L === R ? '<span class="lserv">En service — simulateur et partie</span>' : '') + '</span>' +
       '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
     b.addEventListener("click", ()=> ouvreEditeur(L.id));
     const m = document.createElement("button");
@@ -1673,15 +1727,61 @@ let stratTout = false;
 const partieVierge = () => ({ liste: R ? R.id : "", tour: 1, moi: true,
   phase: "cmd", pc: 0, prim: 0, sec: 0, u: {}, journal: [], use: {} });
 
-function saveG(){ try{ localStorage.setItem(GKEY, JSON.stringify(G)); }catch(e){} }
+/* Une partie par liste, et non plus une seule pour toutes. Avant, la
+   partie etait enregistree seule : ouvrir une autre liste la remettait
+   a zero sans prevenir, et revenir a la premiere ne la rendait pas.
+   Deux parties en cours sur deux listes se detruisaient l'une l'autre.
+   Elles sont desormais rangees par identifiant de liste ; changer de
+   liste change de partie, et chacune retrouve la sienne intacte. */
+let PARTIES = null;
+function loadParties(){
+  PARTIES = {};
+  let o = null;
+  try{ o = JSON.parse(localStorage.getItem(GKEY) || "null"); }catch(e){}
+  if(!o) return;
+  if(o.v === 2 && o.parties && typeof o.parties === "object"){ PARTIES = o.parties; return; }
+  /* ancien format : la partie unique rejoint la liste qui la portait,
+     et on reecrit aussitot. Laisser l'ancien bloc en place, c'est
+     risquer de le relire un jour comme la partie de toutes les listes. */
+  if(o.u){
+    PARTIES[o.liste || ""] = o;
+    try{ localStorage.setItem(GKEY, JSON.stringify({ v:2, parties: PARTIES })); }catch(e){}
+  }
+}
+function saveG(){
+  if(!PARTIES) loadParties();
+  if(G) PARTIES[G.liste || ""] = G;
+  try{ localStorage.setItem(GKEY, JSON.stringify({ v:2, parties: PARTIES })); }catch(e){}
+}
 function loadG(){
-  try{ G = JSON.parse(localStorage.getItem(GKEY) || "null"); }catch(e){ G = null; }
+  if(!PARTIES) loadParties();
+  const id = R ? R.id : "";
+  G = PARTIES[id] || null;
   if(!G || !G.u) G = partieVierge();
   /* une partie enregistree avant que le tour ait un camp */
   if(G.moi === undefined) G.moi = true;
   if(!G.use) G.use = {};
-  /* la partie suit la liste ouverte : en changer repart de zero */
-  if(R && G.liste !== R.id) G = partieVierge();
+  G.liste = id;
+  PARTIES[id] = G;
+}
+/* y a-t-il quelque chose a perdre dans la partie d'une liste ? sert a
+   dire, dans le choix de liste, laquelle a une partie en cours */
+function partieEnCours(id){
+  if(!PARTIES) loadParties();
+  const g = PARTIES[id];
+  if(!g || !g.u) return null;
+  if(g.tour > 1 || !g.moi || g.phase !== "cmd" || g.pc || g.prim || g.sec) return g;
+  if(g.journal && g.journal.length) return g;
+  /* « u » ne prouve rien : l'ecran cree l'etat de chaque unite des
+     qu'il l'affiche, meme sans un point de vie perdu. Ce qui compte,
+     c'est qu'une unite soit descendue sous son maximum. */
+  const L = LISTS.find(x => x.id === id);
+  if(L && L.units.some(ru=>{
+    const e = g.u[ru.id]; if(!e) return false;
+    if(e.pv < pvMax(ru)) return true;
+    return (e.c || []).some((v, i) => v < pvMaxChar((ru.chars[i] || {}).name));
+  })) return g;
+  return null;
 }
 
 const pvMax = ru => { const u = unitRow(ru.name); return u ? ru.size * u[5] : 0; };
@@ -1896,9 +1996,9 @@ function renderMaintenant(){
 }
 
 function renderPartie(){
-  if(!G) loadG();
-  /* changer de liste, c'est changer de partie */
-  if(R && G.liste !== R.id){ G = partieVierge(); saveG(); }
+  /* changer de liste, c'est changer de partie — mais on va chercher
+     celle de la nouvelle liste au lieu d'en repartir de zero */
+  if(!G || G.liste !== (R ? R.id : "")) loadG();
   const bar = el("gbar"); if(!bar) return;
   if(!R){ bar.innerHTML = ""; return; }
 
@@ -3176,6 +3276,7 @@ function renderTodo(){
 function renderList(){
   renderLists(); renderPtsBar(); renderDetach(); renderRoster(); renderWarn(); renderTodo();
   renderStrats(); renderArms(); renderIndex(); renderPad(); renderPartie();
+  renderBarreListe();
   renderDispo();
   if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
   if(window.__relitUniteChargee) window.__relitUniteChargee();
@@ -4478,6 +4579,9 @@ function syncTarget(){
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
 }
 
+["pickListeSim", "pickListePlay"].forEach(id=>{
+  const b = el(id); if(b) b.addEventListener("click", ouvreChoixListe);
+});
 el("btnAddDetach").addEventListener("click", ()=>{ initDetachSheet(); openSheet("sheetDetach"); });
 el("btnExport2").addEventListener("click", exportImport);
 el("btnAddStrat").addEventListener("click", ()=>{
