@@ -78,15 +78,27 @@ mesurer, et on la mesure avant de la jouer.
 cycle de vie d'une liste : créer, et par le bouton `⋯` de chaque carte ouvrir,
 dupliquer ou supprimer. L'éditeur ne porte que ce qui qualifie la liste
 ouverte — son nom et son plafond. Toucher une liste entre dans son éditeur,
-présenté en **pavé** : une case carrée par unité, avec
-son groupe, ses points, sa taille et ses personnages ; une case bordée d'orange
-signale un rattachement ou une amélioration en faute. Toucher une case ouvre
-son panneau. Le retour vit dans l'en-tête collante, à côté d'« Enregistrer » :
-il reste sous le pouce où qu'on soit descendu, et il est contextuel —
-« ‹ Mes listes » sur le pavé, « ‹ Le pavé » dans un panneau. En dessous, quatre
-cases mènent aux détachements, aux stratagèmes, à l'armement et aux réglages de
-la liste. Le catalogue d'unités range ses cinquante entrées par catégorie, et
-chaque catégorie se replie ; une recherche en cours les rouvre toutes.
+présenté en **pavé** : une case carrée par unité, qui porte son groupe, ses
+points, sa taille, le **nom des personnages rattachés**, l'optimisation prise et
+l'arme dominante — et le rang de copie sur les unités dont le prix monte avec le
+nombre. Une case bordée d'orange signale un rattachement ou une amélioration en
+faute. Toucher une case ouvre son panneau. Le retour vit dans l'en-tête
+collante, à côté d'« Enregistrer » : il reste sous le pouce où qu'on soit
+descendu, et il est contextuel — « ‹ Mes listes » sur le pavé, « ‹ Le pavé »
+dans un panneau.
+
+Quand la liste grossit, le pavé se **regroupe par rôle** — replié, c'est la
+répartition de l'armée en cinq lignes, unités et points par rôle — et se
+**cherche**, par nom d'unité, de groupe ou de personnage rattaché. Le mode
+Réorganiser rétablit le pavé entier et à plat. Un bandeau replié recense **ce
+qu'il reste à finir** : points inutilisés, PD non dépensés, optimisations
+ouvertes jamais prises, personnage laissé seul quand il pouvait mener une
+escouade. Chaque ligne mène là où on la corrige.
+
+En dessous, cinq cases mènent aux détachements, aux stratagèmes, à l'armement,
+au partage et aux réglages de la liste. Le catalogue d'unités s'ouvre sur son
+sommaire : dix barres de catégorie qui tiennent dans un écran, une seule ouverte
+à la fois ; une recherche en cours les rouvre toutes.
 
 **Simulateur** — quatre vues sous des sous-onglets : Attaque (une unité contre
 une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à côte)
