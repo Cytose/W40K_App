@@ -989,3 +989,110 @@ comparaison programmatique. Je ne le referai pas.
 **Ce qu'il faut** : le PDF du Munitorum Field Manual déposé dans la
 conversation, comme le pack de faction l'a été. L'extraction et la comparaison
 avec la table actuelle sont alors mécaniques.
+
+---
+
+## 19. Le catalogue plié, et le Munitorum Field Manual — 20/08/2026
+
+### Le catalogue s'ouvre sur son sommaire
+
+Les catégories du catalogue se repliaient depuis le chantier précédent, mais
+elles s'ouvraient toutes : il fallait donc replier avant de chercher. Le retour
+était net — « il faut que les listes soient repliées **par nature**, comme ça je
+cherche tout de suite un véhicule, je sélectionne ce dont j'ai besoin, et c'est
+plus rapide que de devoir scroller ou replier ».
+
+Trois décisions :
+
+- **Plié à l'ouverture.** Neuf barres, 643 px, une seule vue sur un téléphone
+  de 844 px de haut. Aucun défilement pour atteindre n'importe quel rayon.
+- **Une seule catégorie ouverte à la fois.** Ouvrir la suivante referme la
+  précédente : on ne replie jamais soi-même, ce qui était l'autre moitié de la
+  demande.
+- **Remise à zéro à chaque ouverture.** Le catalogue présente toujours le même
+  sommaire, plutôt que l'état laissé par la fois d'avant.
+
+La recherche continue d'ouvrir tout : filtrer pour devoir ensuite déplier
+n'aurait aucun sens.
+
+### Le barème du MFM, enfin lisible
+
+Le Munitorum Field Manual restait inaccessible par le réseau (chantier 18). Il
+est arrivé en photo — page DETACHMENTS et trois pages UNITS.
+
+**Les points de la première copie étaient tous justes.** 345 prix vérifiés
+programmatiquement, zéro écart. Les valeurs BattleScribe du chantier 1, que
+j'avais signalées comme suspectes, tiennent.
+
+Ce qui manquait était ailleurs, et c'est un mécanisme entier : le MFM ne facture
+pas une unité au même prix selon le nombre de copies déjà prises.
+
+```
+LOKHUST HEAVY DESTROYERS
+  YOUR 1ST TO 2ND UNITS COST    1 model 50 · 2 models 100 · 3 models 160
+  YOUR 3RD + UNIT COSTS         1 model 60 · 2 models 110 · 3 models 170
+```
+
+Dix-sept unités sont concernées, sur deux formes de palier — « à partir de la
+2ᵉ » et « à partir de la 3ᵉ ». Le champ `UNITS[7]` accepte donc désormais deux
+écritures : le barème simple `{effectif: points}` quand le prix ne bouge jamais,
+et la liste de paliers `[[rang, barème], …]` sinon. Les trente-six unités à prix
+fixe gardent la forme courte.
+
+Le rang se compte sur toute l'armée, personnages rattachés compris : un
+Technomancien greffé sur une seconde escouade est bien la deuxième copie, à 90
+points et non 80. Le total ne dépend pas de l'ordre — deux fois le premier
+palier et une fois le second font la même somme quel que soit le rang attribué à
+qui — mais l'ordre de la liste donne un rang stable à afficher.
+
+Le catalogue annonce le prix de **la copie à venir**, pas celui de la première :
+afficher 50 points quand on en a déjà deux fausserait le budget au moment même
+du choix. Une pastille « 3ᵉ copie » le dit quand le prix a monté. Les pastilles
+d'effectif de l'éditeur suivent le rang de leur unité, et la fiche technique
+gagne un bloc de barème.
+
+### Détachements : ce qui était juste, ce qui ne l'était pas
+
+| | |
+|---|---|
+| Coûts en PD, douze détachements | tous justes |
+| Étiquettes UNIQUE (DYNASTIE, HYPERCRYPTE) | toutes justes |
+| Nombre d'optimisations par détachement | juste sauf un |
+| Points d'optimisation | **quatre faux, cinq manquants** |
+| Disposition de force | **absente** |
+
+Les quatre optimisations de la Légion d'Annihilation étaient toutes **cinq
+points trop chères** — un décalage systématique, pas quatre erreurs
+indépendantes. Les cinq coûts restés à « inconnu » depuis le chantier 8 sont
+désormais connus : Sentinelles Animées 20, Instruments de Domination 15,
+Réanimation Récursive 5, Optimisateur de Prélocalisation 25, Linceul Mortel 10.
+
+Et j'avais tort sur le Panthéon de Malheur. J'avais écrit qu'il n'en donnait
+aucune ; le MFM en imprime quatre. Elles sont ajoutées avec leur coût.
+
+### Ce que le MFM ne dit pas
+
+Le MFM donne les noms et les coûts, jamais les règles. Les quatre optimisations
+du Panthéon de Malheur portent donc une mention explicite plutôt qu'un texte
+inventé — la leçon du chantier 8 tient toujours.
+
+Un doute mérite d'être posé : la règle du détachement parle d'**Entraves
+Nécrodermiques** payantes sur les MONSTRES, et les quatre noms en question
+(Amortisseur d'Animus, Aiguillon Quantique, Attache Relativiste, Matrice de
+Singularité) avec leurs coûts inhabituels (35 à 45 points) leur ressemblent
+beaucoup. Le MFM les imprime pourtant sous l'intitulé ENHANCEMENTS. La question
+reste ouverte, codex en main.
+
+Les **dispositions de force** sont rendues telles que le MFM les imprime, en
+anglais — Take and Hold, Purge the Foe, Priority Assets, Reconnaissance,
+Disruption. Traduire aurait produit des termes introuvables dans un livre.
+
+### Deux unités absentes
+
+Le MFM en liste deux que l'application ignore : **Overlord with Translocation
+Shroud** (90 pts) et **Seraptek Heavy Construct** (540/570 pts). Le MFM donne
+leur prix, pas leur fiche : profil, armement et aptitudes manquent. À reprendre
+quand la source existera.
+
+Enfin, le MFM appelle « The Silent King » ce que l'application nomme « Szarekh,
+The Silent King ». Même unité, même prix.

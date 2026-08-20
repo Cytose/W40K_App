@@ -185,6 +185,25 @@ function supprimeListe(){
 /* le simulateur pioche ici : unites de la liste ouverte, avec la taille
    et l'arme retenues, plus les personnages rattaches */
 window.ROSTER = {
+  /* crochet de verification : le total en points, et le detail unite par
+     unite avec le rang de chaque copie */
+  points: function(){
+    if(!R) return null;
+    const rg = rangsArmee();
+    return {
+      total: totalPoints(),
+      unites: R.units.map(ru=>{
+        const u = unitRow(ru.name);
+        return { nom: ru.name, taille: ru.size, rang: rg["u" + ru.id],
+                 pts: u ? ptsPour(u, ru.size, rg["u" + ru.id]) : 0,
+                 persos: ru.chars.map((c, i)=>{
+                   const cu = unitRow(c.name);
+                   return { nom: c.name, rang: rg["c" + ru.id + "." + i],
+                            pts: cu ? ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]) : 0 };
+                 }) };
+      })
+    };
+  },
   actives: function(){
     if(!R) return null;
     const out = [];
@@ -456,6 +475,11 @@ const has = (kw, name) => KWSET[kw] ? KWSET[kw].has(name) : false;
 const detachRow = n => DETACHMENTS.find(d => d[0] === n);
 /* nom francais officiel du detachement, le nom du catalogue sinon */
 const nomDetach = n => { const d = detachRow(n); return (d && d[7]) || n; };
+/* Disposition de force : la mission qu'un detachement fait pencher.
+   Relevee sur le Munitorum Field Manual, qui l'imprime en anglais —
+   on la rend telle quelle plutot que d'en traduire une version qui
+   n'existerait dans aucun livre. */
+const dispoDetach = n => { const d = detachRow(n); return (d && d[8]) || ""; };
 const CATMAP = {};
 CAT.forEach(([n, c]) => CATMAP[n] = c);
 const categorie = n => CATMAP[n] || "Autre";
@@ -467,10 +491,69 @@ const nomAffiche = ru => (estGroupe(ru) && ru.grp) ? ru.grp : ru.name;
 /* ==========================================================
    POINTS & VALIDATION
    ========================================================== */
+/* Le Munitorum Field Manual ne facture pas une unite au meme prix selon
+   le nombre de copies deja prises : « YOUR 1ST UNIT COSTS 50 pts »,
+   « YOUR 3RD + UNIT COSTS 60 pts ». Le champ UNITS[7] accepte donc deux
+   formes — un simple bareme {effectif: points} quand le prix ne bouge
+   jamais, ou une liste de paliers [[rang, bareme], ...] ou chaque palier
+   s'applique a partir de ce rang-la. Les trente-six unites a prix fixe
+   gardent la forme courte. */
+const paliersPts = u => {
+  const t = u && u[7];
+  if(!t) return [[1, {}]];
+  return Array.isArray(t) ? t : [[1, t]];
+};
+function baremePts(u, rang){
+  const p = paliersPts(u);
+  let bar = p[0][1];
+  for(let i = 0; i < p.length; i++) if((rang || 1) >= p[i][0]) bar = p[i][1];
+  return bar;
+}
+/* prix d'une unite pour un effectif et un rang donnes */
+const ptsPour = (u, taille, rang) => baremePts(u, rang)[String(taille)] || 0;
+/* le prix bouge-t-il d'un rang a l'autre ? sert a n'afficher le rang que
+   la ou il change quelque chose */
+const prixEvolue = u => paliersPts(u).length > 1;
+
+/* Rang de chaque unite de l'armee parmi ses homonymes. Une entree du pave
+   est une unite ; chaque personnage rattache en est une autre, prise
+   separement. Le total ne depend pas de l'ordre — payer deux fois le
+   premier palier et une fois le second donne la meme somme quel que soit
+   le rang qu'on attribue a qui — mais l'ordre de la liste donne un rang
+   stable a afficher. */
+function rangsArmee(L){
+  const vus = {}, rang = {};
+  (L || R).units.forEach(ru=>{
+    vus[ru.name] = (vus[ru.name] || 0) + 1;
+    rang["u" + ru.id] = vus[ru.name];
+    (ru.chars || []).forEach((c, i)=>{
+      vus[c.name] = (vus[c.name] || 0) + 1;
+      rang["c" + ru.id + "." + i] = vus[c.name];
+    });
+  });
+  return rang;
+}
+const rangUnite = ru => rangsArmee()["u" + ru.id] || 1;
+/* rang qu'aurait une copie supplementaire : c'est le prix que paiera le
+   joueur s'il ajoute cette unite maintenant, donc celui que le catalogue
+   doit afficher */
+function rangProchain(nom, L){
+  let n = 1;
+  ((L || R).units || []).forEach(ru=>{
+    if(ru.name === nom) n++;
+    (ru.chars || []).forEach(c => { if(c.name === nom) n++; });
+  });
+  return n;
+}
+
 function unitPoints(ru){
   const u = unitRow(ru.name); if(!u) return 0;
-  let p = u[7][String(ru.size)] || 0;
-  ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) p += cu[7][String(cu[6][0])] || 0; });
+  const rg = rangsArmee();
+  let p = ptsPour(u, ru.size, rg["u" + ru.id]);
+  ru.chars.forEach((c, i) => {
+    const cu = unitRow(c.name);
+    if(cu) p += ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]);
+  });
   return p + enhPts(ru);
 }
 const totalPoints = () => R.units.reduce((a,ru) => a + unitPoints(ru), 0);
@@ -743,10 +826,14 @@ function unitProfiles(ru){
    ========================================================== */
 /* points d'une liste quelconque, sans passer par la liste ouverte */
 function pointsDe(L){
+  const rg = rangsArmee(L);
   return L.units.reduce((a,ru)=>{
     const u = unitRow(ru.name); if(!u) return a;
-    let n = u[7][String(ru.size)] || 0;
-    ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) n += cu[7][String(cu[6][0])] || 0; });
+    let n = ptsPour(u, ru.size, rg["u" + ru.id]);
+    ru.chars.forEach((c, i) => {
+      const cu = unitRow(c.name);
+      if(cu) n += ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]);
+    });
     const e = ru.enh && enhRow(ru.enh);
     return a + n + (e && typeof e[1] === "number" ? e[1] : 0);
   }, 0);
@@ -890,8 +977,12 @@ let unitOuverte = null;          /* id de l'unite affichee seule */
 
 function pointsUnite(ru){
   const u = unitRow(ru.name); if(!u) return 0;
-  let p = u[7][String(ru.size)] || 0;
-  ru.chars.forEach(c => { const cu = unitRow(c.name); if(cu) p += cu[7][String(cu[6][0])] || 0; });
+  const rg = rangsArmee();
+  let p = ptsPour(u, ru.size, rg["u" + ru.id]);
+  ru.chars.forEach((c, i) => {
+    const cu = unitRow(c.name);
+    if(cu) p += ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]);
+  });
   const e = ru.enh && enhRow(ru.enh);
   return p + (e && typeof e[1] === "number" ? e[1] : 0);
 }
@@ -1615,6 +1706,7 @@ function renderDetach(){
     div.className = "runit";
     div.innerHTML =
       '<div class="rhead"><div class="rn"><b>' + nomDetach(d[0]) + '</b><i>' + d[3] + ' · ' + d[1] + ' PD</i></div>' +
+      (d[8] ? '<span class="dispo">' + d[8] + '</span>' : '') +
       '<button class="xbtn" type="button">×</button></div>' +
       '<p class="hint" style="margin-top:7px">' + d[4] + '</p>';
     div.querySelector(".xbtn").addEventListener("click", ()=>{ R.detach.splice(i,1); saveR(); renderList(); });
@@ -1695,11 +1787,12 @@ function renderRoster(){
         b.addEventListener("click", ()=>{ vueMembre[ru.id] = cle; renderList(); });
         mb.appendChild(b);
       };
-      case1(ru.name, "", "×" + ru.size + " · " + (u[7][String(ru.size)] || 0) + " pts");
-      ru.chars.forEach(c=>{
+      const rgM = rangsArmee();
+      case1(ru.name, "", "×" + ru.size + " · " + ptsPour(u, ru.size, rgM["u" + ru.id]) + " pts");
+      ru.chars.forEach((c, i)=>{
         const cu = unitRow(c.name);
         case1(c.name, c.name, (roleDe(c.name) || "Personnage") +
-          (cu ? " · " + (cu[7][String(cu[6][0])] || 0) + " pts" : ""));
+          (cu ? " · " + ptsPour(cu, cu[6][0], rgM["c" + ru.id + "." + i]) + " pts" : ""));
       });
       div.appendChild(mb);
     }
@@ -1720,7 +1813,8 @@ function renderRoster(){
       u[6].forEach(sz=>{
         const b = document.createElement("button");
         b.type="button"; b.className = "chip" + (sz===ru.size ? " on" : "");
-        b.textContent = "×" + sz + (u[7][String(sz)] ? " · " + u[7][String(sz)] + " pts" : "");
+        const pSz = ptsPour(u, sz, rangUnite(ru));
+        b.textContent = "×" + sz + (pSz ? " · " + pSz + " pts" : "");
         b.addEventListener("click", ()=>{
           ru.size = sz;
           /* chaque emplacement se replie sur le nouvel effectif */
@@ -1843,7 +1937,7 @@ function renderRoster(){
         (cu[2] ? ' · E' + cu[2] + ' · Svg ' + cu[3] + '+' + (cu[4] ? '/' + cu[4] + '++' : '') +
                  ' · ' + cu[5] + ' PV' : '') +
         (scc ? ' · socle ' + scc + ' mm' : '') + '</i></div>' +
-        '<span class="rpts">' + (cu[7] ? (cu[7][String(cu[6][0])] || 0) : 0) + ' pts</span>';
+        '<span class="rpts">' + ptsPour(cu, cu[6][0], rangsArmee()["c" + ru.id + "." + ci]) + ' pts</span>';
       div.appendChild(head);
       /* ce qu'il apporte au groupe, en plus de ses armes */
       const auras = (typeof AURAS_PERSO !== "undefined" && AURAS_PERSO[c.name]) || [];
@@ -2290,11 +2384,25 @@ function ouvreFiche(nom){
   const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
   let h = "";
 
-  const tailles = u[6], pmin = u[7][String(tailles[0])] || 0,
-        pmax = u[7][String(tailles[tailles.length-1])] || 0;
+  const tailles = u[6], pmin = ptsPour(u, tailles[0], 1),
+        pmax = ptsPour(u, tailles[tailles.length-1], 1);
   h += '<p class="fiche-note">' + categorie(nom) + '  ·  ×' + tailles.join(" / ") +
        '  ·  ' + (pmin === pmax ? pmin + " pts" : pmin + "–" + pmax + " pts") +
        (socle(nom) ? '  ·  socle ' + socle(nom) + ' mm' : '') + '</p>';
+  /* Prix par palier : le MFM renchérit les copies suivantes, et une fiche
+     qui n'annoncerait que la premiere ferait mentir le budget. */
+  if(prixEvolue(u)){
+    h += '<p class="fiche-pal"><b>Le prix monte avec le nombre de copies</b>' +
+      paliersPts(u).map((pl, i, tt)=>{
+        const fin = tt[i+1] ? tt[i+1][0] - 1 : 0;
+        const quand = fin === pl[0] ? pl[0] + (pl[0] === 1 ? "\u02b3\u1d49" : "\u1d49") :
+                      fin ? "1\u02b3\u1d49 \u00e0 " + fin + "\u1d49" :
+                      pl[0] + "\u1d49" + " et suivantes";
+        return '<span>' + quand + ' : ' +
+          tailles.map(t => "\u00d7" + t + " " + (pl[1][String(t)] || 0) + " pts").join("  \u00b7  ") +
+          '</span>';
+      }).join("") + '</p>';
+  }
 
   const cel = (v, l) => '<div><b>' + v + '</b><i>' + l + '</i></div>';
   h += '<div class="fiche-prof">' +
@@ -2503,10 +2611,12 @@ function majBudgetPick(){
 function openUnitPick(){
   window.__rosterPick = true; pickMode = "unit"; pickTarget = null;
   derniereAjoutee = null; ajoutees = 0;
+  catOuverte = "";
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 function openCmpPick(src){
   window.__rosterPick = true; pickMode = "cmp:" + src; pickTarget = null;
+  catOuverte = "";
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 function openCharPick(ru){
@@ -2518,9 +2628,10 @@ function openEnhPick(ru){
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
-/* categories repliees du catalogue — etat d'affichage, garde le temps de la
-   session, jamais enregistre */
-const catPliee = {};
+/* Categorie ouverte du catalogue — une seule a la fois, et aucune a
+   l'ouverture : le catalogue s'ouvre sur son sommaire. Etat d'affichage,
+   remis a zero a chaque ouverture, jamais enregistre. */
+let catOuverte = "";
 function renderPick(){
   const q = norm(el("uSearch").value.trim());
   const host = el("uList"); host.innerHTML = "";
@@ -2555,7 +2666,7 @@ function renderPick(){
       const sc = socle(u[0]);
       b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">' +
         role + ' · E' + u[2] + ' · ' + u[5] + ' PV' + (sc ? ' · socle ' + sc + ' mm' : '') +
-        ' · ' + (u[7][String(u[6][0])]||0) + ' pts' + (refus ? ' — ' + refus : '') + '</span></span>' +
+        ' · ' + ptsPour(u, u[6][0], rangProchain(u[0])) + ' pts' + (refus ? ' — ' + refus : '') + '</span></span>' +
         '<span class="otag">' + role.toUpperCase() + '</span>';
       if(!refus) b.addEventListener("click", ()=>{
         pickTarget.chars.push({name:u[0], lo: loPersoParDefaut(u[0])});
@@ -2657,7 +2768,7 @@ function renderPick(){
       const b = document.createElement("button");
       b.type="button"; b.className="opt";
       b.innerHTML = '<span class="oi"><span class="o1">' + c.name + '</span><span class="o2">×' + c.size +
-        ' · ' + (u[7][String(c.size)]||0) + ' pts · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>';
+        ' · ' + ptsPour(u, c.size, 1) + ' pts · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>';
       b.addEventListener("click", ()=>{
         CMP.push({name:c.name, size:c.size, w:c.w|0});
         closeSheet("sheetUnit"); saveCmp(); renderCmpList();
@@ -2686,11 +2797,17 @@ function renderPick(){
        la moins chere : poser d'office la plus grande faisait croire toute
        l'armee hors de prix. Le prix s'annonce en fourchette. */
     const sz = u[6][0];
-    const pmin = u[7][String(u[6][0])] || 0, pmax = u[7][String(u[6][u[6].length-1])] || 0;
+    /* le prix annonce est celui que coutera cette copie-ci : le MFM
+       facture au rang, et afficher le tarif de la premiere quand on en a
+       deja deux fausserait le budget au moment meme du choix */
+    const rgN = rangProchain(u[0]);
+    const pmin = ptsPour(u, u[6][0], rgN), pmax = ptsPour(u, u[6][u[6].length-1], rgN);
+    const monte = pmin > ptsPour(u, u[6][0], 1);
     const reste = (R.cap || 2000) - totalPoints();
     if(pmin > reste) b.classList.add("cher");
     b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">×' + u[6].join("/") +
       ' · ' + (pmin === pmax ? pmin + ' pts' : pmin + '–' + pmax + ' pts') +
+      (monte ? ' <b class="rang">' + rgN + 'ᵉ copie</b>' : '') +
       ' · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
       (u[10] ? '<span class="otag">LEGENDS</span>' : (u[9] ? '<span class="otag">' + u[9].toUpperCase() + '</span>' : ""));
     b.addEventListener("click", ()=>{
@@ -2717,19 +2834,29 @@ function renderPick(){
     return rangee;
   };
   /* Cinquante-deux entrees a la file : on cherchait un vehicule en faisant
-     defiler l'infanterie. Chaque categorie se replie, et l'etat tient d'une
-     ouverture a l'autre. Une recherche en cours ouvre tout : filtrer pour
+     defiler l'infanterie. Le catalogue s'ouvre donc plie — un sommaire de
+     dix lignes qui tient dans l'ecran, ou l'on va droit au rayon voulu.
+     Une seule categorie reste ouverte a la fois : ouvrir la suivante
+     referme la precedente, pour n'avoir jamais ni a faire defiler ni a
+     replier soi-meme. Une recherche en cours ouvre tout : filtrer pour
      ensuite deplier serait absurde. */
   CAT_ORDRE.forEach(cat=>{
     const lot = parCat[cat];
     if(!lot || !lot.length) return;
-    const ouvert = !!q || !catPliee[cat];
+    const ouvert = !!q || catOuverte === cat;
     const sep = document.createElement("button");
     sep.type = "button";
     sep.className = "catbar" + (ouvert ? " on" : "");
     sep.innerHTML = '<span class="cchev">' + (ouvert ? "▾" : "▸") + '</span>' +
       '<span class="cnom">' + cat + '</span><span class="ccnt">' + lot.length + '</span>';
-    sep.addEventListener("click", ()=>{ catPliee[cat] = ouvert; renderPick(); });
+    sep.addEventListener("click", ()=>{
+      catOuverte = (catOuverte === cat) ? "" : cat;
+      renderPick();
+      /* la barre touchee remonte en tete de zone visible : sans cela,
+         ouvrir la derniere categorie deroule sous le pouce, hors ecran */
+      const rouvre = host.querySelector(".catbar.on");
+      if(rouvre && rouvre.scrollIntoView) rouvre.scrollIntoView({block:"start"});
+    });
     host.appendChild(sep);
     if(ouvert) lot.forEach(u => host.appendChild(bouton(u)));
   });
@@ -2864,7 +2991,7 @@ function cmpProfiles(c){
 }
 function cmpPoints(c){
   const u = unitRow(c.name);
-  return u ? (u[7][String(c.size)] || 0) : 0;
+  return u ? ptsPour(u, c.size, 1) : 0;
 }
 function renderCmpList(){
   const host = el("cmpList"); host.innerHTML = "";
@@ -2970,6 +3097,7 @@ function listeEnTexte(L){
     const c = categorie(ru.name);
     (parCat[c] = parCat[c] || []).push(ru);
   });
+  const rgExp = rangsArmee();
   CAT_ORDRE.forEach(cat => {
     const lot = parCat[cat]; if(!lot || !lot.length) return;
     lignes.push("+ " + cat.toUpperCase() + " +");
@@ -2988,9 +3116,9 @@ function listeEnTexte(L){
         if(g){ if(vusE[g.base]) return; vusE[g.base] = 1; }
         lignes.push("  • " + n + "× " + (g ? g.libelle : w[1]));
       });
-      ru.chars.forEach(c => {
+      ru.chars.forEach((c, ic) => {
         const cu = unitRow(c.name); if(!cu) return;
-        lignes.push("  ‣ " + c.name + " (" + (cu[7][String(cu[6][0])] || 0) + " pts)");
+        lignes.push("  ‣ " + c.name + " (" + ptsPour(cu, cu[6][0], rgExp["c" + ru.id + "." + ic]) + " pts)");
         groupesPortes(c.name, portParArmePerso(c)).forEach(g =>
           lignes.push("      • " + g.libelle));
       });
@@ -3588,7 +3716,8 @@ function initDetachSheet(){
     b.innerHTML = '<span class="oi"><span class="o1">' + nomDetach(d[0]) + '</span>' +
       '<span class="o2">' + d[1] + ' PD · ' + d[3] + (d[2] ? ' · tag ' + d[2] : '') +
       (raison ? ' — ' + raison : '') + '</span></span>' +
-      (d[5] ? '<span class="otag">DÉS</span>' : '');
+      (d[8] ? '<span class="otag dispo">' + d[8] + '</span>' :
+        (d[5] ? '<span class="otag">DÉS</span>' : ''));
     if(!raison) b.addEventListener("click", ()=>{
       R.detach.push(d[0]);
       closeSheet("sheetDetach"); saveR(); renderList();
