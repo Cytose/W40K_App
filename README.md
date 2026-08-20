@@ -39,7 +39,7 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | Fichier | Rôle |
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
-| `data.js` | 53 datasheets (profil complet, CO et Cd), 142 profils d'armes avec portée, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations, socles |
+| `data.js` | 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations avec leur cible, socles |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | axes Listes et En partie, vues Tir cumulé et Comparer, fiche d'unité, partage, encodeur QR |
@@ -158,8 +158,21 @@ liste ouverte reste consultable en dessous, en lecture seule.
   chaque personnage rattaché, en couleur distincte : un Technomancer sur des
   Immortals rend le groupe CRYPTEK, ce qui décide des stratagèmes applicables.
 - **Améliorations** — celles des détachements retenus, avec leur coût compté
-  dans le total. Contrôles : trois au maximum, jamais deux fois la même, ni sur
-  un groupe sans personnage, ni sur un Epic Hero.
+  dans le total, et **la cible que la fiche officielle leur assigne** : la
+  phrase de restriction — « Figurine de CRYPTEK seulement », « Unité de
+  GUERRIERS NÉCRONS seulement » — est enregistrée avec chaque amélioration.
+
+  La liste de choix montre d'abord celles que le groupe peut réellement
+  porter, en nommant le porteur, et range les autres sous « hors de portée de
+  ce groupe » avec la phrase qui l'explique. Une amélioration prise indique
+  **qui la porte** — un personnage rattaché, ou l'unité elle-même quand la
+  fiche vise l'unité — et un bouton fait tourner entre les porteurs éligibles
+  quand le groupe en compte plusieurs. Le porteur suit le lien de partage et
+  figure dans le texte exporté.
+
+  Contrôles : le plafond du format, jamais deux fois la même, et un signal
+  quand personne dans le groupe ne peut la porter. Un Epic Hero n'est jamais
+  éligible.
 - **Encaisser** — le calcul du simulateur, rôles inversés : une unité de la
   liste subit un volume de tir. Dix archétypes d'armes — fusil laser, bolter,
   bolter lourd, fuseur, plasma, canon laser, autocanon, lance-flammes, épée

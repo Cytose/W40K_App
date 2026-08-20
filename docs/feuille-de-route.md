@@ -469,3 +469,50 @@ disparaît : `ARMEMENT` est la seule source.
 La limite « une seule figurine peut prendre cette option » — l'isolateur
 transdimensionnel des Arpenteurs Sépulcraux, par exemple — n'est pas
 exprimée : l'emplacement accepte n'importe quelle répartition sur l'effectif.
+
+## 12. Le porteur de l'optimisation — 20/08/2026
+
+Kévin : « normalement l'équipement est porté par un leader ou un soutien qui
+est dans l'unité, voire certains équipements sont utilisables par certaines
+unités. Sauf que là, vu la façon dont on gère les unités groupées, je n'ai
+pas accès au Plasmancien quand il est lié dans un groupe. »
+
+Le bouton « + Amélioration » existait bien sur le groupe — mais il manquait
+l'essentiel : **rien ne disait qui portait l'optimisation**, et **la
+restriction de la fiche n'était pas vérifiée**. Les Sentinelles Animées,
+réservées aux Guerriers Nécrons, étaient proposées sur des Immortels.
+
+### La cible, telle que la fiche l'écrit
+
+Chaque optimisation ouvre sur une phrase de restriction. Elle est désormais
+enregistrée comme cinquième champ d'`ENHANCEMENTS` :
+
+| phrase | cible |
+|---|---|
+| Figurine NÉCRON seulement | une figurine, sans autre condition — 16 cas |
+| Figurine de CRYPTEK seulement | une figurine CRYPTEK — 7 cas |
+| Figurine de CULTE DESTROYER seulement | une figurine du culte — 4 cas |
+| OVERLORD model only | l'Overlord — 4 cas |
+| Figurine de TÉTRARQUE ou CONSOLE DE COMMANDEMENT | 2 cas |
+| Unité de GUERRIERS NÉCRONS / d'IMMORTELS / de MÉCANOPTÈRES / d'OBÉLISQUE / MONTÉE de CULTE DESTROYER | l'unité elle-même — 5 cas |
+
+Les cinq dernières sont la nouveauté du pack de faction : elles visent
+l'**unité**, pas une figurine. L'ancien contrôle « elle se porte par un
+personnage, or ce groupe n'en a aucun » les aurait signalées à tort.
+
+« Tétrarque » n'existe pas dans `UNITS`. Le pack désigne sans doute
+l'Overlord, admis à ce titre — déduction, signalée en commentaire de la table.
+
+### Ce que ça donne
+
+- La liste de choix montre **d'abord** ce que le groupe peut porter, en
+  nommant le porteur, et range le reste sous « hors de portée de ce groupe »
+  avec la phrase qui l'explique.
+- Une optimisation prise affiche **qui la porte**. Un bouton fait tourner
+  entre les porteurs éligibles quand le groupe en compte plusieurs — un
+  Plasmancien et un Royal Warden sur des Immortels, par exemple.
+- Le porteur voyage dans le lien de partage et figure dans le texte exporté.
+- Le contrôle « un Epic Hero ne peut pas recevoir d'amélioration » ne
+  regardait pas le bon personnage : il signalait le groupe dès qu'un Epic Hero
+  s'y trouvait, même si l'optimisation allait à quelqu'un d'autre. Il porte
+  maintenant sur le porteur.
