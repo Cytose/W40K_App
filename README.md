@@ -78,19 +78,29 @@ liste ouverte reste consultable en dessous, en lecture seule.
 
 - **Simulateur** — une unité contre une cible : chaîne touche → blessure →
   sauvegarde calculée exactement, puis 30 000 simulations pour la répartition
-  des dégâts entre figurines (surtue comprise). Distribution, médiane,
-  probabilité d'effacer l'unité.
+  des dégâts entre figurines (surtue comprise).
+
+  **La cible ne plafonne pas le compte.** Savoir qu'un gros paquet efface les
+  cinq marines à coup sûr n'apprend rien ; ce qui compte est *combien* de
+  figurines tombent. Le tir continue donc sur des figurines fraîches, et le
+  résultat se lit en seuils de certitude : à coup sûr, 9 fois sur 10, 3 fois
+  sur 4, 1 fois sur 2. La chance de balayer l'unité ciblée reste affichée —
+  elle se dérive de la même distribution.
 - **Mes listes** — plusieurs listes coexistent, chacune avec son nom et son
   plafond de points. L'index les présente avec leur total, leurs détachements
   et leur nombre d'unités ; on en crée, on en duplique, on en supprime depuis
   cet index. Le budget de Points de Détachement suit le plafond : 3 PD à 2000
   points, au prorata ailleurs.
 - **Ma liste** — construction de la liste ouverte : détachements (tags
-  d'exclusivité), unités, armement mixte par unité, personnages attachés
-  (Leader / Support), validation (règle des trois, Battleline, Epic Hero).
+  d'exclusivité), unités, armement par emplacement, personnages attachés
+  (Leader / Support) **avec leur propre armement**, validation (règle des
+  trois, Battleline, Epic Hero).
 - **Tir cumulé** — plusieurs unités de la liste tirent sur la même cible dans
   l'ordre : la surtue d'une unité pénalise les suivantes, comme en partie.
-  Contribution de chaque unité et puissance perdue.
+  Chaque groupe entre **avec tout son armement** — armes d'office, armes au
+  choix, et l'armement complet de ses personnages rattachés — pour son coût
+  total. Mêmes seuils de certitude, contribution de chaque unité et puissance
+  perdue.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
   par dégâts pour 100 points.
 - **Simulateur depuis la liste** — le sélecteur d'unité du simulateur propose

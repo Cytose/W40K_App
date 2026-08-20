@@ -20,7 +20,20 @@ let tgtTab = "generic";
    DÉS
    ========================================================== */
 const {parseDice,diceMean,diceRoll,scaleDice,sets,probs,woundTarget,saveTarget,
-       passProb,meanDamagePerHit,analytic,simulate} = ENG;
+       passProb,meanDamagePerHit,analytic,simulate,seuilTues,auMoins} = ENG;
+
+/* Ce qu'on veut savoir d'un paquet d'attaques n'est pas « est-ce que je
+   balaie exactement cette unite » mais combien de figurines tombent, et
+   avec quelle certitude. */
+const SEUILS = [[0.95,"à coup sûr"],[0.9,"9 fois sur 10"],[0.75,"3 fois sur 4"],[0.5,"1 fois sur 2"]];
+function rendSeuils(host, dist){
+  if(!host) return;
+  host.innerHTML = SEUILS.map(([q,lbl])=>{
+    const k = seuilTues(dist, q);
+    return '<div class="seuil' + (k ? '' : ' faible') + '"><span class="sk">' + lbl +
+      '</span><span class="sv">' + k + '</span></div>';
+  }).join("");
+}
 
 const GENERIC_TARGETS = [
   ["Garde impérial",     {tough:3, sv:5, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}],
@@ -462,12 +475,12 @@ function render(){
   const a = analytic(S);
   const sim = simulate(S, a.A > 120 ? 8000 : 30000);
   lastSim = sim;
-  const M = S.models, W = S.wounds;
-  const wipe = sim.slainDist[M], atLeast1 = 1 - sim.slainDist[0];
+  const M = S.models;
+  const wipe = auMoins(sim.slainDist, M), atLeast1 = 1 - sim.slainDist[0];
 
   el("sumDmg").textContent = num(sim.meanDealt);
   el("sumSlain").textContent = num(sim.meanSlain);
-  el("sumWipe").textContent = pct(wipe);
+  el("sumWipe").textContent = String(seuilTues(sim.slainDist, 0.75));
 
   const steps = [
     ["Attaques", a.A, ""],
@@ -513,8 +526,9 @@ function render(){
   for(let i=0;i<sim.slainDist.length;i++){ acc += sim.slainDist[i]; if(acc >= 0.5){ med = i; break; } }
   el("rMed").textContent = String(med);
   el("rOne").textContent = pct(atLeast1);
+  el("rWipeL").textContent = "Balaye une unité de " + M + " figurine" + (M > 1 ? "s" : "");
   el("rWipe").textContent = pct(wipe);
-  el("rLeft").textContent = num(Math.max(0, M*W - sim.meanDealt))+" PV";
+  rendSeuils(el("rSeuils"), sim.slainDist);
   if(el("tableWrap").style.display !== "none") renderTable();
 }
 function renderTable(){
@@ -640,6 +654,6 @@ if("serviceWorker" in navigator){
   window.addEventListener("load", ()=> navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
 global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
-  applyGenericTarget, applyNecronTarget, drawBars, binned, pct, num,
+  applyGenericTarget, applyNecronTarget, drawBars, binned, pct, num, rendSeuils,
   get tgtName(){ return tgtName; }, get tgtUnit(){ return tgtUnit; }};
 })(window);

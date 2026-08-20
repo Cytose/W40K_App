@@ -516,3 +516,56 @@ l'Overlord, admis à ce titre — déduction, signalée en commentaire de la tab
   regardait pas le bon personnage : il signalait le groupe dès qu'un Epic Hero
   s'y trouvait, même si l'optimisation allait à quelqu'un d'autre. Il porte
   maintenant sur le porteur.
+
+## 13. Le groupe entier, et combien de figurines tombent — 20/08/2026
+
+Trois demandes de Kévin en une, avant d'aller se coucher.
+
+### L'armement des personnages rattachés
+
+« Si je mets un Overlord, je dois pouvoir sélectionner les armes de l'Overlord
+dans l'unité. »
+
+Un personnage rattaché n'avait qu'un **indice d'arme unique**, changé par un
+bouton qui tournait entre ses armes. Un Overlord ne pouvait donc jamais porter
+sa lame *et* sa flèche tachyon, et son bâton de lumière ne donnait qu'un de
+ses deux profils.
+
+Il reçoit désormais le même modèle d'emplacements que les unités : ses armes
+d'office sont listées, et chaque emplacement propose ses options en
+« prendre / prise », décalées sous sa ligne. Le Plasmancien, qui n'a pas de
+choix, affiche simplement sa lance plasmique « d'office » — ce que Kévin avait
+anticipé.
+
+### Le groupe entier dans le simulateur
+
+Le tir cumulé ne prenait qu'**une** arme par personnage. Un groupe Immortels +
+Overlord + Plasmancien annonce maintenant 3 profils et 24 attaques en phase de
+tir — dix fusils gauss, la flèche tachyon, la lance plasmique — et 26 attaques
+au corps à corps, pour ses 285 points cumulés.
+
+### Combien de figurines tombent
+
+« Si je mets un énorme pack qui peut tuer les cinq space marines, ce qui
+m'intéresse ce n'est pas de savoir si je suis à 100 % de chance de les tuer.
+C'est de savoir combien j'en tue à 100 %, ou à 75 %. »
+
+Le moteur **tronquait le tir à l'effectif de la cible** : `if(idx >= M)
+continue`. Tout ce qui dépassait était jeté, et la seule lecture disponible
+était « chance de balayer les M figurines », qui sature à 100 % dès que le
+paquet est un peu gros.
+
+Le vivier n'est plus fermé : le tir continue sur des figurines fraîches, et la
+distribution des figurines couchées est rendue sans plafond. Le résultat se
+lit en seuils — le plus grand *k* tel que P(tuées ≥ *k*) ≥ seuil :
+
+| | à coup sûr | 9 fois sur 10 | 3 fois sur 4 | 1 fois sur 2 |
+|---|---|---|---|---|
+| Immortels + Overlord + Doomsday Ark + 3 Lokhust lourds | 8 | 9 | 10 | 12 |
+
+Là où l'ancienne lecture disait « balaye les 5 marines : 100 % », donc rien.
+
+Rien n'est perdu : la chance de balayer une unité de M figurines vaut
+exactement P(tuées ≥ M) sur cette même distribution, et reste affichée. La
+surtue devient plus honnête aussi — elle ne mesure plus « j'ai manqué de
+cibles » mais le vrai débordement de dégâts sur la figurine qui tombe.

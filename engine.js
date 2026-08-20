@@ -173,28 +173,55 @@ function rollDamage(P){
 }
 
 /* ---------- simulation : un seul profil ---------- */
+/* ---------- comptage a taille libre ----------
+   La cible n'est plus un vivier ferme. Ce qui interesse le joueur n'est
+   pas « est-ce que je balaie exactement ces cinq marines » mais « combien
+   j'en couche, et avec quelle certitude » : le tir continue donc sur des
+   figurines fraiches au lieu d'etre tronque a l'effectif declare.
+   L'ancienne lecture reste exacte et se derive : la chance de balayer une
+   unite de M figurines vaut P(tuees >= M).                             */
+const pousse = (t, i) => { t[i] = (t[i] || 0) + 1; };
+function fige(t, N){
+  const out = new Float64Array(t.length);
+  for(let i=0;i<t.length;i++) out[i] = (t[i] || 0) / N;
+  return out;
+}
+/* le plus grand nombre de figurines couchees avec au moins cette
+   certitude : le plus grand k tel que P(tuees >= k) >= seuil */
+function seuilTues(dist, seuil){
+  let cum = 0;
+  for(let i = dist.length - 1; i >= 0; i--){
+    cum += dist[i];
+    if(cum >= seuil - 1e-9) return i;
+  }
+  return 0;
+}
+/* P(tuees >= k) */
+function auMoins(dist, k){
+  let cum = 0;
+  for(let i = Math.max(0, k); i < dist.length; i++) cum += dist[i];
+  return cum;
+}
+
 function simulate(s, N){
-  const P = prep(s), M = s.models, W = s.wounds;
-  const slainDist = new Float64Array(M+1);
-  const dmgDist = new Float64Array(M*W+1);
+  const P = prep(s), W = s.wounds;
+  const slainCount = [], dmgCount = [];
   let sumDealt=0, sumRaw=0, sumSlain=0;
   for(let it=0; it<N; it++){
     const unsaved = rollUnsaved(P);
-    let idx=0, cur=W, slain=0, dealt=0, raw=0;
+    let cur=W, slain=0, dealt=0, raw=0;
     for(let i=0;i<unsaved;i++){
       const d = rollDamage(P);
       raw += d;
-      if(idx >= M) continue;
       const applied = d < cur ? d : cur;
       dealt += applied; cur -= applied;
-      if(cur <= 0){ slain++; idx++; cur = W; }
+      if(cur <= 0){ slain++; cur = W; }
     }
-    slainDist[slain]++; dmgDist[dealt]++;
+    pousse(slainCount, slain); pousse(dmgCount, dealt);
     sumDealt += dealt; sumRaw += raw; sumSlain += slain;
   }
-  for(let i=0;i<slainDist.length;i++) slainDist[i] /= N;
-  for(let i=0;i<dmgDist.length;i++) dmgDist[i] /= N;
-  return { slainDist, dmgDist, N, meanDealt:sumDealt/N, meanRaw:sumRaw/N, meanSlain:sumSlain/N };
+  return { slainDist: fige(slainCount, N), dmgDist: fige(dmgCount, N), N,
+           meanDealt:sumDealt/N, meanRaw:sumRaw/N, meanSlain:sumSlain/N };
 }
 
 /* ---------- simulation : plusieurs profils sur LA MEME cible ----------
@@ -204,15 +231,14 @@ function simulate(s, N){
 function simulateCombined(list, N){
   if(!list.length) return null;
   const preps = list.map(prep);
-  const M = list[0].models, W = list[0].wounds;
-  const slainDist = new Float64Array(M+1);
-  const dmgDist = new Float64Array(M*W+1);
+  const W = list[0].wounds;
+  const slainCount = [], dmgCount = [];
   const perDealt = new Float64Array(list.length);
   const perRaw = new Float64Array(list.length);
   let sumDealt=0, sumRaw=0, sumSlain=0;
 
   for(let it=0; it<N; it++){
-    let idx=0, cur=W, slain=0, dealt=0;
+    let cur=W, slain=0, dealt=0;
     for(let pi=0; pi<preps.length; pi++){
       const P = preps[pi];
       const unsaved = rollUnsaved(P);
@@ -220,25 +246,23 @@ function simulateCombined(list, N){
       for(let i=0;i<unsaved;i++){
         const d = rollDamage(P);
         mineRaw += d;
-        if(idx >= M) continue;
         const applied = d < cur ? d : cur;
         mine += applied; cur -= applied;
-        if(cur <= 0){ slain++; idx++; cur = W; }
+        if(cur <= 0){ slain++; cur = W; }
       }
       perDealt[pi] += mine; perRaw[pi] += mineRaw;
       dealt += mine; sumRaw += mineRaw;
     }
-    slainDist[slain]++; dmgDist[dealt]++;
+    pousse(slainCount, slain); pousse(dmgCount, dealt);
     sumDealt += dealt; sumSlain += slain;
   }
-  for(let i=0;i<slainDist.length;i++) slainDist[i] /= N;
-  for(let i=0;i<dmgDist.length;i++) dmgDist[i] /= N;
   const per = [];
   for(let i=0;i<list.length;i++) per.push({dealt: perDealt[i]/N, raw: perRaw[i]/N});
-  return { slainDist, dmgDist, N, per,
+  return { slainDist: fige(slainCount, N), dmgDist: fige(dmgCount, N), N, per,
            meanDealt:sumDealt/N, meanRaw:sumRaw/N, meanSlain:sumSlain/N };
 }
 
 global.ENG = {parseDice, diceMean, diceRoll, scaleDice, sets, probs, woundTarget,
-              saveTarget, passProb, meanDamagePerHit, analytic, simulate, simulateCombined};
+              saveTarget, passProb, meanDamagePerHit, analytic, simulate, simulateCombined,
+              seuilTues, auMoins};
 })(typeof window !== "undefined" ? window : globalThis);
