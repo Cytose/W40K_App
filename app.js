@@ -11,7 +11,7 @@ const S = {
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
   critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none",
-  apMod:0, dmgMod:0
+  apMod:0, dmgMod:0, ignoresCover:false, indirect:false
 };
 let viewMode = "auto";
 let curUnit = "Immortals", curWeapon = 0, curSize = 10;
@@ -98,9 +98,11 @@ const SEGS = [
   ["segRrH","rrH",[["none","—"],["ones","1"],["failed","Ratés"]]],
   ["segRrW","rrW",[["none","—"],["ones","1"],["failed","Ratés"]]]
 ];
-const TEXTF = ["wName","attacks","dmg","sustainedN"];
-const NUMF  = ["str","tough","wounds","models","rapidN","meltaN"];
-const CHKF  = ["cover","torrent","lethal","dev","sustainedOn","blast","rapidOn","meltaOn"];
+const TEXTF = ["wName","attacks","dmg"];
+const NUMF  = ["str","tough","wounds","models"];
+/* les mots-cles d'arme ne sont plus des cases a cocher empilees mais des
+   pastilles dessinees par renderCaps ; « couvert » reste sur la cible */
+const CHKF  = ["cover"];
 
 function buildSegs(){
   SEGS.forEach(([id,key,opts])=>{
@@ -141,6 +143,7 @@ function pushState(){
   NUMF.forEach(k=> el(k).value = S[k]);
   CHKF.forEach(k=> el(k).checked = S[k]);
   SEGS.forEach(([id,key])=> syncSeg(id,key));
+  renderCaps();
 }
 
 /* ==========================================================
@@ -186,6 +189,11 @@ function applyWeapon(){
   S.critH   = 6;
   S.critW   = f.anti ? +f.anti : 6;
   S.rrW     = f.twin ? "failed" : "none";
+  /* Ignore le couvert est une propriete de l'arme : elle vaut toujours.
+     Le tir indirect, lui, se decide au moment de tirer — une arme qui
+     voit sa cible tire normalement — donc il part eteint. */
+  S.ignoresCover = !!f.ignorescover;
+  S.indirect = false;
   refreshAttacker();
   pushState(); render();
 }
@@ -557,7 +565,12 @@ function profilPourMoteur(p){
        est a mi-portee. Une unite chargee tirait jusqu'ici comme si
        elle etait toujours collee a la cible. */
     rapidOn: !!p.rapidOn && !!S.rapidOn,
-    meltaOn: !!p.meltaOn && !!S.meltaOn
+    meltaOn: !!p.meltaOn && !!S.meltaOn,
+    /* le couvert ignore s'ajoute — l'arme l'a, ou la partie l'accorde */
+    ignoresCover: !!p.ignoresCover || !!S.ignoresCover,
+    /* le tir indirect demande les deux : que l'arme le permette, et que
+       le joueur declare qu'il tire sans voir */
+    indirect: !!p.indirectCap && !!S.indirect
   });
   condPour(p).forEach(c=>{
     if(c.mot) q[c.mot === "sust" ? "sustainedOn" : c.mot] = true;
@@ -602,6 +615,15 @@ function pastilles(q, brut){
      l'application a oublie le mot-cle de sa fiche. */
   if(!q.rapidOn && brut.rapidOn) out.push({t:"TIR RAPIDE " + brut.rapidN, cl:"d", d:"hors mi-portée"});
   if(!q.meltaOn && brut.meltaOn) out.push({t:"FONTE " + brut.meltaN, cl:"d", d:"hors mi-portée"});
+  if(q.ignoresCover) kw("IGNORE LE COUVERT", "ignorescover");
+  if(q.indirect) out.push({t:"TIR INDIRECT", cl:"m", d:"−1 pour toucher, cible à couvert"});
+  else if(brut.indirectCap) out.push({t:"TIR INDIRECT", cl:"d", d:"la cible est en vue"});
+  /* les mots-cles que la sequence d'attaque ne traduit pas : ils se
+     lisent quand meme, sinon le joueur croit que sa fiche a ete perdue */
+  if(q.pistol) kw("PISTOLET", "pistol");
+  if(q.precision) kw("PRÉCISION", "precision");
+  if(q.oneshot) kw("TIR UNIQUE", "oneshot");
+  if(q.extra) kw("ATTAQUES SUPP.", "extra");
   if(q.assault) kw("ASSAUT", "assault");
   if(q.heavy) kw("LOURD", "heavy");
   /* la provenance : ce que la fiche seule ne donnait pas */
@@ -623,6 +645,9 @@ function chargeUnite(id){
   const u = window.ROSTER.simUnite(id, atkPhase);
   if(!u) return;
   atkUnitId = id; atkUnit = u;
+  /* les mots-cles « aussi sur cette arme » se lisent sur l'unite
+     chargee : sans ce redessin ils resteraient ceux de l'arme d'avant */
+  renderCaps();
   renderAtkUnite(); render();
 }
 function rechargeUnite(){
@@ -666,7 +691,10 @@ function renderAtkUnite(){
     const row = document.createElement("button");
     row.type = "button";
     row.className = "profrow" + (actif ? " on" : "");
-    const q = profilPourMoteur(p);
+    /* on affiche le profil tel que le moteur le verra, tir indirect
+       compris : sinon la ligne annonce un jet de touche que le calcul
+       ne fait pas */
+    const q = ENG.normalise(profilPourMoteur(p));
     const past = pastilles(q, p);
     row.innerHTML = '<span class="pbox">' + (actif ? "✓" : "") + '</span>' +
       '<span class="pmain"><b>' + p.label + '</b>' +
@@ -798,7 +826,8 @@ function majVite(){
   const caps = atkMode !== "unite" ? 0 :
     (S.torrent ? 1 : 0) + (S.lethal ? 1 : 0) + (S.dev ? 1 : 0) +
     (S.sustainedOn ? 1 : 0) + (S.blast ? 1 : 0) + (S.rapidOn ? 1 : 0) +
-    (S.meltaOn ? 1 : 0) + (S.critH < 6 ? 1 : 0) + (S.critW < 6 ? 1 : 0);
+    (S.meltaOn ? 1 : 0) + (S.critH < 6 ? 1 : 0) + (S.critW < 6 ? 1 : 0) +
+    (S.ignoresCover ? 1 : 0) + (S.indirect ? 1 : 0);
   const n = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
             (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
             (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) + caps +
@@ -1040,12 +1069,14 @@ el("modeChips").querySelectorAll(".chip").forEach(b=>
    Hits coche par defaut se serait offert a toute la liste — et on rend
    a l'arme les siennes en sortant. */
 const CAPF = ["torrent","lethal","dev","sustainedOn","sustainedN","blast",
-              "rapidOn","rapidN","meltaOn","meltaN","critH","critW"];
+              "rapidOn","rapidN","meltaOn","meltaN","critH","critW",
+              "ignoresCover","indirect"];
 let capMemo = null;
 function videCaps(){
   S.torrent = false; S.lethal = false; S.dev = false;
   S.sustainedOn = false; S.sustainedN = "1"; S.blast = false;
   S.rapidOn = false; S.meltaOn = false;
+  S.ignoresCover = false; S.indirect = false;
   S.critH = 6; S.critW = 6;
 }
 function majLibelleCaps(){
@@ -1053,13 +1084,115 @@ function majLibelleCaps(){
   const t = el("cardAbilTitre");
   if(t) t.textContent = u ? "Ce que la partie ajoute" : "Capacités de l'arme";
   const n = el("abilNote"); if(n) n.hidden = !u;
-  const rf = el("rfNote"), ml = el("mlNote");
-  if(rf) rf.textContent = u ? "on est à mi-portée — chaque arme applique son propre Tir Rapide"
-                            : "attaques en plus, à l'échelle de l'unité";
-  if(ml) ml.textContent = u ? "on est à mi-portée — chaque arme applique sa propre Fonte"
-                            : "dégâts en plus par attaque non sauvegardée";
-  [el("rapidN"), el("meltaN")].forEach(x=>{
-    if(x && x.parentNode) x.parentNode.hidden = u;
+  renderCaps();
+}
+
+/* ==========================================================
+   LES MOTS-CLÉS DE L'ARME, EN PASTILLES
+   Ils vivaient sous la carte Cible, en pile de cases a cocher qu'il
+   fallait aller chercher tout en bas de l'ecran. Ils remontent au
+   contact de l'attaquant et prennent la forme des retouches de
+   partie : une pastille par mot-cle, la valeur a cote quand il y en a
+   une, tout tient en un coup d'oeil.
+   ========================================================== */
+const CAPS = [
+  {k:"torrent",      nom:"Torrent",           aide:"touche automatiquement"},
+  {k:"lethal",       nom:"Léthal",            aide:"touche crit. = blessure auto"},
+  {k:"dev",          nom:"Dévastatrices",     aide:"blessure crit. = pas de svg"},
+  {k:"sustainedOn",  nom:"Soutenu",           aide:"touches en plus par critique",
+   num:{id:"sustainedN", texte:true}},
+  {k:"blast",        nom:"Déflagration",      aide:"+1 attaque par 5 figurines"},
+  {k:"rapidOn",      nom:"Tir Rapide",        aide:"attaques en plus à mi-portée",
+   uAide:"on est à mi-portée", num:{id:"rapidN", min:1, max:60}, uSansNum:true},
+  {k:"meltaOn",      nom:"Fonte",             aide:"dégâts en plus à mi-portée",
+   uAide:"on est à mi-portée", num:{id:"meltaN", min:1, max:6}, uSansNum:true},
+  {k:"ignoresCover", nom:"Ignore le couvert", aide:"la cible n'en profite pas"},
+  {k:"indirect",     nom:"Tir indirect",      aide:"−1 pour toucher, cible à couvert"}
+];
+/* Ceux-la, la sequence d'attaque ne les traduit pas : ils changent qui
+   peut tirer, sur qui, ou combien de fois — pas les jets. On les montre
+   quand meme, en pointille, plutot que de laisser croire a un oubli. */
+const CAPS_INFO = [
+  ["assault",   "Assaut",              "peut tirer après avoir avancé"],
+  ["heavy",     "Lourd",               "+1 pour toucher si l'unité n'a pas bougé — à poser dans les retouches"],
+  ["pistol",    "Pistolet",            "peut tirer même engagée au corps à corps"],
+  ["precision", "Précision",           "les blessures critiques peuvent viser un personnage rattaché"],
+  ["oneshot",   "Tir unique",          "une seule fois par partie"],
+  ["extra",     "Attaques supp.",      "s'ajoute à l'autre arme de mêlée au lieu de la remplacer"],
+  ["twin",      "Jumelée",             "relance les blessures ratées — déjà appliqué"],
+  ["indirect",  "Tir indirect",        "disponible sur cette arme : la pastille ci-dessus l'active"]
+];
+function majApresCap(redessine){
+  if(redessine !== false) renderCaps();
+  if(atkMode === "unite") renderAtkUnite();
+  majVite(); render();
+}
+function renderCaps(){
+  const host = el("capGrid"); if(!host) return;
+  const u = atkMode === "unite";
+  host.innerHTML = "";
+  CAPS.forEach(c=>{
+    const on = !!S[c.k];
+    const box = document.createElement("div");
+    box.className = "cap" + (on ? " on" : "");
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "capb";
+    const aide = (u && c.uAide) ? c.uAide : c.aide;
+    b.innerHTML = c.nom + (aide ? '<small>' + aide + '</small>' : '');
+    b.addEventListener("click", ()=>{ S[c.k] = !on; majApresCap(); });
+    box.appendChild(b);
+    /* la valeur n'apparait que quand la capacite est active, et jamais
+       en mode unite pour Tir Rapide et Fonte : la chacune des armes
+       apporte la sienne, celle de l'ecran ne voudrait rien dire */
+    if(c.num && on && !(u && c.uSansNum)){
+      const w = document.createElement("span"); w.className = "capn";
+      const i = document.createElement("input");
+      i.id = c.num.id;
+      if(c.num.texte){ i.type = "text"; i.inputMode = "text"; }
+      else { i.type = "number"; i.min = c.num.min; i.max = c.num.max; i.inputMode = "numeric"; }
+      i.value = S[c.num.id];
+      i.addEventListener("input", ()=>{
+        if(c.num.texte) S[c.num.id] = i.value;
+        else { const v = parseInt(i.value, 10);
+               if(!isNaN(v)) S[c.num.id] = Math.max(c.num.min, Math.min(c.num.max, v)); }
+        /* on ne redessine pas la grille pendant la frappe : le champ
+           perdrait le curseur a chaque touche */
+        majApresCap(false);
+      });
+      w.appendChild(i); box.appendChild(w);
+    }
+    host.appendChild(box);
+  });
+  renderCapInfo();
+}
+/* les mots-cles portes par l'arme choisie, ou par l'une des armes de
+   l'unite chargee */
+function drapeauxCourants(){
+  if(atkMode === "unite"){
+    const o = {};
+    ((atkUnit && atkUnit.profils) || []).forEach(pr=>{
+      CAPS_INFO.forEach(([k])=>{ if(pr[k] || (k === "indirect" && pr.indirectCap)) o[k] = true; });
+    });
+    return o;
+  }
+  const list = unitWeps(curUnit), w = list[curWeapon] || list[0];
+  return w ? parseFlags(w[8]) : {};
+}
+function renderCapInfo(){
+  const host = el("capInfo"); if(!host) return;
+  const f = drapeauxCourants();
+  const vus = CAPS_INFO.filter(([k]) => !!f[k]);
+  host.innerHTML = "";
+  if(!vus.length) return;
+  const h = document.createElement("div");
+  h.className = "cih";
+  h.textContent = atkMode === "unite" ? "Aussi sur les armes de l'unité" : "Aussi sur cette arme";
+  host.appendChild(h);
+  vus.forEach(([k, nom, txt])=>{
+    const d = document.createElement("div");
+    d.className = "ci";
+    d.innerHTML = nom + '<em>' + txt + '</em>';
+    host.appendChild(d);
   });
 }
 function capsPourMode(){
@@ -1201,7 +1334,7 @@ global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
         ? atkUnit.conditions.map(c => (condOn[c.id] ? "✓ " : "· ") + c.nom + " — " + c.quand) : [],
       actifs: profilsActifs().map(p => p.label),
       moteur: profilsActifs().map(p => {
-        const q = profilPourMoteur(p);
+        const q = ENG.normalise(profilPourMoteur(p));
         return { label: p.label, attacks: q.attacks, bs: q.bs, str: q.str,
                  ap: q.ap, apEff: ENG.apEffectif(q), dmg: q.dmg, dmgMod: q.dmgMod,
                  hitMod: q.hitMod, wndMod: q.wndMod, rrH: q.rrH, rrW: q.rrW };

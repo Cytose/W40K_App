@@ -866,9 +866,18 @@ function weaponProfile(unitName, w, bearers, ru){
        l'ignore — mais il se lit sur la ligne du profil : c'est lui
        qu'un detachement comme le Conclave de Crypteks accorde, et le
        joueur doit pouvoir verifier qu'il est bien arrive */
-    assault: !!f.assault, heavy: !!f.heavy,
+    assault: !!f.assault, heavy: !!f.heavy, pistol: !!f.pistol,
+    precision: !!f.precision, oneshot: !!f.oneshot, extra: !!f.extra,
+    /* Ignore le couvert etait dans le catalogue depuis le debut — six
+       armes le portent — mais ne quittait jamais la fiche : le moteur
+       accordait le couvert a la cible malgre lui. */
+    ignoresCover: !!f.ignorescover,
+    /* le tir indirect n'est pas automatique : l'arme le permet, le
+       joueur decide s'il tire a couvert ou a vue. */
+    indirectCap: !!f.indirect,
     rapidOn: !!f.rf, rapidN: f.rf ? Math.min(120, (+f.rf) * bearers) : 1,
     meltaOn: !!f.melta, meltaN: f.melta ? +f.melta : 2,
+    twin: !!f.twin,
     critH: 6, critW: f.anti ? +f.anti : 6,
     hitMod: 0, wndMod: 0, rrH: "none", rrW: f.twin ? "failed" : "none"
   });
