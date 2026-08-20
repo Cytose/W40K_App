@@ -1022,6 +1022,28 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   clip-path:polygon(0 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%)}
 .cmp2 .c2f{height:100%;background:linear-gradient(90deg,var(--green),var(--glow))}
 .cmp2 .c2c.b .c2f{background:linear-gradient(90deg,#1F7A8C,var(--cyan))}
+/* combien d'activations il faut : une marche par unité qui tire */
+.esc{margin-top:2px}
+.esc .er{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
+  gap:10px;padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
+.esc .er:first-child{border-top:0}
+.esc .en{min-width:0}
+.esc .en b{display:block;font-size:12.5px;font-weight:700;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.esc .en i{display:block;font-style:normal;font-size:10px;color:var(--tx3);margin-top:1px}
+.esc .ek{flex:0 0 auto;width:26px;height:26px;display:flex;align-items:center;
+  justify-content:center;background:var(--s2);border:1px solid var(--line);
+  border-radius:6px;font-size:12px;font-weight:800;color:var(--glow);
+  font-variant-numeric:tabular-nums}
+.esc .ev{text-align:right;min-width:74px}
+.esc .ev b{display:block;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+.esc .ev i{display:block;font-style:normal;font-size:10px;color:var(--tx3);margin-top:1px}
+.esc .er.gagne .ek{background:var(--glow-soft);border-color:var(--glow)}
+.esc .er.gagne .ev b{color:var(--glow)}
+.esc .bar{grid-column:1/-1;height:8px;background:var(--s2);margin-top:2px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 2px),calc(100% - 2px) 100%,0 100%)}
+.esc .bar span{display:block;height:100%;
+  background:linear-gradient(90deg,var(--green),var(--glow))}
 
 </style>
 </head>
@@ -1055,6 +1077,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="subtabs" id="simTabs">
     <button type="button" class="on" data-v="subAtk">Attaque</button>
     <button type="button" data-v="subCmp">Comparer</button>
+    <button type="button" data-v="subGrp">Combien il en faut</button>
     <button type="button" data-v="subDef">Encaisser</button>
   </div>
   <div class="sub on" id="subAtk">
@@ -1193,6 +1216,48 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </section>
 
     </div>
+  <div class="sub" id="subGrp">
+  <section class="card">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget4" type="button">
+        <span class="pk"><span class="p1" id="ptName4">Space Marine</span><span class="p2" id="ptSub4">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+      <p class="hint">La cible est partagée avec l'onglet Attaque, mots-clés compris.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Qui tire, et combien de fois <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chips tight" id="grpPhase">
+        <button type="button" class="chip on" data-p="T">Phase de tir</button>
+        <button type="button" class="chip" data-p="C">Corps à corps</button>
+      </div>
+      <div id="grpList"></div>
+      <div class="addrow">
+        <button type="button" id="btnGrpRoster">+ Depuis ma liste</button>
+      </div>
+      <p class="hint">Les unités tirent dans l'ordre sur la même cible : la surtue de l'une ne profite pas aux suivantes, exactement comme en partie. Le « ×2 » d'une ligne fait tirer deux escouades identiques — de quoi éprouver un effectif qu'on n'a pas encore acheté.</p>
+    </div>
+  </section>
+
+  <section class="card" id="cardGrpRes">
+    <h2>Combien il en faut <span class="chev">▾</span></h2>
+    <div class="body">
+      <p class="hint" id="grpVerdict" style="margin-top:2px"></p>
+      <div class="chart-title">À chaque activation de plus</div>
+      <p class="chart-sub" id="grpSub"></p>
+      <div id="grpEsc"></div>
+      <div class="chart-title">Ce que fait le groupe entier</div>
+      <p class="chart-sub" id="grpDistSub"></p>
+      <svg id="grpHist" class="chart" role="img" aria-label="Distribution des dégâts du groupe"></svg>
+      <div class="seuils" id="grpSeuils"></div>
+    </div>
+  </section>
+  </div>
+
   <div class="sub" id="subDef">
     <section class="card">
       <h2>Unité qui encaisse <span class="chev">▾</span></h2>

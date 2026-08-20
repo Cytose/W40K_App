@@ -3850,6 +3850,170 @@ function renderCmp(){
 }
 
 /* ==========================================================
+   ÉCRAN « COMBIEN IL EN FAUT »
+   La question qu'on se pose devant un char : est-ce que ce que j'ai
+   suffit à le coucher ce tour-ci, et sinon combien il m'en faut de
+   plus. Le tir cumulé d'avant y repondait mal — il donnait un total,
+   pas un seuil. Ici les unites tirent dans l'ordre sur le meme vivier
+   de figurines, et on lit apres chaque activation ce qui reste debout
+   et la chance d'avoir tout couche.
+
+   Une entree porte un multiplicateur : « ×3 » fait tirer trois
+   escouades identiques, de quoi eprouver un effectif qu'on n'a pas
+   encore achete.
+   ========================================================== */
+const GRPKEY = "mathhammer.grp.v1";
+let GRP = [];              /* [{id, n}] — unites de la liste, et combien */
+let grpPhaseV = "T";
+
+function loadGrp(){ try{ GRP = JSON.parse(localStorage.getItem(GRPKEY) || "[]"); }catch(e){ GRP = []; }
+  if(!Array.isArray(GRP)) GRP = []; }
+function saveGrp(){ try{ localStorage.setItem(GRPKEY, JSON.stringify(GRP)); }catch(e){} }
+const grpUnite = g => (R && R.units.find(u => String(u.id) === String(g.id))) || null;
+
+function renderGrpList(){
+  const host = el("grpList"); if(!host) return;
+  host.innerHTML = "";
+  const vivantes = GRP.filter(g => grpUnite(g));
+  if(vivantes.length !== GRP.length){ GRP = vivantes; saveGrp(); }
+  if(!GRP.length){
+    host.innerHTML = '<div class="empty">Ajoute une unité : on regardera combien d\'activations il faut pour coucher la cible.</div>';
+    renderGrp(); return;
+  }
+  GRP.forEach((g,i)=>{
+    const ru = grpUnite(g);
+    const prof = profilsPhase(ru, grpPhaseV);
+    const row = document.createElement("div");
+    row.className = "cmprow";
+    const arm = armementCourt(ru);
+    row.innerHTML = '<span class="cn"><b>' + nomRepere(ru) + (g.n > 1 ? ' ×' + g.n : '') + '</b>' +
+      '<i>' + ru.name + ' ×' + ru.size +
+      (ru.chars.length ? ' · ' + ru.chars.map(c=>c.name).join(", ") : '') +
+      ' · ' + (pointsUnite(ru) * g.n) + ' pts</i>' +
+      (arm ? '<u>' + arm + '</u>' : '') +
+      (prof.length ? '' : '<u class="rien">aucune arme pour cette phase</u>') + '</span>';
+    const moins = document.createElement("button");
+    moins.className="xbtn"; moins.type="button"; moins.textContent="−"; moins.title="Une de moins";
+    moins.addEventListener("click", ()=>{
+      if(g.n > 1){ g.n--; } else { GRP.splice(i,1); }
+      saveGrp(); renderGrpList();
+    });
+    const plus = document.createElement("button");
+    plus.className="xbtn"; plus.type="button"; plus.textContent="+"; plus.title="Une de plus";
+    plus.addEventListener("click", ()=>{ g.n = Math.min(12, g.n + 1); saveGrp(); renderGrpList(); });
+    const rm = document.createElement("button");
+    rm.className="xbtn"; rm.type="button"; rm.textContent="×";
+    rm.addEventListener("click", ()=>{ GRP.splice(i,1); saveGrp(); renderGrpList(); });
+    row.appendChild(moins); row.appendChild(plus); row.appendChild(rm);
+    host.appendChild(row);
+  });
+  renderGrp();
+}
+/* la feuille d'ajout : les unites de la liste, armement compris */
+function ouvreGrpPick(){
+  el("listActTitle").textContent = "Ajouter au tir groupé";
+  const host = el("listActList");
+  host.innerHTML = "";
+  if(!R || !R.units.length){
+    host.innerHTML = '<div class="sheet-empty">La liste en service est vide.</div>';
+    openSheet("sheetListAct"); return;
+  }
+  R.units.forEach(ru=>{
+    const nT = profilsPhase(ru, "T").length, nC = profilsPhase(ru, "C").length;
+    const b = document.createElement("button");
+    b.type="button"; b.className="opt";
+    b.innerHTML = '<span class="oi"><span class="o1">' + nomRepere(ru) + '</span>' +
+      '<span class="o2">' + ru.name + ' ×' + ru.size + ' · ' + pointsUnite(ru) + ' pts</span>' +
+      '<span class="oarm">' + (armementCourt(ru) || '—') + '</span>' +
+      '<span class="o2">' + nT + ' profil' + (nT>1?'s':'') + ' de tir, ' + nC + ' au corps à corps</span></span>';
+    b.addEventListener("click", ()=>{
+      closeSheet("sheetListAct");
+      const d = GRP.find(g => String(g.id) === String(ru.id));
+      if(d) d.n = Math.min(12, d.n + 1); else GRP.push({ id: ru.id, n: 1 });
+      saveGrp(); renderGrpList();
+    });
+    host.appendChild(b);
+  });
+  openSheet("sheetListAct");
+}
+
+function renderGrp(){
+  const esc = el("grpEsc"); if(!esc) return;
+  const seuils = el("grpSeuils"), hist = el("grpHist");
+  const vide = () => { esc.innerHTML = ""; seuils.innerHTML = ""; hist.innerHTML = "";
+    el("grpVerdict").textContent = ""; el("grpSub").textContent = "";
+    el("grpDistSub").textContent = ""; };
+
+  /* chaque activation, dans l'ordre, autant de fois que demande */
+  const pas = [];
+  GRP.forEach(g=>{
+    const ru = grpUnite(g); if(!ru) return;
+    const prof = profilsPhase(ru, grpPhaseV);
+    if(!prof.length) return;
+    for(let k=0; k<g.n; k++) pas.push({ nom: nomRepere(ru), pts: pointsUnite(ru), prof: prof });
+  });
+  if(!pas.length){ vide(); return; }
+
+  const M = S.models, PV = S.wounds;
+  /* on relance le groupe apres chaque activation ajoutee : c'est le
+     seul moyen d'avoir la vraie probabilite cumulee, la surtue de la
+     premiere unite changeant ce qui reste a faire aux suivantes */
+  const lignes = [];
+  let pts = 0;
+  for(let k=1; k<=pas.length; k++){
+    const lot = [];
+    for(let i=0;i<k;i++) pas[i].prof.forEach(pr => lot.push(Object.assign({}, pr, {
+      tough:S.tough, sv:S.sv, inv:S.inv, wounds:PV, models:M,
+      fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover })));
+    const sim = simulateCombined(lot, 12000);
+    pts += pas[k-1].pts;
+    lignes.push({ nom: pas[k-1].nom, k: k, pts: pts,
+                  dmg: sim.meanDealt, slain: sim.meanSlain,
+                  efface: auMoins(sim.slainDist, M), sim: sim });
+  }
+
+  const seuil = lignes.find(l => l.efface >= 0.75);
+  const moitie = lignes.find(l => l.efface >= 0.5);
+  el("grpVerdict").innerHTML = seuil
+    ? "Il en faut <b>" + seuil.k + "</b> pour coucher " + SIM.tgtName + " ×" + M +
+      " <b>trois fois sur quatre</b>" + (moitie && moitie.k < seuil.k
+        ? ", et " + moitie.k + " pour y arriver une fois sur deux." : ".")
+    : (moitie
+      ? "Il en faut <b>" + moitie.k + "</b> pour coucher " + SIM.tgtName + " ×" + M +
+        " une fois sur deux ; aucun nombre testé ici n'y arrive trois fois sur quatre."
+      : "Même à " + pas.length + " activation" + (pas.length>1?"s":"") +
+        ", la cible tombe moins d'une fois sur deux. Ajoute-en.");
+  el("grpSub").textContent = "Chaque ligne ajoute une activation à celles du dessus. « Efface » = " +
+    (M > 1 ? "les " + M + " figurines de la cible sont couchées."
+           : "la cible est couchée.");
+
+  const max = Math.max.apply(null, lignes.map(l => l.efface)) || 1;
+  esc.className = "esc";
+  esc.innerHTML = lignes.map(l =>
+    '<div class="er' + (l.efface >= 0.75 ? ' gagne' : '') + '">' +
+    '<span class="ek">' + l.k + '</span>' +
+    '<span class="en"><b>' + l.nom + '</b><i>' + l.pts + ' pts cumulés · ' +
+      num(l.dmg) + ' PV' +
+      /* « 2,0 figurines » sur une cible qui n'en a qu'une n'apprend
+         rien : la simulation continue sur des figurines fraiches pour
+         mesurer la puissance, pas pour compter des morts en trop */
+      (M > 1 ? ' · ' + num(l.slain) + ' figurines' : '') + '</i></span>' +
+    '<span class="ev"><b>' + pct(l.efface) + '</b><i>efface</i></span>' +
+    '<span class="bar"><span style="width:' + Math.max(1.5, l.efface/max*100) + '%"></span></span>' +
+    '</div>').join("");
+
+  /* et le detail du groupe au complet */
+  const der = lignes[lignes.length-1];
+  el("grpDistSub").textContent = "Les " + pas.length + " activation" + (pas.length>1?"s":"") +
+    " ensemble, sur " + der.sim.N.toLocaleString("fr-FR") + " simulations.";
+  drawBars(hist, binned(der.sim.dmgDist, 26), "var(--glow)",
+    (i, v) => i + " PV — " + pct(v));
+  /* le tableau des seuils compte des figurines : sur une cible d'une
+     seule figurine il ne dirait rien de plus que la colonne « efface » */
+  if(M > 1) rendSeuils(seuils, der.sim.slainDist); else seuils.innerHTML = "";
+}
+
+/* ==========================================================
    IMPORT / EXPORT
    ========================================================== */
 /* ==========================================================
@@ -4535,6 +4699,7 @@ el("simTabs").querySelectorAll("button").forEach(b=>{
     window.scrollTo(0,0);
     el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
     if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
+    if(b.dataset.v === "subGrp"){ syncTarget(); renderGrpList(); }
     if(b.dataset.v === "subDef") renderDef();
   });
 });
@@ -4594,12 +4759,30 @@ if(el("btnPadQClear")) el("btnPadQClear").addEventListener("click", ()=>{
 });
 el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
 function syncTarget(){
+  el("ptName4").textContent = SIM.tgtName;
+  el("ptSub4").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
+    " · " + S.wounds + " PV × " + S.models + motsCibleEnClair();
   el("ptName3").textContent = SIM.tgtName;
   el("ptSub3").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
     " · " + S.wounds + " PV × " + S.models + (S.fnp ? " · FNP " + S.fnp + "+" : "") +
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
 }
 
+/* ce que la cible est, en clair, pour les ecrans qui n'ont pas la place
+   d'afficher les pastilles */
+function motsCibleEnClair(){
+  const tbl = (typeof MOTS_CIBLE !== "undefined") ? MOTS_CIBLE : [];
+  const v = tbl.filter(([k]) => (S.kwCible || {})[k]).map(x => x[1]);
+  return v.length ? " · " + v.join(", ") : "";
+}
+el("pickTarget4").addEventListener("click", ()=> el("pickTarget").click());
+el("btnGrpRoster").addEventListener("click", ouvreGrpPick);
+el("grpPhase").querySelectorAll(".chip").forEach(b=>
+  b.addEventListener("click", ()=>{
+    grpPhaseV = b.dataset.p;
+    el("grpPhase").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
+    renderGrpList();
+  }));
 ["pickListeSim", "pickListePlay"].forEach(id=>{
   const b = el(id); if(b) b.addEventListener("click", ouvreChoixListe);
 });
@@ -4748,6 +4931,7 @@ origPick.addEventListener("click", ()=>{ pickMode = null; window.__rosterPick = 
 /* la cible change dans l'onglet Simulateur -> repercuter ici */
 const obs = new MutationObserver(()=>{
   if(el("subCmp").classList.contains("on")){ syncTarget(); renderCmpList(); }
+  if(el("subGrp").classList.contains("on")){ syncTarget(); renderGrpList(); }
 });
 obs.observe(el("ptSub"), {childList:true, characterData:true, subtree:true});
 
@@ -4767,12 +4951,13 @@ el("cmpPhase").querySelectorAll(".chip").forEach(b=>
     renderCmpList();
   }));
 
-loadR(); loadCmp(); loadS();
+loadR(); loadCmp(); loadGrp(); loadS();
 PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
 initDetachSheet();
 renderList();
 renderIndex();
 renderCmpList();
+renderGrpList();
 syncTarget();
 readSharedLink();
 /* coller un lien dans un onglet deja ouvert ne recharge pas la page :

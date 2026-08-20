@@ -181,6 +181,11 @@ consultable en dessous, en lecture seule.
   Véhicule, Monstre, Personnage, Volant), deviné de l'archétype ou de la
   datasheet choisie et rectifiable d'une touche. Les règles conditionnées par
   le genre de la cible s'appliquent alors toutes seules, et disent pourquoi.
+- **Combien il en faut** — plusieurs unités tirent dans l'ordre sur la même
+  cible, et l'écran lit après chaque activation ce qui reste debout et la
+  chance d'avoir tout couché : « il en faut 3 pour coucher un Char lourd trois
+  fois sur quatre ». Un multiplicateur par ligne permet d'éprouver un effectif
+  qu'on n'a pas encore acheté.
 - **Comparer** — met des unités côte à côte contre la cible du moment, classées
   par dégâts pour 100 points. Les deux mesures — puissance brute et
   rendement au point — se lisent côte à côte sur une seule ligne par
