@@ -737,10 +737,14 @@ function renderRosterUnitList(){
     b.type = "button";
     b.className = "opt" + (String(x.id) === String(atkUnitId) ? " sel" : "");
     const n = atkPhase === "C" ? x.nC : x.nT;
+    /* l'armement en clair : deux escouades du meme nom et du meme
+       effectif ne se distinguent que par lui */
     b.innerHTML = '<span class="oi"><span class="o1">' + x.nom + '</span><span class="o2">' +
       x.unite + ' ×' + x.taille +
       (x.persos.length ? ' · ' + x.persos.join(", ") : '') +
-      ' · ' + x.nT + ' profil' + (x.nT > 1 ? 's' : '') + ' de tir, ' +
+      (x.enh ? ' · ' + x.enh : '') + '</span>' +
+      (x.armes ? '<span class="oarm">' + x.armes + '</span>' : '') +
+      '<span class="o2">' + x.nT + ' profil' + (x.nT > 1 ? 's' : '') + ' de tir, ' +
       x.nC + ' au corps à corps</span></span>' +
       (n ? '' : '<span class="otag">RIEN ICI</span>');
     b.addEventListener("click", ()=>{
