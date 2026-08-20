@@ -622,6 +622,8 @@ button.todo:active{background:var(--s2)}
   font-size:9px;font-weight:700;letter-spacing:.04em;line-height:1.35}
 .profrow .pk-k{color:var(--tx2)}
 .profrow .pk-m{color:var(--glow);border-color:var(--line-hi);background:var(--glow-soft)}
+/* l'arme le porte, la distance ne le donne pas : éteint, pas caché */
+.profrow .pk-d{color:var(--tx3);border-style:dashed;opacity:.7}
 .profrow .pkw em{font-style:normal;font-size:8.5px;font-weight:400;letter-spacing:0;
   color:var(--tx3);text-transform:none;margin-top:1px}
 
@@ -1063,15 +1065,16 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </section>
 
   <section class="card collapsed" id="cardAbil">
-    <h2>Capacités de l'arme <span class="chev">▾</span></h2>
+    <h2><span id="cardAbilTitre">Capacités de l'arme</span> <span class="chev">▾</span></h2>
     <div class="body">
+      <p class="hint" id="abilNote" hidden>Une unité entière est chargée : ces capacités <b>s'ajoutent à toutes ses armes</b> et n'enlèvent rien. Une arme qui a déjà Léthal la garde ; un « Touche critique 5+ » coché ici descend le seuil de toutes les armes qui étaient encore à 6+.</p>
       <label class="toggle"><input type="checkbox" id="torrent"><span class="box">✓</span><span class="txt">Torrent<em>touche automatiquement — donc aucune touche critique</em></span></label>
       <label class="toggle"><input type="checkbox" id="lethal"><span class="box">✓</span><span class="txt">Lethal Hits<em>touche critique = blessure automatique</em></span></label>
       <label class="toggle"><input type="checkbox" id="dev"><span class="box">✓</span><span class="txt">Devastating Wounds<em>blessure critique = pas de jet de sauvegarde</em></span></label>
       <label class="toggle"><input type="checkbox" id="sustainedOn"><span class="box">✓</span><span class="txt">Sustained Hits<em>touches en plus par critique (1, 2, D3…)</em></span><span class="num"><input type="text" id="sustainedN" value="1" inputmode="text"></span></label>
       <label class="toggle"><input type="checkbox" id="blast"><span class="box">✓</span><span class="txt">Blast<em>+1 attaque par tranche de 5 figurines visées</em></span></label>
-      <label class="toggle"><input type="checkbox" id="rapidOn"><span class="box">✓</span><span class="txt">Rapid Fire (à mi-portée)<em>attaques en plus, à l'échelle de l'unité</em></span><span class="num"><input type="number" id="rapidN" value="1" min="1" max="60" inputmode="numeric"></span></label>
-      <label class="toggle"><input type="checkbox" id="meltaOn"><span class="box">✓</span><span class="txt">Melta (à mi-portée)<em>dégâts en plus par attaque non sauvegardée</em></span><span class="num"><input type="number" id="meltaN" value="2" min="1" max="6" inputmode="numeric"></span></label>
+      <label class="toggle"><input type="checkbox" id="rapidOn"><span class="box">✓</span><span class="txt">Rapid Fire (à mi-portée)<em id="rfNote">attaques en plus, à l'échelle de l'unité</em></span><span class="num"><input type="number" id="rapidN" value="1" min="1" max="60" inputmode="numeric"></span></label>
+      <label class="toggle"><input type="checkbox" id="meltaOn"><span class="box">✓</span><span class="txt">Melta (à mi-portée)<em id="mlNote">dégâts en plus par attaque non sauvegardée</em></span><span class="num"><input type="number" id="meltaN" value="2" min="1" max="6" inputmode="numeric"></span></label>
       <div class="row stack"><label>Touche critique sur</label><div class="ctl"><div class="seg small" id="segCritH"></div></div></div>
       <div class="row stack"><label>Blessure critique sur — « Anti-X »</label><div class="ctl"><div class="seg small" id="segCritW"></div></div></div>
     </div>

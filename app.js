@@ -111,7 +111,7 @@ function buildSegs(){
       b.type="button"; b.textContent=label; b.dataset.v=String(v);
       b.addEventListener("click", ()=>{ S[key]=v; syncSeg(id,key);
         if(atkMode === "unite") renderAtkUnite();
-        render(); });
+        majVite(); render(); });
       host.appendChild(b);
     });
     syncSeg(id,key);
@@ -126,11 +126,15 @@ function syncSeg(id,key){
   });
 }
 function bindFields(){
-  TEXTF.forEach(k=> el(k).addEventListener("input", e=>{ S[k]=e.target.value; render(); }));
+  TEXTF.forEach(k=> el(k).addEventListener("input", e=>{ S[k]=e.target.value;
+    if(atkMode === "unite") renderAtkUnite();
+    render(); }));
   NUMF.forEach(k=> el(k).addEventListener("input", e=>{
     const v = parseInt(e.target.value,10); if(!isNaN(v)) S[k]=Math.max(1,Math.min(60,v)); render();
   }));
-  CHKF.forEach(k=> el(k).addEventListener("change", e=>{ S[k]=e.target.checked; render(); }));
+  CHKF.forEach(k=> el(k).addEventListener("change", e=>{ S[k]=e.target.checked;
+    if(atkMode === "unite") renderAtkUnite();
+    majVite(); render(); }));
 }
 function pushState(){
   TEXTF.forEach(k=> el(k).value = S[k]);
@@ -526,9 +530,34 @@ function profilPourMoteur(p){
     fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover,
     hitMod: borne1((p.hitMod || 0) + S.hitMod),
     wndMod: borne1((p.wndMod || 0) + S.wndMod),
-    apMod: S.apMod, dmgMod: S.dmgMod,
+    /* la PA et les degats octroyes par une aura — le +1 en penetration
+       d'Illuminor Szeras — etaient jusqu'ici ecrases par la valeur de
+       l'ecran au lieu de s'y ajouter */
+    apMod: (p.apMod || 0) + S.apMod,
+    dmgMod: (p.dmgMod || 0) + S.dmgMod,
     rrH: plusFort(p.rrH || "none", S.rrH),
-    rrW: plusFort(p.rrW || "none", S.rrW)
+    rrW: plusFort(p.rrW || "none", S.rrW),
+    /* Quand une unite entiere est chargee, la carte des capacites ne
+       decrit plus une arme : elle decrit ce que la partie ajoute a
+       toutes ses armes — un stratageme qui donne Lethal, un Anti-X
+       pretee, un seuil de touche critique abaisse. Elle n'enleve donc
+       jamais ce qu'une arme possede deja : tout se cumule vers le
+       mieux, ce qui permet de cocher une fois pour l'unite au lieu de
+       dix fois arme par arme. */
+    torrent: !!p.torrent || S.torrent,
+    lethal:  !!p.lethal  || S.lethal,
+    dev:     !!p.dev     || S.dev,
+    blast:   !!p.blast   || S.blast,
+    sustainedOn: !!p.sustainedOn || S.sustainedOn,
+    sustainedN:  p.sustainedOn ? p.sustainedN : S.sustainedN,
+    critH: Math.min(p.critH === undefined ? 6 : p.critH, S.critH),
+    critW: Math.min(p.critW === undefined ? 6 : p.critW, S.critW),
+    /* Tir Rapide et Fonte ne sont pas des mots-cles a offrir mais une
+       distance : chaque arme applique les SIENS, et seulement si l'on
+       est a mi-portee. Une unite chargee tirait jusqu'ici comme si
+       elle etait toujours collee a la cible. */
+    rapidOn: !!p.rapidOn && !!S.rapidOn,
+    meltaOn: !!p.meltaOn && !!S.meltaOn
   });
   condPour(p).forEach(c=>{
     if(c.mot) q[c.mot === "sust" ? "sustainedOn" : c.mot] = true;
@@ -568,6 +597,11 @@ function pastilles(q, brut){
   if(q.blast) kw("DÉFLAGRATION", "blast");
   if(q.rapidOn) kw("TIR RAPIDE " + q.rapidN, "rf");
   if(q.meltaOn) kw("FONTE " + q.meltaN, "melta");
+  /* l'arme le porte, mais la distance ne le donne pas. On l'affiche
+     eteint plutot que de le cacher : sinon le joueur croit que
+     l'application a oublie le mot-cle de sa fiche. */
+  if(!q.rapidOn && brut.rapidOn) out.push({t:"TIR RAPIDE " + brut.rapidN, cl:"d", d:"hors mi-portée"});
+  if(!q.meltaOn && brut.meltaOn) out.push({t:"FONTE " + brut.meltaN, cl:"d", d:"hors mi-portée"});
   if(q.assault) kw("ASSAUT", "assault");
   if(q.heavy) kw("LOURD", "heavy");
   /* la provenance : ce que la fiche seule ne donnait pas */
@@ -705,10 +739,21 @@ const PRESETS = [
   {id:"rrw",   nom:"Cible sur objectif", aide:"relance les blessures ratées",
    lis:()=> S.rrW === "failed", met:v=>{ S.rrW = v ? "failed" : "none"; }}
 ];
+/* Ce qui ne vaut que pour une unite entiere : trois choses qu'on
+   change plusieurs fois par partie et qui, sans ces boutons, obligeaient
+   a descendre dans la carte des capacites arme par arme. */
+const PRESETS_UNITE = [
+  {id:"mi",    nom:"À mi-portée",     aide:"Tir Rapide et Fonte comptent",
+   lis:()=> S.rapidOn && S.meltaOn, met:v=>{ S.rapidOn = v; S.meltaOn = v; }},
+  {id:"leth",  nom:"Léthal pour tous", aide:"stratagème, protocole…",
+   lis:()=> S.lethal,               met:v=>{ S.lethal = v; }},
+  {id:"crit5", nom:"Touche crit. 5+",  aide:"sur toutes les armes",
+   lis:()=> S.critH <= 5,           met:v=>{ S.critH = v ? 5 : 6; }}
+];
 function renderPresets(){
   const host = el("vitePresets"); if(!host) return;
   host.innerHTML = "";
-  PRESETS.forEach(pr=>{
+  const bouton = pr => {
     const on = pr.lis();
     const b = document.createElement("button");
     b.type = "button";
@@ -716,16 +761,20 @@ function renderPresets(){
     b.innerHTML = pr.nom + (pr.aide ? '<small>' + pr.aide + '</small>' : '');
     b.addEventListener("click", ()=>{ pr.met(!on); pushState(); renderAtkUnite(); majVite(); render(); });
     host.appendChild(b);
-  });
+  };
+  const sep = txt => { const d = document.createElement("div");
+    d.className = "vsep"; d.textContent = txt; host.appendChild(d); };
+  PRESETS.forEach(bouton);
+  if(atkMode === "unite"){
+    sep("Toutes les armes de l'unité");
+    PRESETS_UNITE.forEach(bouton);
+  }
   /* Les aptitudes que porte l'unite chargee et qui attendent une
      condition. Elles arrivent sous leur nom officiel : le joueur
      reconnait sa fiche, et sait donc si la condition est remplie. */
   const cond = (atkMode === "unite" && atkUnit && atkUnit.conditions) || [];
   if(!cond.length) return;
-  const sep = document.createElement("div");
-  sep.className = "vsep";
-  sep.textContent = "Aptitudes de " + atkUnit.nom;
-  host.appendChild(sep);
+  sep("Aptitudes de " + atkUnit.nom);
   cond.forEach(c=>{
     const on = !!condOn[c.id];
     const b = document.createElement("button");
@@ -746,9 +795,13 @@ function renderPresets(){
    deplier, parce qu'un +1 oublie fausse toute une soiree de calculs */
 function majVite(){
   renderPresets();
+  const caps = atkMode !== "unite" ? 0 :
+    (S.torrent ? 1 : 0) + (S.lethal ? 1 : 0) + (S.dev ? 1 : 0) +
+    (S.sustainedOn ? 1 : 0) + (S.blast ? 1 : 0) + (S.rapidOn ? 1 : 0) +
+    (S.meltaOn ? 1 : 0) + (S.critH < 6 ? 1 : 0) + (S.critW < 6 ? 1 : 0);
   const n = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
             (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
-            (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) +
+            (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) + caps +
             Object.keys(condOn).filter(k => condOn[k]).length;
   const c = el("viteCount");
   if(c){ c.textContent = n ? n + " active" + (n > 1 ? "s" : "") : "aucune"; c.className = n ? "on" : ""; }
@@ -980,6 +1033,42 @@ el("modeChips").querySelectorAll(".chip").forEach(b=>
   }));
 
 /* ---------- bascule « une arme » / « une unité entière » ---------- */
+/* Les cases de la carte des capacites decrivent l'arme choisie tant
+   qu'on mesure une arme seule. Elles changent de sens des qu'une unite
+   entiere est chargee : elles s'ajoutent alors a toutes ses armes. On
+   les remet donc a zero en entrant dans ce mode — sans quoi le Lethal
+   Hits coche par defaut se serait offert a toute la liste — et on rend
+   a l'arme les siennes en sortant. */
+const CAPF = ["torrent","lethal","dev","sustainedOn","sustainedN","blast",
+              "rapidOn","rapidN","meltaOn","meltaN","critH","critW"];
+let capMemo = null;
+function videCaps(){
+  S.torrent = false; S.lethal = false; S.dev = false;
+  S.sustainedOn = false; S.sustainedN = "1"; S.blast = false;
+  S.rapidOn = false; S.meltaOn = false;
+  S.critH = 6; S.critW = 6;
+}
+function majLibelleCaps(){
+  const u = atkMode === "unite";
+  const t = el("cardAbilTitre");
+  if(t) t.textContent = u ? "Ce que la partie ajoute" : "Capacités de l'arme";
+  const n = el("abilNote"); if(n) n.hidden = !u;
+  const rf = el("rfNote"), ml = el("mlNote");
+  if(rf) rf.textContent = u ? "on est à mi-portée — chaque arme applique son propre Tir Rapide"
+                            : "attaques en plus, à l'échelle de l'unité";
+  if(ml) ml.textContent = u ? "on est à mi-portée — chaque arme applique sa propre Fonte"
+                            : "dégâts en plus par attaque non sauvegardée";
+  [el("rapidN"), el("meltaN")].forEach(x=>{
+    if(x && x.parentNode) x.parentNode.hidden = u;
+  });
+}
+function capsPourMode(){
+  if(atkMode === "unite"){
+    if(!capMemo){ const o = {}; CAPF.forEach(k => o[k] = S[k]); capMemo = o; videCaps(); }
+  } else if(capMemo){ Object.assign(S, capMemo); capMemo = null; }
+  majLibelleCaps();
+  pushState();
+}
 function majAtkMode(){
   const chips = el("atkModeChips");
   if(chips) chips.querySelectorAll(".chip").forEach(b => b.classList.toggle("on", b.dataset.am === atkMode));
@@ -993,7 +1082,9 @@ if(el("atkModeChips")) el("atkModeChips").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
     atkMode = b.dataset.am;
     majAtkMode();
+    capsPourMode();
     if(atkMode === "unite" && !atkUnit) renderAtkUnite();
+    majVite();
     render();
   }));
 if(el("atkPhaseChips")) el("atkPhaseChips").querySelectorAll(".chip").forEach(b=>
@@ -1117,5 +1208,5 @@ global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
       }) };
   },
   charge: function(id, ph){ atkMode = "unite"; if(ph) atkPhase = ph; atkOff = {};
-    majAtkMode(); chargeUnite(id); }};
+    majAtkMode(); capsPourMode(); chargeUnite(id); majVite(); }};
 })(window);
