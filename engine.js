@@ -4,7 +4,7 @@
    attaquant : attacks, bs, str, ap, dmg, torrent, lethal, dev,
                sustainedOn/sustainedN, blast, rapidOn/rapidN,
                meltaOn/meltaN, critH, critW, hitMod, wndMod, rrH, rrW,
-               apMod, dmgMod, ignoresCover, indirect
+               apMod, dmgMod, ignoresCover, indirect, kind
    cible     : tough, sv, inv, wounds, models, fnp, dmgRed, cover
 
    apMod et dmgMod sont les retouches de partie : une regle qui ameliore
@@ -68,34 +68,46 @@ function woundTarget(str, tou){
    retouche de partie. Elle ne descend pas sous zero — une regle qui
    degrade une PA 0 ne rend pas la sauvegarde meilleure que nature. */
 const apEffectif = s => Math.max(0, (s.ap || 0) + (s.apMod || 0));
+/* Le couvert ne touche plus la sauvegarde en 11e edition : il est passe
+   sur le jet de touche (voir normalise). La sauvegarde ne depend donc
+   plus que de l'armure, de la penetration et de l'invulnerable. */
 function saveTarget(s){
   if(s.sv >= 7 && !s.inv) return 99;
-  const ap = apEffectif(s);
-  let arm = s.sv >= 7 ? 99 : s.sv + ap;
-  if(s.cover && !s.ignoresCover && s.sv < 7 && !(s.sv <= 3 && ap === 0)) arm -= 1;
-  let t = arm;
-  if(s.inv) t = Math.min(t, s.inv);
-  return t;
+  const arm = s.sv >= 7 ? 99 : s.sv + apEffectif(s);
+  return s.inv ? Math.min(arm, s.inv) : arm;
 }
 const passProb = t => t >= 7 ? 0 : Math.min(5/6, (7 - Math.max(t,2))/6);
 
-/* Deux mots-cles d'arme ne se lisent pas dans la sequence mais la
-   deplacent avant qu'elle ne commence :
+/* Trois regles ne se lisent pas dans la sequence mais la deplacent
+   avant qu'elle ne commence :
 
+   — Le couvert. En 11e edition il ne donne plus le +1 en sauvegarde :
+     la cible a couvert impose un -1 au jet pour la toucher. Il ne vaut
+     que contre les attaques de tir — une arme de melee ne connait pas
+     le couvert — d'ou le test sur « kind ».
    — Tir indirect : on tire sans voir la cible. Le jet de touche subit
      un -1 et la cible beneficie du couvert, qu'elle soit a l'abri ou
      non. Ce n'est pas automatique — une arme a tir indirect qui voit
      sa cible tire normalement — d'ou le drapeau pose par le joueur.
    — Ignore le couvert : le couvert de la cible ne compte pas. Il
-     l'emporte donc sur le couvert que le tir indirect vient d'offrir.
+     l'emporte donc sur celui que le tir indirect vient d'offrir.
 
-   Le -1 s'ajoute aux autres modificateurs de touche puis le tout est
-   plafonne a plus ou moins un, comme le veut la regle. */
+   Les -1 s'ajoutent aux autres modificateurs de touche puis le tout est
+   plafonne a plus ou moins un, comme le veut la regle : une cible a
+   couvert visee par un tir indirect ne subit qu'un seul -1. */
 function normalise(s){
-  if(!s.indirect) return s;
+  const indirect = !!s.indirect;
+  const couvert = (!!s.cover || indirect) && !s.ignoresCover && s.kind !== "C";
+  /* on recopie aussi quand le couvert est coche mais ne s'applique pas —
+     melee, ou arme qui l'ignore — pour que « q.cover » dise la verite a
+     l'affichage au lieu de repeter la case cochee */
+  if(!indirect && !couvert && !s.cover) return s;
   const q = Object.assign({}, s);
-  q.hitMod = Math.max(-1, Math.min(1, (q.hitMod || 0) - 1));
-  q.cover = true;
+  let m = q.hitMod || 0;
+  if(indirect) m -= 1;
+  if(couvert) m -= 1;
+  q.hitMod = Math.max(-1, Math.min(1, m));
+  q.cover = couvert;
   return q;
 }
 
