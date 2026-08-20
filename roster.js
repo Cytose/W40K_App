@@ -491,30 +491,6 @@ const nomAffiche = ru => (estGroupe(ru) && ru.grp) ? ru.grp : ru.name;
 /* ==========================================================
    POINTS & VALIDATION
    ========================================================== */
-/* Le Munitorum Field Manual ne facture pas une unite au meme prix selon
-   le nombre de copies deja prises : « YOUR 1ST UNIT COSTS 50 pts »,
-   « YOUR 3RD + UNIT COSTS 60 pts ». Le champ UNITS[7] accepte donc deux
-   formes — un simple bareme {effectif: points} quand le prix ne bouge
-   jamais, ou une liste de paliers [[rang, bareme], ...] ou chaque palier
-   s'applique a partir de ce rang-la. Les trente-six unites a prix fixe
-   gardent la forme courte. */
-const paliersPts = u => {
-  const t = u && u[7];
-  if(!t) return [[1, {}]];
-  return Array.isArray(t) ? t : [[1, t]];
-};
-function baremePts(u, rang){
-  const p = paliersPts(u);
-  let bar = p[0][1];
-  for(let i = 0; i < p.length; i++) if((rang || 1) >= p[i][0]) bar = p[i][1];
-  return bar;
-}
-/* prix d'une unite pour un effectif et un rang donnes */
-const ptsPour = (u, taille, rang) => baremePts(u, rang)[String(taille)] || 0;
-/* le prix bouge-t-il d'un rang a l'autre ? sert a n'afficher le rang que
-   la ou il change quelque chose */
-const prixEvolue = u => paliersPts(u).length > 1;
-
 /* Rang de chaque unite de l'armee parmi ses homonymes. Une entree du pave
    est une unite ; chaque personnage rattache en est une autre, prise
    separement. Le total ne depend pas de l'ordre — payer deux fois le

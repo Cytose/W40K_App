@@ -157,7 +157,7 @@ function refreshAttacker(){
   el("puName").textContent = curUnit + (u[10] ? "  (Legends)" : "");
   el("puSub").textContent = (u[1] ? "M " + u[1] + "\"" : "M —") + " · E" + u[2] + " · Svg " + u[3] + "+" +
     (u[4] ? " / " + u[4] + "++" : "") + " · " + u[5] + " PV" +
-    (u[7][String(curSize)] ? " · " + u[7][String(curSize)] + " pts" : "");
+    (ptsPour(u, curSize, 1) ? " · " + ptsPour(u, curSize, 1) + " pts" : "");
 
   const wc = el("weaponChips"); wc.innerHTML = "";
   list.forEach((x,i)=>{
@@ -172,7 +172,8 @@ function refreshAttacker(){
   u[6].forEach(sz=>{
     const b = document.createElement("button");
     b.type="button"; b.className = "chip" + (sz===curSize ? " on" : "");
-    b.textContent = "×" + sz + (u[7][String(sz)] ? " · " + u[7][String(sz)] + " pts" : "");
+    const pSz = ptsPour(u, sz, 1);
+    b.textContent = "×" + sz + (pSz ? " · " + pSz + " pts" : "");
     b.addEventListener("click", ()=>{ curSize = sz; applyWeapon(); });
     sc.appendChild(b);
   });
@@ -307,7 +308,9 @@ function renderUnitList(){
   list.forEach(u=>{
     const b = document.createElement("button");
     b.type="button"; b.className = "opt" + (u[0]===curUnit ? " sel" : "");
-    const pts = u[7][String(u[6][u[6].length-1])];
+    /* le simulateur n'est pas une liste : le prix s'y donne au tarif de
+       la premiere copie, sans rang a compter */
+    const pts = ptsPour(u, u[6][u[6].length-1], 1);
     b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span>' +
       '<span class="o2">E' + u[2] + " · Svg " + u[3] + "+" + (u[4] ? "/" + u[4] + "++" : "") +
       " · " + u[5] + " PV · ×" + u[6].join("/") + (pts ? " · " + pts + " pts" : "") + '</span></span>' +
