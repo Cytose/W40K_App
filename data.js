@@ -855,6 +855,75 @@ const MENACES = [
 ];
 
 /* ============================================================
+   QUAND CHAQUE APTITUDE SE DECLENCHE
+
+   APTITUDES porte le texte ; ce tableau porte le moment. Les deux
+   restent separes : le texte est la source, l'index n'en est qu'une
+   lecture. La cle est « Unite|Aptitude », exactement les deux noms
+   d'APTITUDES, pour qu'une faute de frappe se voie tout de suite.
+
+   ph    : cmd, mvt, tir, chg, cbt — plusieurs separees par des espaces,
+           ou "" pour « n'importe quelle phase »
+   camp  : "moi" a mon tour, "adv" au tour adverse, "" aux deux
+   pos   : "debut", "fin", ou "" quelque part dans la phase
+   uniq  : "partie" une fois par bataille, "tour" une fois par tour
+
+   Classement obtenu par analyse du texte puis relu ligne a ligne : sept
+   entrees etaient fausses — le « jusqu'a la fin de la phase » d'un effet
+   se lisait comme un declenchement en fin de phase, et le Heraut du
+   Desespoir vise cinq phases quand l'analyse n'en voyait que deux.
+   ============================================================ */
+const MOMENTS = {
+ "Deathmarks|Hyperspace Hunters":                 {ph:"mvt", camp:"adv", pos:"", uniq:"tour"},
+ "Ophydian Destroyers|Horreurs Fouisseuses":      {ph:"cbt", camp:"adv", pos:"fin", uniq:""},
+ "Tomb Blades|Evasion Engrams":                   {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Canoptek Scarab Swarms|Self-destruction":       {ph:"cbt", camp:"",    pos:"debut", uniq:""},
+ "Canoptek Spyders|Canoptek Swarm":               {ph:"cmd", camp:"moi", pos:"", uniq:""},
+ "Canoptek Macrocytes|Mandibule accélératrice (équipement)": {ph:"cbt", camp:"", pos:"debut", uniq:""},
+ "Triarch Stalker|Targeting Relay":               {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Doomsday Ark|Overwhelming Obliteration":        {ph:"mvt", camp:"moi", pos:"", uniq:""},
+ "Annihilation Barge|Malevolent Arcing":          {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Monolith|Portail d'Éternité":                   {ph:"mvt", camp:"moi", pos:"", uniq:""},
+ "Obelisk|Gravitic Pulse":                        {ph:"mvt", camp:"adv", pos:"debut", uniq:""},
+ "Tesseract Vault|Powers of the C'tan":           {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Doom Scythe|Atavistic Instigation":             {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Night Scythe|Invasion Beams":                   {ph:"cbt", camp:"",    pos:"fin", uniq:""},
+ "Night Scythe|Quantum Invader":                  {ph:"mvt", camp:"moi", pos:"", uniq:""},
+ "Royal Warden|Engrammatic Logic":                {ph:"",    camp:"",    pos:"debut", uniq:"partie"},
+ "Lokhust Lord|Résurrection":                     {ph:"",    camp:"",    pos:"fin", uniq:"partie"},
+ "Hexmark Destroyer|Multi-threat Eliminator":     {ph:"tir", camp:"adv", pos:"", uniq:"tour"},
+ "Technomancer|Technomancer":                     {ph:"mvt", camp:"moi", pos:"fin", uniq:""},
+ "Plasmancer|Foudre Consciente":                  {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Chronomancer|Chronometron":                     {ph:"tir", camp:"moi", pos:"", uniq:""},
+ "Psychomancer|Nightmare Shroud (Aura)":          {ph:"cmd", camp:"adv", pos:"", uniq:""},
+ "Psychomancer|Harbinger of Despair":             {ph:"cmd mvt tir chg cbt", camp:"moi", pos:"debut", uniq:"tour"},
+ "Geomancer|Réverbération Tectonique":            {ph:"mvt", camp:"moi", pos:"", uniq:""},
+ "Catacomb Command Barge|Orbe de Résurrection":   {ph:"",    camp:"",    pos:"fin", uniq:"partie"},
+ "C'tan Shard of the Nightbringer|Drain de Vie":  {ph:"cbt", camp:"",    pos:"fin", uniq:""},
+ "C'tan Shard of the Void Dragon|Absorption de Matière": {ph:"tir", camp:"moi", pos:"debut", uniq:""},
+ "C'tan Shard of the Void Dragon|Sourdine Spirituelle — Panthéon de Malheur": {ph:"tir", camp:"adv", pos:"debut", uniq:"tour"},
+ "Transcendent C'tan|Déplacement Transdimensionnel": {ph:"mvt", camp:"moi", pos:"", uniq:""},
+ "Transcendent C'tan|Longe Relativiste — Panthéon de Malheur": {ph:"mvt", camp:"moi", pos:"", uniq:""},
+ "Imotekh the Stormlord|Grand Strategist":        {ph:"cmd", camp:"moi", pos:"debut", uniq:""},
+ "Imotekh the Stormlord|Lord of the Storm":       {ph:"cmd", camp:"moi", pos:"fin", uniq:"partie"},
+ "Trazyn the Infinite|Ancient Collector":         {ph:"cmd", camp:"moi", pos:"fin", uniq:""},
+ "Trazyn the Infinite|Surrogate Hosts":           {ph:"cmd", camp:"moi", pos:"debut", uniq:""},
+ "Orikan the Diviner|The Stars Are Right":        {ph:"cbt", camp:"",    pos:"debut", uniq:"partie"},
+ "Illuminor Szeras|Atomic Energy Manipulator":    {ph:"cbt", camp:"",    pos:"fin", uniq:""}
+};
+
+/* La regle de faction et les regles de detachement qui ont une heure.
+   Elles ne dependent pas d'une unite : c'est l'armee qui les porte. */
+const MOMENTS_ARMEE = [
+ { ph:"cmd", camp:"moi", pos:"fin", nom:"Protocoles de Réanimation",
+   source:"Règle de faction",
+   texte:"Chaque unité amie qui a cette aptitude et se trouve sur le champ de bataille soigne D3 points de vie." },
+ { ph:"cbt", camp:"adv", pos:"fin", detach:"Hypercrypt Legion", nom:"Hyperphasage",
+   source:"Légion d'Hypercrypte",
+   texte:"Retire des unités du champ de bataille pour les placer en Réserves Stratégiques : Incursion jusqu'à 1 unité, Force de Frappe jusqu'à 2, Offensive jusqu'à 3." }
+];
+
+/* ============================================================
    CATÉGORIES
    [nom, catégorie principale] — la première qui s'applique dans
    l'ordre Epic Hero, Personnage, Battleline, Infanterie, Bête,

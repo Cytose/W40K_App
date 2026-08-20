@@ -1605,14 +1605,26 @@ const RAPPELS = {
   cbt: "Les unités qui ont chargé frappent en premier, puis alternance en commençant par le joueur dont c'est le tour. Une figurine doit être au contact ou à 2\" d'une figurine de son unité qui l'est."
 };
 let G = null;
+/* le catalogue de strategemes montre-t-il tout, ou seulement ce qui se
+   joue a cet instant ? etat d'affichage, le temps de la session */
+let stratTout = false;
 
-const partieVierge = () => ({ liste: R ? R.id : "", tour: 1, phase: "cmd", pc: 0,
-  prim: 0, sec: 0, u: {}, journal: [] });
+/* Un round de bataille, c'est deux tours : le mien puis celui d'en face,
+   cinq phases chacun. L'application ignorait a qui etait le tour, alors
+   que la moitie des strategemes se jouent chez l'adversaire — sans cette
+   information, aucun filtre n'a de sens.
+   « use » retient ce qui a deja servi : cle -> numero de round, pour les
+   aptitudes une-fois-par-tour, ou true pour une-fois-par-partie. */
+const partieVierge = () => ({ liste: R ? R.id : "", tour: 1, moi: true,
+  phase: "cmd", pc: 0, prim: 0, sec: 0, u: {}, journal: [], use: {} });
 
 function saveG(){ try{ localStorage.setItem(GKEY, JSON.stringify(G)); }catch(e){} }
 function loadG(){
   try{ G = JSON.parse(localStorage.getItem(GKEY) || "null"); }catch(e){ G = null; }
   if(!G || !G.u) G = partieVierge();
+  /* une partie enregistree avant que le tour ait un camp */
+  if(G.moi === undefined) G.moi = true;
+  if(!G.use) G.use = {};
   /* la partie suit la liste ouverte : en changer repart de zero */
   if(R && G.liste !== R.id) G = partieVierge();
 }
@@ -1635,6 +1647,199 @@ function noteJournal(txt){
 
 const d3 = () => 1 + Math.floor(Math.random() * 3);
 
+/* ---------- avancer dans la partie ----------
+   Cmdt, Mvt, Tir, Charge, Combat, puis on passe la main ; apres le
+   Combat adverse, round suivant. Le point de commandement se gagne au
+   debut de MON commandement seulement : je ne compte pas ceux d'en
+   face. */
+function phaseSuivante(){
+  const i = PHASES.findIndex(x => x[0] === G.phase);
+  if(i < PHASES.length - 1){ G.phase = PHASES[i + 1][0]; saveG(); return; }
+  if(G.moi){
+    G.moi = false; G.phase = "cmd";
+    noteJournal("Au tour de l'adversaire");
+  } else {
+    G.moi = true; G.phase = "cmd";
+    G.tour = Math.min(9, G.tour + 1);
+    G.pc++;
+    noteJournal("Round " + G.tour + " — ton tour, +1 PC (total " + G.pc + ")");
+  }
+  saveG();
+}
+function phasePrecedente(){
+  const i = PHASES.findIndex(x => x[0] === G.phase);
+  if(i > 0){ G.phase = PHASES[i - 1][0]; saveG(); return; }
+  if(!G.moi){ G.moi = true; G.phase = "cbt"; }
+  else if(G.tour > 1){ G.moi = false; G.phase = "cbt"; G.tour--; }
+  saveG();
+}
+const nomMoment = () => "Round " + G.tour + " · " +
+  (G.moi ? "ton tour" : "tour adverse") + " · " + PHASE_LONG[G.phase];
+
+/* ==========================================================
+   CE QUI SE DECLENCHE MAINTENANT
+
+   L'application connait la phase, le camp, la liste et le
+   detachement. Elle peut donc dire ce qui se joue a cet
+   instant precis au lieu de tout afficher tout le temps.
+
+   Regle de prudence : en cas de doute on MONTRE. Cacher un
+   strategeme dont on avait besoin coute une partie ; en
+   montrer un de trop coute une ligne.
+   ========================================================== */
+const concerne = (m, ph, camp) => {
+  if(m.camp && m.camp !== camp) return false;
+  if(!m.ph) return true;                      /* « n'importe quelle phase » */
+  return m.ph.split(" ").indexOf(ph) >= 0;
+};
+
+/* Le moment d'un strategeme, lu sur sa phrase de declenchement. Elle
+   peut en citer deux — « a votre phase de Tir ou a la phase de Combat » :
+   chaque morceau porte son propre camp, et un morceau sans « votre » ni
+   « adverse » vaut pour les deux tours. */
+const MOTS_PH = [[/commandement/i,"cmd"],[/mouvement/i,"mvt"],[/\btir\b/i,"tir"],
+                 [/charge/i,"chg"],[/combat/i,"cbt"]];
+function momentStrat(st){
+  const t = String(st[4] || "");
+  if(/n'importe quelle phase/i.test(t)) return [{ph:"", camp:""}];
+  const out = [];
+  t.split(/\bou\b/).forEach(seg=>{
+    const camp = /adverse/i.test(seg) ? "adv" : (/votre/i.test(seg) ? "moi" : "");
+    MOTS_PH.forEach(([r, k])=>{ if(r.test(seg)) out.push({ph:k, camp:camp}); });
+  });
+  return out.length ? out : [{ph:"", camp:""}];
+}
+const stratMaintenant = st => momentStrat(st).some(m => concerne(m, G.phase, G.moi ? "moi" : "adv"));
+
+/* clef de suivi : ce qui a deja servi */
+const dejaFait = cle => {
+  const v = G.use[cle];
+  return v === true || v === G.tour;
+};
+function marqueFait(cle, uniq){
+  if(!uniq) return;
+  G.use[cle] = (uniq === "partie") ? true : G.tour;
+}
+
+/* Tout ce qui se declenche a cet instant, tire de la liste ouverte. */
+function declenchements(){
+  const camp = G.moi ? "moi" : "adv", out = [];
+  const tblM = (typeof MOMENTS !== "undefined") ? MOMENTS : {};
+  const tblA = (typeof APTITUDES !== "undefined") ? APTITUDES : {};
+
+  /* la regle de faction et celles des detachements pris */
+  ((typeof MOMENTS_ARMEE !== "undefined") ? MOMENTS_ARMEE : []).forEach((m, i)=>{
+    if(m.detach && R.detach.indexOf(m.detach) < 0) return;
+    if(!concerne(m, G.phase, camp)) return;
+    out.push({cle:"armee" + i, nom:m.nom, source:m.source, texte:m.texte,
+              pos:m.pos, uniq:"", qui:"", ph:m.ph});
+  });
+
+  /* les aptitudes des figurines qui sont dans la liste */
+  const vues = {};
+  const ajoute = nom => {
+    if(vues[nom]) return; vues[nom] = 1;
+    (tblA[nom] || []).forEach(([apt, txt])=>{
+      const m = tblM[nom + "|" + apt];
+      if(!m || !concerne(m, G.phase, camp)) return;
+      out.push({cle: nom + "|" + apt, nom: apt, source: nom, texte: txt,
+                pos: m.pos, uniq: m.uniq, qui: nom, ph: m.ph});
+    });
+  };
+  R.units.forEach(ru=>{ ajoute(ru.name); ru.chars.forEach(c => ajoute(c.name)); });
+
+  /* en debut de phase d'abord, en fin de phase en dernier : c'est
+     l'ordre dans lequel on les jouera */
+  const rang = {debut:0, "":1, fin:2};
+  out.sort((a, b) => (rang[a.pos] || 1) - (rang[b.pos] || 1));
+  return out;
+}
+
+function renderMaintenant(){
+  const host = el("gmaintenant"); if(!host) return;
+  host.innerHTML = "";
+  if(!R){ return; }
+  const lot = declenchements();
+  const strats = stratsListe().filter(stratMaintenant);
+  if(!lot.length && !strats.length) return;
+  
+
+  const box = document.createElement("div");
+  box.className = "maint";
+  const tete = document.createElement("div");
+  tete.className = "mtete";
+  tete.innerHTML = "<b>Maintenant</b><span>" + nomMoment() + "</span>";
+  box.appendChild(tete);
+
+  const POS = {debut:"début de phase", fin:"fin de phase", "":""};
+  /* Une aptitude « a n'importe quelle phase » se declenche aux dix phases
+     du round : la montrer en entier partout noie celles qui ne valent
+     qu'ici. Elle passe donc en pied de bloc, sur une ligne. */
+  const ici = lot.filter(x => x.ph !== "");
+  const partout = lot.filter(x => x.ph === "");
+  ici.forEach(x=>{
+    const fait = dejaFait(x.cle);
+    const d = document.createElement("div");
+    d.className = "mit" + (fait ? " fait" : "");
+    d.innerHTML = '<div class="mh"><b>' + x.nom + '</b>' +
+      '<i>' + x.source + (POS[x.pos] ? " · " + POS[x.pos] : "") +
+      (x.uniq === "partie" ? " · une fois par partie"
+        : x.uniq === "tour" ? " · une fois par tour" : "") + '</i></div>' +
+      '<p class="mtx">' + x.texte + '</p>';
+    /* un texte de dix lignes noie les trois autres aptitudes de la phase :
+       il se replie, et s'ouvre d'une touche quand on en a besoin */
+    const tx = d.querySelector(".mtx");
+    if(x.texte.length > 190){
+      tx.classList.add("clos");
+      tx.addEventListener("click", ()=> tx.classList.toggle("clos"));
+    }
+    if(x.uniq){
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "mfait";
+      b.textContent = fait ? "Utilisée" : "Marquer utilisée";
+      b.addEventListener("click", ()=>{
+        if(dejaFait(x.cle)) delete G.use[x.cle];
+        else { marqueFait(x.cle, x.uniq); noteJournal(x.nom + " — " + x.source); }
+        saveG(); renderPartie();
+      });
+      d.appendChild(b);
+    }
+    box.appendChild(d);
+  });
+
+  if(partout.length){
+    const zone = document.createElement("div");
+    zone.className = "mtout";
+    zone.innerHTML = '<span class="mk">À n\'importe quel moment</span>';
+    partout.forEach(x=>{
+      const fait = dejaFait(x.cle);
+      const l = document.createElement("button");
+      l.type = "button";
+      l.className = "mune" + (fait ? " fait" : "");
+      l.title = x.texte;
+      l.innerHTML = '<b>' + x.nom + '</b><i>' + x.source +
+        (x.uniq === "partie" ? " · 1×partie" : x.uniq === "tour" ? " · 1×tour" : "") + '</i>';
+      l.addEventListener("click", ()=>{
+        if(!x.uniq) return;
+        if(dejaFait(x.cle)) delete G.use[x.cle];
+        else { marqueFait(x.cle, x.uniq); noteJournal(x.nom + " — " + x.source); }
+        saveG(); renderPartie();
+      });
+      zone.appendChild(l);
+    });
+    box.appendChild(zone);
+  }
+
+  if(strats.length){
+    const sep = document.createElement("div");
+    sep.className = "msep";
+    sep.textContent = strats.length + " stratagème" + (strats.length > 1 ? "s" : "") +
+      " se joue" + (strats.length > 1 ? "nt" : "") + " à ce moment — voir plus bas";
+    box.appendChild(sep);
+  }
+  host.appendChild(box);
+}
+
 function renderPartie(){
   if(!G) loadG();
   /* changer de liste, c'est changer de partie */
@@ -1644,8 +1849,9 @@ function renderPartie(){
 
   const vivantes = R.units.filter(ru => etat(ru).pv > 0).length;
   bar.innerHTML =
-    '<div class="gc"><div class="gk">Tour</div><div class="gv">' + G.tour + '<small style="font-size:11px;color:var(--tx3)"> / 5</small></div></div>' +
-    '<div class="gc"><div class="gk">Phase</div><div class="gv" style="font-size:13px;padding:4px 0 2px">' + PHASE_LONG[G.phase] + '</div></div>' +
+    '<div class="gc"><div class="gk">Round</div><div class="gv">' + G.tour + '<small style="font-size:11px;color:var(--tx3)"> / 5</small></div></div>' +
+    '<div class="gc"><div class="gk">Tour</div><div class="gv gcamp" style="font-size:13px;padding:4px 0 2px">' +
+      (G.moi ? "le tien" : "adverse") + '</div></div>' +
     '<div class="gc"><div class="gk">PC</div><div class="gv">' + G.pc + '</div>' +
       '<div class="gpm"><button type="button" data-pc="-1">−</button><button type="button" data-pc="1">+</button></div></div>' +
     '<div class="gc"><div class="gk">Debout</div><div class="gv">' + vivantes + '<small style="font-size:11px;color:var(--tx3)"> / ' + R.units.length + '</small></div></div>';
@@ -1656,21 +1862,41 @@ function renderPartie(){
 
   const ph = el("gphases");
   ph.innerHTML = "";
+  ph.classList.toggle("adv", !G.moi);
   PHASES.forEach(([k, lbl])=>{
     const b = document.createElement("button");
     b.type = "button"; b.textContent = lbl;
     b.className = k === G.phase ? "on" : "";
-    b.addEventListener("click", ()=>{
-      /* revenir au commandement, c'est le tour suivant : un PC de plus */
-      if(k === "cmd" && G.phase !== "cmd"){
-        G.tour = Math.min(9, G.tour + 1); G.pc++;
-        noteJournal("Tour " + G.tour + " — +1 PC (total " + G.pc + ")");
-      }
-      G.phase = k; saveG(); renderPartie();
-    });
+    /* toucher une phase y va directement, sans changer de camp ni de
+       round : c'est le bouton « Phase suivante » qui fait avancer la
+       partie, pour qu'un doigt qui derape ne fasse pas gagner un PC */
+    b.addEventListener("click", ()=>{ G.phase = k; saveG(); renderPartie(); });
     ph.appendChild(b);
   });
 
+  /* la barre d'avancement : d'ou l'on est, et le pas suivant */
+  const av = el("gavance");
+  if(av){
+    av.innerHTML = "";
+    const prec = document.createElement("button");
+    prec.type = "button"; prec.className = "gprev";
+    prec.textContent = "‹"; prec.title = "Phase précédente";
+    prec.disabled = G.tour === 1 && G.moi && G.phase === "cmd";
+    prec.addEventListener("click", ()=>{ phasePrecedente(); renderPartie(); });
+    const ou = document.createElement("span");
+    ou.className = "gou"; ou.textContent = nomMoment();
+    const suiv = document.createElement("button");
+    suiv.type = "button"; suiv.className = "gnext";
+    const i = PHASES.findIndex(x => x[0] === G.phase);
+    suiv.innerHTML = i < PHASES.length - 1
+      ? "Phase suivante<small>" + PHASE_LONG[PHASES[i + 1][0]] + "</small>"
+      : (G.moi ? "Passer la main<small>tour adverse</small>"
+               : "Round suivant<small>ton tour · +1 PC</small>");
+    suiv.addEventListener("click", ()=>{ phaseSuivante(); renderPartie(); });
+    av.appendChild(prec); av.appendChild(ou); av.appendChild(suiv);
+  }
+
+  renderMaintenant();
   const rap = el("grappel");
   rap.innerHTML = "<b>" + PHASE_LONG[G.phase] + "</b>" + RAPPELS[G.phase];
 
@@ -1764,7 +1990,30 @@ function renderPartie(){
 
   /* --- stratagemes jouables --- */
   const gs = el("gstrat"); gs.innerHTML = "";
-  const lot = stratsListe();
+  const tous = stratsListe();
+  const ici = tous.filter(stratMaintenant);
+  /* on n'affiche que ceux qui se jouent a ce moment ; le reste est a une
+     touche, parce qu'une lecture de moment reste une lecture et qu'un
+     strategeme cache est un strategeme perdu */
+  const lot = stratTout ? tous : ici;
+  const barF = document.createElement("div");
+  barF.className = "mfiltre";
+  barF.innerHTML = '<span>' + (stratTout
+      ? tous.length + " fiches, tous moments confondus"
+      : ici.length + " jouable" + (ici.length > 1 ? "s" : "") + " maintenant")
+    + '</span>';
+  const bt = document.createElement("button");
+  bt.type = "button"; bt.className = "ghost";
+  bt.textContent = stratTout ? "Ce moment" : "Tout voir";
+  bt.addEventListener("click", ()=>{ stratTout = !stratTout; renderPartie(); });
+  barF.appendChild(bt);
+  gs.appendChild(barF);
+  if(!lot.length){
+    const v = document.createElement("div");
+    v.className = "empty"; v.style.padding = "12px 4px";
+    v.textContent = "Aucun stratagème ne se joue à ce moment.";
+    gs.appendChild(v);
+  }
   lot.forEach(st=>{
     const cout = st[3] || 1;
     const d = document.createElement("div");
@@ -1773,7 +2022,10 @@ function renderPartie(){
     n.className = "gn";
     const provenance = st[1] === "Core" ? "Stratagème de base"
       : nomDetach(st[1]) + (st[2] ? " · " + st[2] : "");
-    n.innerHTML = '<b>' + st[0] + '</b><i>' + provenance + ' · ' + cout + ' PC</i>';
+    const horsMoment = stratTout && !stratMaintenant(st);
+    n.innerHTML = '<b>' + st[0] + '</b><i>' + provenance + ' · ' + cout + ' PC' +
+      (horsMoment ? ' · ' + (st[4] || "") : "") + '</i>';
+    if(horsMoment) d.classList.add("hors");
     const b = document.createElement("button");
     b.type = "button"; b.className = "gplay"; b.textContent = "Jouer";
     b.disabled = G.pc < cout;

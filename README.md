@@ -136,11 +136,22 @@ les situations qui reviennent — cible à couvert, +1 pour toucher, relance des
 1, cible sur objectif. Sur une unité chargée, elles s'appliquent à tous les
 profils d'un coup.
 
-**En partie** — le suivi d'une partie, enregistré en continu : tour, phase,
-points de commandement, unités encore debout, points de vie restants par unité
-et par personnage rattaché, réanimation D3 sur toute l'armée, score primaire et
-secondaire, stratagèmes jouables qui débitent les PC, et journal du tour. La
-liste ouverte reste consultable en dessous, en lecture seule.
+**En partie** — le suivi d'une partie, enregistré en continu. Un round y est ce
+qu'il est : **dix phases, cinq à toi, cinq à lui**. Un bouton fait avancer le
+déroulé, passe la main, ouvre le round suivant et donne le PC au début de ton
+commandement ; toucher une phase y va directement sans rien faire avancer.
+
+Un bloc **« Maintenant »** dit ce qui se déclenche à cet instant précis, tiré de
+ta liste et de ton détachement — la Réanimation en fin de commandement, le
+Portail d'Éternité du Monolithe à ton mouvement, l'Hyperphasage à la fin du
+combat adverse. Ce qui vaut une fois par partie ou par tour se marque utilisé, et
+le suivi tient d'une phase à l'autre. Les stratagèmes sont filtrés au même
+moment, « Tout voir » à une touche.
+
+S'y ajoutent points de commandement, unités encore debout, points de vie
+restants par unité et par personnage rattaché, réanimation D3 sur toute l'armée,
+score primaire et secondaire, et journal du tour. La liste ouverte reste
+consultable en dessous, en lecture seule.
 
 ## Fonctions
 

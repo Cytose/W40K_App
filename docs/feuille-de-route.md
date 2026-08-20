@@ -1362,3 +1362,88 @@ précédent sur les pastilles de profil.
 
 Le résumé et les pastilles se recalculent maintenant dans `render()` lui-même,
 ce qui ferme la classe entière plutôt qu'un cas.
+
+---
+
+## 24. En partie : où l'on en est, et ce qui se déclenche
+
+Deux directions retenues sur quatre : **le déroulé du tour** et **ne rien oublier
+à chaque phase**.
+
+### Il manquait la moitié de la partie
+
+L'état de partie suivait le round et la phase, mais **pas à qui était le tour**.
+Or la moitié des stratagèmes se jouent chez l'adversaire — sur quarante-trois
+fiches, dix-huit portent « adverse » dans leur phrase de déclenchement. Sans
+cette information, aucun filtre n'a de sens.
+
+Un round est maintenant ce qu'il est : dix phases, cinq à moi, cinq à lui.
+
+```
+‹   Round 1 · ton tour · Mouvement        [Phase suivante · Tir]
+‹   Round 1 · ton tour · Combat           [Passer la main · tour adverse]
+‹   Round 1 · tour adverse · Combat       [Round suivant · ton tour · +1 PC]
+```
+
+Le point de commandement se gagne au début de **mon** commandement seulement :
+l'application ne compte pas ceux d'en face. Toucher une phase y va directement
+sans rien faire avancer — c'est le bouton qui fait progresser la partie, pour
+qu'un doigt qui dérape ne fasse pas gagner un PC.
+
+### L'index des moments
+
+`APTITUDES` portait déjà, en toutes lettres, le moment de déclenchement de
+trente-sept aptitudes — « In your Shooting phase », « À la fin de la phase de
+Combat », « Once per battle ». Le texte était là ; rien ne le lisait.
+
+`MOMENTS` indexe ces trente-six aptitudes retenues par phase, camp, position
+dans la phase et unicité. **Le texte reste la source, l'index n'en est qu'une
+lecture** — la clé est « Unité|Aptitude », exactement les deux noms
+d'`APTITUDES`, pour qu'une faute de frappe se voie tout de suite. Un contrôle le
+vérifie : zéro clé orpheline.
+
+Le classement a été obtenu par analyse du texte **puis relu ligne à ligne**, et
+sept entrées étaient fausses. Le « jusqu'à la fin de la phase » d'un *effet* se
+lisait comme un *déclenchement* en fin de phase ; le Héraut du Désespoir vise
+cinq phases quand l'analyse n'en voyait que deux. Une analyse automatique non
+relue aurait menti sept fois sur trente-six.
+
+Les stratagèmes, eux, sont classés à la volée depuis leur phrase de
+déclenchement — pas de second tableau à tenir en accord avec le premier. La
+phrase peut citer deux moments (« à votre phase de Tir ou à la phase de
+Combat ») : chaque morceau porte son propre camp, et un morceau sans « votre »
+ni « adverse » vaut pour les deux tours.
+
+### La règle de prudence
+
+**En cas de doute, on montre.** Cacher un stratagème dont on avait besoin coûte
+une partie ; en montrer un de trop coûte une ligne. Le filtre affiche par défaut
+ce qui se joue à cet instant, et « Tout voir » est à une touche — les fiches
+hors moment y apparaissent grisées, avec leur phrase de déclenchement.
+
+### Ce qui se déclenche maintenant
+
+Un bloc en tête d'écran, tiré de la liste ouverte et du détachement pris :
+
+| | |
+|---|---|
+| Ton commandement | Protocoles de Réanimation · *fin de phase* |
+| Ton mouvement | Portail d'Éternité · *Monolithe* — Technomancien · *fin de phase* |
+| Ton tir | Evasion Engrams · *Motolames* |
+| Fin du combat adverse | Hyperphasage · *Légion d'Hypercrypte* |
+
+Les aptitudes « à n'importe quelle phase » se déclenchent aux dix phases du
+round : les afficher en entier partout noyait celles qui ne valent qu'ici. Elles
+passent en pied de bloc, sur une ligne.
+
+Ce qui est **une fois par partie** ou **une fois par tour** se marque utilisé, et
+le suivi tient d'une phase à l'autre. Le journal en garde la trace.
+
+### Deux détails d'usage
+
+Le bandeau affichait deux cellules intitulées « Tour » — le numéro de round et le
+camp. La première est devenue « Round ».
+
+Le texte du Portail d'Éternité fait douze lignes et écrasait les trois autres
+aptitudes de la phase. Au-delà de cent quatre-vingt-dix caractères, un texte se
+replie sur trois lignes et s'ouvre d'une touche.
