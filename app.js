@@ -164,11 +164,6 @@ const unitRow  = n => UNITS.find(u => u[0] === n);
 const unitWeps = n => WEAPONS.filter(w => w[0] === n);
 
 function applyWeapon(){
-  if(window.__syncRosterQuickPending !== true){
-    window.__syncRosterQuickPending = true;
-    setTimeout(()=>{ window.__syncRosterQuickPending = false;
-      if(window.__syncRosterQuick) window.__syncRosterQuick(); }, 0);
-  }
   const u = unitRow(curUnit), list = unitWeps(curUnit);
   if(!u || !list.length) return;
   if(curWeapon >= list.length) curWeapon = 0;
@@ -1247,48 +1242,14 @@ if(el("atkPhaseChips")) el("atkPhaseChips").querySelectorAll(".chip").forEach(b=
 if(el("pickRosterUnit")) el("pickRosterUnit").addEventListener("click", ()=>{
   renderRosterUnitList(); openSheet("sheetRosterUnit");
 });
-/* la liste peut changer pendant qu'on simule : on relit l'unite chargee */
-const _syncQuick = window.__syncRosterQuick;
-window.__syncRosterQuick = function(){
-  if(_syncQuick) _syncQuick();
+/* La liste peut changer pendant qu'on simule — on ajoute une figurine,
+   on change une arme — et l'unite chargee doit suivre. C'est tout ce que
+   ce raccord fait desormais : le mode « une unite entiere » a remplace
+   les pastilles « dans ma liste » qui doublonnaient sous le selecteur
+   d'arme, en montrant l'unite complete au lieu d'une arme a la fois. */
+window.__relitUniteChargee = function(){
   if(atkMode === "unite" && atkUnitId !== null) rechargeUnite();
 };
-/* les unites de la liste ouverte, en acces direct sous le selecteur :
-   on veut mesurer son armee sans passer par une feuille */
-function renderRosterQuick(){
-  const host = el("rosterQuick"); if(!host) return;
-  const r = window.ROSTER && window.ROSTER.actives();
-  host.innerHTML = "";
-  if(!r || !r.unites.length) return;
-  const lbl = document.createElement("span");
-  lbl.className = "lbl";
-  lbl.innerHTML = 'Dans <b>' + r.liste + '</b>';
-  host.appendChild(lbl);
-  const wrap = document.createElement("div");
-  wrap.className = "chips tight";
-  const vus = new Set();
-  r.unites.forEach(x=>{
-    const cle = x.nom + "|" + x.taille + "|" + x.arme;
-    if(vus.has(cle)) return;
-    vus.add(cle);
-    const u = unitRow(x.nom); if(!u) return;
-    const wl = unitWeps(x.nom), w = wl[x.arme] || wl[0];
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "chip" + (x.nom === curUnit && x.taille === curSize && x.arme === curWeapon ? " on" : "");
-    b.innerHTML = x.nom + (x.perso ? "" : " ×" + x.taille) +
-      '<small>' + (w ? w[1] : "—") + '</small>';
-    b.addEventListener("click", ()=>{
-      curUnit = x.nom; curWeapon = x.arme;
-      const tailles = u[6];
-      curSize = tailles.indexOf(x.taille) >= 0 ? x.taille : tailles[tailles.length-1];
-      applyWeapon();
-    });
-    wrap.appendChild(b);
-  });
-  host.appendChild(wrap);
-}
-window.__syncRosterQuick = renderRosterQuick;
 
 /* Plein ecran — la barre d'adresse du navigateur mange une bonne part de
    la hauteur. L'API n'existe pas sur Safari iOS : le bouton n'y apparait
