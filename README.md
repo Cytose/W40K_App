@@ -145,10 +145,18 @@ liste ouverte reste consultable en dessous, en lecture seule.
   l'armurerie de la fiche : l'escouade **et** chaque personnage rattaché, dont
   le nom est porté sous l'arme, options laissées de côté comprises — grisées,
   pour qu'on voie ce qu'on n'a pas pris autant que ce qu'on porte.
-- **Réordonner les unités** — un bouton bascule le pavé en mode réorganisation :
-  chaque case reçoit deux flèches qui la font avancer ou reculer, les cases
-  d'outils et d'ajout s'effacent, et toucher une case ne l'ouvre plus. L'ordre
-  compte : c'est celui que suit le tir cumulé.
+- **Réordonner les unités** — un bouton bascule le pavé en mode réorganisation.
+  On y **attrape une case et on la pose où on veut** : les autres s'écartent
+  en glissant, et le trou s'ouvre du côté de la case survolée dont on est le
+  plus près. Deux flèches restent sur chaque case pour un déplacement d'un
+  cran. Les cases d'outils et d'ajout s'effacent, et toucher une case ne
+  l'ouvre plus. L'ordre compte : c'est celui que suit le tir cumulé.
+
+  Le glissement passe par les **Pointer Events**, pas par l'API drag-and-drop
+  du HTML — celle-ci n'existe pas sur mobile, et c'est au doigt que le pavé se
+  manipule. Le même code sert donc à la souris. Un seuil de 8 px distingue le
+  glissement de l'appui, et le pavé défile tout seul quand le doigt approche
+  d'un bord de l'écran.
 - **Armement par emplacement** — une figurine porte plusieurs armes, et une
   option d'armement peut en donner plusieurs à la fois. `ARMEMENT` décrit
   donc, pour chaque unité, ses armes portées d'office et ses *emplacements*

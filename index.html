@@ -451,9 +451,21 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
   color:var(--glow);font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;line-height:1}
 .tile .tmove button + button{border-left:1px solid var(--line)}
 .tile .tmove button:disabled{color:var(--tx3);opacity:.4}
-.pad.range .tile{cursor:default}
+.pad.range .tile{cursor:grab}
 .pad.range .tile.add{display:none}
 .pad.range .tile .tb{margin-bottom:26px}
+/* la case se prend au doigt : le navigateur ne doit pas interpreter le
+   geste comme un defilement de page */
+.pad.range .tile{touch-action:none;-webkit-user-select:none;user-select:none}
+/* la case attrapee flotte au-dessus des autres et suit le pointeur */
+.pad.range .tile.glisse{cursor:grabbing;z-index:5;opacity:.92;
+  border-color:var(--glow);box-shadow:0 10px 22px rgba(0,0,0,.55);
+  transform-origin:50% 50%}
+.pad.range .tile.glisse:active{background:var(--s1)}
+/* pendant le glissement, les cases qui s'ecartent le font en glissant */
+.pad.range.glissant .tile{transition:transform .16s ease}
+.pad.range.glissant .tile.glisse{transition:none}
+.pad.range.glissant .tile .tmove{opacity:.35}
 
 /* ---------- pave de l'editeur ---------- */
 #pad{margin-top:2px}

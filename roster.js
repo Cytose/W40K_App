@@ -813,6 +813,144 @@ function uniteSuspecte(ru){
 
 let modeRange = false;
 
+/* ==========================================================
+   GLISSER-DEPOSER DU PAVE
+   Les fleches deplacaient d'un cran a la fois : reculer une
+   unite de six rangs demandait six appuis. On attrape la case
+   et on la pose ou on veut.
+
+   Pointer Events plutot que l'API drag-and-drop du HTML : cette
+   derniere n'existe pas sur mobile, et c'est au doigt que le
+   pave se manipule. Le meme code sert donc a la souris.
+   ========================================================== */
+let glisse = null;   /* {el, px, py, bouge, x, y} */
+
+/* la case sous le pointeur, la case attrapee mise a part */
+function caseSous(g, x, y){
+  g.el.style.pointerEvents = "none";
+  const sous = document.elementFromPoint(x, y);
+  g.el.style.pointerEvents = "";
+  const c = sous && sous.closest ? sous.closest(".tile") : null;
+  return (c && c !== g.el && !c.classList.contains("add")
+          && c.parentNode === g.el.parentNode) ? c : null;
+}
+
+function poseGlisse(g){
+  g.el.style.transform = "translate(" + (g.x - g.px) + "px," + (g.y - g.py) + "px)";
+}
+
+/* Reordonner le DOM en cours de route donne le retour visuel — les autres
+   cases s'ecartent — mais deplace aussi la case attrapee dans le flux. On
+   rattrape l'ecart sur l'origine pour qu'elle ne saute pas hors du doigt. */
+function rangeSous(g){
+  const cible = caseSous(g, g.x, g.y);
+  if(!cible) return;
+  /* La moitie de case survolee decide du cote ou le trou s'ouvre — a gauche
+     de la case si le pointeur est sur sa moitie gauche, a droite sinon. Se
+     fier au sens du deplacement donnait un resultat dependant du chemin
+     parcouru : la case atterrissait un cran a cote de la ou on visait. */
+  const rc = cible.getBoundingClientRect();
+  const ref = (g.x > rc.left + rc.width / 2) ? cible.nextSibling : cible;
+  if(ref === g.el || ref === g.el.nextSibling) return;
+
+  const cases = Array.prototype.slice.call(g.el.parentNode.children);
+  const avant = cases.map(c => c.getBoundingClientRect());
+  g.el.parentNode.insertBefore(g.el, ref);
+
+  /* la case attrapee a bouge dans le flux : on decale son origine d'autant
+     pour qu'elle reste exactement sous le doigt */
+  const iEl = cases.indexOf(g.el), rEl = g.el.getBoundingClientRect();
+  g.px += rEl.left - avant[iEl].left;
+  g.py += rEl.top - avant[iEl].top;
+  poseGlisse(g);
+
+  /* les autres cases sautent d'une place : on les repart de leur ancienne
+     position et on les laisse revenir. Sans ca le pave clignote. */
+  cases.forEach((c, i)=>{
+    if(c === g.el) return;
+    const r = c.getBoundingClientRect();
+    const dx = avant[i].left - r.left, dy = avant[i].top - r.top;
+    if(!dx && !dy) return;
+    c.style.transition = "none";
+    c.style.transform = "translate(" + dx + "px," + dy + "px)";
+    void c.offsetWidth;
+    requestAnimationFrame(()=>{ c.style.transition = ""; c.style.transform = ""; });
+  });
+}
+
+/* Le doigt immobile en haut ou en bas de l'ecran ne produit plus d'evenement :
+   le defilement de bord tourne donc sur sa propre boucle. */
+function boucleBord(){
+  if(!glisse || !glisse.bouge) return;
+  const g = glisse, h = window.innerHeight, marge = 90;
+  let d = 0;
+  if(g.y < marge) d = -Math.ceil((marge - g.y) / 6);
+  else if(g.y > h - marge) d = Math.ceil((g.y - (h - marge)) / 6);
+  if(d){
+    const av = window.scrollY;
+    window.scrollBy(0, d);
+    /* la page a defile sous la case : son origine suit */
+    g.py -= window.scrollY - av;
+    poseGlisse(g);
+    rangeSous(g);
+  }
+  requestAnimationFrame(boucleBord);
+}
+
+function finGlisse(){
+  const g = glisse;
+  if(!g) return;
+  glisse = null;
+  g.el.style.transform = "";
+  g.el.classList.remove("glisse");
+  Array.prototype.slice.call(g.el.parentNode ? g.el.parentNode.children : [])
+    .forEach(c => { c.style.transition = ""; c.style.transform = ""; });
+  const pad = el("pad");
+  if(pad) pad.classList.remove("glissant");
+  if(!g.bouge) return;
+  /* l'ordre du DOM fait foi */
+  const rang = {};
+  Array.prototype.slice.call(g.el.parentNode.children).forEach((x, i)=>{
+    if(x.dataset && x.dataset.uid) rang[x.dataset.uid] = i;
+  });
+  R.units.sort((a, b) => (rang[a.id] === undefined ? 1e6 : rang[a.id]) -
+                         (rang[b.id] === undefined ? 1e6 : rang[b.id]));
+  saveR(); renderList();
+}
+
+/* Rend une case attrapable. Le seuil de 8 px distingue un glissement d'un
+   appui : sans lui, le moindre tremblement au moment de toucher une fleche
+   demarrerait un deplacement. */
+function armeGlisse(b){
+  b.addEventListener("pointerdown", e=>{
+    if(!modeRange || glisse) return;
+    if(e.button !== undefined && e.button !== 0) return;
+    if(e.target.closest("button") !== b) return;   /* pas sur les fleches */
+    glisse = { el:b, px:e.clientX, py:e.clientY, x:e.clientX, y:e.clientY, bouge:false };
+    try{ b.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  b.addEventListener("pointermove", e=>{
+    const g = glisse;
+    if(!g || g.el !== b) return;
+    g.x = e.clientX; g.y = e.clientY;
+    if(!g.bouge){
+      if(Math.abs(g.x - g.px) + Math.abs(g.y - g.py) < 8) return;
+      g.bouge = true;
+      b.classList.add("glisse");
+      const pad = el("pad");
+      if(pad) pad.classList.add("glissant");
+      requestAnimationFrame(boucleBord);
+    }
+    e.preventDefault();
+    poseGlisse(g);
+    rangeSous(g);
+  });
+  b.addEventListener("pointerup", finGlisse);
+  b.addEventListener("pointercancel", finGlisse);
+  /* un glissement ne doit pas se terminer en clic sur la case */
+  b.addEventListener("click", e=>{ if(modeRange) e.preventDefault(); });
+}
+
 function renderPad(){
   const gu = el("padUnits"), gt = el("padTools");
   if(!gu || !gt) return;
@@ -821,7 +959,7 @@ function renderPad(){
   if(pad) pad.classList.toggle("range", modeRange);
   const cpt = el("padCount");
   if(cpt) cpt.textContent = modeRange
-    ? "Ordre de la liste — il commande le tir cumulé"
+    ? "Glisse une case à sa place — l'ordre commande le tir cumulé"
     : R.units.length + " unité" + (R.units.length > 1 ? "s" : "");
   const br = el("btnReorder");
   if(br){
@@ -836,6 +974,7 @@ function renderPad(){
     const b = document.createElement("button");
     b.type = "button";
     b.className = "tile" + (uniteSuspecte(ru) ? " warnmark" : "");
+    b.dataset.uid = ru.id;
     const nAtt = ru.chars.length;
     b.innerHTML =
       (estGroupe(ru) && ru.grp ? '<span class="tg">' + ru.grp + '</span>' : '') +
@@ -862,6 +1001,7 @@ function renderPad(){
       mv.appendChild(fl("◀", -1, iu === 0));
       mv.appendChild(fl("▶", 1, iu === R.units.length - 1));
       b.appendChild(mv);
+      armeGlisse(b);
     } else {
       appuiLong(b, ()=> ouvreActionsUnite(ru));
       b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
@@ -3302,6 +3442,7 @@ el("btnBack").addEventListener("click", ()=>{
   if(!el("btnBackPad").hidden) fermePanneau(); else fermeEditeur();
 });
 if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
+  finGlisse();
   modeRange = !modeRange; renderPad();
 });
 el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });

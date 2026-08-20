@@ -717,3 +717,68 @@ au lieu de le laisser resservir la version précédente.
 **Leçon** : le vert d'une suite de tests locale ne dit rien de ce que voit
 l'utilisateur. L'état du déploiement fait partie de la livraison, et je ne
 l'avais jamais vérifié.
+
+---
+
+## 16. Glisser-déposer sur le pavé — 20/08/2026
+
+Les flèches déplaçaient d'un cran à la fois : reculer une unité de six rangs
+demandait six appuis. « Je veux un système de clic and drop pour la
+réorganisation. »
+
+### Pointer Events, pas drag-and-drop
+
+L'API drag-and-drop du HTML (`draggable`, `dragstart`, `dragover`) n'existe pas
+sur mobile — aucun navigateur tactile ne l'implémente. Or c'est au doigt que ce
+pavé se manipule. Le glissement passe donc par les **Pointer Events**, qui
+couvrent doigt, stylet et souris avec le même code.
+
+Trois précautions :
+
+- `touch-action: none` sur les cases en mode réorganisation, sinon le
+  navigateur interprète le geste comme un défilement de page et ne renvoie
+  jamais de `pointermove` ;
+- un seuil de 8 px avant de considérer qu'il s'agit d'un glissement : sans lui,
+  le moindre tremblement au moment de toucher une flèche démarrerait un
+  déplacement ;
+- `setPointerCapture`, pour que le doigt garde la case même s'il sort de sa
+  surface.
+
+### Le trou s'ouvre du bon côté
+
+Première version : le sens du déplacement décidait de l'insertion — avant la
+case survolée si on remontait, après si on descendait. Résultat mesuré, en
+glissant la 6ᵉ case sur la 1ʳᵉ :
+
+```
+attendu : Lokhust | Immortals | Warriors | …
+obtenu  : Immortals | Lokhust | Warriors | …
+```
+
+La case atterrissait un cran à côté de la cible. La cause : le DOM est
+réordonné en continu pendant le trajet, donc « le sens » dépend du chemin
+parcouru, pas de l'endroit visé.
+
+C'est la **moitié de case survolée** qui décide : moitié gauche, le trou
+s'ouvre à gauche ; moitié droite, à droite. Indépendant du chemin, et conforme
+à ce que l'œil attend. Vérifié au doigt sur neuf cases :
+
+| geste | résultat |
+|---|---|
+| 9ᵉ déposée sur la moitié **gauche** de la 2ᵉ | s'insère **avant** la 2ᵉ |
+| 1ʳᵉ déposée sur la moitié **droite** de la 5ᵉ | s'insère **après** la 5ᵉ |
+
+### Les cases s'écartent au lieu de sauter
+
+Réordonner le DOM en cours de route donne le retour visuel, mais fait sauter
+les cases d'un coup. Chaque déplacement mesure donc les positions avant et
+après, repart les voisines de leur ancienne place par une transformation
+inverse, et les laisse revenir en 160 ms. La case attrapée, elle, voit son
+origine décalée d'autant : elle reste exactement sous le doigt au lieu de lui
+échapper à chaque réinsertion.
+
+### Ce qui ne change pas
+
+Les deux flèches restent sur chaque case — un cran précis, sans viser. Un appui
+sans déplacement ne réordonne rien et n'ouvre aucun panneau. Sortir du mode en
+plein glissement le referme proprement, sans laisser de case fantôme.
