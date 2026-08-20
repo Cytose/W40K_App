@@ -114,27 +114,30 @@ liste ouverte reste consultable en dessous, en lecture seule.
   chaque case reçoit deux flèches qui la font avancer ou reculer, les cases
   d'outils et d'ajout s'effacent, et toucher une case ne l'ouvre plus. L'ordre
   compte : c'est celui que suit le tir cumulé.
-- **Arme portée d'office et arme au choix** — une fiche technique distingue
-  ce que *toutes* les figurines portent de ce qui se choisit. Un Immortel a
-  toujours son arme de corps à corps, et choisit entre fusil gauss et
-  carabine tesla ; un Doomsday Ark porte ses trois armes à la fois et ne
-  choisit rien. L'application suit cette distinction : les armes d'office
-  sont listées sans compteur, et seules les armes au choix se répartissent
-  entre les figurines. La classification vient du catalogue BattleScribe —
-  une arme rattachée au modèle, ou commune à toutes ses variantes, est
-  portée d'office ; une arme prise dans un groupe d'options est un choix.
-- **Armement panaché** — cinq fusils gauss et cinq tesla sur dix Immortals :
-  un bandeau annonce combien de figurines ont reçu leur arme au choix et
-  combien restent nues, les compteurs ne laissent pas dépasser l'effectif,
-  et une arme ajoutée sert d'emblée les figurines encore sans arme — ou, si
-  l'escouade est déjà complète, prend une figurine à la ligne la plus
-  fournie. Une répartition incomplète est signalée comme un dépassement
-  l'était déjà, et une unité sans aucune arme au choix n'affiche pas de
-  bandeau du tout.
-- **Changer l'arme d'une ligne** — chaque ligne d'armement porte un bouton
-  d'échange et une croix. L'échange garde le nombre de porteurs et fusionne
-  la ligne si l'arme choisie est déjà servie ailleurs dans l'unité ; il
-  fallait auparavant descendre le compteur à zéro puis rajouter.
+- **Armement par emplacement** — une figurine porte plusieurs armes, et une
+  option d'armement peut en donner plusieurs à la fois. `ARMEMENT` décrit
+  donc, pour chaque unité, ses armes portées d'office et ses *emplacements*
+  de choix, chacun avec ses options :
+
+  | | d'office | emplacements |
+  |---|---|---|
+  | Immortals | arme de corps à corps | fusil gauss \| carabine tesla |
+  | Triarch Praetorians | — | rod of covenant \| particle caster **et** voidblade |
+  | Canoptek Wraiths | — | six combinaisons de griffes/fouet et rayon/projecteur |
+  | Canoptek Spyders | griffes | deux particle beamers (facultatif) |
+  | Doomsday Ark | canon, arrays, éperon | aucun |
+
+  Les armes d'office sont listées sans compteur. Chaque emplacement a son
+  propre bandeau « x / effectif » et affiche **toutes** ses options avec
+  leur compteur — cinq fusils gauss et cinq tesla sur dix Immortals se
+  posent directement, sans passer par une feuille d'ajout. Une figurine
+  seule choisit par un bouton plutôt que par un compteur. Un emplacement
+  facultatif est marqué comme tel et peut rester vide.
+
+  La structure vient du catalogue BattleScribe : une arme rattachée au
+  modèle est d'office, un groupe d'options exclusives devient un
+  emplacement, et plusieurs variantes de modèle deviennent les options d'un
+  même emplacement.
 - **Armes à plusieurs profils** — un bâton de lumière donne un tir *et* une
   frappe, un rayon thermique deux modes de tir. L'application équipe l'arme,
   pas le profil : porter le bâton met ses deux profils à disposition, et le

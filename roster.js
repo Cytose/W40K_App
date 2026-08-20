@@ -66,25 +66,40 @@ function normaliseListe(L){
     if(!ru.grp) ru.grp = nomGroupe();
     if(ru.enh === undefined) ru.enh = null;
     ru.enh = migreEnh(ru.enh);
-    /* les armes portees d'office ne se repartissent plus : on retire les
-       lignes qui leur etaient allouees et on rend leur place aux autres,
-       sans quoi une arme de melee mangeait des figurines a l'armement */
-    const wl0 = unitWeps(ru.name);
-    if(wl0.length){
-      ru.lo = ru.lo.filter(l => wl0[l.w] && !armeDOffice(wl0[l.w]));
-      const choix0 = wl0.map((w, i) => ({w:w, i:i})).filter(x => !armeDOffice(x.w));
-      if(choix0.length){
-        const manque = ru.size - ru.lo.reduce((a, l) => a + l.n, 0);
-        if(manque > 0){
-          if(ru.lo.length) ru.lo[0].n += manque;
-          else ru.lo.push({ w: choix0[0].i, n: ru.size });
-          MIGRE = true;
+    /* l'armement se decrit desormais par emplacement. On convertit
+       l'ancienne repartition, qui ne connaissait que des armes : chaque
+       ligne rejoint la premiere option qui contient son arme. */
+    const slots = armSlots(ru.name);
+    if(ru.lo.some(l => l.s === undefined)){
+      const neuf = [];
+      ru.lo.forEach(l => {
+        if(l.s !== undefined){ neuf.push(l); return; }
+        /* on retient l'option la plus simple qui contient cette arme :
+           une ancienne ligne « griffes » devient l'option griffes seules,
+           pas griffes plus rayon dimensionnel */
+        let vs = -1, vo = -1, taille = 1e9;
+        slots.forEach((sl, si) => sl.o.forEach((o, oi) => {
+          if(o.indexOf(l.w) >= 0 && o.length < taille){ taille = o.length; vs = si; vo = oi; }
+        }));
+        if(vs >= 0){
+          const ex = neuf.find(x => x.s === vs && x.o === vo);
+          if(ex) ex.n += l.n; else neuf.push({s:vs, o:vo, n:l.n});
         }
-      } else if(ru.lo.length){
-        ru.lo = [];
+      });
+      ru.lo = neuf;
+      MIGRE = true;
+    }
+    ru.lo = ru.lo.filter(l => l.n > 0 && slots[l.s] && slots[l.s].o[l.o]);
+    /* un emplacement obligatoire couvre tout l'effectif */
+    slots.forEach((sl, si)=>{
+      if(sl.min < 1) return;
+      const lot = loSlot(ru, si), tot = lot.reduce((a, l) => a + l.n, 0);
+      if(tot < ru.size){
+        if(lot.length) lot[0].n += ru.size - tot;
+        else ru.lo.push({s:si, o:0, n:ru.size});
         MIGRE = true;
       }
-    }
+    });
     if(!ru.id) ru.id = L.nextId++;
   });
   return L;
@@ -157,8 +172,7 @@ window.ROSTER = {
     if(!R) return null;
     const out = [];
     R.units.forEach(ru=>{
-      const dom = ru.lo.slice().sort((a,b)=>b.n-a.n)[0];
-      out.push({ nom: ru.name, taille: ru.size, arme: dom ? dom.w : 0,
+      out.push({ nom: ru.name, taille: ru.size, arme: armePrincipale(ru),
                  groupe: nomAffiche(ru), perso: false });
       ru.chars.forEach(c => out.push({ nom: c.name, taille: 1, arme: c.w|0,
                  groupe: nomAffiche(ru), perso: true }));
@@ -228,22 +242,30 @@ function motsClesGroupe(ru){
 
 const socle = nom => (BASES && BASES[nom]) || "";
 
-/* Comment une arme est portee. Le catalogue distingue l'arme rattachee
-   au modele — toutes les figurines l'ont, elle ne se choisit pas — de
-   l'arme prise dans un groupe d'options. Sans information, on suppose
-   qu'elle est portee d'office : c'est le cas de tous les armements de
-   vehicule et de personnage. */
-const armeDOffice = w => !w || w[10] !== 0;
-const aDesChoix = nom => unitWeps(nom).some(w => !armeDOffice(w));
+/* L'armement d'une unite se lit dans ARMEMENT : des armes portees
+   d'office par chaque figurine, et des emplacements de choix. Une
+   option d'emplacement peut donner plusieurs armes a la fois — un
+   Triarch Praetorian prend soit son rod of covenant, soit le couple
+   voidblade et particle caster — et une unite peut avoir plusieurs
+   emplacements independants. Une unite absente de la table porte
+   toutes ses armes d'office. */
+const armRow   = nom => (typeof ARMEMENT !== "undefined" && ARMEMENT[nom]) || null;
+const armFixes = nom => { const a = armRow(nom); return a ? a.f : unitWeps(nom).map((w, i) => i); };
+const armSlots = nom => { const a = armRow(nom); return a ? a.s : []; };
+const aDesChoix = nom => armSlots(nom).length > 0;
 
-/* combien de figurines portent chaque arme, par indice : une arme
-   d'office est portee par toute l'unite, une arme au choix par ce que
-   la repartition lui donne */
+/* ce que l'unite a retenu dans un emplacement */
+const loSlot = (ru, si) => (ru.lo || []).filter(l => l.s === si);
+const totalSlot = (ru, si) => loSlot(ru, si).reduce((a, l) => a + l.n, 0);
+
+/* combien de figurines portent chaque arme, par indice */
 function portParArme(ru){
-  const wl = unitWeps(ru.name), out = {};
-  wl.forEach((w, i) => { if(armeDOffice(w)) out[i] = ru.size; });
+  const out = {}, slots = armSlots(ru.name);
+  armFixes(ru.name).forEach(i => { out[i] = ru.size; });
   (ru.lo || []).forEach(l => {
-    if(l.n > 0 && wl[l.w] && !armeDOffice(wl[l.w])) out[l.w] = (out[l.w] || 0) + l.n;
+    const s = slots[l.s]; if(!s || l.n <= 0) return;
+    const o = s.o[l.o]; if(!o) return;
+    o.forEach(i => { out[i] = (out[i] || 0) + l.n; });
   });
   return out;
 }
@@ -257,8 +279,34 @@ function portParGroupe(ru){
   });
   return out;
 }
-/* total reparti sur les seules armes au choix */
-const totalChoix = ru => (ru.lo || []).reduce((a, l) => a + l.n, 0);
+/* l'arme la plus portee de l'unite, pour ouvrir le simulateur dessus */
+function armePrincipale(ru){
+  const port = portParArme(ru);
+  let mieux = 0, meilleur = -1;
+  Object.keys(port).forEach(k=>{ if(port[k] > mieux){ mieux = port[k]; meilleur = +k; } });
+  return meilleur < 0 ? 0 : meilleur;
+}
+
+/* armement de depart : la premiere option de chaque emplacement
+   obligatoire, rien dans les emplacements facultatifs */
+function loParDefaut(nom, taille){
+  const out = [];
+  armSlots(nom).forEach((sl, si)=>{ if(sl.min >= 1) out.push({s:si, o:0, n:taille}); });
+  return out;
+}
+
+/* libelle d'une option : les armes qu'elle donne, groupes compris */
+function libelleOption(nom, opt){
+  const wl = unitWeps(nom), vus = {}, bouts = [];
+  opt.forEach(i => {
+    const g = groupeDe(nom, i);
+    const cle = g ? g.base : String(i);
+    if(vus[cle]) return;
+    vus[cle] = 1;
+    bouts.push(g ? g.libelle : (wl[i] ? wl[i][1] : "?"));
+  });
+  return bouts.join(" + ");
+}
 
 /* ameliorations ouvertes par les detachements retenus */
 const enhDispo = () => ENHANCEMENTS.filter(e => R.detach.indexOf(e[2]) >= 0);
@@ -331,13 +379,14 @@ function validate(){
       w.push("<b>" + e + "</b> sur " + nom + " : une escorte Cryptek exige un CRYPTEK dans l'unité, " +
         "or il n'y en a plus.");
     }
-    const tot = totalChoix(ru);
-    if(!aDesChoix(ru.name)){ /* rien a repartir : toutes ses armes sont d'office */ }
-    else if(tot > ru.size)
-      w.push("<b>" + nom + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
-    else if(tot < ru.size)
-      w.push("<b>" + nom + "</b> : " + (ru.size - tot) + " figurine" + (ru.size - tot > 1 ? "s" : "") +
-        " sans arme sur " + ru.size + ".");
+    armSlots(ru.name).forEach((sl, si)=>{
+      const tot = totalSlot(ru, si);
+      if(tot > ru.size)
+        w.push("<b>" + nom + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
+      else if(sl.min >= 1 && tot < ru.size)
+        w.push("<b>" + nom + "</b> : " + (ru.size - tot) + " figurine" + (ru.size - tot > 1 ? "s" : "") +
+          " sans arme sur " + ru.size + ".");
+    });
     ru.chars.forEach(c => {
       if(peutRejoindre(c.name, ru.name) === false)
         w.push("<b>" + c.name + "</b> ne peut pas rejoindre <b>" + ru.name +
@@ -656,7 +705,10 @@ function uniteSuspecte(ru){
   if(ru.enh && !ru.chars.length) return true;
   /* une escouade a moitie equipee est la faute la plus courante :
      elle merite le meme signal que les autres */
-  if(aDesChoix(ru.name) && totalChoix(ru) !== ru.size) return true;
+  if(armSlots(ru.name).some((sl, si)=>{
+       const tot = totalSlot(ru, si);
+       return tot > ru.size || (sl.min >= 1 && tot < ru.size);
+     })) return true;
   return false;
 }
 
@@ -1285,8 +1337,20 @@ function renderRoster(){
         b.textContent = "×" + sz + (u[7][String(sz)] ? " · " + u[7][String(sz)] + " pts" : "");
         b.addEventListener("click", ()=>{
           ru.size = sz;
-          const tot = ru.lo.reduce((a,l)=>a+l.n,0);
-          if(tot > sz && ru.lo.length === 1) ru.lo[0].n = sz;
+          /* chaque emplacement se replie sur le nouvel effectif */
+          armSlots(ru.name).forEach((sl, si)=>{
+            const lot = loSlot(ru, si);
+            let tot = lot.reduce((a, l) => a + l.n, 0);
+            for(let k = lot.length - 1; k >= 0 && tot > sz; k--){
+              const baisse = Math.min(lot[k].n, tot - sz);
+              lot[k].n -= baisse; tot -= baisse;
+            }
+            if(sl.min >= 1 && tot < sz){
+              if(lot.length) lot[0].n += sz - tot;
+              else ru.lo.push({s:si, o:0, n:sz});
+            }
+          });
+          ru.lo = ru.lo.filter(l => l.n > 0);
           saveR(); renderList();
         });
         sc.appendChild(b);
@@ -1300,56 +1364,79 @@ function renderRoster(){
        les ont. Seules les armes au choix se repartissent — cinq fusils
        gauss et cinq tesla sur dix Immortals — et le bandeau ne parle que
        de celles-la. */
-    const wlU = wl;
-    const dOffice = [];
-    grp.forEach(g => { if(g.profils.every(pr => armeDOffice(pr.w))) dOffice.push(g); });
-    dOffice.forEach(g=>{
+    /* Detail d'un lot d'armes, pour la ligne : « tir A2 F5 PA-1 D1 ». */
+    const detailDe = indices => {
+      const vus = {}, bouts = [];
+      indices.forEach(i=>{
+        const g = groupeDe(ru.name, i);
+        const cle = g ? g.base : String(i);
+        if(vus[cle]) return;
+        vus[cle] = 1;
+        (g ? g.profils : (wl[i] ? [{w:wl[i]}] : [])).forEach(pr =>
+          bouts.push((pr.w[2] === "C" ? "càc" : "tir") + " A" + pr.w[3] + " F" + pr.w[5] +
+            " PA" + (pr.w[6] ? "-" + pr.w[6] : "0") + " D" + pr.w[7]));
+      });
+      return bouts.join("  ·  ");
+    };
+
+    /* Les armes portees d'office se listent sans compteur : toutes les
+       figurines les ont, il n'y a rien a decider. */
+    armFixes(ru.name).forEach(i=>{
+      const g = groupeDe(ru.name, i);
+      if(g && g.principal !== i) return;      /* un seul rang par arme */
       const row = document.createElement("div");
       row.className = "lo lo-fixe";
-      const detail = g.profils.map(pr =>
-        (pr.w[2] === "C" ? "càc" : "tir") + " A" + pr.w[3] + " F" + pr.w[5] +
-        " PA" + (pr.w[6] ? "-" + pr.w[6] : "0") + " D" + pr.w[7]).join("  ·  ");
-      row.innerHTML = '<span class="ln">' + g.libelle + ' <em>' + detail + '</em></span>' +
+      row.innerHTML = '<span class="ln">' + (g ? g.libelle : (wl[i] ? wl[i][1] : "?")) +
+        ' <em>' + detailDe([i]) + '</em></span>' +
         '<span class="lofix">' + (ru.size > 1 ? "toutes les figurines" : "d'office") + '</span>';
       div.appendChild(row);
     });
 
-    const choixPossible = aDesChoix(ru.name);
-    const totArmes = () => totalChoix(ru);
-    const reste = ru.size - totArmes();
-    if(choixPossible){
+    /* Un emplacement de choix par bloc. Toutes ses options sont visibles
+       avec leur compteur : une option peut donner plusieurs armes a la
+       fois, et une unite peut avoir plusieurs emplacements independants,
+       ce qu'une repartition unique ne savait pas exprimer. */
+    armSlots(ru.name).forEach((sl, si)=>{
+      const pris = () => totalSlot(ru, si);
+      const reste = ru.size - pris();
       const rep = document.createElement("div");
-      rep.className = "repart" + (reste === 0 ? " ok" : " todo");
-      rep.innerHTML = '<b>' + totArmes() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
-        ' au choix' +
-        (reste > 0 ? ' · <span>' + reste + ' sans arme</span>'
-                   : (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>' : ''));
+      rep.className = "repart" + (reste === 0 ? " ok" : (sl.min >= 1 || reste < 0 ? " todo" : ""));
+      rep.innerHTML = '<b>' + pris() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
+        (sl.min >= 1 ? '' : ' · facultatif') +
+        (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>'
+                   : (sl.min >= 1 && reste > 0 ? ' · <span>' + reste + ' sans arme</span>' : ''));
       div.appendChild(rep);
-    }
 
-    ru.lo.forEach((l, li)=>{
-      const w = wl[l.w]; if(!w) return;
-      const g = groupeDe(ru.name, l.w);
-      const row = document.createElement("div");
-      row.className = "lo";
-      /* l'arme porte parfois plusieurs profils : on les montre tous, c'est
-         ce dont la figurine dispose une fois équipée */
-      const detail = (g ? g.profils : [{w:w}]).map(p =>
-        (p.w[2] === "C" ? "càc" : "tir") + " A" + p.w[3] + " F" + p.w[5] +
-        " PA" + (p.w[6] ? "-" + p.w[6] : "0") + " D" + p.w[7]).join("  ·  ");
-      row.innerHTML = '<span class="ln">' + (g ? g.libelle : w[1]) +
-        ' <em>' + detail + '</em></span>';
-      /* plafond : ce que porte déjà la ligne, plus ce qui reste sans arme */
-      const plafond = () => Math.max(0, l.n + (ru.size - totArmes()));
-      row.appendChild(stepper(()=>l.n, v=>{ l.n = Math.min(v, plafond()); }, 0, ru.size));
-      const sw = document.createElement("button");
-      sw.type="button"; sw.className="xbtn"; sw.textContent="⇄"; sw.title="Changer d'arme";
-      sw.addEventListener("click", ()=> openWeaponPick(ru, li));
-      const rm = document.createElement("button");
-      rm.type="button"; rm.className="xbtn"; rm.textContent="×"; rm.title="Retirer cette arme";
-      rm.addEventListener("click", ()=>{ ru.lo.splice(li,1); saveR(); renderList(); });
-      row.appendChild(sw); row.appendChild(rm);
-      div.appendChild(row);
+      sl.o.forEach((opt, oi)=>{
+        const ligne = () => ru.lo.find(l => l.s === si && l.o === oi);
+        const n = () => { const l = ligne(); return l ? l.n : 0; };
+        const pose = v => {
+          const plafond = Math.max(0, n() + (ru.size - pris()));
+          const val = Math.max(0, Math.min(v, plafond));
+          const l = ligne();
+          if(l){ l.n = val; if(!val) ru.lo.splice(ru.lo.indexOf(l), 1); }
+          else if(val) ru.lo.push({s:si, o:oi, n:val});
+        };
+        const row = document.createElement("div");
+        row.className = "lo" + (n() ? " lo-on" : "");
+        row.innerHTML = '<span class="ln">' + libelleOption(ru.name, opt) +
+          ' <em>' + detailDe(opt) + '</em></span>';
+        if(ru.size === 1 && sl.min >= 1){
+          /* une figurine seule ne repartit rien : elle choisit */
+          const b = document.createElement("button");
+          b.type = "button"; b.className = "chip" + (n() ? " on" : "");
+          b.textContent = n() ? "prise" : "prendre";
+          b.addEventListener("click", ()=>{
+            ru.lo = ru.lo.filter(l => l.s !== si);
+            ru.lo.push({s:si, o:oi, n:1});
+            saveR(); renderList();
+          });
+          row.appendChild(b);
+        } else {
+          row.appendChild(stepper(n, pose, 0, ru.size));
+        }
+        div.appendChild(row);
+      });
     });
 
     ru.chars.forEach((c, ci)=>{
@@ -1439,9 +1526,7 @@ function renderRoster(){
     add.className = "addrow";
     const bw = document.createElement("button");
     bw.type="button"; bw.textContent="+ Arme";
-    bw.disabled = !aDesChoix(ru.name);
-    if(bw.disabled) bw.title = "Toutes les armes de cette unité sont portées d'office.";
-    bw.addEventListener("click", ()=> openWeaponPick(ru));
+    bw.hidden = true;   /* les options s'affichent toutes, il n'y a plus rien a ajouter */
     const bc = document.createElement("button");
     bc.type="button"; bc.textContent="+ Personnage";
     bc.addEventListener("click", ()=> openCharPick(ru));
@@ -1890,12 +1975,6 @@ function openUnitPick(){
   derniereAjoutee = null; ajoutees = 0;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
-let pickSlot = null;      /* index dans ru.lo quand on remplace une arme */
-function openWeaponPick(ru, slot){
-  window.__rosterPick = true; pickMode = "weapon"; pickTarget = ru;
-  pickSlot = (slot === undefined) ? null : slot;
-  el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
-}
 function openCmpPick(src){
   window.__rosterPick = true; pickMode = "cmp:" + src; pickTarget = null;
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
@@ -1914,73 +1993,6 @@ function renderPick(){
   const host = el("uList"); host.innerHTML = "";
   const head = el("sheetUnit").querySelector("h3");
 
-  if(pickMode === "weapon"){
-    const remplace = pickSlot !== null && pickTarget.lo[pickSlot];
-    head.textContent = remplace
-      ? "Remplacer l'arme — " + pickTarget.name
-      : "Ajouter une arme — " + pickTarget.name;
-    /* on équipe une arme, pas un profil : proposer « Rod of covenant (tir) »
-       et « (càc) » séparément laissait croire qu'on peut prendre l'un sans
-       l'autre, alors que le bâton donne les deux */
-    groupesArmes(pickTarget.name).forEach(g=>{
-      /* une arme portee d'office n'est pas un choix : la proposer laisserait
-         croire qu'on peut s'en passer */
-      if(g.profils.every(pr => armeDOffice(pr.w))) return;
-      if(q && !norm(g.libelle).includes(q)) return;
-      const b = document.createElement("button");
-      b.type="button"; b.className="opt";
-      const detail = g.profils.map(p =>
-        (p.w[2] === "C" ? "càc" : "tir") + " A" + p.w[3] + " " + p.w[4] + "+ F" + p.w[5] +
-        " PA" + (p.w[6] ? "-" + p.w[6] : "0") + " D" + p.w[7]).join("  ·  ");
-      b.innerHTML = '<span class="oi"><span class="o1">' + g.libelle + '</span>' +
-        '<span class="o2">' + detail + '</span></span>' +
-        (g.profils.length > 1 ? '<span class="otag">' + g.profils.length + ' PROFILS</span>' : '');
-      /* la case déjà servie par cette arme se marque, on ne la propose pas
-         comme remplacement d'elle-même */
-      const actuelle = remplace &&
-        groupeDe(pickTarget.name, pickTarget.lo[pickSlot].w) &&
-        groupeDe(pickTarget.name, pickTarget.lo[pickSlot].w).base === g.base;
-      if(actuelle) b.classList.add("sel");
-      b.addEventListener("click", ()=>{
-        if(remplace){
-          /* on garde le nombre de porteurs : c'est un échange d'arme, pas
-             une nouvelle ligne */
-          const n = pickTarget.lo[pickSlot].n;
-          const autre = pickTarget.lo.findIndex((l, i) => i !== pickSlot &&
-            groupeDe(pickTarget.name, l.w) && groupeDe(pickTarget.name, l.w).base === g.base);
-          if(autre >= 0){
-            /* l'arme choisie est déjà servie ailleurs : on fusionne */
-            pickTarget.lo[autre].n = Math.min(pickTarget.size, pickTarget.lo[autre].n + n);
-            pickTarget.lo.splice(pickSlot, 1);
-          } else {
-            pickTarget.lo[pickSlot] = { w: g.principal, n: n };
-          }
-        } else {
-          /* on sert d'abord les figurines encore sans arme : ajouter une
-             seconde arme à une escouade complète n'aurait aucun sens */
-          const tot = pickTarget.lo.reduce((a, x) => a + x.n, 0);
-          let libre = Math.max(0, pickTarget.size - tot);
-          const ex = pickTarget.lo.find(l => groupeDe(pickTarget.name, l.w) &&
-                                             groupeDe(pickTarget.name, l.w).base === g.base);
-          if(!libre && !ex){
-            /* l'escouade est deja entierement equipee : la nouvelle arme
-               prend une figurine a la ligne la plus fournie, sinon on
-               deborderait de l'effectif */
-            const gros = pickTarget.lo.slice().sort((a, b) => b.n - a.n)[0];
-            if(gros && gros.n > 0){ gros.n -= 1; libre = 1; }
-          }
-          if(ex) ex.n = Math.min(pickTarget.size, ex.n + Math.max(1, libre));
-          else pickTarget.lo.push({w:g.principal, n: Math.max(1, libre)});
-          pickTarget.lo = pickTarget.lo.filter(l => l.n > 0);
-        }
-        pickSlot = null;
-        closeSheet("sheetUnit"); saveR(); renderList();
-      });
-      host.appendChild(b);
-    });
-    if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune arme trouvée.</div>';
-    return;
-  }
   if(pickMode === "char"){
     head.textContent = "Rattacher à " + pickTarget.name;
     const cible = pickTarget.name;
@@ -2058,7 +2070,7 @@ function renderPick(){
     const fromRoster = pickMode === "cmp:roster";
     head.textContent = fromRoster ? "Comparer — depuis ma liste" : "Comparer — catalogue";
     const src = fromRoster
-      ? R.units.map(ru => ({name:ru.name, size:ru.size, w:(ru.lo[0]||{w:0}).w}))
+      ? R.units.map(ru => ({name:ru.name, size:ru.size, w:armePrincipale(ru)}))
       : UNITS.map(u => ({name:u[0], size:u[6][u[6].length-1], w:0}));
     const seen = new Set();
     src.filter(c => !q || norm(c.name).includes(q)).forEach(c=>{
@@ -2105,10 +2117,7 @@ function renderPick(){
       ' · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
       (u[10] ? '<span class="otag">LEGENDS</span>' : (u[9] ? '<span class="otag">' + u[9].toUpperCase() + '</span>' : ""));
     b.addEventListener("click", ()=>{
-      const wl = unitWeps(u[0]);
-      let di = wl.findIndex(w => w[2] === "T");
-      if(di < 0) di = 0;
-      const neuve = {id:nextId++, name:u[0], size:sz, lo:[{w:di, n:sz}], chars:[], sel:true,
+      const neuve = {id:nextId++, name:u[0], size:sz, lo:loParDefaut(u[0], sz), chars:[], sel:true,
         grp:nomGroupe(), enh:null};
       R.units.push(neuve);
       saveR(); renderList();
@@ -2923,10 +2932,8 @@ function importeRos(txt){
     const u = t.u;
     /* la taille du .ros ne se lit pas de facon fiable : on prend la plus
        petite compatible et on laisse regler a la main */
-    const wl = unitWeps(u[0]);
-    let di = wl.findIndex(w => w[2] === "T"); if(di < 0) di = 0;
     const sz = u[6][0];
-    L.units.push({ id: L.nextId++, name: u[0], size: sz, lo:[{w:di, n:sz}],
+    L.units.push({ id: L.nextId++, name: u[0], size: sz, lo:loParDefaut(u[0], sz),
       chars: [], sel: true, grp: "", enh: null });
   });
   normaliseListe(L);
@@ -3207,7 +3214,7 @@ document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
       toast(ajoutees + " unité" + (ajoutees > 1 ? "s ajoutées" : " ajoutée") + " à la liste.",
         ajoutees === 1 ? "Régler" : "", ajoutees === 1 ? ()=> ouvrePanneau("cardUnits", id) : null);
     }
-    pickMode = null; pickSlot = null; ajoutees = 0;
+    pickMode = null; ajoutees = 0;
     const bar = el("uBudget"); if(bar) bar.hidden = true;
   }));
 

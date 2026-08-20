@@ -408,3 +408,64 @@ Kévin a proposé `wahapedia.ru/wh40k11ed/factions/necrons/`. Le proxy réseau d
 l'environnement d'exécution bloque ce domaine : la page est inatteignable
 d'ici. Le contournement est celui des PDF — déposer la page enregistrée dans
 la conversation.
+
+## 11. L'armement par emplacement — 20/08/2026
+
+Kévin, après le chantier 10 : « tu n'es toujours pas bon avec les armes de
+corps à corps. Un Immortel, il a son fusil et il peut taper au corps à corps,
+donc il a les deux profils. La limite qui fait que je ne peux pas avoir plus
+d'armes que de figurines, ça bloque. Il faudrait que ce soit par type de
+profil — et encore, ça ne marchera même pas, parce qu'il y a des unités qui
+ont plusieurs profils de tir. »
+
+Il a raison sur les deux points, et le second condamne la rustine.
+
+### Ce qui restait faux
+
+Le chantier 10 avait sorti les armes d'office de la répartition, mais gardait
+un défaut de fond : **une seule réserve d'armes au choix par unité**, et une
+option d'armement réduite à une seule arme. Deux cas restaient impossibles :
+
+- **Triarch Praetorians.** L'option n'est pas « particle caster » ni
+  « voidblade » : c'est *le couple*. Cinq praetorians auraient demandé dix
+  allocations pour cinq figurines.
+- **Canoptek Wraiths.** Un choix de mêlée — griffes ou fouets — *et* un choix
+  de tir facultatif. Deux emplacements indépendants qui se disputaient la
+  même réserve.
+
+### Le modèle
+
+Le catalogue décrit exactement la bonne structure. Une nouvelle table
+`ARMEMENT` la reprend :
+
+- `f` : les armes portées d'office par chaque figurine ;
+- `s` : les emplacements de choix, chacun avec son `min` — 1 si chaque
+  figurine doit prendre une option, 0 si l'emplacement est facultatif — et
+  ses options, une option pouvant donner **plusieurs** armes.
+
+Deux formes du catalogue s'y ramènent : un `selectionEntryGroup` exclusif
+devient un emplacement, et plusieurs variantes de modèle deviennent les
+options d'un même emplacement. Les cinquante unités sont couvertes, dont
+seize avec au moins un emplacement de choix.
+
+`ru.lo` passe de `[{arme, nombre}]` à `[{emplacement, option, nombre}]`. Les
+listes enregistrées sont converties au chargement : chaque ancienne ligne
+rejoint **l'option la plus simple** qui contient son arme, pour qu'une ligne
+« griffes » ne devienne pas « griffes plus rayon dimensionnel ».
+
+### L'éditeur
+
+Toutes les options d'un emplacement sont visibles avec leur compteur. Il n'y
+a plus de bouton « + Arme », plus de bouton d'échange, plus de feuille de
+choix d'arme : cent cinquante lignes de code en moins, et un panachage se
+pose directement. Une figurine seule choisit par un bouton plutôt que par un
+compteur. Chaque emplacement a son propre bandeau « x / effectif ».
+
+Le champ `port` ajouté à `WEAPONS` au chantier 10 devient redondant et
+disparaît : `ARMEMENT` est la seule source.
+
+### Ce qui reste hors du modèle
+
+La limite « une seule figurine peut prendre cette option » — l'isolateur
+transdimensionnel des Arpenteurs Sépulcraux, par exemple — n'est pas
+exprimée : l'emplacement accepte n'importe quelle répartition sur l'effectif.

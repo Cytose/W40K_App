@@ -61,155 +61,216 @@ const UNITS = [
 ["Szarekh, The Silent King",8,10,2,4,16,[3],{"3":420},0,"",0,"Epic Hero. Unité = Szarekh (16 PV) + 2 Menhirs (E10 Svg2+ Invu4+ 5 PV). Dégradé à 1-6 PV.",6,"6+"]
 ];
 
-/* WEAPONS : [unite, arme, "T"|"C", A par figurine, CT/CC, F, PA, D, drapeaux, portee, port]
+/* ============================================================
+   ARMEMENT : comment se compose l'equipement d'une unite.
+   Les indices renvoient aux lignes de WEAPONS de cette unite,
+   dans l'ordre du tableau.
+     f : armes portees d'office par chaque figurine.
+     s : emplacements de choix. Chaque emplacement a un min
+         (1 = chaque figurine doit prendre une option, 0 = le
+         choix est facultatif) et une liste d'options ; une
+         option donne une ou plusieurs armes a la fois.
+   Extrait du catalogue BattleScribe : une arme rattachee au
+   modele est d'office, un selectionEntryGroup exclusif devient
+   un emplacement, et plusieurs variantes de modele deviennent
+   les options d'un meme emplacement. Une unite absente de cette
+   table porte toutes ses armes d'office.
+   ============================================================ */
+const ARMEMENT = {
+ "Convergence of Dominion" : { f:[0], s:[] }, /* d'office : Transdimensional abductor */
+ "Necron Warriors" : { f:[2], s:[{min:1, o:[[0],[1]]}] }, /* d'office : Close combat weapon */
+ "Immortals" : { f:[2], s:[{min:1, o:[[0],[1]]}] }, /* d'office : Close combat weapon */
+ "Lychguard" : { f:[], s:[{min:1, o:[[1],[0]]}] }, /* aucune arme d'office */
+ "Deathmarks" : { f:[0,1], s:[] }, /* d'office : Synaptic disintegrator, Close combat weapon */
+ "Flayed Ones" : { f:[0], s:[] }, /* d'office : Flayer claws */
+ "Triarch Praetorians" : { f:[], s:[{min:1, o:[[0,1],[2,3]]}] }, /* aucune arme d'office */
+ "Cryptothralls" : { f:[0,1], s:[] }, /* d'office : Scouring eye, Scythed limbs */
+ "Skorpekh Destroyers" : { f:[0], s:[] }, /* d'office : Skorpekh hyperphase weapons */
+ "Ophydian Destroyers" : { f:[0], s:[] }, /* d'office : Ophydian hyperphase weapons */
+ "Lokhust Destroyers" : { f:[0,1], s:[] }, /* d'office : Gauss cannon, Close combat weapon */
+ "Lokhust Heavy Destroyers" : { f:[2], s:[{min:1, o:[[1],[0]]}] }, /* d'office : Close combat weapon */
+ "Tomb Blades" : { f:[3], s:[{min:1, o:[[0],[2],[1]]}] }, /* d'office : Close combat weapon */
+ "Canoptek Scarab Swarms" : { f:[0], s:[] }, /* d'office : Feeder mandibles */
+ "Canoptek Wraiths" : { f:[], s:[{min:1, o:[[0,2],[0,3],[0],[1],[2,1],[3,1]]}] }, /* aucune arme d'office */
+ "Canoptek Spyders" : { f:[1], s:[{min:0, o:[[0]]}] }, /* d'office : Automaton claws */
+ "Canoptek Reanimator" : { f:[0,1], s:[] }, /* d'office : Atomiser beam ×2, Reanimator's claws */
+ "Canoptek Doomstalker" : { f:[0,2,1], s:[] }, /* d'office : Doomsday blaster, Doomstalker limbs, Twin gauss flayer */
+ "Canoptek Macrocytes" : { f:[3], s:[{min:1, o:[[2],[1],[0]]}] }, /* d'office : Claws */
+ "Canoptek Tomb Crawlers" : { f:[2], s:[{min:1, o:[[0],[1]]}] }, /* d'office : Claws */
+ "Triarch Stalker" : { f:[4], s:[{min:1, o:[[2,3],[1],[0]]}] }, /* d'office : Stalker's forelimbs */
+ "Doomsday Ark" : { f:[0,1,2], s:[] }, /* d'office : Doomsday cannon, Gauss flayer array ×2, Armoured bulk */
+ "Ghost Ark" : { f:[0,1], s:[] }, /* d'office : Gauss flayer array ×2, Armoured bulk */
+ "Annihilation Barge" : { f:[0,3], s:[{min:1, o:[[1],[2]]}] }, /* d'office : Twin tesla destructor, Armoured bulk */
+ "Monolith" : { f:[2,3], s:[{min:1, o:[[1],[0]]}] }, /* d'office : Particle whip, Portal of exile */
+ "Obelisk" : { f:[1,0], s:[] }, /* d'office : Armoured bulk, Tesla sphere ×4 */
+ "Tesseract Vault" : { f:[4,0,1,2,3], s:[] }, /* d'office : Armoured bulk, Tesla spheres ×4, Antimatter Meteor (C'tan), Cosmic Fire (C'tan), Time's Arrow (C'tan) */
+ "Doom Scythe" : { f:[0,1,2], s:[] }, /* d'office : Heavy death ray, Twin tesla destructor, Armoured bulk */
+ "Night Scythe" : { f:[0,1], s:[] }, /* d'office : Twin tesla destructor, Armoured bulk */
+ "Overlord" : { f:[], s:[{min:1, o:[[2,0],[3],[1,4]]}] }, /* aucune arme d'office */
+ "Royal Warden" : { f:[1,0], s:[] }, /* d'office : Close combat weapon, Relic gauss blaster */
+ "Lokhust Lord" : { f:[], s:[{min:1, o:[[1],[0,2]]}] }, /* aucune arme d'office */
+ "Skorpekh Lord" : { f:[0,2,1], s:[] }, /* d'office : Enmitic annihilator, Flensing claw, Hyperphase harvester */
+ "Hexmark Destroyer" : { f:[1,0], s:[] }, /* d'office : Close combat weapon, Enmitic disintegrator pistols */
+ "Technomancer" : { f:[0,1], s:[] }, /* d'office : Staff of light (tir), Staff of light (càc) */
+ "Plasmancer" : { f:[0,1], s:[] }, /* d'office : Plasmic lance (tir), Plasmic lance (càc) */
+ "Chronomancer" : { f:[0,1], s:[] }, /* d'office : Aeonstave blast, Aeonstave */
+ "Psychomancer" : { f:[0,1], s:[] }, /* d'office : Abyssal lance (tir), Abyssal lance (càc) */
+ "Geomancer" : { f:[0,1,2], s:[] }, /* d'office : Sismolance — faisceau réverbérant, Sismolance — ondes de choc, Sismolance (càc) */
+ "Catacomb Command Barge" : { f:[], s:[{min:1, o:[[0],[1]]}, {min:1, o:[[2,4],[3]]}] }, /* aucune arme d'office */
+ "C'tan Shard of the Nightbringer" : { f:[0,1,2], s:[] }, /* d'office : Gaze of death, Scythe — strike, Scythe — sweep */
+ "C'tan Shard of the Deceiver" : { f:[0,1], s:[] }, /* d'office : Cosmic insanity, Golden fists */
+ "C'tan Shard of the Void Dragon" : { f:[0,1,4,2,3], s:[] }, /* d'office : Spear of the Void Dragon (tir), Voltaic storm, Canoptek tail blades, Spear — strike, Spear — sweep */
+ "Transcendent C'tan" : { f:[1,0], s:[] }, /* d'office : Crackling tendrils, Seismic assault */
+ "Imotekh the Stormlord" : { f:[1,0,2], s:[] }, /* d'office : Gauntlet of Fire, Staff of the Destroyer (tir), Staff of the Destroyer (càc) */
+ "Trazyn the Infinite" : { f:[0], s:[] }, /* d'office : Empathic Obliterator */
+ "Orikan the Diviner" : { f:[0], s:[] }, /* d'office : Staff of Tomorrow */
+ "Illuminor Szeras" : { f:[0,1,2], s:[] }, /* d'office : Eldritch lance (tir), Eldritch lance (càc), Impaling legs */
+ "Nekrosor Ammentar" : { f:[2,0,1], s:[] }, /* d'office : Blade tail and whip coils, Enmitic disintegrators, Unmaker Gauntlet */
+ "Szarekh, The Silent King" : { f:[0,1,2,3], s:[] } /* d'office : Sceptre of Eternal Glory, Staff of Stars, Annihilator beam (×2 menhirs), Weapons of the Final Triarch */
+};
+
+/* WEAPONS : [unite, arme, "T"|"C", A par figurine, CT/CC, F, PA, D, drapeaux, portee]
    La portee vient du catalogue BattleScribe ; "càc" pour le corps a corps,
    vide quand le catalogue ne connait pas l'arme.
-   « port » dit comment l'arme est portee :
-     1 = toutes les figurines de l'unite l'ont, elle ne se choisit pas ;
-     0 = elle se repartit entre les figurines, en concurrence avec les
-         autres armes a 0 de la meme unite.
-   Extrait du catalogue : une arme rattachee directement au modele, ou
-   commune a toutes ses variantes, vaut 1 ; une arme prise dans un groupe
-   d'options exclusives vaut 0. Les armes que le catalogue ignore valent 1,
-   ce sont toutes des armes d'office (eperon blindes, pouvoirs C'tan,
-   sismolance du Geomancien, armement de Szarekh). */
+   Comment l'arme est portee — d'office ou au choix — se lit dans
+   ARMEMENT, plus haut. */
 const WEAPONS = [
-["Convergence of Dominion","Transdimensional abductor","T","3",4,6,2,"3","","18\"",1],
-["Necron Warriors","Gauss flayer","T","1",4,4,0,"1","lethal rf:1","24\"",0],
-["Necron Warriors","Gauss reaper","T","2",4,4,1,"1","lethal","12\"",0],
-["Necron Warriors","Close combat weapon","C","1",4,4,0,"1","","càc",1],
-["Immortals","Gauss blaster","T","2",3,5,1,"1","lethal","24\"",0],
-["Immortals","Tesla carbine","T","2",3,5,0,"1","sust:2 assault","24\"",0],
-["Immortals","Close combat weapon","C","2",3,4,0,"1","","càc",1],
-["Lychguard","Hyperphase sword","C","3",3,6,2,"1","","càc",0],
-["Lychguard","Warscythe","C","2",3,8,3,"2","dev","càc",0],
-["Deathmarks","Synaptic disintegrator","T","1",3,5,2,"2","heavy precision","36\"",1],
-["Deathmarks","Close combat weapon","C","2",3,4,0,"1","","càc",1],
-["Flayed Ones","Flayer claws","C","4",3,4,1,"1","sust:1 twin","càc",1],
-["Triarch Praetorians","Rod of covenant (tir)","T","1",3,5,2,"2","","càc",0],
-["Triarch Praetorians","Rod of covenant (càc)","C","3",3,5,2,"2","","càc",0],
-["Triarch Praetorians","Particle caster","T","3",3,5,0,"1","dev","12\"",0],
-["Triarch Praetorians","Voidblade","C","4",3,5,2,"1","","càc",0],
-["Cryptothralls","Scouring eye","T","2",4,5,1,"1","","6\"",1],
-["Cryptothralls","Scythed limbs","C","4",4,5,1,"1","","càc",1],
-["Skorpekh Destroyers","Skorpekh hyperphase weapons","C","4",3,7,2,"2","","càc",1],
-["Ophydian Destroyers","Ophydian hyperphase weapons","C","5",3,4,2,"2","","càc",1],
-["Lokhust Destroyers","Gauss cannon","T","3",3,5,2,"2","lethal","24\"",1],
-["Lokhust Destroyers","Close combat weapon","C","2",3,4,0,"1","","càc",1],
-["Lokhust Heavy Destroyers","Gauss destructor","T","1",3,14,4,"6","heavy lethal","48\"",0],
-["Lokhust Heavy Destroyers","Enmitic exterminator","T","6",3,6,1,"1","heavy rf:6 sust:1","36\"",0],
-["Lokhust Heavy Destroyers","Close combat weapon","C","2",3,4,0,"1","","càc",1],
-["Tomb Blades","Twin gauss blaster","T","2",3,5,1,"1","lethal twin","24\"",0],
-["Tomb Blades","Twin tesla carbine","T","2",3,5,0,"1","assault sust:2 twin","24\"",0],
-["Tomb Blades","Particle beamer","T","D6",3,5,0,"1","blast dev","18\"",0],
-["Tomb Blades","Close combat weapon","C","1",4,4,0,"1","","càc",1],
-["Canoptek Scarab Swarms","Feeder mandibles","C","6",5,2,0,"1","lethal","càc",1],
-["Canoptek Wraiths","Vicious claws","C","4",4,6,1,"2","","càc",0],
-["Canoptek Wraiths","Whip coils","C","8",4,5,0,"1","","càc",0],
-["Canoptek Wraiths","Transdimensional beamer","T","1",4,4,2,"3","","12\"",0],
-["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev","12\"",0],
-["Canoptek Spyders","Particle beamer ×2","T","2D6",3,6,0,"1","blast dev","18\"",0],
-["Canoptek Spyders","Automaton claws","C","5",4,8,2,"2","","càc",1],
-["Canoptek Reanimator","Atomiser beam ×2","T","6",4,6,2,"1","","12\"",1],
-["Canoptek Reanimator","Reanimator's claws","C","4",4,5,0,"1","","càc",1],
-["Canoptek Doomstalker","Doomsday blaster","T","D6+1",4,14,3,"3","blast heavy","48\"",1],
-["Canoptek Doomstalker","Twin gauss flayer","T","1",4,4,0,"1","lethal rf:1 twin","24\"",1],
-["Canoptek Doomstalker","Doomstalker limbs","C","3",4,6,0,"1","","càc",1],
-["Canoptek Macrocytes","Gauss scalpel","T","1",4,4,1,"1","lethal","18\"",0],
-["Canoptek Macrocytes","Tesla caster","T","1",4,5,0,"1","assault sust:1","18\"",0],
-["Canoptek Macrocytes","Atomiser beam","T","1",4,6,1,"1","","12\"",0],
-["Canoptek Macrocytes","Claws","C","2",4,4,1,"1","","càc",1],
-["Canoptek Tomb Crawlers","Twin gauss reaper","T","2",4,4,1,"1","lethal twin","12\"",0],
-["Canoptek Tomb Crawlers","Transdimensional isolator","T","2",4,4,2,"2","","12\"",0],
-["Canoptek Tomb Crawlers","Claws","C","4",4,6,1,"1","","càc",1],
-["Triarch Stalker","Heavy gauss cannon array","T","6",3,8,2,"2","lethal","24\"",0],
-["Triarch Stalker","Particle shredder","T","D6+6",2,7,0,"1","blast dev","18\"",0],
-["Triarch Stalker","Heat ray — focalisé","T","2",3,9,4,"D6","melta:4","18\"",0],
-["Triarch Stalker","Heat ray — dispersé","T","2D6",4,5,1,"1","torrent ignorescover","12\"",0],
-["Triarch Stalker","Stalker's forelimbs","C","4",3,7,1,"3","","càc",1],
-["Doomsday Ark","Doomsday cannon","T","D6+1",3,18,4,"4","blast heavy","72\"",1],
-["Doomsday Ark","Gauss flayer array ×2","T","10",3,4,0,"1","lethal rf:10","24\"",1],
-["Doomsday Ark","Armoured bulk","C","3",4,6,0,"1","","càc",1],
-["Ghost Ark","Gauss flayer array ×2","T","10",3,4,0,"1","lethal rf:10","24\"",1],
-["Ghost Ark","Armoured bulk","C","3",4,6,0,"1","","càc",1],
-["Annihilation Barge","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\"",1],
-["Annihilation Barge","Gauss cannon","T","3",3,5,2,"2","lethal","24\"",0],
-["Annihilation Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\"",0],
-["Annihilation Barge","Armoured bulk","C","3",4,6,0,"1","","càc",1],
-["Monolith","Gauss flux arc ×4","T","12",3,6,1,"1","lethal rf:12","24\"",0],
-["Monolith","Death ray ×4","T","4",3,12,4,"D6+1","sust:D3","24\"",0],
-["Monolith","Particle whip","T","3D6",3,8,1,"2","blast dev","24\"",1],
-["Monolith","Portal of exile","C","6",2,8,2,"3","","càc",1],
-["Obelisk","Tesla sphere ×4","T","24",3,7,0,"1","sust:2 anti:4","24\"",1],
-["Obelisk","Armoured bulk","C","6",4,8,0,"1","","càc",1],
-["Tesseract Vault","Tesla spheres ×4","T","24",3,7,0,"1","sust:2","24\"",1],
-["Tesseract Vault","Antimatter Meteor (C'tan)","T","D6+3",3,10,3,"3","blast dev indirect","24\"",1],
-["Tesseract Vault","Cosmic Fire (C'tan)","T","3D6",4,6,2,"1","torrent dev ignorescover","18\"",1],
-["Tesseract Vault","Time's Arrow (C'tan)","T","1",2,3,2,"6","dev precision anti:4","24\"",1],
-["Tesseract Vault","Armoured bulk","C","6",4,8,0,"1","","càc",1],
-["Doom Scythe","Heavy death ray","T","3",3,16,4,"D6+1","sust:D3","36\"",1],
-["Doom Scythe","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\"",1],
-["Doom Scythe","Armoured bulk","C","3",4,6,0,"1","","càc",1],
-["Night Scythe","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\"",1],
-["Night Scythe","Armoured bulk","C","3",4,6,0,"1","","càc",1],
-["Overlord","Tachyon arrow","T","1",2,16,5,"D6+2","oneshot","72\"",0],
-["Overlord","Staff of light (tir)","T","3",2,5,2,"1","","18\"",0],
-["Overlord","Overlord's blade","C","4",2,8,3,"2","dev","càc",0],
-["Overlord","Voidscythe","C","3",3,12,3,"3","dev","càc",0],
-["Overlord","Staff of light (càc)","C","4",2,5,2,"1","","18\"",0],
-["Royal Warden","Relic gauss blaster","T","2",3,5,1,"2","lethal rf:2","24\"",1],
-["Royal Warden","Close combat weapon","C","4",3,5,0,"1","","càc",1],
-["Lokhust Lord","Staff of light (tir)","T","3",2,5,2,"1","","18\"",0],
-["Lokhust Lord","Lord's blade","C","4",2,8,3,"2","dev","càc",0],
-["Lokhust Lord","Staff of light (càc)","C","4",2,5,2,"1","","18\"",0],
-["Skorpekh Lord","Enmitic annihilator","T","2",2,6,1,"1","rf:2","18\"",1],
-["Skorpekh Lord","Hyperphase harvester","C","4",2,10,3,"3","","càc",1],
-["Skorpekh Lord","Flensing claw","C","8",2,6,1,"1","","càc",1],
-["Hexmark Destroyer","Enmitic disintegrator pistols","T","6",2,6,2,"1","ignorescover pistol","18\"",1],
-["Hexmark Destroyer","Close combat weapon","C","4",3,5,0,"1","","càc",1],
-["Technomancer","Staff of light (tir)","T","3",4,5,2,"1","","18\"",1],
-["Technomancer","Staff of light (càc)","C","2",4,5,2,"1","","18\"",1],
-["Plasmancer","Plasmic lance (tir)","T","3",4,7,3,"2","","18\"",1],
-["Plasmancer","Plasmic lance (càc)","C","2",4,7,3,"2","","18\"",1],
-["Chronomancer","Aeonstave blast","T","D6",4,5,1,"1","","",1],
-["Chronomancer","Aeonstave","C","3",4,5,1,"1","","càc",1],
-["Psychomancer","Abyssal lance (tir)","T","1",4,6,3,"3","","18\"",1],
-["Psychomancer","Abyssal lance (càc)","C","1",4,6,3,"3","","18\"",1],
-["Geomancer","Sismolance — faisceau réverbérant","T","2",4,8,2,"2","melta:2","18\"",1],
-["Geomancer","Sismolance — ondes de choc","T","D6+2",4,4,0,"1","torrent ignorescover","18\"",1],
-["Geomancer","Sismolance (càc)","C","2",4,8,2,"2","","càc",1],
-["Catacomb Command Barge","Gauss cannon","T","3",3,5,2,"2","lethal","24\"",0],
-["Catacomb Command Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\"",0],
-["Catacomb Command Barge","Staff of light (tir)","T","3",2,5,2,"1","","18\"",0],
-["Catacomb Command Barge","Overlord's blade","C","4",2,8,3,"2","dev","càc",1],
-["Catacomb Command Barge","Staff of light (càc)","C","4",3,5,2,"1","","18\"",0],
-["C'tan Shard of the Nightbringer","Gaze of death","T","D3",2,12,3,"D6+3","","18\"",1],
-["C'tan Shard of the Nightbringer","Scythe — strike","C","6",2,14,4,"D6+2","dev","càc",1],
-["C'tan Shard of the Nightbringer","Scythe — sweep","C","14",2,8,2,"2","","càc",1],
-["C'tan Shard of the Deceiver","Cosmic insanity","T","6",2,6,2,"2","dev precision anti:4","18\"",1],
-["C'tan Shard of the Deceiver","Golden fists","C","8",2,10,3,"3","","càc",1],
-["C'tan Shard of the Void Dragon","Spear of the Void Dragon (tir)","T","D3",2,8,3,"D6+2","anti:2","12\"",1],
-["C'tan Shard of the Void Dragon","Voltaic storm","T","D6+3",2,7,1,"2","blast sust:2","18\"",1],
-["C'tan Shard of the Void Dragon","Spear — strike","C","5",2,12,4,"D6+2","anti:2","càc",1],
-["C'tan Shard of the Void Dragon","Spear — sweep","C","10",2,8,1,"2","","càc",1],
-["C'tan Shard of the Void Dragon","Canoptek tail blades","C","6",2,6,1,"1","extra","càc",1],
-["Transcendent C'tan","Seismic assault","T","6",2,8,2,"2","assault sust:1","12\"",1],
-["Transcendent C'tan","Crackling tendrils","C","8",2,10,3,"D6","sust:1","càc",1],
-["Imotekh the Stormlord","Staff of the Destroyer (tir)","T","3",2,6,3,"2","","18\"",1],
-["Imotekh the Stormlord","Gauntlet of Fire","T","D6",4,5,1,"1","torrent ignorescover","12\"",1],
-["Imotekh the Stormlord","Staff of the Destroyer (càc)","C","4",2,6,3,"2","dev","18\"",1],
-["Trazyn the Infinite","Empathic Obliterator","C","4",2,7,0,"D3","sust:D3","càc",1],
-["Orikan the Diviner","Staff of Tomorrow","C","2",3,4,3,"D3","dev","càc",1],
-["Illuminor Szeras","Eldritch lance (tir)","T","3",3,9,3,"3","","36\"",1],
-["Illuminor Szeras","Eldritch lance (càc)","C","4",3,9,3,"3","","36\"",1],
-["Illuminor Szeras","Impaling legs","C","4",3,6,1,"1","extra","càc",1],
-["Nekrosor Ammentar","Enmitic disintegrators","T","4",2,6,2,"1","ignorescover pistol sust:2","18\"",1],
-["Nekrosor Ammentar","Unmaker Gauntlet","C","6",2,10,3,"3","","càc",1],
-["Nekrosor Ammentar","Blade tail and whip coils","C","6",2,6,1,"1","extra","càc",1],
-["Szarekh, The Silent King","Sceptre of Eternal Glory","T","2",2,10,3,"3","dev","24\"",1],
-["Szarekh, The Silent King","Staff of Stars","T","12",2,6,1,"1","indirect","24\"",1],
-["Szarekh, The Silent King","Annihilator beam (×2 menhirs)","T","2",2,14,4,"6","","24\"",1],
-["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc",1]
+["Convergence of Dominion","Transdimensional abductor","T","3",4,6,2,"3","","18\""],
+["Necron Warriors","Gauss flayer","T","1",4,4,0,"1","lethal rf:1","24\""],
+["Necron Warriors","Gauss reaper","T","2",4,4,1,"1","lethal","12\""],
+["Necron Warriors","Close combat weapon","C","1",4,4,0,"1","","càc"],
+["Immortals","Gauss blaster","T","2",3,5,1,"1","lethal","24\""],
+["Immortals","Tesla carbine","T","2",3,5,0,"1","sust:2 assault","24\""],
+["Immortals","Close combat weapon","C","2",3,4,0,"1","","càc"],
+["Lychguard","Hyperphase sword","C","3",3,6,2,"1","","càc"],
+["Lychguard","Warscythe","C","2",3,8,3,"2","dev","càc"],
+["Deathmarks","Synaptic disintegrator","T","1",3,5,2,"2","heavy precision","36\""],
+["Deathmarks","Close combat weapon","C","2",3,4,0,"1","","càc"],
+["Flayed Ones","Flayer claws","C","4",3,4,1,"1","sust:1 twin","càc"],
+["Triarch Praetorians","Rod of covenant (tir)","T","1",3,5,2,"2","","càc"],
+["Triarch Praetorians","Rod of covenant (càc)","C","3",3,5,2,"2","","càc"],
+["Triarch Praetorians","Particle caster","T","3",3,5,0,"1","dev","12\""],
+["Triarch Praetorians","Voidblade","C","4",3,5,2,"1","","càc"],
+["Cryptothralls","Scouring eye","T","2",4,5,1,"1","","6\""],
+["Cryptothralls","Scythed limbs","C","4",4,5,1,"1","","càc"],
+["Skorpekh Destroyers","Skorpekh hyperphase weapons","C","4",3,7,2,"2","","càc"],
+["Ophydian Destroyers","Ophydian hyperphase weapons","C","5",3,4,2,"2","","càc"],
+["Lokhust Destroyers","Gauss cannon","T","3",3,5,2,"2","lethal","24\""],
+["Lokhust Destroyers","Close combat weapon","C","2",3,4,0,"1","","càc"],
+["Lokhust Heavy Destroyers","Gauss destructor","T","1",3,14,4,"6","heavy lethal","48\""],
+["Lokhust Heavy Destroyers","Enmitic exterminator","T","6",3,6,1,"1","heavy rf:6 sust:1","36\""],
+["Lokhust Heavy Destroyers","Close combat weapon","C","2",3,4,0,"1","","càc"],
+["Tomb Blades","Twin gauss blaster","T","2",3,5,1,"1","lethal twin","24\""],
+["Tomb Blades","Twin tesla carbine","T","2",3,5,0,"1","assault sust:2 twin","24\""],
+["Tomb Blades","Particle beamer","T","D6",3,5,0,"1","blast dev","18\""],
+["Tomb Blades","Close combat weapon","C","1",4,4,0,"1","","càc"],
+["Canoptek Scarab Swarms","Feeder mandibles","C","6",5,2,0,"1","lethal","càc"],
+["Canoptek Wraiths","Vicious claws","C","4",4,6,1,"2","","càc"],
+["Canoptek Wraiths","Whip coils","C","8",4,5,0,"1","","càc"],
+["Canoptek Wraiths","Transdimensional beamer","T","1",4,4,2,"3","","12\""],
+["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev","12\""],
+["Canoptek Spyders","Particle beamer ×2","T","2D6",3,6,0,"1","blast dev","18\""],
+["Canoptek Spyders","Automaton claws","C","5",4,8,2,"2","","càc"],
+["Canoptek Reanimator","Atomiser beam ×2","T","6",4,6,2,"1","","12\""],
+["Canoptek Reanimator","Reanimator's claws","C","4",4,5,0,"1","","càc"],
+["Canoptek Doomstalker","Doomsday blaster","T","D6+1",4,14,3,"3","blast heavy","48\""],
+["Canoptek Doomstalker","Twin gauss flayer","T","1",4,4,0,"1","lethal rf:1 twin","24\""],
+["Canoptek Doomstalker","Doomstalker limbs","C","3",4,6,0,"1","","càc"],
+["Canoptek Macrocytes","Gauss scalpel","T","1",4,4,1,"1","lethal","18\""],
+["Canoptek Macrocytes","Tesla caster","T","1",4,5,0,"1","assault sust:1","18\""],
+["Canoptek Macrocytes","Atomiser beam","T","1",4,6,1,"1","","12\""],
+["Canoptek Macrocytes","Claws","C","2",4,4,1,"1","","càc"],
+["Canoptek Tomb Crawlers","Twin gauss reaper","T","2",4,4,1,"1","lethal twin","12\""],
+["Canoptek Tomb Crawlers","Transdimensional isolator","T","2",4,4,2,"2","","12\""],
+["Canoptek Tomb Crawlers","Claws","C","4",4,6,1,"1","","càc"],
+["Triarch Stalker","Heavy gauss cannon array","T","6",3,8,2,"2","lethal","24\""],
+["Triarch Stalker","Particle shredder","T","D6+6",2,7,0,"1","blast dev","18\""],
+["Triarch Stalker","Heat ray — focalisé","T","2",3,9,4,"D6","melta:4","18\""],
+["Triarch Stalker","Heat ray — dispersé","T","2D6",4,5,1,"1","torrent ignorescover","12\""],
+["Triarch Stalker","Stalker's forelimbs","C","4",3,7,1,"3","","càc"],
+["Doomsday Ark","Doomsday cannon","T","D6+1",3,18,4,"4","blast heavy","72\""],
+["Doomsday Ark","Gauss flayer array ×2","T","10",3,4,0,"1","lethal rf:10","24\""],
+["Doomsday Ark","Armoured bulk","C","3",4,6,0,"1","","càc"],
+["Ghost Ark","Gauss flayer array ×2","T","10",3,4,0,"1","lethal rf:10","24\""],
+["Ghost Ark","Armoured bulk","C","3",4,6,0,"1","","càc"],
+["Annihilation Barge","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\""],
+["Annihilation Barge","Gauss cannon","T","3",3,5,2,"2","lethal","24\""],
+["Annihilation Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\""],
+["Annihilation Barge","Armoured bulk","C","3",4,6,0,"1","","càc"],
+["Monolith","Gauss flux arc ×4","T","12",3,6,1,"1","lethal rf:12","24\""],
+["Monolith","Death ray ×4","T","4",3,12,4,"D6+1","sust:D3","24\""],
+["Monolith","Particle whip","T","3D6",3,8,1,"2","blast dev","24\""],
+["Monolith","Portal of exile","C","6",2,8,2,"3","","càc"],
+["Obelisk","Tesla sphere ×4","T","24",3,7,0,"1","sust:2 anti:4","24\""],
+["Obelisk","Armoured bulk","C","6",4,8,0,"1","","càc"],
+["Tesseract Vault","Tesla spheres ×4","T","24",3,7,0,"1","sust:2","24\""],
+["Tesseract Vault","Antimatter Meteor (C'tan)","T","D6+3",3,10,3,"3","blast dev indirect","24\""],
+["Tesseract Vault","Cosmic Fire (C'tan)","T","3D6",4,6,2,"1","torrent dev ignorescover","18\""],
+["Tesseract Vault","Time's Arrow (C'tan)","T","1",2,3,2,"6","dev precision anti:4","24\""],
+["Tesseract Vault","Armoured bulk","C","6",4,8,0,"1","","càc"],
+["Doom Scythe","Heavy death ray","T","3",3,16,4,"D6+1","sust:D3","36\""],
+["Doom Scythe","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\""],
+["Doom Scythe","Armoured bulk","C","3",4,6,0,"1","","càc"],
+["Night Scythe","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\""],
+["Night Scythe","Armoured bulk","C","3",4,6,0,"1","","càc"],
+["Overlord","Tachyon arrow","T","1",2,16,5,"D6+2","oneshot","72\""],
+["Overlord","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
+["Overlord","Overlord's blade","C","4",2,8,3,"2","dev","càc"],
+["Overlord","Voidscythe","C","3",3,12,3,"3","dev","càc"],
+["Overlord","Staff of light (càc)","C","4",2,5,2,"1","","18\""],
+["Royal Warden","Relic gauss blaster","T","2",3,5,1,"2","lethal rf:2","24\""],
+["Royal Warden","Close combat weapon","C","4",3,5,0,"1","","càc"],
+["Lokhust Lord","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
+["Lokhust Lord","Lord's blade","C","4",2,8,3,"2","dev","càc"],
+["Lokhust Lord","Staff of light (càc)","C","4",2,5,2,"1","","18\""],
+["Skorpekh Lord","Enmitic annihilator","T","2",2,6,1,"1","rf:2","18\""],
+["Skorpekh Lord","Hyperphase harvester","C","4",2,10,3,"3","","càc"],
+["Skorpekh Lord","Flensing claw","C","8",2,6,1,"1","","càc"],
+["Hexmark Destroyer","Enmitic disintegrator pistols","T","6",2,6,2,"1","ignorescover pistol","18\""],
+["Hexmark Destroyer","Close combat weapon","C","4",3,5,0,"1","","càc"],
+["Technomancer","Staff of light (tir)","T","3",4,5,2,"1","","18\""],
+["Technomancer","Staff of light (càc)","C","2",4,5,2,"1","","18\""],
+["Plasmancer","Plasmic lance (tir)","T","3",4,7,3,"2","","18\""],
+["Plasmancer","Plasmic lance (càc)","C","2",4,7,3,"2","","18\""],
+["Chronomancer","Aeonstave blast","T","D6",4,5,1,"1","",""],
+["Chronomancer","Aeonstave","C","3",4,5,1,"1","","càc"],
+["Psychomancer","Abyssal lance (tir)","T","1",4,6,3,"3","","18\""],
+["Psychomancer","Abyssal lance (càc)","C","1",4,6,3,"3","","18\""],
+["Geomancer","Sismolance — faisceau réverbérant","T","2",4,8,2,"2","melta:2","18\""],
+["Geomancer","Sismolance — ondes de choc","T","D6+2",4,4,0,"1","torrent ignorescover","18\""],
+["Geomancer","Sismolance (càc)","C","2",4,8,2,"2","","càc"],
+["Catacomb Command Barge","Gauss cannon","T","3",3,5,2,"2","lethal","24\""],
+["Catacomb Command Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\""],
+["Catacomb Command Barge","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
+["Catacomb Command Barge","Overlord's blade","C","4",2,8,3,"2","dev","càc"],
+["Catacomb Command Barge","Staff of light (càc)","C","4",3,5,2,"1","","18\""],
+["C'tan Shard of the Nightbringer","Gaze of death","T","D3",2,12,3,"D6+3","","18\""],
+["C'tan Shard of the Nightbringer","Scythe — strike","C","6",2,14,4,"D6+2","dev","càc"],
+["C'tan Shard of the Nightbringer","Scythe — sweep","C","14",2,8,2,"2","","càc"],
+["C'tan Shard of the Deceiver","Cosmic insanity","T","6",2,6,2,"2","dev precision anti:4","18\""],
+["C'tan Shard of the Deceiver","Golden fists","C","8",2,10,3,"3","","càc"],
+["C'tan Shard of the Void Dragon","Spear of the Void Dragon (tir)","T","D3",2,8,3,"D6+2","anti:2","12\""],
+["C'tan Shard of the Void Dragon","Voltaic storm","T","D6+3",2,7,1,"2","blast sust:2","18\""],
+["C'tan Shard of the Void Dragon","Spear — strike","C","5",2,12,4,"D6+2","anti:2","càc"],
+["C'tan Shard of the Void Dragon","Spear — sweep","C","10",2,8,1,"2","","càc"],
+["C'tan Shard of the Void Dragon","Canoptek tail blades","C","6",2,6,1,"1","extra","càc"],
+["Transcendent C'tan","Seismic assault","T","6",2,8,2,"2","assault sust:1","12\""],
+["Transcendent C'tan","Crackling tendrils","C","8",2,10,3,"D6","sust:1","càc"],
+["Imotekh the Stormlord","Staff of the Destroyer (tir)","T","3",2,6,3,"2","","18\""],
+["Imotekh the Stormlord","Gauntlet of Fire","T","D6",4,5,1,"1","torrent ignorescover","12\""],
+["Imotekh the Stormlord","Staff of the Destroyer (càc)","C","4",2,6,3,"2","dev","18\""],
+["Trazyn the Infinite","Empathic Obliterator","C","4",2,7,0,"D3","sust:D3","càc"],
+["Orikan the Diviner","Staff of Tomorrow","C","2",3,4,3,"D3","dev","càc"],
+["Illuminor Szeras","Eldritch lance (tir)","T","3",3,9,3,"3","","36\""],
+["Illuminor Szeras","Eldritch lance (càc)","C","4",3,9,3,"3","","36\""],
+["Illuminor Szeras","Impaling legs","C","4",3,6,1,"1","extra","càc"],
+["Nekrosor Ammentar","Enmitic disintegrators","T","4",2,6,2,"1","ignorescover pistol sust:2","18\""],
+["Nekrosor Ammentar","Unmaker Gauntlet","C","6",2,10,3,"3","","càc"],
+["Nekrosor Ammentar","Blade tail and whip coils","C","6",2,6,1,"1","extra","càc"],
+["Szarekh, The Silent King","Sceptre of Eternal Glory","T","2",2,10,3,"3","dev","24\""],
+["Szarekh, The Silent King","Staff of Stars","T","12",2,6,1,"1","indirect","24\""],
+["Szarekh, The Silent King","Annihilator beam (×2 menhirs)","T","2",2,14,4,"6","","24\""],
+["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"]
 ];
 
 /* ============================================================
