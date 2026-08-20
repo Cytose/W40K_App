@@ -181,6 +181,11 @@ consultable en dessous, en lecture seule.
   Véhicule, Monstre, Personnage, Volant), deviné de l'archétype ou de la
   datasheet choisie et rectifiable d'une touche. Les règles conditionnées par
   le genre de la cible s'appliquent alors toutes seules, et disent pourquoi.
+- **Palmarès** — les 136 armes de la faction passées au moteur contre la cible
+  du moment et rangées, par arme ou par unité, en puissance brute ou au point,
+  sur toute la faction ou sur ce qu'on possède. Fiches nues : effectif maximum,
+  sans détachement ni personnage rattaché — une carte du terrain, pas un calcul
+  de partie.
 - **Stratagèmes dans les retouches** — sur quarante-trois fiches, six touchent
   la séquence d'attaque : elles apparaissent en pastilles, avec leur coût en PC,
   filtrées par détachement retenu, par phase et par mots-clés de l'unité

@@ -1057,6 +1057,27 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   clip-path:polygon(0 0,100% 0,100% calc(100% - 2px),calc(100% - 2px) 100%,0 100%)}
 .esc .bar span{display:block;height:100%;
   background:linear-gradient(90deg,var(--green),var(--glow))}
+/* le palmarès : cent trente-six armes rangées contre une cible */
+.top .tr{display:grid;grid-template-columns:26px 1fr auto;align-items:baseline;
+  gap:9px;padding:8px 0;border-top:1px solid rgba(51,69,58,.6)}
+.top .tr:first-child{border-top:0}
+.top .tr .rg{font-size:11px;font-weight:800;color:var(--tx3);
+  font-variant-numeric:tabular-nums;text-align:right}
+.top .tr.podium .rg{color:var(--glow)}
+.top .tn{min-width:0}
+.top .tn b{display:block;font-size:12.5px;font-weight:700;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.top .tn i{display:block;font-style:normal;font-size:10px;color:var(--tx3);
+  margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .tv{text-align:right}
+.top .tv b{display:block;font-size:13.5px;font-weight:800;color:var(--glow);
+  font-variant-numeric:tabular-nums}
+.top .tv i{display:block;font-style:normal;font-size:9.5px;color:var(--tx3);
+  margin-top:1px;font-variant-numeric:tabular-nums}
+.top .bar{grid-column:2/-1;height:6px;background:var(--s2);margin-top:4px}
+.top .bar span{display:block;height:100%;
+  background:linear-gradient(90deg,var(--green),var(--glow))}
+.top .tr.mien .tn b::after{content:"\00a0\25c6";color:var(--glow);font-size:9px}
 
 </style>
 </head>
@@ -1091,6 +1112,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <button type="button" class="on" data-v="subAtk">Attaque</button>
     <button type="button" data-v="subCmp">Comparer</button>
     <button type="button" data-v="subGrp">Combien il en faut</button>
+    <button type="button" data-v="subTop">Palmarès</button>
     <button type="button" data-v="subDef">Encaisser</button>
   </div>
   <div class="sub on" id="subAtk">
@@ -1267,6 +1289,44 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <p class="chart-sub" id="grpDistSub"></p>
       <svg id="grpHist" class="chart" role="img" aria-label="Distribution des dégâts du groupe"></svg>
       <div class="seuils" id="grpSeuils"></div>
+    </div>
+  </section>
+  </div>
+
+  <div class="sub" id="subTop">
+  <section class="card">
+    <h2>Cible <span class="chev">▾</span></h2>
+    <div class="body">
+      <button class="picker" id="pickTarget5" type="button">
+        <span class="pk"><span class="p1" id="ptName5">Space Marine</span><span class="p2" id="ptSub5">—</span></span>
+        <span class="arrow">›</span>
+      </button>
+      <p class="hint">La cible est partagée avec l'onglet Attaque, mots-clés compris.</p>
+    </div>
+  </section>
+
+  <section class="card" id="cardTop">
+    <h2>Ce qui marche le mieux <span class="chev">▾</span></h2>
+    <div class="body">
+      <div class="chips tight" id="topPhase">
+        <button type="button" class="chip on" data-p="T">Phase de tir</button>
+        <button type="button" class="chip" data-p="C">Corps à corps</button>
+      </div>
+      <div class="chips tight" id="topQuoi">
+        <button type="button" class="chip on" data-q="arme">Par arme</button>
+        <button type="button" class="chip" data-q="unite">Par unité</button>
+      </div>
+      <div class="chips tight" id="topOu">
+        <button type="button" class="chip on" data-o="tout">Toute la faction</button>
+        <button type="button" class="chip" data-o="liste">Ce que j'ai</button>
+      </div>
+      <div class="chips tight" id="topTri">
+        <button type="button" class="chip on" data-t="brut">Puissance brute</button>
+        <button type="button" class="chip" data-t="eff">Pour 100 points</button>
+      </div>
+      <p class="chart-sub" id="topSub"></p>
+      <div id="topList"></div>
+      <p class="hint">Chaque fiche est prise nue : effectif maximum, toutes les figurines portant l'arme quand l'emplacement le permet, sans détachement, sans personnage rattaché et sans retouche de partie. C'est une carte du terrain, pas un calcul de partie — pour ça, l'onglet Attaque charge l'unité réelle.</p>
     </div>
   </section>
   </div>
