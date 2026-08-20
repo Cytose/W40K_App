@@ -896,3 +896,96 @@ l'applique aux Tomb Blades. Le pack écrit « Canopteks » sur ses fiches
 techniques et « MÉCANOPTÈRES » dans cette règle — deux orthographes dans le
 même document, et je ne sais pas laquelle désigne quoi. À trancher avec le
 codex français en main plutôt qu'au jugé.
+
+---
+
+## 18. Les fiches du pack, les Échardes et le catalogue repliable — 20/08/2026
+
+### Les Arpenteurs Sépulcraux et les Macrocytes
+
+« Je crois que tu n'as pas bien compris les Tomb Crawlers en termes
+d'équipement. »
+
+Relu le pack, page 16 :
+
+> **1 figurine** peut remplacer sa faucheuse Gauss jumelée par 1 Isolateur
+> transdimensionnel.
+
+L'application proposait deux isolateurs sur deux figurines. Le catalogue
+BattleScribe ne porte pas cette limite — il décrit un choix par figurine, sans
+plafond d'unité — et `ARMEMENT` n'avait aucun moyen de l'exprimer. C'est le
+manque que j'avais noté au chantier 11 sans le combler.
+
+Un emplacement gagne donc `omax`, un plafond **par option** : le compteur
+s'arrête à la valeur, qui est rappelée sur la ligne, et une option dépassée
+marque la case du pavé comme les autres fautes. `loParDefaut` ouvre désormais
+sur la première option **sans plafond** — une option limitée à une figurine ne
+peut pas être l'armement de départ d'une escouade.
+
+La même relecture a montré que les **Macrocytes Canopteks** étaient plus faux
+encore. Leur fiche, page 14, ouvre quatre choix :
+
+| option | plafond |
+|---|---|
+| scalpel Gauss | l'unité entière |
+| projecteur Tesla | l'unité entière |
+| faisceau atomiseur + projecteur de nanoscarabées | 1 figurine |
+| mandibule accélératrice | 1 figurine |
+
+Les deux dernières n'existaient pas dans l'application. La mandibule n'est pas
+une arme : c'est une **aptitude d'équipement**, sans profil, qui remplace
+l'arme de tir de son porteur. Un emplacement accepte donc une option **sans
+arme**, qui porte son propre nom par `onom`.
+
+Vérifié : trois appuis sur « + » de l'isolateur laissent 1, et la sauvegarde
+enregistre `[{"s":0,"o":1,"n":1}]`.
+
+### Les Échardes C'tan sont des Héros Épiques
+
+Les trois Échardes portaient bien le mot-clé `epic` — les optimisations leur
+étaient donc correctement refusées — mais la table `CAT` les rangeait sous
+« Monstre ». Elles passent sous « Epic Hero ». Le C'tan Transcendant reste sous
+« Monstre » : il n'est pas un Héros Épique, et l'était déjà correctement.
+
+### Le catalogue se replie
+
+Cinquante entrées à la file : on cherchait un véhicule en faisant défiler
+l'infanterie. Chaque catégorie devient une barre qu'on plie et déplie, avec son
+compte. L'état tient d'une ouverture à l'autre, sans être enregistré. Une
+recherche en cours rouvre tout — filtrer pour devoir ensuite déplier serait
+absurde.
+
+### Les points par effectif : je ne peux pas vérifier
+
+« Quand ma troisième unité arrive, ça coûte plus cher. »
+
+Le mécanisme existe déjà et gère le non-linéaire : `UNITS[7]` est une table
+`{effectif : points}`, et plusieurs entrées sont bien non proportionnelles.
+
+| unité | 1 | 2 | 3 | 6 |
+|---|---|---|---|---|
+| Destroyers Lourds Lokhusts | 50 | 100 | **160** | — |
+| Destroyers Lokhusts | 40 | 55 | 80 | 170 |
+| Spectres Mécanoptères | — | — | 95 (×3) | **220** (×6) |
+| Guerriers Nécrons | — | — | 80 (×10) | **190** (×20) |
+
+La troisième figurine de Destroyer Lourd coûte donc bien 60 et non 50.
+
+Ce que je ne peux pas faire, c'est **vérifier ces valeurs**. Le Munitorum Field
+Manual est bloqué par la politique de sortie réseau de l'environnement :
+
+```
+https://mfm.warhammer-community.com/en  → EGRESS_BLOCKED
+https://www.warhammer-community.com/    → 000
+https://munitorum.app/                  → 000
+```
+
+Même mur que Wahapedia. Les points actuels viennent du catalogue BattleScribe
+au chantier 1, et je les avais alors signalés comme périmés. Réécrire de
+mémoire les valeurs d'un document de points serait exactement l'erreur commise
+au chantier 8 sur les optimisations du codex — et rattrapée de justesse par une
+comparaison programmatique. Je ne le referai pas.
+
+**Ce qu'il faut** : le PDF du Munitorum Field Manual déposé dans la
+conversation, comme le pack de faction l'a été. L'extraction et la comparaison
+avec la table actuelle sont alors mécaniques.

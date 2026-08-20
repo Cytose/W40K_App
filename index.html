@@ -383,6 +383,19 @@ pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px 
 .opt.opt-off .otag{border-style:dashed}
 .sheet-sep{margin:14px 2px 2px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--tx3);border-bottom:1px solid var(--line);padding-bottom:5px}
+/* ---------- categorie repliable du catalogue ---------- */
+.catbar{display:flex;align-items:center;gap:8px;width:100%;margin:12px 0 2px;padding:8px 10px;
+  background:var(--s1);border:1px solid var(--line);color:var(--tx2);font-family:inherit;
+  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.catbar:active{background:var(--s2)}
+.catbar .cchev{flex:0 0 auto;color:var(--glow);font-size:11px;line-height:1}
+.catbar .cnom{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.catbar .ccnt{flex:0 0 auto;font-size:11px;font-variant-numeric:tabular-nums;color:var(--tx3);
+  border:1px solid var(--line);padding:1px 6px}
+.catbar.on{border-color:rgba(155,232,92,.35)}
+.catbar.on .cnom{color:var(--glow)}
 
 /* ---------- groupe rattache ---------- */
 .ghead{display:flex;align-items:center;gap:6px;margin:-2px 0 8px}
@@ -691,6 +704,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 /* option retenue dans un emplacement : son libelle ressort */
 .lo-on .ln{color:var(--tx)}
 /* arme portee d'office : pas de compteur, elle ne se choisit pas */
+/* une option que la fiche ne laisse qu'a une figurine */
+.omax{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--tx3);border:1px solid var(--line);padding:1px 5px;margin-left:3px;
+  white-space:nowrap}
+.lo-trop{border-top-color:rgba(224,160,48,.6)}
+.lo-trop .omax{color:var(--warn);border-color:rgba(224,160,48,.6)}
 .lo-fixe .lofix{flex:0 0 auto;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;
   color:var(--tx3);border:1px solid var(--line);border-radius:3px;padding:3px 7px;white-space:nowrap}
 .stepper{flex:0 0 auto;display:flex;align-items:center;gap:0}

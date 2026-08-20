@@ -85,7 +85,8 @@ son panneau. Le retour vit dans l'en-tête collante, à côté d'« Enregistrer 
 il reste sous le pouce où qu'on soit descendu, et il est contextuel —
 « ‹ Mes listes » sur le pavé, « ‹ Le pavé » dans un panneau. En dessous, quatre
 cases mènent aux détachements, aux stratagèmes, à l'armement et aux réglages de
-la liste.
+la liste. Le catalogue d'unités range ses cinquante entrées par catégorie, et
+chaque catégorie se replie ; une recherche en cours les rouvre toutes.
 
 **Simulateur** — quatre vues sous des sous-onglets : Attaque (une unité contre
 une cible), Tir cumulé (plusieurs unités dans l'ordre), Comparer (côte à côte)
@@ -193,6 +194,13 @@ liste ouverte reste consultable en dessous, en lecture seule.
   modèle est d'office, un groupe d'options exclusives devient un
   emplacement, et plusieurs variantes de modèle deviennent les options d'un
   même emplacement.
+
+  Une option peut porter un **plafond** : la fiche des Arpenteurs Sépulcraux
+  n'ouvre l'isolateur transdimensionnel qu'à une figurine, et celle des
+  Macrocytes limite de même le faisceau atomiseur et la mandibule
+  accélératrice. Le compteur s'arrête au plafond, qui est rappelé sur la
+  ligne. Une option peut aussi ne donner **aucune** arme — la mandibule est
+  une aptitude d'équipement, pas une arme — et porte alors son propre nom.
 - **Armes à plusieurs profils** — un bâton de lumière donne un tir *et* une
   frappe, un rayon thermique deux modes de tir. L'application équipe l'arme,
   pas le profil : porter le bâton met ses deux profils à disposition, et le
