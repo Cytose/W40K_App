@@ -782,3 +782,117 @@ origine décalée d'autant : elle reste exactement sous le doigt au lieu de lui
 Les deux flèches restent sur chaque case — un cran précis, sans viser. Un appui
 sans déplacement ne réordonne rien et n'ouvre aucun panneau. Sortir du mode en
 plein glissement le referme proprement, sans laisser de case fantôme.
+
+---
+
+## 17. Un membre à la fois, et ce que le groupe reçoit — 20/08/2026
+
+Quatre demandes, toutes autour du panneau d'unité.
+
+### La Catacomb Command Barge ne rejoint personne
+
+« C'est un véhicule, ça ne peut pas être relié comme personnage. »
+
+Vérifié contre le catalogue BattleScribe : sa liste des figurines qui ont
+l'aptitude Meneur compte vingt-trois entrées, et la Catacomb Command Barge n'y
+est pas. Elle était pourtant marquée `"Leader"` dans `UNITS[9]` — une erreur de
+ma part au chantier d'enrichissement. C'est la seule des sept ainsi marquées
+qui ne le méritait pas.
+
+Le champ `[9]` confondait deux choses : « a l'aptitude Meneur ou Appui » et
+« est un personnage ». La barge est bien un PERSONNAGE — elle peut porter une
+optimisation — mais elle ne se rattache à rien. Elle passe donc au rôle
+`"Personnage"`, le tiroir de rattachement ne retient plus que `Leader`,
+`Support` et les escortes, et `refusAttache` refuse tout le reste même si un
+ancien lien de partage le force.
+
+Vérifié : quatorze personnages proposés, sans la barge ; et la barge se voit
+toujours proposer les quatre optimisations de son détachement.
+
+### Un membre à la fois
+
+« Ça évite d'avoir un gros pavé où je scroll trop pour chercher les choses. »
+
+Une case par membre s'affiche en tête du panneau — l'escouade avec son effectif
+et ses points, puis chaque personnage avec son rôle et son coût. On règle celui
+qu'on touche. Le panneau d'un personnage porte son propre en-tête (E, Svg, PV,
+socle, points), son armement à plat — plus de sous-lignes indentées, il occupe
+tout le panneau — et un bouton pour le détacher.
+
+L'état vit dans `vueMembre`, une table d'affichage indexée par identifiant
+d'unité : il ne part ni dans la sauvegarde, ni dans le lien de partage, ni dans
+le texte exporté.
+
+Ce qui reste visible quel que soit le membre : le nom du groupe,
+l'optimisation, les mots-clés, et le récapitulatif de tout l'armement.
+
+### Les octrois d'aptitudes d'arme
+
+« Si je prends le Conclave de Crypteks, normalement la lance a assaut. Si je
+prends Main de la Dynastie, tout ce qui est immortel et guerrier gagne le mot
+assaut. »
+
+Un profil d'arme n'est pas figé : le détachement retenu et les personnages
+rattachés lui ajoutent des aptitudes que la fiche technique ne porte pas. Deux
+tables les décrivent dans `data.js`.
+
+`OCTROIS_DETACH` distingue **deux portées**, et la distinction compte :
+
+| détachement | texte officiel | portée |
+|---|---|---|
+| Conclave de Crypteks | « Les armes de tir des **figurines** de CRYPTEK… » | la figurine porteuse seule |
+| Main de la Dynastie | « Les attaques de tir des **unités** d'IMMORTELS/GUERRIERS… » | tout le groupe |
+
+Sous le Conclave, seule la lance du Plasmancien gagne [ASSAUT] ; les fusils
+gauss de l'escouade ne le gagnent pas. Sous la Main de la Dynastie, tout le
+groupe le gagne — y compris l'armement des personnages rattachés, puisqu'ils
+font partie de l'unité.
+
+`AURAS_PERSO` porte ce qu'un personnage accorde à l'unité **qu'il mène** :
+
+| personnage | aptitude | effet |
+|---|---|---|
+| Plasmancien | Héraut de la Destruction | Critique Touche 5+ au tir |
+| Seigneur Lokhust | Culte Destroyer | Critique Touche 5+ au tir |
+| Technomancien | Rites de Réanimation | Insensible à la Douleur 5+ |
+
+La condition « tant que cette figurine mène une unité » est respectée : le code
+ne lit que `ru.chars`, donc un Plasmancien joué seul n'en profite pas. Mesuré :
+
+```
+Immortels + Plasmancien, tir        → critH 5
+Immortels seuls, tir                → critH 6
+Immortels + Plasmancien, corps à corps → critH 6   (l'aura ne vise que le tir)
+```
+
+Un octroi qui pose un **mot-clé** s'ajoute à la chaîne de drapeaux de l'arme,
+donc `motsArme` l'affiche et `parseFlags` le voit ; un octroi qui touche un
+**champ de profil** est appliqué après les règles de détachement. Une arme qui
+porte déjà l'aptitude ne la reçoit pas deux fois — la carabine tesla a [ASSAUT]
+sur sa fiche et ne gagne rien sous la Main de la Dynastie.
+
+Défaut attrapé au passage : la règle `cryptek_anti` du Conclave lisait
+`has("cryptek", ru.name)`, donc les mots-clés de l'escouade seule. Or un
+Plasmancien rattaché rend l'unité CRYPTEK. Elle lit maintenant ceux du groupe.
+
+### Les aptitudes d'arme, lisibles
+
+« Là je le vois tout soutenu, mais c'est un peu petit. »
+
+Elles passent de 9,5 px en gris clair à des pastilles encadrées de 10 px, avec
+la définition officielle du glossaire en infobulle. Celles qu'un détachement ou
+un personnage accorde sont en cyan et précédées d'un `+` : elles ne figurent
+pas sur la fiche technique, et la distinction doit rester lisible à la table.
+
+Un bloc « Ce que le groupe reçoit » récapitule tous les octrois actifs avec
+leur texte officiel et leur source, visible depuis n'importe quel membre —
+c'est le seul endroit où se lit un effet comme le Critique Touche 5+, qui ne
+tient sur aucune ligne d'arme.
+
+### Reste en suspens
+
+La règle du Fer de Lance Linceul Céleste vise les « MÉCANOPTÈRES ». Le code
+l'applique aux Tomb Blades. Le pack écrit « Canopteks » sur ses fiches
+techniques et « MÉCANOPTÈRES » dans cette règle — deux orthographes dans le
+même document, et je ne sais pas laquelle désigne quoi. À trancher avec le
+codex français en main plutôt qu'au jugé.

@@ -39,7 +39,7 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | Fichier | Rôle |
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
-| `data.js` | 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations avec leur cible, socles |
+| `data.js` | 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | axes Listes et En partie, vues Tir cumulé et Comparer, fiche d'unité, partage, encodeur QR |
@@ -140,8 +140,20 @@ liste ouverte reste consultable en dessous, en lecture seule.
   juste après l'originale et s'ouvre aussitôt. Un groupe dupliqué reçoit son
   propre nom. La validation signale ensuite ce qui dépasse — règle des trois,
   Epic Hero en double.
+- **Un membre à la fois** — dès qu'un personnage rejoint une unité, une case
+  par membre s'affiche en tête du panneau : l'escouade, puis chaque
+  personnage. On règle celui qu'on touche — son effectif, son armement — au
+  lieu de dérouler le groupe entier. Le panneau d'un personnage rappelle ce
+  qu'il apporte à l'unité qu'il mène.
+- **Ce que le groupe reçoit** — les aptitudes qu'un détachement ou un
+  personnage rattaché accorde aux armes du groupe, avec leur texte officiel et
+  leur source. Elles ne figurent sur aucune fiche technique : c'est le seul
+  endroit où on les lit.
 - **Équipement du groupe** — deux tableaux, tir et corps à corps, avec le
-  profil complet de chaque arme et ses mots-clés. Ils couvrent toute
+  profil complet de chaque arme et ses aptitudes en pastilles — celles de la
+  fiche en gris, celles qu'un détachement ou un personnage accorde en cyan et
+  précédées d'un `+`. Chaque pastille porte sa définition officielle en
+  infobulle. Ils couvrent toute
   l'armurerie de la fiche : l'escouade **et** chaque personnage rattaché, dont
   le nom est porté sous l'arme, options laissées de côté comprises — grisées,
   pour qu'on voie ce qu'on n'a pas pris autant que ce qu'on porte.

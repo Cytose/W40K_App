@@ -48,7 +48,7 @@ const UNITS = [
 ["Chronomancer",5,4,4,4,4,[1],{"1":70},0,"Support",0,"Timesplinter Mantle : Discrétion + -1 pour toucher en mêlée contre l'unité.",1,"6+"],
 ["Psychomancer",5,4,4,0,4,[1],{"1":55},0,"Support",0,"Nightmare Shroud. Ne peut plus jouer seul en 11e.",1,"6+"],
 ["Geomancer",8,4,4,0,4,[1],{"1":75},0,"Support",0,"NOUVEAU 11e. Obelisk Node Control : bloque les Réserves ennemies à 12\".",1,"6+"],
-["Catacomb Command Barge",10,8,3,4,9,[1],{"1":120},0,"Leader",0,"Advanced Quantum Shielding : -1 pour blesser si F > E.",3,"6+"],
+["Catacomb Command Barge",10,8,3,4,9,[1],{"1":120},0,"Personnage",0,"Advanced Quantum Shielding : -1 pour blesser si F > E.",3,"6+"],
 ["C'tan Shard of the Nightbringer",10,11,3,4,16,[1],{"1":360},5,"",0,"Epic Hero. Necrodermis : -1 Dégât. FNP 5+. Deadly Demise D6.",4,"6+"],
 ["C'tan Shard of the Deceiver",8,11,3,4,16,[1],{"1":330},5,"",0,"Epic Hero. Necrodermis : -1 Dégât. FNP 5+. Discrétion, Frappe en Profondeur.",4,"6+"],
 ["C'tan Shard of the Void Dragon",10,11,3,4,16,[1],{"1":345},5,"",0,"Epic Hero. Necrodermis : -1 Dégât. FNP 5+. Frappe en Profondeur.",4,"6+"],
@@ -1157,4 +1157,53 @@ const GLOSSAIRE = {
  "Marcheur Super-lourd" : "Chaque fois qu'une unité avec cette aptitude effectue un mouvement normal, d'avance ou de retraite, ses figurines peuvent se déplacer à travers les figurines (figurines TITANESQUES exclues) et à l'horizontale à travers des sections d'éléments de terrain de 4\" de hauteur ou moins. Avant de la déplacer, vous pouvez décider que toutes ses figurines aient le mot-clé MOBILE jusqu'à la fin du mouvement ; dans ce cas, à la fin du mouvement, jetez 1 D6 : sur 1, l'unité est ébranlée.",
  "Abattage" : "[ABATTAGE X] — Chaque fois que vous rassemblez les dés d'attaque pour une arme d'[ABATTAGE], si vous avez choisi une seule cible pour toutes les attaques de l'arme, ajoutez X dés d'attaque supplémentaires par tranche de 5 figurines qui étaient dans l'unité cible à l'étape Choisir les Cibles (arrondi à l'inférieur).",
  "Combat Rapproché" : "[COMBAT RAPPROCHÉ] — Les unités contenant une ou plusieurs figurines avec une arme de [COMBAT RAPPROCHÉ] peuvent tirer en utilisant le tir en combat rapproché. Quand vous utilisez un autre type de tir, pour chaque figurine de cette unité (sauf MONSTRE/VÉHICULE), vous pouvez choisir soit une ou plusieurs de ses armes de [COMBAT RAPPROCHÉ], soit une ou plusieurs de ses autres armes de tir."
+};
+
+/* ==========================================================
+   OCTROIS — ce qui s'ajoute aux armes en cours de partie
+   Un profil d'arme n'est pas figé : le détachement retenu et
+   les personnages rattachés lui accordent des aptitudes que la
+   fiche technique ne porte pas. Deux tables les décrivent.
+
+   Chaque octroi a :
+     - mot   : le mot-clé d'arme ajouté (clé de parseFlags)
+     - champ : le champ de profil modifié, avec sa valeur
+     - port  : "T" tir, "C" corps à corps, "" les deux
+     - qui   : "unite" — toutes les armes du groupe
+               "figurine" — seulement celles des figurines qui
+               portent l'un des mots-clés listés dans `kw`
+     - kw    : les mots-clés exigés ; vide = sans condition
+     - texte : la phrase officielle, pour l'infobulle
+   ========================================================== */
+
+/* Par détachement, sur son nom anglais — la clé de R.detach. */
+const OCTROIS_DETACH = {
+ "Hand of the Dynasty" : [
+   { mot:"assault", port:"T", qui:"unite", kw:["Immortals","Necron Warriors"],
+     nom:"Protocoles d'Hypermobilité",
+     texte:"Les attaques de tir des unités d'IMMORTELS/GUERRIERS NÉCRONS amies ont [ASSAUT]." }
+ ],
+ "Cryptek Conclave" : [
+   { mot:"assault", port:"T", qui:"figurine", kw:["cryptek"],
+     nom:"Augmentations Technosorcières",
+     texte:"Les armes de tir dont sont équipées les figurines de CRYPTEK de votre armée ont l'aptitude [ASSAUT]." }
+ ]
+};
+
+/* Par personnage rattaché : ce que son aptitude accorde à l'unité
+   qu'il mène. Ces aptitudes ne valent que « tant que cette figurine
+   mène une unité » : un personnage seul n'en profite pas. */
+const AURAS_PERSO = {
+ "Plasmancer" : [
+   { champ:"critH", val:5, port:"T", nom:"Héraut de la Destruction",
+     texte:"Tant que cette figurine mène une unité, à chaque attaque de tir d'une figurine de cette unité, un jet de touche non modifié réussi de 5+ donne une touche critique." }
+ ],
+ "Lokhust Lord" : [
+   { champ:"critH", val:5, port:"T", nom:"Culte Destroyer",
+     texte:"Tant que cette figurine mène une unité, à chaque attaque de tir d'une figurine de cette unité, un jet de touche non modifié réussi de 5+ donne une touche critique." }
+ ],
+ "Technomancer" : [
+   { champ:"fnp", val:5, port:"", nom:"Rites de Réanimation",
+     texte:"Tant que cette figurine mène une unité, les figurines de cette unité ont l'aptitude Insensible à la Douleur 5+." }
+ ]
 };

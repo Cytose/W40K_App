@@ -591,6 +591,16 @@ table.arms{min-width:340px}
 table.arms td.an{white-space:normal;min-width:118px}
 table.arms tr.off td{opacity:.45}
 table.arms .n{font-size:9.5px;color:var(--tx3);display:block;line-height:1.35;margin-top:1px}
+/* Les aptitudes d'arme se lisaient a la loupe. En pastilles, elles se
+   reperent d'un coup d'oeil ; celles qu'un detachement ou un personnage
+   accorde sont en cyan, puisqu'elles ne figurent pas sur la fiche. */
+table.arms .wks{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.wk{font-size:10px;font-weight:700;letter-spacing:.03em;color:var(--tx2);
+  background:var(--s2);border:1px solid var(--line);padding:2px 6px;line-height:1.3;
+  white-space:nowrap;cursor:help}
+.wk.wkadd{color:var(--cyan,#5CE8E8);border-color:rgba(92,232,232,.45);
+  background:rgba(92,232,232,.08)}
+.wk.wkadd::before{content:"+ ";font-weight:800}
 /* qui porte l'arme, quand ce n'est pas l'escouade : un personnage rattache */
 table.arms .src{font-size:9.5px;color:var(--glow);display:block;line-height:1.35;margin-top:1px;
   letter-spacing:.04em}
@@ -642,6 +652,40 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .seuil .sv{display:block;font-size:19px;font-weight:700;color:var(--glow);font-variant-numeric:tabular-nums;margin-top:3px}
 .seuil.faible .sv{color:var(--tx2)}
 .lo-sous{padding-left:16px;border-top:1px dashed rgba(51,69,58,.5)}
+/* ---------- les membres d'un groupe ---------- */
+/* Un groupe de trois membres tenait sur un panneau qu'il fallait parcourir
+   en entier ; on en regle un a la fois. */
+.membres{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 2px}
+.membre{flex:1 1 auto;min-width:96px;text-align:left;padding:7px 9px;
+  background:var(--s1);border:1px solid var(--line);color:var(--tx2);font-family:inherit;
+  cursor:pointer;
+  clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+.membre .mn{display:block;font-size:12.5px;font-weight:700;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.membre .ms{display:block;font-size:10px;letter-spacing:.04em;color:var(--tx3);margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.membre.on{border-color:var(--glow);background:var(--glow-soft);color:var(--tx)}
+.membre.on .mn{color:var(--glow)}
+.membre.on .ms{color:var(--tx2)}
+/* ce qu'un personnage apporte a l'unite qu'il mene */
+.aura{margin-top:9px;padding:8px 10px;font-size:11.5px;line-height:1.5;color:var(--tx2);
+  background:rgba(92,232,232,.07);border:1px solid rgba(92,232,232,.3);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.aura b{display:block;color:var(--cyan,#5CE8E8);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:3px}
+.btn.detache{width:100%;margin-top:12px}
+/* ---------- ce que le groupe recoit en jeu ---------- */
+.octbloc{margin-top:12px;border-top:1px solid rgba(51,69,58,.6);padding-top:10px}
+.oct{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;padding:7px 0;
+  border-top:1px solid rgba(51,69,58,.5)}
+.oct:first-of-type{border-top:0}
+.oct .oe{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.05em;
+  color:var(--cyan,#5CE8E8);border:1px solid rgba(92,232,232,.45);
+  background:rgba(92,232,232,.08);padding:2px 6px}
+.oct .os{flex:0 0 auto;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--tx3)}
+.oct .oi2{flex:1 1 100%;font-size:11.5px;line-height:1.45;color:var(--tx2)}
+.oct .oi2 b{display:block;color:var(--tx);font-weight:700;font-size:11.5px}
 .lo-sous .ln{font-size:12px}
 .lo-perso{border-top:1px solid rgba(92,232,232,.25)}
 /* option retenue dans un emplacement : son libelle ressort */

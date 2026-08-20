@@ -195,6 +195,28 @@ window.ROSTER = {
                  groupe: nomAffiche(ru), perso: true }));
     });
     return { liste: R.nom, unites: out };
+  },
+  /* crochet de verification : les profils reellement construits pour une
+     unite de la liste, octrois compris */
+  profils: function(id, ph){
+    const ru = R && R.units.find(x => x.id === id);
+    if(!ru) return null;
+    const av = phase; phase = ph || phase;
+    const out = unitProfiles(ru).map(p => ({
+      label:p.label, kind:p.kind, attacks:p.attacks, bs:p.bs, str:p.str,
+      ap:p.ap, dmg:p.dmg, critH:p.critH, critW:p.critW, hitMod:p.hitMod,
+      sustainedOn:p.sustainedOn, lethal:p.lethal
+    }));
+    phase = av;
+    return out;
+  },
+  /* les aptitudes octroyees a une arme, pour les tests */
+  octrois: function(id, porteur, i){
+    const ru = R && R.units.find(x => x.id === id);
+    if(!ru) return null;
+    const w = unitWeps(porteur || ru.name)[i];
+    return w ? octroisArme(ru, porteur, w).map(o => o.nom + " (" + o.source + ")" +
+      (o.mot ? " → " + o.mot : " → " + o.champ + " " + o.val)) : null;
   }
 };
 
@@ -233,6 +255,8 @@ const aCryptek = ru => ru.chars.some(c => has("cryptek", c.name));
 function refusAttache(nom, ru){
   if(ru.chars.some(c => c.name === nom)) return "déjà dans ce groupe";
   const role = roleDe(nom);
+  if(role !== "Leader" && role !== "Support" && role !== "Escorte")
+    return "ne peut rejoindre aucune unité";
   if(role === "Leader" && compteRole(ru, "Leader")) return "un seul chef par unité";
   if(role === "Support" && compteRole(ru, "Support")) return "un seul soutien par unité";
   if(role === "Escorte"){
@@ -526,6 +550,60 @@ function activeRules(){
   R.detach.forEach(n => { const d = detachRow(n); if(d && d[5]) out.push(d); });
   return out;
 }
+/* ==========================================================
+   OCTROIS D'APTITUDES D'ARME
+   Un profil d'arme n'est pas figé : le détachement retenu et
+   les personnages rattachés lui ajoutent des aptitudes que la
+   fiche technique ne porte pas. La lance plasmique d'un
+   Plasmancien gagne [ASSAUT] sous le Conclave de Crypteks, et
+   les fusils gauss d'une escouade d'Immortels le gagnent sous
+   la Main de la Dynastie.
+   ========================================================== */
+/* un mot-cle exige : soit un groupe de KW, soit un nom d'unite */
+const porteMot = (k, nom) => (typeof KW !== "undefined" && KW[k]) ? has(k, nom) : k === nom;
+/* le groupe entier porte-t-il ce mot-cle ? un Plasmancien rattache rend
+   CRYPTEK l'unite qu'il mene */
+const groupeA = (ru, k) => porteMot(k, ru.name) || ru.chars.some(c => porteMot(k, c.name));
+
+/* Ce qui s'ajoute a une arme donnee. `porteur` est le nom de la figurine
+   qui la porte — "" pour l'escouade elle-meme. */
+function octroisArme(ru, porteur, w){
+  if(!ru) return [];
+  const out = [], fig = porteur || ru.name;
+  const tbl = (typeof OCTROIS_DETACH !== "undefined") ? OCTROIS_DETACH : {};
+  R.detach.forEach(dn=>{
+    (tbl[dn] || []).forEach(o=>{
+      if(o.port && o.port !== w[2]) return;
+      /* « figurine » ne vise que le porteur ; « unite » vise tout le groupe
+         des lors qu'un de ses membres remplit la condition */
+      const ok = o.qui === "figurine"
+        ? (!o.kw.length || o.kw.some(k => porteMot(k, fig)))
+        : (!o.kw.length || o.kw.some(k => groupeA(ru, k)));
+      if(ok) out.push({ mot:o.mot, champ:o.champ, val:o.val,
+                        nom:o.nom, texte:o.texte, source:nomDetach(dn) });
+    });
+  });
+  /* « tant que cette figurine mene une unite » : seul un personnage
+     rattache remplit la condition, jamais une figurine seule */
+  const auras = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
+  ru.chars.forEach(c=>{
+    (auras[c.name] || []).forEach(a=>{
+      if(a.port && a.port !== w[2]) return;
+      out.push({ mot:a.mot, champ:a.champ, val:a.val,
+                 nom:a.nom, texte:a.texte, source:c.name });
+    });
+  });
+  return out;
+}
+/* les mots-cles octroyes, ajoutes a la chaine de drapeaux de l'arme */
+function drapeauxAvecOctrois(ru, porteur, w){
+  const base = String(w[8] || "");
+  const ajouts = octroisArme(ru, porteur, w)
+    .filter(o => o.mot && !parseFlags(base)[o.mot])
+    .map(o => o.mot);
+  return ajouts.length ? (base ? base + " " : "") + ajouts.join(" ") : base;
+}
+
 /* applique les regles de detachement a un profil deja construit */
 function applyDetach(prof, ru){
   const n = ru.name, ledBy = ru.chars.length > 0;
@@ -552,7 +630,7 @@ function applyDetach(prof, ru){
         if(has("destroyer", n)) prof.str += 2;
         break;
       case "cryptek_anti":
-        if(has("cryptek", n)) prof.critW = Math.min(prof.critW, 3);
+        if(groupeA(ru, "cryptek")) prof.critW = Math.min(prof.critW, 3);
         break;
       case "monster_ap1":
         prof.ap = Math.min(5, prof.ap + 1);
@@ -582,7 +660,9 @@ function tgtFields(){
           fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover};
 }
 function weaponProfile(unitName, w, bearers, ru){
-  const f = parseFlags(w[8]);
+  /* les aptitudes octroyees comptent comme si la fiche les portait */
+  const porteur = (ru && unitName !== ru.name) ? unitName : "";
+  const f = parseFlags(ru ? drapeauxAvecOctrois(ru, porteur, w) : w[8]);
   const p = Object.assign({}, tgtFields(), {
     label: (ru ? "" : "") + w[1],
     kind: w[2],
@@ -596,7 +676,17 @@ function weaponProfile(unitName, w, bearers, ru){
     critH: 6, critW: f.anti ? +f.anti : 6,
     hitMod: 0, wndMod: 0, rrH: "none", rrW: f.twin ? "failed" : "none"
   });
-  if(ru){ preApply(p, ru); applyDetach(p, ru); }
+  if(ru){
+    preApply(p, ru); applyDetach(p, ru);
+    /* les octrois qui touchent un champ du profil, et non un mot-cle :
+       le Heraut de la Destruction d'un Plasmancien abaisse le seuil de
+       touche critique de toute l'unite a 5 */
+    octroisArme(ru, porteur, w).forEach(o=>{
+      if(o.champ === "critH") p.critH = Math.min(p.critH, o.val);
+      else if(o.champ === "critW") p.critW = Math.min(p.critW, o.val);
+      else if(o.champ === "fnp") p.fnpAllie = Math.max(p.fnpAllie || 0, o.val);
+    });
+  }
   return p;
 }
 /* tous les profils d'une unite de la liste pour la phase courante */
@@ -1531,6 +1621,17 @@ function stepper(get, set, min, max){
   w.appendChild(mk("−",-1)); w.appendChild(val); w.appendChild(mk("+",1));
   return w;
 }
+/* Quel membre du groupe on regle en ce moment : "" pour l'escouade, sinon
+   le nom du personnage rattache. Un groupe de trois membres tenait sur un
+   panneau qu'il fallait parcourir en entier pour trouver la bonne arme ;
+   on n'en montre plus qu'un a la fois. Etat d'affichage, pas de donnee :
+   il ne part ni dans la sauvegarde ni dans le lien de partage. */
+let vueMembre = {};
+const membreVu = ru => {
+  const v = vueMembre[ru.id] || "";
+  return (v && ru.chars.some(c => c.name === v)) ? v : "";
+};
+
 function renderRoster(){
   const host = el("rosterList"); host.innerHTML = "";
   if(!R.units.length){
@@ -1563,6 +1664,30 @@ function renderRoster(){
       div.appendChild(gh);
     }
 
+    /* Une case par membre du groupe : l'escouade, puis chaque personnage.
+       On regle un membre a la fois au lieu de derouler le groupe entier. */
+    const vu = membreVu(ru);
+    if(ru.chars.length){
+      const mb = document.createElement("div");
+      mb.className = "membres";
+      const case1 = (nom, cle, sous) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "membre" + (cle === vu ? " on" : "");
+        b.innerHTML = '<span class="mn">' + nom + '</span><span class="ms">' + sous + '</span>';
+        b.addEventListener("click", ()=>{ vueMembre[ru.id] = cle; renderList(); });
+        mb.appendChild(b);
+      };
+      case1(ru.name, "", "×" + ru.size + " · " + (u[7][String(ru.size)] || 0) + " pts");
+      ru.chars.forEach(c=>{
+        const cu = unitRow(c.name);
+        case1(c.name, c.name, (roleDe(c.name) || "Personnage") +
+          (cu ? " · " + (cu[7][String(cu[6][0])] || 0) + " pts" : ""));
+      });
+      div.appendChild(mb);
+    }
+
+    if(vu === ""){
     const head = document.createElement("div");
     head.className = "rhead";
     const sc = socle(ru.name);
@@ -1681,21 +1806,32 @@ function renderRoster(){
         div.appendChild(row);
       });
     });
+    }   /* fin de la branche « escouade » */
 
-    ru.chars.forEach((c, ci)=>{
-      const row = document.createElement("div");
-      row.className = "lo lo-perso";
-      const role = (unitRow(c.name)||[])[9] || (RETINUE[c.name] ? "Escorte" : "");
+    /* Le membre choisi seulement : son en-tete, puis son armement. */
+    ru.chars.filter(c => c.name === vu).forEach((c)=>{
+      const ci = ru.chars.indexOf(c);
+      const cu = unitRow(c.name) || [];
       const scc = socle(c.name);
       const hors = peutRejoindre(c.name, ru.name) === false;
-      row.innerHTML = '<span class="ln" style="color:var(--glow)">' + c.name +
+      const head = document.createElement("div");
+      head.className = "rhead";
+      head.innerHTML = '<div class="rn"><b>' + c.name +
         (hors ? ' <b class="alerte" title="Ce personnage ne figure pas dans la liste des unités qu\'il peut rejoindre">!</b>' : '') +
-        ' <em>' + role + (scc ? ' · socle ' + scc + ' mm' : '') + '</em></span>';
-      const rm = document.createElement("button");
-      rm.className="xbtn"; rm.type="button"; rm.textContent="×";
-      rm.addEventListener("click", ()=>{ ru.chars.splice(ci,1); saveR(); renderList(); });
-      row.appendChild(rm);
-      div.appendChild(row);
+        '</b><i>' + (roleDe(c.name) || "Personnage") +
+        (cu[2] ? ' · E' + cu[2] + ' · Svg ' + cu[3] + '+' + (cu[4] ? '/' + cu[4] + '++' : '') +
+                 ' · ' + cu[5] + ' PV' : '') +
+        (scc ? ' · socle ' + scc + ' mm' : '') + '</i></div>' +
+        '<span class="rpts">' + (cu[7] ? (cu[7][String(cu[6][0])] || 0) : 0) + ' pts</span>';
+      div.appendChild(head);
+      /* ce qu'il apporte au groupe, en plus de ses armes */
+      const auras = (typeof AURAS_PERSO !== "undefined" && AURAS_PERSO[c.name]) || [];
+      auras.forEach(a=>{
+        const r = document.createElement("div");
+        r.className = "aura";
+        r.innerHTML = '<b>' + a.nom + '</b>' + a.texte;
+        div.appendChild(r);
+      });
 
       /* son armement : les armes d'office, puis un choix par emplacement.
          Un Overlord dans un groupe doit pouvoir prendre sa faux ou son
@@ -1719,7 +1855,7 @@ function renderRoster(){
       fixesC.forEach(i=>{
         const g = groupeDe(c.name, i);
         const r = document.createElement("div");
-        r.className = "lo lo-fixe lo-sous";
+        r.className = "lo lo-fixe";
         r.innerHTML = '<span class="ln">' + (g ? g.libelle : (unitWeps(c.name)[i]||[])[1]) +
           ' <em>' + detailC([i]) + '</em></span><span class="lofix">d\'office</span>';
         div.appendChild(r);
@@ -1728,7 +1864,7 @@ function renderRoster(){
         sl.o.forEach((opt, oi)=>{
           const pris = (c.lo || []).some(l => l.s === si && l.o === oi);
           const r = document.createElement("div");
-          r.className = "lo lo-sous" + (pris ? " lo-on" : "");
+          r.className = "lo" + (pris ? " lo-on" : "");
           r.innerHTML = '<span class="ln">' + libelleOption(c.name, opt) +
             ' <em>' + detailC(opt) + '</em></span>';
           const b = document.createElement("button");
@@ -1743,6 +1879,15 @@ function renderRoster(){
           div.appendChild(r);
         });
       });
+      const det = document.createElement("button");
+      det.type = "button"; det.className = "btn danger detache";
+      det.textContent = "Détacher " + c.name;
+      det.addEventListener("click", ()=>{
+        ru.chars.splice(ci, 1);
+        vueMembre[ru.id] = "";
+        saveR(); renderList();
+      });
+      div.appendChild(det);
     });
 
     /* amelioration portee par le groupe */
@@ -1777,6 +1922,33 @@ function renderRoster(){
       div.appendChild(row);
     }
 
+    /* Ce que le groupe gagne en jeu, quel que soit le membre affiche : un
+       Plasmancien rattache abaisse le seuil de touche critique de toute
+       l'unite, et cela ne se lit sur aucune ligne d'arme. */
+    const vusOct = {}, octGrp = [];
+    [{n:ru.name, p:""}].concat(ru.chars.map(c => ({n:c.name, p:c.name}))).forEach(m=>{
+      unitWeps(m.n).forEach(w => octroisArme(ru, m.p, w).forEach(o=>{
+        const k = o.nom + "|" + o.source;
+        if(vusOct[k]) return;
+        vusOct[k] = 1; octGrp.push(o);
+      }));
+    });
+    if(octGrp.length){
+      const ob = document.createElement("div");
+      ob.className = "octbloc";
+      ob.innerHTML = '<div class="eqt">Ce que le groupe reçoit</div>' + octGrp.map(o=>{
+        const effet = o.mot ? '[' + motsArme(o.mot).toUpperCase() + ']'
+          : (o.champ === "critH" ? 'Critique Touche ' + o.val + '+'
+          :  o.champ === "critW" ? 'Critique Blessure ' + o.val + '+'
+          :  o.champ === "fnp"   ? 'Insensible à la Douleur ' + o.val + '+'
+          :  o.champ + ' ' + o.val);
+        return '<div class="oct"><span class="oe">' + effet + '</span>' +
+          '<span class="oi2"><b>' + o.nom + '</b>' + o.texte + '</span>' +
+          '<span class="os">' + o.source + '</span></div>';
+      }).join("");
+      div.appendChild(ob);
+    }
+
     /* mots-cles du groupe : ceux apportes par un personnage sont signales */
     const kws = motsClesGroupe(ru);
     if(kws.length){
@@ -1807,7 +1979,10 @@ function renderRoster(){
       groupesArmes(nom).forEach(g =>{
         let n = 0;
         g.profils.forEach(pr => { n = Math.max(n, port[pr.i] || 0); });
-        g.profils.forEach(pr => lignes.push({ w:pr.w, n:n, source:source }));
+        g.profils.forEach(pr => lignes.push({ w:pr.w, n:n, source:source,
+          /* une arme qui porte deja l'aptitude ne la recoit pas deux fois */
+          octrois: octroisArme(ru, source, pr.w)
+            .filter(o => o.mot && !parseFlags(pr.w[8] || "")[o.mot]) }));
       });
     };
     verse(ru.name, portParArme(ru), "");
@@ -1819,11 +1994,21 @@ function renderRoster(){
       let h = '<div class="eqt">' + titre + '</div><div class="eqwrap"><table class="arms">' +
         '<thead><tr><th style="text-align:left">Arme</th><th>Po</th><th>A</th><th>CT</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
       lot.forEach(x=>{
-        const w = x.w, mots = w[8] ? motsArme(w[8]) : "";
+        const w = x.w;
+        /* Les aptitudes ne se lisaient plus a bout portant : elles passent en
+           pastilles. Celles qu'un detachement ou un personnage accorde sont
+           marquees a part — elles ne figurent pas sur la fiche technique. */
+        const chip = (t, cls, titre) => '<span class="wk' + (cls ? ' ' + cls : '') + '"' +
+          (titre ? ' title="' + titre.replace(/"/g, "&quot;") + '"' : '') + '>' + t + '</span>';
+        const propres = (w[8] ? motsArme(w[8]) : "").split(" · ").filter(Boolean)
+          .map(t => chip(t, "", glossaireDe(t)));
+        const donnes = (x.octrois || []).map(o =>
+          chip(motsArme(o.mot), "wkadd", o.nom + " — " + o.texte + " (" + o.source + ")"));
+        const mots = propres.concat(donnes).join("");
         h += '<tr class="' + (x.n ? '' : 'off') + '"><td class="an">' +
           (x.n ? '<b class="q">×' + x.n + ' </b>' : '') + w[1] +
           (x.source ? '<span class="src">' + x.source + '</span>' : '') +
-          (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
+          (mots ? '<span class="wks">' + mots + '</span>' : '') + '</td>' +
           '<td>' + portee(w) + '</td>' +
           '<td>' + w[3] + '</td><td>' + w[4] + '+</td><td>' + w[5] + '</td>' +
           '<td>' + (w[6] ? '-' + w[6] : '0') + '</td><td>' + w[7] + '</td></tr>';
@@ -2055,6 +2240,13 @@ function groupeDe(nom, i){
 const portee = w => w[2] === "C" ? "càc" : (w[9] || "—");
 const aptitudesDe = nom => (typeof APTITUDES !== "undefined" && APTITUDES[nom]) || [];
 const transportDe = nom => (typeof TRANSPORTS !== "undefined" && TRANSPORTS[nom]) || "";
+
+/* la definition officielle d'une aptitude d'arme, pour l'infobulle des
+   pastilles : « Touches Soutenues 2 » se cherche sous « Touches Soutenues » */
+function glossaireDe(mot){
+  const clef = String(mot).replace(/\s+[\dD]+\+?$/, "").replace(/^Anti-X.*/, "Anti-X");
+  return (typeof GLOSSAIRE !== "undefined" && GLOSSAIRE[clef]) || "";
+}
 
 /* les mots-cles d'arme effectivement portes par l'unite, pour ne
    derouler que le glossaire qui la concerne */
@@ -2318,7 +2510,13 @@ function renderPick(){
     const cible = pickTarget.name;
     /* eligibles : personnages dont la regle Leader cite cette unite,
        plus les escortes qui peuvent s'y greffer */
-    const candidats = UNITS.filter(u => (u[9] || RETINUE[u[0]]) && (!q || norm(u[0]).includes(q)));
+    /* Seules les figurines qui ont l'aptitude Meneur ou Appui rejoignent une
+       unite. La Catacomb Command Barge est un PERSONNAGE — elle peut porter
+       une optimisation — mais c'est un VEHICULE : elle ne se rattache a
+       personne, et elle n'a donc rien a faire dans cette liste. */
+    const candidats = UNITS.filter(u =>
+      (u[9] === "Leader" || u[9] === "Support" || RETINUE[u[0]]) &&
+      (!q || norm(u[0]).includes(q)));
     const ok = candidats.filter(u => peutRejoindre(u[0], cible) === true);
     const inconnu = candidats.filter(u => peutRejoindre(u[0], cible) === null);
     const non = candidats.filter(u => peutRejoindre(u[0], cible) === false);
