@@ -28,8 +28,8 @@ Aucune installation, aucun réseau.
 Pour travailler sur les sources, il faut les servir par HTTP —
 `python3 -m http.server` puis `http://localhost:8000` — car un navigateur
 refuse de charger des scripts séparés depuis `file://`. Après modification,
-`node build.js` régénère le bundle (nécessite `npm i terser`) : le fichier
-produit est `dist/_full.html`, à recopier sur `Necron_Aide_Jeu.html`.
+`node build.js` régénère `dist/` (nécessite `npm i terser`) : le fichier
+autonome produit est `dist/Necron_Aide_Jeu.html`, à recopier à la racine.
 
 Le **lien de partage** n'est proposé que sur une version servie en HTTP ;
 depuis un fichier local, il faut passer par « Exporter / importer la liste ».
@@ -44,8 +44,29 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | `app.js` | onglet Simulateur |
 | `roster.js` | axes Listes et En partie, vues Tir cumulé et Comparer, fiche d'unité, partage, encodeur QR |
 | `sw.js` | service worker (mode hors-ligne) |
-| `build.js` | fabrique le bundle minifié dans `dist/` |
-| `mkloader.js` | fabrique le chargeur compressé `dist/index.html` + `dist/a.b64` |
+| `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
+| `vercel.json` | pointe le déploiement sur `dist/` |
+| `mkloader.js` | fabrique un chargeur compressé, hors chaîne de build |
+
+### Déploiement
+
+`node build.js` remplit `dist/` avec deux choses distinctes :
+
+- **le site** — `index.html`, `data.js`, `engine.js`, `app.js`, `roster.js`,
+  `sw.js`, `manifest.json`, `icon.svg`, les sources telles quelles, un fichier
+  par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
+- **le fichier autonome** — `dist/Necron_Aide_Jeu.html`, l'application repliée
+  en un seul fichier, recopiée à la racine du dépôt et téléchargeable depuis le
+  site. `dist/hors-ligne.html` en est la variante compressée, qui se déplie au
+  chargement.
+
+Le nom du cache du service worker porte l'empreinte SHA-256 des sources : un
+déploiement qui change quoi que ce soit invalide l'ancien cache au lieu de le
+laisser resservir la version précédente.
+
+Sans `vercel.json`, Vercel exécute `npm run build` puis cherche un dossier
+`public` : il n'en trouve pas, le déploiement échoue, et le site reste figé sur
+la dernière version publiée avant l'ajout de `package.json`.
 
 ## Les trois axes
 

@@ -668,3 +668,52 @@ Phaëron. Le pack ne les donne pas (elles vivent dans l'Inventaire du
 Munitorum) et le catalogue BattleScribe ne connaît pas encore ces
 détachements de juillet 2026. Elles comptent pour 0 point dans le total de la
 liste, et l'affichage le dit — « coût inconnu ».
+
+---
+
+## 15. Le site n'était plus déployé — 20/08/2026
+
+« Ça ne fonctionne pas, je suis sur le vercel.app. Je ne vois pas
+l'organisation des armes, enfin ce n'est pas poussé, en tout cas je ne vois
+pas. »
+
+C'était poussé. Ce n'était pas *déployé*.
+
+Le journal de build de Vercel :
+
+```
+Running "npm run build"
+> node build.js
+app 276610 o | chargeur 103744 o
+Error: No Output Directory named "public" found after the Build completed.
+```
+
+L'ajout de `package.json` au chantier 8 a fait basculer Vercel d'un service
+statique — il publiait la racine du dépôt telle quelle — à un build détecté :
+il exécute `npm run build`, puis cherche `public`. `build.js` écrit dans
+`dist/`. Aucun `vercel.json` ne le disait.
+
+**Huit fusions de suite ont échoué au déploiement.** La dernière production
+servie datait de la PR #23 : tout ce qui a été fait depuis — le pack de
+faction, le retrait des Legends, l'armement par emplacement, le porteur de
+l'optimisation, l'armement des personnages, les seuils de certitude, et le
+chantier 14 d'hier — n'a jamais atteint le site. Les fichiers autonomes que
+j'envoyais à chaque fois, eux, étaient bien à jour : d'où l'impression que
+« c'est fait » d'un côté et « je ne vois rien » de l'autre.
+
+`vercel.json` fixe `outputDirectory: "dist"`, et `build.js` remplit désormais
+`dist/` avec un site complet — les sources une par une, comme avant l'ajout du
+build — plus le fichier autonome, téléchargeable depuis la page.
+
+Le chargeur compressé quitte `dist/index.html` pour `dist/hors-ligne.html` :
+il n'a jamais été la version déployée, et occuper la porte d'entrée du site
+l'aurait remplacée par un `document.write` de 104 ko.
+
+Le nom du cache du service worker portait un numéro de version écrit à la
+main, jamais incrémenté. Il porte maintenant l'empreinte SHA-256 des cinq
+sources : un déploiement qui change quoi que ce soit invalide l'ancien cache
+au lieu de le laisser resservir la version précédente.
+
+**Leçon** : le vert d'une suite de tests locale ne dit rien de ce que voit
+l'utilisateur. L'état du déploiement fait partie de la livraison, et je ne
+l'avais jamais vérifié.
