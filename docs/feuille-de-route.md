@@ -1304,3 +1304,61 @@ Déclarer une condition changeait le calcul mais pas les lignes affichées :
 `render()` ne redessine pas les profils. Le résultat bougeait, les pastilles
 restaient à l'ancienne valeur — **l'affichage mentait sur ce qui venait d'être
 calculé**. Corrigé, avec le même redessin sur les raccourcis et les segments.
+
+---
+
+## 23. La cible se choisit vite, et se garde
+
+Retour de l'utilisateur : « tu peux améliorer la partie de sélection des cibles ».
+
+### Un écran entier pour huit réglages
+
+La carte Cible empilait huit rangées pleine largeur — endurance, sauvegarde,
+invulnérable, PV, figurines, insensibilité, réduction de dégâts, couvert. Près de
+**800 px** pour des valeurs qu'on pose une fois, pendant que l'attaquant, lui,
+tenait replié sur une ligne. Les résultats commençaient hors écran.
+
+Tout est passé dans une grille dense, celle des retouches de partie. **380 px**,
+et le premier histogramme apparaît sans faire défiler.
+
+### Garder une cible
+
+C'est le vrai manque. L'application ne connaît **que** les fiches nécrones : les
+douze cibles génériques sont des archétypes, pas des profils officiels, et je
+n'ai aucune source pour les autres factions. Inventer des caractéristiques de
+Custodes ou de Tyranides serait la faute du chantier 8.
+
+La réponse honnête n'est pas d'en écrire davantage, c'est de laisser le joueur
+saisir le profil qu'il a sous les yeux et de le **garder** — nommé, rangé sur le
+téléphone, rappelé d'une touche. « Les Custodes de Marc » vaut mieux qu'une
+approximation de ma main. Une pastille s'allume quand le profil à l'écran est
+exactement celui d'une cible gardée, et s'éteint dès qu'on retouche une valeur.
+
+Le catalogue générique porte désormais la mention de ce qu'il est, et se range
+par nature — infanterie légère, infanterie lourde, élite, véhicule & monstre —
+puisque c'est le critère avec lequel on choisit une cible.
+
+### Viser sa propre liste
+
+Un troisième onglet, « Ma liste », vise une unité de la liste ouverte avec ce
+qu'elle sera **réellement** en jeu : l'effectif choisi, les personnages
+rattachés comptés dans les figurines, et l'insensibilité qu'un Technomancien
+donne au groupe. Le catalogue seul n'en savait rien.
+
+```
+Phalange   E4 · Svg 4+ · 1 PV ×21 · FNP 5+ · Technomancer
+```
+
+Vingt Guerriers plus le Technomancien font vingt-et-une figurines, et les Rites
+de Réanimation donnent le 5+ à tout le monde.
+
+### Le même défaut, une deuxième fois
+
+La pastille d'une cible gardée restait allumée après qu'on eut changé
+l'endurance, et le résumé sous le sélecteur gardait l'ancien profil : `render()`
+ne rafraîchissait pas la cible, seulement le calcul. **L'affichage affirmait
+autre chose que ce qui était simulé** — exactement le défaut corrigé au chantier
+précédent sur les pastilles de profil.
+
+Le résumé et les pastilles se recalculent maintenant dans `render()` lui-même,
+ce qui ferme la classe entière plutôt qu'un cas.

@@ -579,6 +579,27 @@ button.todo:active{background:var(--s2)}
   letter-spacing:.04em;text-transform:none;color:var(--tx3)}
 .vitehead #viteCount.on{color:var(--glow)}
 .vitepres{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+/* la cible tient sous son sélecteur : huit réglages qu'on pose une fois
+   ne méritent pas huit rangées pleine largeur */
+.vitegrid .ctl.one{display:block}
+.vitegrid .ctl.one input{width:100%;max-width:none;height:34px;text-align:center;
+  font-variant-numeric:tabular-nums}
+.vc.vlarge{grid-column:1/-1}
+.vsave{padding:3px 9px;background:transparent;border:1px solid var(--line-hi);
+  border-radius:6px;color:var(--glow);font:inherit;font-size:10px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+.vsave:active{background:var(--glow-soft)}
+.toggle.tcov{margin-top:8px}
+/* cibles gardées : les profils que l'application ne peut pas connaître */
+.cibgard{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.cibgard:empty{display:none}
+.cibgard .cg{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;
+  background:var(--s1);border:1px solid var(--line);border-radius:7px;
+  color:var(--tx2);font:inherit;font-size:11px;cursor:pointer}
+.cibgard .cg.on{border-color:var(--line-hi);color:var(--glow);background:var(--glow-soft)}
+.cibgard .cg b{font-weight:700}
+.cibgard .cg i{font-style:normal;font-size:9.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cibgard .cg span.x{margin-left:1px;padding:0 3px;color:var(--tx3);font-size:13px;line-height:1}
 .vpre{padding:6px 9px;background:transparent;border:1px solid var(--line);
   border-radius:7px;color:var(--tx3);font:inherit;font-size:11.5px;font-weight:600;
   line-height:1.2;text-align:left;cursor:pointer}
@@ -967,14 +988,20 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <span class="arrow">›</span>
       </button>
       <div class="chips tight" id="tSizeChips"></div>
-      <div class="row"><label for="tough">Endurance</label><div class="ctl"><input type="number" id="tough" inputmode="numeric" min="1" max="30"></div></div>
-      <div class="row stack"><label>Sauvegarde</label><div class="ctl"><div class="seg small" id="segSv"></div></div></div>
-      <div class="row stack"><label>Invulnérable</label><div class="ctl"><div class="seg small" id="segInv"></div></div></div>
-      <div class="row"><label for="wounds">PV / figurine</label><div class="ctl"><input type="number" id="wounds" inputmode="numeric" min="1" max="60"></div></div>
-      <div class="row"><label for="models">Figurines</label><div class="ctl"><input type="number" id="models" inputmode="numeric" min="1" max="40"></div></div>
-      <div class="row stack"><label>Insensible (FNP)</label><div class="ctl"><div class="seg small" id="segFNP"></div></div></div>
-      <div class="row stack"><label>Réduction de dégâts subis</label><div class="ctl"><div class="seg small" id="segDmgRed"></div></div></div>
-      <label class="toggle"><input type="checkbox" id="cover"><span class="box">✓</span><span class="txt">Bénéfice du couvert<em>+1 en sauvegarde (sans effet sur Svg 3+ ou mieux face à PA 0)</em></span></label>
+      <div class="cibgard" id="cibGardees"></div>
+      <div class="vite">
+        <div class="vitehead">Profil de la cible<button type="button" class="vsave" id="btnSaveCible">Garder</button></div>
+        <div class="vitegrid">
+          <div class="vc"><span class="vk">Endurance</span><div class="ctl one"><input type="number" id="tough" inputmode="numeric" min="1" max="30"></div></div>
+          <div class="vc"><span class="vk">PV / figurine</span><div class="ctl one"><input type="number" id="wounds" inputmode="numeric" min="1" max="60"></div></div>
+          <div class="vc"><span class="vk">Figurines</span><div class="ctl one"><input type="number" id="models" inputmode="numeric" min="1" max="40"></div></div>
+          <div class="vc vlarge"><span class="vk">Sauvegarde</span><div class="seg small" id="segSv"></div></div>
+          <div class="vc vlarge"><span class="vk">Invulnérable</span><div class="seg small" id="segInv"></div></div>
+          <div class="vc"><span class="vk">Insensible (FNP)</span><div class="seg small" id="segFNP"></div></div>
+          <div class="vc"><span class="vk">Dégâts subis en moins</span><div class="seg small" id="segDmgRed"></div></div>
+        </div>
+        <label class="toggle tcov"><input type="checkbox" id="cover"><span class="box">✓</span><span class="txt">Bénéfice du couvert<em>+1 en sauvegarde — sans effet sur Svg 3+ ou mieux face à PA 0</em></span></label>
+      </div>
       <p class="hint" id="tgtNote"></p>
     </div>
   </section>
@@ -1359,6 +1386,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="sheet-head"><h3>Choisir la cible</h3><button class="ghost" data-close="sheetTarget" type="button">Fermer</button></div>
   <div class="sheet-tabs" id="tTabs">
     <button type="button" class="chip on" data-t="generic">Génériques</button>
+    <button type="button" class="chip" data-t="roster">Ma liste</button>
     <button type="button" class="chip" data-t="necrons">Nécrons</button>
   </div>
   <input class="sheet-search" id="tSearch" type="text" placeholder="Rechercher une cible…" autocomplete="off">

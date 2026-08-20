@@ -267,6 +267,29 @@ window.ROSTER = {
       nT: profilsPhase(ru, "T").length,
       nC: profilsPhase(ru, "C").length })) };
   },
+  /* Le cote CIBLE d'une unite de la liste : ses caracteristiques
+     defensives telles qu'elles seront reellement en jeu — l'effectif
+     choisi, et l'insensibilite qu'un Technomancien rattache donne au
+     groupe. Le catalogue seul ne connait ni l'un ni l'autre. */
+  simCible: function(id){
+    if(!R) return null;
+    const ru = R.units.find(x => x.id === id); if(!ru) return null;
+    const u = unitRow(ru.name); if(!u) return null;
+    /* le plus resistant du groupe porte les caracteristiques : c'est lui
+       qu'on doit abattre en dernier, et c'est sur lui qu'on repartit les
+       blessures allouees */
+    let fnp = u[8] || 0;
+    const auras = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
+    ru.chars.forEach(c => (auras[c.name] || []).forEach(a=>{
+      if(a.champ === "fnp") fnp = Math.max(fnp, a.val);
+    }));
+    /* la Necrodermis et les aptitudes du meme genre retranchent un degat */
+    const red = /Necrodermis|Implacable Resilience|Quantum Shielding|-1 D.g.t/i
+                  .test(String(u[11] || "")) ? 1 : 0;
+    return { tough: u[2], sv: u[3], inv: u[4] || 0, wounds: u[5],
+             models: ru.size + ru.chars.length,
+             fnp: fnp, dmgRed: red };
+  },
   /* crochet de verification : le total en points, et le detail unite par
      unite avec le rang de chaque copie */
   points: function(){

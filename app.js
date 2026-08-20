@@ -52,6 +52,21 @@ function rendSeuils(host, dist){
   }).join("");
 }
 
+/* Les cibles generiques sont des archetypes, pas des fiches officielles :
+   l'application ne connait que les Necrons. Elles servent a se faire une
+   idee — pour un chiffre exact contre un adversaire reel, on saisit son
+   profil et on le garde (voir « cibles gardees »). */
+const NATURE_CIBLE = {
+  "Garde impérial":"Infanterie légère", "Ork Boy":"Infanterie légère",
+  "Aeldari (Guardian)":"Infanterie légère",
+  "Space Marine":"Infanterie lourde", "Marine Gravis":"Infanterie lourde",
+  "Genestealer":"Infanterie lourde", "Guerrier tyranide":"Infanterie lourde",
+  "Terminator":"Élite", "Custodes":"Élite",
+  "Transport (T9)":"Véhicule & monstre", "Char lourd (T11)":"Véhicule & monstre",
+  "Knight (T12)":"Véhicule & monstre"
+};
+const NATURE_ORDRE = ["Infanterie légère","Infanterie lourde","Élite","Véhicule & monstre"];
+
 const GENERIC_TARGETS = [
   ["Garde impérial",     {tough:3, sv:5, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}],
   ["Ork Boy",            {tough:5, sv:6, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}],
@@ -230,6 +245,65 @@ function refreshAttacker(){
    CIBLE
    ========================================================== */
 let tgtName = "Space Marine", tgtUnit = null, tgtSize = 5;
+
+/* ---------- cibles gardees ----------
+   L'application ne connait que les fiches necrones. Contre un adversaire
+   reel, le seul profil exact est celui que le joueur saisit lui-meme :
+   on le lui fait garder plutot que d'inventer des caracteristiques
+   d'autres factions. */
+const CLE_CIBLES = "mathhammer.cibles.v1";
+const CHAMPS_CIBLE = ["tough","sv","inv","wounds","models","fnp","dmgRed"];
+let ciblesGardees = [];
+function chargeCibles(){
+  try{ const b = JSON.parse(localStorage.getItem(CLE_CIBLES) || "[]");
+       ciblesGardees = Array.isArray(b) ? b : []; }
+  catch(e){ ciblesGardees = []; }
+}
+const sauveCibles = () => {
+  try{ localStorage.setItem(CLE_CIBLES, JSON.stringify(ciblesGardees)); }catch(e){}
+};
+const resumeCible = c => "E" + c.tough + " · Svg " + c.sv + "+" +
+  (c.inv ? "/" + c.inv + "++" : "") + " · " + c.wounds + " PV ×" + c.models +
+  (c.fnp ? " · FNP " + c.fnp + "+" : "") + (c.dmgRed ? " · -" + c.dmgRed + " D" : "");
+/* la cible de l'ecran est-elle exactement celle-ci ? */
+const memeCible = c => CHAMPS_CIBLE.every(k => S[k] === c[k]);
+
+function gardeCible(){
+  const propose = tgtName && tgtName !== "Space Marine" ? tgtName : "";
+  const nom = (window.prompt("Nom de cette cible ?", propose) || "").trim();
+  if(!nom) return;
+  const c = {nom: nom};
+  CHAMPS_CIBLE.forEach(k => c[k] = S[k]);
+  const i = ciblesGardees.findIndex(x => x.nom === nom);
+  if(i >= 0) ciblesGardees[i] = c; else ciblesGardees.push(c);
+  sauveCibles(); tgtName = nom; tgtUnit = null;
+  refreshTarget(); render();
+}
+function appliqueCibleGardee(c){
+  CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
+  tgtName = c.nom; tgtUnit = null;
+  refreshTarget(); pushState(); render();
+}
+function renderCiblesGardees(){
+  const host = el("cibGardees"); if(!host) return;
+  host.innerHTML = "";
+  ciblesGardees.forEach(c=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "cg" + (memeCible(c) ? " on" : "");
+    b.innerHTML = '<b>' + c.nom + '</b><i>' + resumeCible(c) + '</i>';
+    b.addEventListener("click", ()=> appliqueCibleGardee(c));
+    const x = document.createElement("span");
+    x.className = "x"; x.textContent = "×"; x.title = "Oublier « " + c.nom + " »";
+    x.addEventListener("click", e=>{
+      e.stopPropagation();
+      ciblesGardees = ciblesGardees.filter(y => y.nom !== c.nom);
+      sauveCibles(); renderCiblesGardees();
+    });
+    b.appendChild(x);
+    host.appendChild(b);
+  });
+}
 function applyGenericTarget(name){
   const p = GENERIC_TARGETS.find(t => t[0] === name);
   if(!p) return;
@@ -248,11 +322,18 @@ function applyNecronTarget(name, size){
   tgtName = name; tgtUnit = u; tgtSize = size;
   refreshTarget(); pushState(); render();
 }
-function refreshTarget(){
-  el("ptName").textContent = tgtName;
+/* le nom retenu, le profil reellement en vigueur, et l'etat des cibles
+   gardees — tout ce qui doit suivre la moindre retouche */
+function majResumeCible(){
+  const n = el("ptName"); if(!n) return;
+  n.textContent = tgtName;
   el("ptSub").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
     " · " + S.wounds + " PV × " + S.models + (S.fnp ? " · FNP " + S.fnp + "+" : "") +
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
+  renderCiblesGardees();
+}
+function refreshTarget(){
+  majResumeCible();
   const sc = el("tSizeChips"); sc.innerHTML = "";
   if(tgtUnit && tgtUnit[6].length > 1){
     sc.style.display = "";
@@ -349,12 +430,57 @@ function renderTargetList(){
   if(tgtTab === "generic"){
     const list = GENERIC_TARGETS.filter(t => !q || norm(t[0]).includes(q));
     if(!list.length){ host.innerHTML = '<div class="sheet-empty">Aucune cible trouvée.</div>'; return; }
-    list.forEach(([name,p])=>{
+    /* douze entrees a la file se lisaient mal : on les range par nature,
+       qui est justement le critere avec lequel on choisit une cible */
+    const bouton = ([name,p])=>{
       const b = document.createElement("button");
       b.type="button"; b.className = "opt" + (name===tgtName ? " sel" : "");
       b.innerHTML = '<span class="oi"><span class="o1">' + name + '</span><span class="o2">E' + p.tough +
         " · Svg " + p.sv + "+" + (p.inv ? "/" + p.inv + "++" : "") + " · " + p.wounds + " PV × " + p.models + '</span></span>';
       b.addEventListener("click", ()=>{ closeSheet("sheetTarget"); applyGenericTarget(name); });
+      return b;
+    };
+    NATURE_ORDRE.forEach(nat=>{
+      const lot = list.filter(t => NATURE_CIBLE[t[0]] === nat);
+      if(!lot.length) return;
+      const sep = document.createElement("div");
+      sep.className = "sheet-sep"; sep.textContent = nat;
+      host.appendChild(sep);
+      lot.forEach(t => host.appendChild(bouton(t)));
+    });
+    const orphelines = list.filter(t => !NATURE_CIBLE[t[0]]);
+    orphelines.forEach(t => host.appendChild(bouton(t)));
+    const note = document.createElement("p");
+    note.className = "hint";
+    note.style.padding = "10px 14px 4px";
+    note.textContent = "Ces profils sont des archétypes : l'application ne connaît " +
+      "en propre que les fiches nécrones. Pour un chiffre exact contre un adversaire, " +
+      "saisis son profil et garde-le.";
+    host.appendChild(note);
+  } else if(tgtTab === "roster"){
+    /* Viser une unite de sa propre liste : l'effectif reel, et
+       l'insensibilite qu'un Technomancien rattache lui donne — ce que le
+       catalogue seul ne sait pas. */
+    const r = window.ROSTER && window.ROSTER.simListe();
+    const lot = (r && r.unites || []).filter(x => !q || norm(x.nom).includes(q));
+    if(!lot.length){
+      host.innerHTML = '<div class="sheet-empty">' +
+        (r && r.unites.length ? "Aucune unité de ta liste ne correspond."
+          : "Ta liste ouverte est vide.") + '</div>';
+      return;
+    }
+    lot.forEach(x=>{
+      const c = window.ROSTER.simCible(x.id); if(!c) return;
+      const b = document.createElement("button");
+      b.type="button"; b.className = "opt" + (x.nom===tgtName ? " sel" : "");
+      b.innerHTML = '<span class="oi"><span class="o1">' + x.nom + '</span><span class="o2">' +
+        resumeCible(c) + (x.persos.length ? ' · ' + x.persos.join(", ") : '') + '</span></span>';
+      b.addEventListener("click", ()=>{
+        closeSheet("sheetTarget");
+        CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
+        tgtName = x.nom; tgtUnit = null;
+        refreshTarget(); pushState(); render();
+      });
       host.appendChild(b);
     });
   } else {
@@ -729,6 +855,11 @@ function drawBars(svg, data, color, tipFmt){
 let lastSim = null, lastData = null;
 function render(){
   majVite();
+  /* Le resume de la cible et les pastilles gardees se lisent sur l'etat
+     courant : les recalculer ici, et non seulement au moment ou l'on
+     choisit une cible, evite qu'ils affirment autre chose que ce qui est
+     reellement simule des qu'on retouche une caracteristique a la main. */
+  majResumeCible();
   /* Deux facons de mesurer, un seul rendu. En mode « une arme » on
      simule le profil de l'ecran ; en mode « unite entiere » tous les
      profils coches tirent dans l'ordre sur le meme vivier de figurines,
@@ -964,6 +1095,9 @@ majAtkMode(); renderAtkUnite(); majVite();
 if("serviceWorker" in navigator){
   window.addEventListener("load", ()=> navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
+chargeCibles();
+if(el("btnSaveCible")) el("btnSaveCible").addEventListener("click", gardeCible);
+
 global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
   applyGenericTarget, applyNecronTarget, drawBars, binned, pct, num, rendSeuils,
   get tgtName(){ return tgtName; }, get tgtUnit(){ return tgtUnit; },

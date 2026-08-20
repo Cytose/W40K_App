@@ -121,6 +121,14 @@ sans que rien ne soit coché. Celles qui dépendent de la situation — cible su
 un objectif, unité ayant chargé, figurine abîmée — n'agissent jamais d'office :
 elles apparaissent sous leur nom officiel dans la zone rapide, à déclarer.
 
+La **cible** tient sous son sélecteur : une grille dense au lieu de huit rangées.
+Elle se choisit parmi douze archétypes rangés par nature, parmi les fiches
+nécrones, ou **dans la liste ouverte** — auquel cas l'unité arrive avec son
+effectif réel, ses personnages rattachés comptés, et l'insensibilité qu'un
+Technomancien lui donne. Un profil saisi à la main se **garde** sous un nom et se
+rappelle d'une touche : l'application ne connaissant que les Nécrons, c'est la
+seule façon d'avoir un profil exact d'une autre faction.
+
 Sous l'attaquant, les **retouches de partie** restent visibles avec le compte
 de celles qui sont actives : modificateurs de touche, de blessure, de
 **pénétration d'armure** et de **dégâts**, relances, et quatre raccourcis pour
