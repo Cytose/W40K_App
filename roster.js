@@ -4037,6 +4037,99 @@ function renderGrp(){
 }
 
 /* ==========================================================
+   PALMARÈS — ce qui marche le mieux contre cette cible
+   Cent trente-six armes dans la faction. La question « avec quoi je
+   perce ce char » ne se resout pas en les essayant une par une.
+   L'ecran les passe toutes au moteur contre la cible du moment et les
+   range, par arme ou par unite, en puissance brute ou au point.
+
+   Chaque fiche est prise NUE : effectif maximum, sans detachement,
+   sans personnage rattache, sans retouche. C'est une carte du terrain,
+   pas un calcul de partie — l'onglet Attaque est la pour ca, et le dit.
+   ========================================================== */
+let topPhaseV = "T", topQuoiV = "arme", topOuV = "tout", topTriV = "brut";
+
+/* combien de figurines peuvent porter chaque arme, au maximum */
+function portMax(nom, taille){
+  const out = {}, slots = armSlots(nom);
+  armFixes(nom).forEach(i => { out[i] = taille; });
+  slots.forEach((sl, si)=>{
+    (sl.o || []).forEach((opt, oi)=>{
+      const cap = optMax(sl, oi) || taille;
+      (opt || []).forEach(i => { out[i] = Math.max(out[i] || 0, cap); });
+    });
+  });
+  return out;
+}
+function palmares(){
+  const rows = [];
+  const dansLaListe = {};
+  if(R) R.units.forEach(ru => { dansLaListe[ru.name] = true; });
+  UNITS.forEach(u=>{
+    const nom = u[0];
+    if(topOuV === "liste" && !dansLaListe[nom]) return;
+    const taille = u[6][u[6].length - 1];
+    const wl = unitWeps(nom), port = portMax(nom, taille);
+    const pts = ptsPour(u, taille, 1);
+    const parUnite = [];
+    Object.keys(port).map(Number).forEach(i=>{
+      const w = wl[i], n = port[i];
+      if(!w || !n || w[2] !== topPhaseV) return;
+      const prof = Object.assign(weaponProfile(nom, w, n, null), {
+        tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
+        fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover, kind:w[2] });
+      const a = analytic(prof);
+      const g = groupeDe(nom, i);
+      rows.push({ arme:(g ? g.libelle : w[1]), unite:nom, n:n, pts:pts,
+                  dmg:a.rawDmg, mien:!!dansLaListe[nom] });
+      parUnite.push(a.rawDmg);
+    });
+    if(topQuoiV === "unite" && parUnite.length){
+      /* l'unite entiere : toutes ses armes de la phase, celles qui
+         s'excluent comprises — c'est un plafond, pas un armement reel */
+      rows.push({ arme:"", unite:nom, n:taille, pts:pts,
+                  dmg:parUnite.reduce((x,y)=>x+y, 0), mien:!!dansLaListe[nom],
+                  groupe:true, combien:parUnite.length });
+    }
+  });
+  const gardes = topQuoiV === "unite" ? rows.filter(r => r.groupe) : rows;
+  gardes.forEach(r => { r.eff = r.pts ? r.dmg / r.pts * 100 : 0; });
+  const cle = topTriV === "eff" ? "eff" : "dmg";
+  gardes.sort((a,b) => b[cle] - a[cle]);
+  return gardes;
+}
+function renderTop(){
+  const host = el("topList"); if(!host) return;
+  const rows = palmares().slice(0, 40);
+  const sousTitre = el("topSub");
+  if(!rows.length){
+    host.innerHTML = '<div class="empty">Rien à classer : aucune arme pour cette phase.</div>';
+    if(sousTitre) sousTitre.textContent = "";
+    return;
+  }
+  if(sousTitre) sousTitre.textContent =
+    "Contre " + SIM.tgtName + " ×" + S.models + motsCibleEnClair().replace(/^ · /, ", ") +
+    ". " + (topQuoiV === "unite"
+      ? "Toutes les armes de la fiche pour cette phase, additionnées."
+      : "Une ligne par arme, à l'effectif maximum de son unité.") +
+    " Les quarante premières.";
+  const cle = topTriV === "eff" ? "eff" : "dmg";
+  const max = rows[0][cle] || 1;
+  host.className = "top";
+  host.innerHTML = rows.map((r, i)=>
+    '<div class="tr' + (i < 3 ? ' podium' : '') + (r.mien ? ' mien' : '') + '">' +
+    '<span class="rg">' + (i+1) + '</span>' +
+    '<span class="tn"><b>' + (r.groupe ? r.unite : r.arme) + '</b>' +
+    '<i>' + (r.groupe
+      ? r.combien + ' arme' + (r.combien>1?'s':'') + ' · ×' + r.n + ' · ' + r.pts + ' pts'
+      : r.unite + ' · ×' + r.n + ' · ' + r.pts + ' pts') + '</i></span>' +
+    '<span class="tv"><b>' + num(r[cle]) + '</b><i>' +
+      (topTriV === "eff" ? 'PV / 100 pts' : 'PV') + '</i></span>' +
+    '<span class="bar"><span style="width:' +
+      Math.max(1.5, (r[cle]/max)*100) + '%"></span></span></div>').join("");
+}
+
+/* ==========================================================
    IMPORT / EXPORT
    ========================================================== */
 /* ==========================================================
@@ -4723,6 +4816,7 @@ el("simTabs").querySelectorAll("button").forEach(b=>{
     el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
     if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
     if(b.dataset.v === "subGrp"){ syncTarget(); renderGrpList(); }
+    if(b.dataset.v === "subTop"){ syncTarget(); renderTop(); }
     if(b.dataset.v === "subDef") renderDef();
   });
 });
@@ -4782,6 +4876,9 @@ if(el("btnPadQClear")) el("btnPadQClear").addEventListener("click", ()=>{
 });
 el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
 function syncTarget(){
+  el("ptName5").textContent = SIM.tgtName;
+  el("ptSub5").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
+    " · " + S.wounds + " PV × " + S.models + motsCibleEnClair();
   el("ptName4").textContent = SIM.tgtName;
   el("ptSub4").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
     " · " + S.wounds + " PV × " + S.models + motsCibleEnClair();
@@ -4799,6 +4896,17 @@ function motsCibleEnClair(){
   return v.length ? " · " + v.join(", ") : "";
 }
 el("pickTarget4").addEventListener("click", ()=> el("pickTarget").click());
+el("pickTarget5").addEventListener("click", ()=> el("pickTarget").click());
+[["topPhase","p",v=>{topPhaseV=v}], ["topQuoi","q",v=>{topQuoiV=v}],
+ ["topOu","o",v=>{topOuV=v}], ["topTri","t",v=>{topTriV=v}]].forEach(([id, cle, pose])=>{
+  const h = el(id); if(!h) return;
+  h.querySelectorAll(".chip").forEach(b=>
+    b.addEventListener("click", ()=>{
+      pose(b.dataset[cle]);
+      h.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===b));
+      renderTop();
+    }));
+});
 el("btnGrpRoster").addEventListener("click", ouvreGrpPick);
 el("grpPhase").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
@@ -4955,6 +5063,7 @@ origPick.addEventListener("click", ()=>{ pickMode = null; window.__rosterPick = 
 const obs = new MutationObserver(()=>{
   if(el("subCmp").classList.contains("on")){ syncTarget(); renderCmpList(); }
   if(el("subGrp").classList.contains("on")){ syncTarget(); renderGrpList(); }
+  if(el("subTop").classList.contains("on")){ syncTarget(); renderTop(); }
 });
 obs.observe(el("ptSub"), {childList:true, characterData:true, subtree:true});
 
