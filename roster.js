@@ -837,7 +837,28 @@ function octroisArme(ru, porteur, w){
     out.push({ mot:a.mot, champ:a.champ, val:a.val,
                nom:a.nom, texte:a.texte, source:fig });
   });
+  /* Et celles dont la condition porte sur la CIBLE. Rien a cocher :
+     l'application connait les mots-cles de la cible, elle sait donc
+     toute seule si la regle s'applique. Changer de cible suffit a les
+     faire apparaitre ou disparaitre du profil — c'est le comportement
+     qu'on attend d'un « contre les VEHICULES ». */
+  const vs = (typeof APTIS_CIBLE !== "undefined") ? APTIS_CIBLE : {};
+  const kwC = S.kwCible || {};
+  (vs[fig] || []).forEach(a=>{
+    if(a.port && a.port !== w[2]) return;
+    if(a.arme && a.arme !== w[1]) return;
+    if(!(a.vs || []).some(k => kwC[k])) return;
+    out.push({ mot:a.mot, champ:a.champ, val:a.val,
+               nom:a.nom, texte:a.texte,
+               source:(a.source || fig) + " · " + libelleCible(a.vs) });
+  });
   return out;
+}
+/* « Véhicule ou Monstre », pour dire d'ou vient l'octroi */
+function libelleCible(kws){
+  const tbl = (typeof MOTS_CIBLE !== "undefined") ? MOTS_CIBLE : [];
+  const noms = (kws || []).map(k => (tbl.find(x => x[0] === k) || [k, k])[1]);
+  return noms.length ? "cible " + noms.join(" ou ") : "";
 }
 /* les mots-cles octroyes, ajoutes a la chaine de drapeaux de l'arme */
 function drapeauxAvecOctrois(ru, porteur, w){
