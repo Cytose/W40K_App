@@ -169,6 +169,10 @@ consultable en dessous, en lecture seule.
   et leur nombre d'unités ; on en crée, on en duplique, on en supprime depuis
   cet index. Le budget de Points de Détachement suit le plafond : 3 PD à 2000
   points, au prorata ailleurs.
+- **Liste en service** — plusieurs listes cohabitent ; celle qui alimente le
+  simulateur et l'écran de partie se choisit d'une touche, en tête de ces deux
+  écrans ou depuis l'index. Chaque liste garde **sa propre partie** : en changer
+  n'efface plus celle d'en face.
 - **Ma liste** — construction de la liste ouverte : détachements (tags
   d'exclusivité), unités, armement par emplacement, personnages attachés
   (Leader / Support) **avec leur propre armement**, validation (règle des
