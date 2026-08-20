@@ -1231,3 +1231,76 @@ La sélection de la cible, à la demande expresse de l'utilisateur. Les trois
 indicateurs en tête d'écran — dégâts moyens, figurines tuées, trois fois sur
 quatre — qu'il a explicitement gardés parce qu'ils évitent de descendre
 jusqu'en bas.
+
+---
+
+## 22. Les aptitudes de fiche entrent dans le profil
+
+Retour de l'utilisateur : « comme pour les armes qui ont Dévastatrices, et comme
+tu as pu le faire avec les capacités du Plasmancien en marquant que l'unité a un
+critique à 5+ — l'appliquer et qu'on le retrouve dans les caractéristiques de
+l'arme… il faudra que je puisse sélectionner mon unité d'Immortels avec le
+Plasmancien et me retrouver avec le critique à 5+ déjà calibré. Et comme c'est
+des Immortels, la relance des 1 déjà calibrée de base. »
+
+### Le calcul était juste, l'affichage muet
+
+Vérification faite avant d'écrire une ligne : le crit 5+ du Plasmancien **était
+déjà appliqué** — `critH=5` sur les profils de l'unité qu'il mène, `6` sans lui.
+La ligne de profil n'affichait que A/CT/F/PA/D. On ne pouvait donc pas le
+vérifier, et **un chiffre invisible ne se vérifie pas.**
+
+Chaque profil porte maintenant ses pastilles : les mots-clés de l'arme, ceux
+qu'une règle lui accorde — marqués d'un `+` — et les modificateurs appliqués,
+chacun avec la règle et la figurine qui le donnent.
+
+```
+Gauss blaster ×10        A 20 · CT 3+ · F 5 · PA -1 · D 1
+  LÉTHAL
+  + ASSAUT                Protocoles d'Hypermobilité · Main de la Dynastie
+  Touche crit. 5+         Héraut de la Destruction · Plasmancer
+  Relance blessure des 1  Éradication Implacable · Immortals
+```
+
+### La relance des Immortels
+
+Elle n'existait pas. `APTITUDES` portait le texte d'**Éradication Implacable**
+mais rien ne le lisait : le glossaire décrivait, il n'agissait pas.
+
+Deux tableaux sont nés, et **la frontière entre eux est la seule chose qui
+compte** :
+
+- `APTIS_UNITE` — l'inconditionnel, appliqué d'office. Éradication Implacable
+  des Immortels (relance des blessures de 1) et Assaut Tourbillonnant des
+  Skorpekh (relance des touches de 1, mêlée seulement).
+- `APTIS_COND` — tout ce qui dépend de la situation, jamais appliqué de
+  lui-même : la cible tient un objectif, l'unité a chargé, la cible est sous
+  son demi-effectif, le véhicule est resté immobile.
+
+Mélanger les deux aurait fait mentir chaque calcul **dans le sens de
+l'attaquant** — c'est la raison d'être de la séparation.
+
+Les conditionnelles apparaissent dans la zone rapide sous leur **nom officiel**,
+avec la condition en clair, et seulement quand l'unité chargée les possède. Le
+joueur reconnaît sa fiche, donc il sait si la condition est remplie.
+
+S'y ajoutent `ABIMEES` — les sept figurines dont la fiche impose −1 pour toucher
+sous un seuil de PV, proposées en raccourci puisque l'application ignore combien
+il leur reste de vie — et `AURAS_ARMEE`, pour l'unique cas qui ne rentrait pas
+dans le moule : l'Augmentation Mécanique d'Illuminor Szeras profite à une
+**autre** unité que celle qui la porte, et ne s'offre donc que si Szeras est
+dans la liste et si l'unité chargée est BATTLELINE.
+
+### Le Seigneur Skorpekh
+
+`AURAS_PERSO` ne savait accorder qu'un champ chiffré. **Uni dans la Destruction**
+accorde un mot-clé — [TOUCHES LÉTHALES] aux armes de mêlée de l'unité menée. Le
+tableau accepte désormais `mot` comme les octrois de détachement, et l'aptitude
+se lit sur les trois profils du groupe, source nommée.
+
+### Un défaut attrapé au vol
+
+Déclarer une condition changeait le calcul mais pas les lignes affichées :
+`render()` ne redessine pas les profils. Le résultat bougeait, les pastilles
+restaient à l'ancienne valeur — **l'affichage mentait sur ce qui venait d'être
+calculé**. Corrigé, avec le même redessin sur les raccourcis et les segments.

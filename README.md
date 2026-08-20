@@ -110,6 +110,17 @@ personnage rattaché, octrois de détachement compris, tirant dans l'ordre sur l
 même cible. Chaque profil se décoche ; la phase de tir ou de corps à corps se
 choisit.
 
+Chaque profil porte ses **pastilles** : les mots-clés de l'arme, ceux qu'une
+règle lui accorde — marqués d'un `+` — et les modificateurs appliqués, chacun
+avec la règle et la figurine qui le donnent. Un crit 5+ venu du Plasmancien se
+lit sur la ligne, avec son nom.
+
+Les aptitudes de fiche qui touchent la séquence d'attaque entrent dans le
+profil : l'Éradication Implacable des Immortels relance leurs blessures de 1
+sans que rien ne soit coché. Celles qui dépendent de la situation — cible sur
+un objectif, unité ayant chargé, figurine abîmée — n'agissent jamais d'office :
+elles apparaissent sous leur nom officiel dans la zone rapide, à déclarer.
+
 Sous l'attaquant, les **retouches de partie** restent visibles avec le compte
 de celles qui sont actives : modificateurs de touche, de blessure, de
 **pénétration d'armure** et de **dégâts**, relances, et quatre raccourcis pour

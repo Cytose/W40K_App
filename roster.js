@@ -187,6 +187,50 @@ function supprimeListe(){
 /* Les profils d'une unite de la liste pour une phase donnee, sans toucher
    a la phase courante de l'ecran « Tir cumule » : le simulateur choisit la
    sienne de son cote. */
+/* Les aptitudes qui ne valent que sous condition — la cible tient un
+   objectif, l'unite a charge, la figurine est abimee. L'application ne
+   peut pas les deviner : elle les nomme, dit a qui elles s'appliquent,
+   et attend que le joueur les declare. Les appliquer d'office ferait
+   mentir chaque calcul dans le sens de l'attaquant. */
+function conditionsDe(ru, ph){
+  const port = (ph === "C") ? "C" : "T";
+  const out = [];
+  const tbl = (typeof APTIS_COND !== "undefined") ? APTIS_COND : {};
+  const ajoute = (fig, a, i)=>{
+    if(a.port && a.port !== port) return;
+    out.push({ id: fig + "|" + a.nom + "|" + i, sur: fig, nom: a.nom,
+               quand: a.quand, texte: a.texte,
+               champ: a.champ, mot: a.mot, val: a.val });
+  };
+  (tbl[ru.name] || []).forEach((a, i) => ajoute(ru.name, a, i));
+  ru.chars.forEach(c => (tbl[c.name] || []).forEach((a, i) => ajoute(c.name, a, i)));
+
+  /* les auras d'une autre figurine de l'armee : la source doit y etre */
+  const armee = (typeof AURAS_ARMEE !== "undefined") ? AURAS_ARMEE : [];
+  armee.forEach((a, i)=>{
+    const presente = R.units.some(x => x.name === a.source ||
+                                       x.chars.some(c => c.name === a.source));
+    if(!presente) return;
+    if(a.kw && a.kw.length && !a.kw.some(k => groupeA(ru, k))) return;
+    out.push({ id: "aura|" + a.source + "|" + i, sur: "", nom: a.nom,
+               quand: a.quand, texte: a.texte,
+               champ: a.champ, mot: a.mot, val: a.val });
+  });
+
+  /* le malus des figurines abimees : un etat de partie, jamais un
+     automatisme — l'application ignore combien il reste de PV */
+  const ab = (typeof ABIMEES !== "undefined") ? ABIMEES : {};
+  [ru.name].concat(ru.chars.map(c => c.name)).forEach(nom=>{
+    if(!ab[nom]) return;
+    out.push({ id: "abime|" + nom, sur: nom, nom: "Figurine abîmée",
+               quand: nom + " est à " + ab[nom] + " PV ou moins",
+               texte: "Tant que cette figurine a " + ab[nom] +
+                      " points de vie ou moins, à chaque attaque qu'elle fait, retranchez 1 du jet de touche.",
+               champ: "hitMod", val: -1 });
+  });
+  return out;
+}
+
 function profilsPhase(ru, ph){
   const avant = phase;
   phase = (ph === "C") ? "C" : "T";
@@ -208,7 +252,8 @@ window.ROSTER = {
     return {
       id: ru.id, nom: nomAffiche(ru), unite: ru.name, taille: ru.size,
       persos: ru.chars.map(c => c.name),
-      profils: profilsPhase(ru, ph).map(p => Object.assign({}, p))
+      profils: profilsPhase(ru, ph).map(p => Object.assign({}, p)),
+      conditions: conditionsDe(ru, ph)
     };
   },
   /* l'inventaire des unites de la liste, avec de quoi montrer d'avance
@@ -701,6 +746,17 @@ function octroisArme(ru, porteur, w){
                  nom:a.nom, texte:a.texte, source:c.name });
     });
   });
+  /* L'aptitude de la fiche elle-meme. Les Immortels relancent leurs
+     blessures de 1 sans que rien ne soit coche, parce que leur fiche le
+     dit : c'est une propriete du profil, pas une case a penser. Elle ne
+     vaut que pour les armes du porteur — le Plasmancien rattache a des
+     Immortels ne devient pas Immortel. */
+  const fiches = (typeof APTIS_UNITE !== "undefined") ? APTIS_UNITE : {};
+  (fiches[fig] || []).forEach(a=>{
+    if(a.port && a.port !== w[2]) return;
+    out.push({ mot:a.mot, champ:a.champ, val:a.val,
+               nom:a.nom, texte:a.texte, source:fig });
+  });
   return out;
 }
 /* les mots-cles octroyes, ajoutes a la chaine de drapeaux de l'arme */
@@ -767,6 +823,10 @@ function tgtFields(){
   return {tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
           fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover};
 }
+/* « ratés » vaut mieux que « les 1 », qui vaut mieux que rien */
+const RANG_RR = {none:0, ones:1, failed:2};
+const mieuxRr = (a, b) => (RANG_RR[a] || 0) >= (RANG_RR[b] || 0) ? a : b;
+
 function weaponProfile(unitName, w, bearers, ru){
   /* les aptitudes octroyees comptent comme si la fiche les portait */
   const porteur = (ru && unitName !== ru.name) ? unitName : "";
@@ -779,6 +839,11 @@ function weaponProfile(unitName, w, bearers, ru){
     torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
     sustainedOn: !!f.sust, sustainedN: f.sust ? String(f.sust) : "1",
     blast: !!f.blast,
+    /* l'assaut ne change rien a la sequence d'attaque — le moteur
+       l'ignore — mais il se lit sur la ligne du profil : c'est lui
+       qu'un detachement comme le Conclave de Crypteks accorde, et le
+       joueur doit pouvoir verifier qu'il est bien arrive */
+    assault: !!f.assault, heavy: !!f.heavy,
     rapidOn: !!f.rf, rapidN: f.rf ? Math.min(120, (+f.rf) * bearers) : 1,
     meltaOn: !!f.melta, meltaN: f.melta ? +f.melta : 2,
     critH: 6, critW: f.anti ? +f.anti : 6,
@@ -793,7 +858,20 @@ function weaponProfile(unitName, w, bearers, ru){
       if(o.champ === "critH") p.critH = Math.min(p.critH, o.val);
       else if(o.champ === "critW") p.critW = Math.min(p.critW, o.val);
       else if(o.champ === "fnp") p.fnpAllie = Math.max(p.fnpAllie || 0, o.val);
+      /* une relance octroyee ne peut qu'ameliorer celle de l'arme :
+         une arme jumelee garde sa relance complete meme si la fiche
+         n'offre que les 1 */
+      else if(o.champ === "rrH") p.rrH = mieuxRr(p.rrH, o.val);
+      else if(o.champ === "rrW") p.rrW = mieuxRr(p.rrW, o.val);
+      else if(o.champ === "hitMod") p.hitMod = Math.max(-1, Math.min(1, p.hitMod + o.val));
+      else if(o.champ === "wndMod") p.wndMod = Math.max(-1, Math.min(1, p.wndMod + o.val));
+      else if(o.champ === "apMod") p.apMod = (p.apMod || 0) + o.val;
     });
+    /* on garde la trace de qui a donne quoi : un crit 5+ qui apparait
+       sans nom ne se verifie pas, et un joueur qui ne peut pas verifier
+       ne fait pas confiance au chiffre */
+    p.octrois = octroisArme(ru, porteur, w).map(o => ({
+      nom:o.nom, source:o.source, mot:o.mot, champ:o.champ, val:o.val }));
   }
   return p;
 }
@@ -808,6 +886,7 @@ function unitProfiles(ru){
     matched++;
     const p = weaponProfile(ru.name, w, n, ru);
     p.label = w[1] + " ×" + n;
+    p.porteur = ru.name;
     out.push(p);
   });
   /* au corps a corps, toute figurine sans arme de melee choisie se bat
@@ -817,6 +896,7 @@ function unitProfiles(ru){
     if(i >= 0){
       const p = weaponProfile(ru.name, list[i], ru.size, ru);
       p.label = list[i][1] + " ×" + ru.size;
+      p.porteur = ru.name;
       out.push(p);
     }
   }
@@ -828,6 +908,7 @@ function unitProfiles(ru){
       if(!w || w[2] !== phase || n <= 0) return;
       const p = weaponProfile(c.name, w, n, ru);
       p.label = c.name + " — " + w[1] + (n > 1 ? " ×" + n : "");
+      p.porteur = c.name;
       out.push(p);
     });
   });
