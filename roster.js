@@ -296,6 +296,10 @@ const armSlots = nom => { const a = armRow(nom); return a ? a.s : []; };
 const aDesChoix = nom => armSlots(nom).length > 0;
 
 /* ce que l'unite a retenu dans un emplacement */
+/* Certaines options ne sont ouvertes qu'a une figurine — « 1 figurine peut
+   remplacer sa faucheuse Gauss jumelée par 1 Isolateur transdimensionnel ».
+   0 ou absent vaut « sans limite ». */
+const optMax = (sl, oi) => (sl && sl.omax && sl.omax[oi]) || 0;
 const loSlot = (ru, si) => (ru.lo || []).filter(l => l.s === si);
 const totalSlot = (ru, si) => loSlot(ru, si).reduce((a, l) => a + l.n, 0);
 
@@ -374,12 +378,20 @@ function armePrincipale(ru){
    obligatoire, rien dans les emplacements facultatifs */
 function loParDefaut(nom, taille){
   const out = [];
-  armSlots(nom).forEach((sl, si)=>{ if(sl.min >= 1) out.push({s:si, o:0, n:taille}); });
+  armSlots(nom).forEach((sl, si)=>{
+    if(sl.min < 1) return;
+    /* la premiere option ouverte a toute l'escouade : une option plafonnee
+       a une figurine ne peut pas etre l'armement de depart */
+    let oi = sl.o.findIndex((o, k) => !optMax(sl, k));
+    if(oi < 0) oi = 0;
+    out.push({s:si, o:oi, n:taille});
+  });
   return out;
 }
 
 /* libelle d'une option : les armes qu'elle donne, groupes compris */
-function libelleOption(nom, opt){
+function libelleOption(nom, opt, sl, oi){
+  if(sl && sl.onom && sl.onom[oi]) return sl.onom[oi];
   const wl = unitWeps(nom), vus = {}, bouts = [];
   opt.forEach(i => {
     const g = groupeDe(nom, i);
@@ -388,7 +400,7 @@ function libelleOption(nom, opt){
     vus[cle] = 1;
     bouts.push(g ? g.libelle : (wl[i] ? wl[i][1] : "?"));
   });
-  return bouts.join(" + ");
+  return bouts.join(" + ") || "Sans arme";
 }
 
 /* ameliorations ouvertes par les detachements retenus */
@@ -896,7 +908,12 @@ function uniteSuspecte(ru){
      elle merite le meme signal que les autres */
   if(armSlots(ru.name).some((sl, si)=>{
        const tot = totalSlot(ru, si);
-       return tot > ru.size || (sl.min >= 1 && tot < ru.size);
+       if(tot > ru.size || (sl.min >= 1 && tot < ru.size)) return true;
+       return sl.o.some((opt, oi)=>{
+         const m = optMax(sl, oi);
+         const l = (ru.lo || []).find(x => x.s === si && x.o === oi);
+         return m > 0 && l && l.n > m;
+       });
      })) return true;
   return false;
 }
@@ -1734,6 +1751,7 @@ function renderRoster(){
        de celles-la. */
     /* Detail d'un lot d'armes, pour la ligne : « tir A2 F5 PA-1 D1 ». */
     const detailDe = indices => {
+      if(!indices || !indices.length) return "";
       const vus = {}, bouts = [];
       indices.forEach(i=>{
         const g = groupeDe(ru.name, i);
@@ -1778,16 +1796,19 @@ function renderRoster(){
       sl.o.forEach((opt, oi)=>{
         const ligne = () => ru.lo.find(l => l.s === si && l.o === oi);
         const n = () => { const l = ligne(); return l ? l.n : 0; };
+        const omax = optMax(sl, oi);
         const pose = v => {
-          const plafond = Math.max(0, n() + (ru.size - pris()));
+          let plafond = Math.max(0, n() + (ru.size - pris()));
+          if(omax) plafond = Math.min(plafond, omax);
           const val = Math.max(0, Math.min(v, plafond));
           const l = ligne();
           if(l){ l.n = val; if(!val) ru.lo.splice(ru.lo.indexOf(l), 1); }
           else if(val) ru.lo.push({s:si, o:oi, n:val});
         };
         const row = document.createElement("div");
-        row.className = "lo" + (n() ? " lo-on" : "");
-        row.innerHTML = '<span class="ln">' + libelleOption(ru.name, opt) +
+        row.className = "lo" + (n() ? " lo-on" : "") + (omax && n() > omax ? " lo-trop" : "");
+        row.innerHTML = '<span class="ln">' + libelleOption(ru.name, opt, sl, oi) +
+          (omax ? ' <b class="omax">' + omax + ' max</b>' : '') +
           ' <em>' + detailDe(opt) + '</em></span>';
         if(ru.size === 1 && sl.min >= 1){
           /* une figurine seule ne repartit rien : elle choisit */
@@ -1801,7 +1822,7 @@ function renderRoster(){
           });
           row.appendChild(b);
         } else {
-          row.appendChild(stepper(n, pose, 0, ru.size));
+          row.appendChild(stepper(n, pose, 0, omax ? Math.min(omax, ru.size) : ru.size));
         }
         div.appendChild(row);
       });
@@ -2497,6 +2518,9 @@ function openEnhPick(ru){
   el("uSearch").value = ""; renderPick(); openSheet("sheetUnit");
 }
 const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+/* categories repliees du catalogue — etat d'affichage, garde le temps de la
+   session, jamais enregistre */
+const catPliee = {};
 function renderPick(){
   const q = norm(el("uSearch").value.trim());
   const host = el("uList"); host.innerHTML = "";
@@ -2692,16 +2716,25 @@ function renderPick(){
     rangee.appendChild(b); rangee.appendChild(inf);
     return rangee;
   };
+  /* Cinquante-deux entrees a la file : on cherchait un vehicule en faisant
+     defiler l'infanterie. Chaque categorie se replie, et l'etat tient d'une
+     ouverture a l'autre. Une recherche en cours ouvre tout : filtrer pour
+     ensuite deplier serait absurde. */
   CAT_ORDRE.forEach(cat=>{
     const lot = parCat[cat];
     if(!lot || !lot.length) return;
-    const sep = document.createElement("div");
-    sep.className = "sheet-sep";
-    sep.textContent = cat + "  ·  " + lot.length;
+    const ouvert = !!q || !catPliee[cat];
+    const sep = document.createElement("button");
+    sep.type = "button";
+    sep.className = "catbar" + (ouvert ? " on" : "");
+    sep.innerHTML = '<span class="cchev">' + (ouvert ? "▾" : "▸") + '</span>' +
+      '<span class="cnom">' + cat + '</span><span class="ccnt">' + lot.length + '</span>';
+    sep.addEventListener("click", ()=>{ catPliee[cat] = ouvert; renderPick(); });
     host.appendChild(sep);
-    lot.forEach(u => host.appendChild(bouton(u)));
+    if(ouvert) lot.forEach(u => host.appendChild(bouton(u)));
   });
-  if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune unité trouvée.</div>';
+  if(!host.querySelector(".catbar")) host.innerHTML =
+    '<div class="sheet-empty">Aucune unité trouvée.</div>';
 }
 
 /* ==========================================================

@@ -95,8 +95,16 @@ const ARMEMENT = {
  "Canoptek Spyders" : { f:[1], s:[{min:0, o:[[0]]}] }, /* d'office : Automaton claws */
  "Canoptek Reanimator" : { f:[0,1], s:[] }, /* d'office : Atomiser beam ×2, Reanimator's claws */
  "Canoptek Doomstalker" : { f:[0,2,1], s:[] }, /* d'office : Doomsday blaster, Doomstalker limbs, Twin gauss flayer */
- "Canoptek Macrocytes" : { f:[3], s:[{min:1, o:[[2],[1],[0]]}] }, /* d'office : Claws */
- "Canoptek Tomb Crawlers" : { f:[2], s:[{min:1, o:[[0],[1]]}] }, /* d'office : Claws */
+ /* Le pack limite deux options a une seule figurine, et la mandibule
+    acceleratrice remplace l'arme de tir sans en donner une autre :
+    c'est une aptitude d'equipement, pas une arme. */
+ "Canoptek Macrocytes" : { f:[3], s:[{min:1, o:[[0],[1],[2],[]],
+   omax:[0, 0, 1, 1],
+   onom:["", "", "Faisceau atomiseur + projecteur de nanoscarabées",
+         "Mandibule accélératrice"]}] }, /* d'office : Claws */
+ /* « 1 figurine peut remplacer sa faucheuse Gauss jumelée par 1 Isolateur
+    transdimensionnel » : l'isolateur est plafonne a une figurine. */
+ "Canoptek Tomb Crawlers" : { f:[2], s:[{min:1, o:[[0],[1]], omax:[0, 1]}] }, /* d'office : Claws */
  "Triarch Stalker" : { f:[4], s:[{min:1, o:[[2,3],[1],[0]]}] }, /* d'office : Stalker's forelimbs */
  "Doomsday Ark" : { f:[0,1,2], s:[] }, /* d'office : Doomsday cannon, Gauss flayer array ×2, Armoured bulk */
  "Ghost Ark" : { f:[0,1], s:[] }, /* d'office : Gauss flayer array ×2, Armoured bulk */
@@ -857,9 +865,9 @@ const CAT = [
 ["Psychomancer","Personnage"],
 ["Geomancer","Personnage"],
 ["Catacomb Command Barge","Personnage"],
-["C'tan Shard of the Nightbringer","Monstre"],
-["C'tan Shard of the Deceiver","Monstre"],
-["C'tan Shard of the Void Dragon","Monstre"],
+["C'tan Shard of the Nightbringer","Epic Hero"],
+["C'tan Shard of the Deceiver","Epic Hero"],
+["C'tan Shard of the Void Dragon","Epic Hero"],
 ["Transcendent C'tan","Monstre"],
 ["Imotekh the Stormlord","Epic Hero"],
 ["Trazyn the Infinite","Epic Hero"],
