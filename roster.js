@@ -66,6 +66,7 @@ function normaliseListe(L){
     if(!ru.grp) ru.grp = nomGroupe();
     if(ru.enh === undefined) ru.enh = null;
     ru.enh = migreEnh(ru.enh);
+    if(ru.enhP === undefined) ru.enhP = "";
     /* l'armement se decrit desormais par emplacement. On convertit
        l'ancienne repartition, qui ne connaissait que des armes : chaque
        ligne rejoint la premiere option qui contient son arme. */
@@ -311,6 +312,45 @@ function libelleOption(nom, opt){
 /* ameliorations ouvertes par les detachements retenus */
 const enhDispo = () => ENHANCEMENTS.filter(e => R.detach.indexOf(e[2]) >= 0);
 const enhRow = nom => ENHANCEMENTS.find(e => e[0] === nom);
+
+/* la phrase de restriction, telle qu'elle est ecrite sur la fiche */
+const enhRestriction = e => {
+  const m = e && e[3] && e[3].match(/^[^.]*(?:seulement|only)\./);
+  return m ? m[0] : "";
+};
+/* la cible admise : une figurine du groupe, ou l'unite elle-meme */
+const enhCible = e => (e && e[4]) || {c:"f", k:[]};
+
+/* Qui, dans ce groupe, peut porter cette amelioration. Le porteur ""
+   designe l'unite elle-meme : les ameliorations du pack de faction
+   visent parfois l'unite — « Unite d'IMMORTELS seulement » — et non
+   une figurine. Un Heros Epique n'en recoit jamais. */
+function porteursPossibles(ru, e){
+  if(!e) return [];
+  const t = enhCible(e);
+  const convient = nom => !t.k.length ||
+    t.k.some(k => (KW[k] ? has(k, nom) : k === nom));
+  const out = [];
+  if(t.c === "u"){
+    if(convient(ru.name)) out.push("");
+    return out;
+  }
+  const uu = unitRow(ru.name);
+  if(uu && uu[9] && !has("epic", ru.name) && convient(ru.name)) out.push("");
+  ru.chars.forEach(c=>{
+    const cu = unitRow(c.name);
+    if(cu && cu[9] && !has("epic", c.name) && convient(c.name)) out.push(c.name);
+  });
+  return out;
+}
+/* le porteur retenu, ou null si l'amelioration ne peut aller nulle part */
+function porteurRetenu(ru){
+  const e = ru.enh && enhRow(ru.enh); if(!e) return null;
+  const ok = porteursPossibles(ru, e);
+  if(!ok.length) return null;
+  return ok.indexOf(ru.enhP || "") >= 0 ? (ru.enhP || "") : ok[0];
+}
+const nomPorteur = (ru, p) => (p === "" || p === undefined || p === null) ? ru.name : p;
 function enhPts(ru){
   const e = ru.enh && enhRow(ru.enh);
   return e && typeof e[1] === "number" ? e[1] : 0;
@@ -395,13 +435,12 @@ function validate(){
     if(ru.enh && R.detach.indexOf((enhRow(ru.enh)||[])[2]) < 0)
       w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name +
         " : elle appartient à un détachement que tu n'as pas pris.");
-    const perso = ru.chars.some(c => (unitRow(c.name)||[])[9]);
-    if(ru.enh && !perso)
-      w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name +
-        " : elle se porte par un personnage, or ce groupe n'en a aucun.");
-    if(ru.enh && ru.chars.some(c => has("epic", c.name)))
-      w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name +
-        " : un Epic Hero ne peut pas recevoir d'amélioration.");
+    if(ru.enh){
+      const e = enhRow(ru.enh);
+      if(e && !porteursPossibles(ru, e).length)
+        w.push("Amélioration <b>" + ru.enh + "</b> sur " + ru.name + " : " +
+          (enhRestriction(e) || "personne dans ce groupe ne peut la porter."));
+    }
   });
   const enhs = R.units.map(x => x.enh).filter(Boolean);
   enhs.forEach((e, i) => { if(enhs.indexOf(e) !== i)
@@ -702,7 +741,7 @@ function uniteSuspecte(ru){
   if(compteRole(ru, "Escorte") > 1) return true;
   if(compteRole(ru, "Escorte") && !aCryptek(ru)) return true;
   if(ru.chars.some(c => peutRejoindre(c.name, ru.name) === false)) return true;
-  if(ru.enh && !ru.chars.length) return true;
+  if(ru.enh && !porteurRetenu(ru)) return true;
   /* une escouade a moitie equipee est la faute la plus courante :
      elle merite le meme signal que les autres */
   if(armSlots(ru.name).some((sl, si)=>{
@@ -1197,8 +1236,10 @@ function renderPlay(){
     });
     if(ru.enh){
       const e = enhRow(ru.enh);
+      const p = porteurRetenu(ru);
       html += '<div class="pu"><b style="color:var(--cyan)">' + ru.enh + '</b><i>' +
-        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + '</i>' +
+        (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') +
+        (p === null ? '' : ' · portée par ' + nomPorteur(ru, p)) + '</i>' +
         (e && e[3] ? '<p class="fiche-note" style="margin:4px 0 0">' + e[3] + '</p>' : '') + '</div>';
     }
     const kws = motsClesGroupe(ru);
@@ -1470,12 +1511,29 @@ function renderRoster(){
       const e = enhRow(ru.enh);
       const row = document.createElement("div");
       row.className = "lo";
+      const ok = porteursPossibles(ru, e);
+      const p = porteurRetenu(ru);
       row.innerHTML = '<span class="ln" style="color:var(--cyan,#5CE8E8)">' + ru.enh +
         ' <em>' + (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') +
-        (e ? ' · ' + e[2] : '') + '</em></span>';
+        (e ? ' · ' + nomDetach(e[2]) : '') +
+        (p === null
+          ? ' · <b class="alerte">' + (enhRestriction(e) || "aucun porteur possible") + '</b>'
+          : ' · portée par ' + nomPorteur(ru, p)) + '</em></span>';
+      /* plusieurs figurines eligibles : on tourne entre elles */
+      if(ok.length > 1){
+        const nx = document.createElement("button");
+        nx.className="xbtn"; nx.type="button"; nx.textContent="⟳";
+        nx.title = "Changer de porteur";
+        nx.addEventListener("click", ()=>{
+          const i = ok.indexOf(p === null ? ok[0] : p);
+          ru.enhP = ok[(i + 1) % ok.length];
+          saveR(); renderList();
+        });
+        row.appendChild(nx);
+      }
       const rm = document.createElement("button");
       rm.className="xbtn"; rm.type="button"; rm.textContent="×";
-      rm.addEventListener("click", ()=>{ ru.enh = null; saveR(); renderList(); });
+      rm.addEventListener("click", ()=>{ ru.enh = null; ru.enhP = ""; saveR(); renderList(); });
       row.appendChild(rm);
       div.appendChild(row);
     }
@@ -2048,16 +2106,34 @@ function renderPick(){
     }
     /* une amelioration ne se prend qu'une fois dans l'armee */
     const prises = R.units.filter(x => x !== pickTarget).map(x => x.enh).filter(Boolean);
-    dispo.forEach(e=>{
-      const deja = prises.indexOf(e[0]) >= 0;
+    /* celles que ce groupe peut vraiment porter d'abord : la fiche
+       officielle limite chacune a une figurine ou a une unite precise */
+    const lot = dispo.map(e => ({e:e, ok:porteursPossibles(pickTarget, e)}));
+    const tri = lot.filter(x => x.ok.length).concat(lot.filter(x => !x.ok.length));
+    let coupure = false;
+    tri.forEach(x=>{
+      const e = x.e, deja = prises.indexOf(e[0]) >= 0;
+      if(!x.ok.length && !coupure){
+        coupure = true;
+        const sep = document.createElement("div");
+        sep.className = "sheet-sep";
+        sep.textContent = "Hors de portée de ce groupe";
+        host.appendChild(sep);
+      }
       const b = document.createElement("button");
-      b.type="button"; b.className = "opt" + (deja ? " opt-off" : "") + (pickTarget.enh === e[0] ? " sel" : "");
+      b.type="button";
+      b.className = "opt" + (deja || !x.ok.length ? " opt-off" : "") +
+        (pickTarget.enh === e[0] ? " sel" : "");
+      const porte = x.ok.length
+        ? ' · portée par ' + nomPorteur(pickTarget, x.ok[0])
+        : ' · ' + (enhRestriction(e) || "aucun porteur possible ici");
       b.innerHTML = '<span class="oi"><span class="o1">' + e[0] + '</span><span class="o2">' +
         (typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') + ' · ' + nomDetach(e[2]) +
-        (deja ? ' · déjà prise ailleurs' : '') + '</span>' +
+        (deja ? ' · déjà prise ailleurs' : porte) + '</span>' +
         (e[3] ? '<span class="o3">' + e[3] + '</span>' : '') + '</span>';
       b.addEventListener("click", ()=>{
-        pickTarget.enh = (pickTarget.enh === e[0]) ? null : e[0];
+        if(pickTarget.enh === e[0]){ pickTarget.enh = null; pickTarget.enhP = ""; }
+        else { pickTarget.enh = e[0]; pickTarget.enhP = x.ok[0] || ""; }
         closeSheet("sheetUnit"); saveR(); renderList();
       });
       host.appendChild(b);
@@ -2408,7 +2484,9 @@ function listeEnTexte(L){
       });
       if(ru.enh){
         const e = enhRow(ru.enh);
-        lignes.push("  ★ " + ru.enh + " (" + (e && typeof e[1] === "number" ? e[1] + " pts" : "coût inconnu") + ")");
+        const pe = porteurRetenu(ru);
+        lignes.push("  ★ " + ru.enh + " (" + (e && typeof e[1] === "number" ? e[1] + " pts" : "coût inconnu") + ")" +
+          (pe === null ? "" : " — " + nomPorteur(ru, pe)));
       }
       lignes.push("");
     });
@@ -2785,7 +2863,7 @@ const packList = () => ({
   t: R.nom, p: R.cap,
   d: R.detach, f: R.fd || "",
   u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0,
-    g: ru.grp || "", e: ru.enh || "" }))
+    g: ru.grp || "", e: ru.enh || "", ep: ru.enhP || "" }))
 });
 
 async function encodeList(){
@@ -2819,7 +2897,7 @@ function applyPacked(o){
   L.fd = o.f || "";
   L.units = o.u.map(u => ({
     id: L.nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
-    grp: u.g || nomGroupe(), enh: migreEnh(u.e || null)
+    grp: u.g || nomGroupe(), enh: migreEnh(u.e || null), enhP: u.ep || ""
   }));
   LISTS.push(L); ouvre(L);
   saveR(); renderList();

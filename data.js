@@ -383,7 +383,13 @@ const RETINUE = {
 
 /* ============================================================
    OPTIMISATIONS
-   [nom, cout en points, detachement, texte]
+   [nom, cout en points, detachement, texte, cible]
+   La cible reprend la phrase de restriction de la fiche :
+     c = "f" quand une figurine la porte, "u" quand c'est l'unite ;
+     k = les mots-cles ou les noms d'unite admis, vide si toute
+         figurine NECRON convient.
+   « Tetrarque » n'existe pas dans UNITS : le pack designe sans doute
+   l'Overlord, admis a ce titre — deduction, pas lecture.
    Un cout a null signifie « inconnu » : le pack de faction ne
    donne pas les points, qui vivent dans l'Inventaire du
    Munitorum. L'application affiche alors « cout inconnu » et
@@ -394,104 +400,120 @@ const RETINUE = {
    le Voile de Tenebres dont le pack donne le nouveau texte.
    ============================================================ */
 const ENHANCEMENTS = [
-
-/* --- Main de la Dynastie */
 ["Sentinelles Animées",null,"Hand of the Dynasty",
- "Unité de GUERRIERS NÉCRONS seulement. Cette unité a Éclaireurs 5\"."],
+ "Unité de GUERRIERS NÉCRONS seulement. Cette unité a Éclaireurs 5\".",
+ {c:"u", k:["Necron Warriors"]}],
 ["Instruments de Domination",null,"Hand of the Dynasty",
- "Unité d'IMMORTELS seulement. Les attaques de tir de cette unité ont [TIR RAPIDE 1]."],
-
-/* --- Fer de Lance Linceul Céleste */
+ "Unité d'IMMORTELS seulement. Les attaques de tir de cette unité ont [TIR RAPIDE 1].",
+ {c:"u", k:["Immortals"]}],
 ["Réanimation Récursive",null,"Skyshroud Spearhead",
- "Unité de MÉCANOPTÈRES seulement. Quand cette unité active ses Protocoles de Réanimation, +1 au jet."],
+ "Unité de MÉCANOPTÈRES seulement. Quand cette unité active ses Protocoles de Réanimation, +1 au jet.",
+ {c:"u", k:["Tomb Blades"]}],
 ["Folie Croissante",20,"Skyshroud Spearhead",
- "Unité MONTÉE de CULTE DESTROYER seulement. Les attaques de tir de cette unité ont [ASSAUT]. Coût relevé sur WarOrgan, absent du pack de faction."],
-
-/* --- L'Arsenal du Phaëron */
+ "Unité MONTÉE de CULTE DESTROYER seulement. Les attaques de tir de cette unité ont [ASSAUT]. Coût relevé sur WarOrgan, absent du pack de faction.",
+ {c:"u", k:["Lokhust Destroyers","Lokhust Heavy Destroyers"]}],
 ["Optimisateur de Prélocalisation",null,"The Phaeron's Armoury",
- "Figurine NÉCRON seulement. Quand cette unité est choisie pour tirer, si elle a été placée à ce tour en utilisant l'aptitude Portail d'Éternité d'un Monolithe, les attaques de tir de l'unité ont [TOUCHES FATALES], ou [TOUCHES SOUTENUES 1]."],
+ "Figurine NÉCRON seulement. Quand cette unité est choisie pour tirer, si elle a été placée à ce tour en utilisant l'aptitude Portail d'Éternité d'un Monolithe, les attaques de tir de l'unité ont [TOUCHES FATALES], ou [TOUCHES SOUTENUES 1].",
+ {c:"f", k:[]}],
 ["Linceul Mortel (Aura)",null,"The Phaeron's Armoury",
- "Unité d'OBÉLISQUE seulement. À l'étape d'Ébranlement adverse, si une unité ennemie à 8\" ou moins de cette unité est en dessous de son effectif initial, elle fait un jet d'ébranlement."],
-
-/* --- Arsenal Brise-astres */
+ "Unité d'OBÉLISQUE seulement. À l'étape d'Ébranlement adverse, si une unité ennemie à 8\" ou moins de cette unité est en dessous de son effectif initial, elle fait un jet d'ébranlement.",
+ {c:"u", k:["Obelisk"]}],
 ["Majesté Effroyable (Aura)",30,"Starshatter Arsenal",
- "Figurine de TÉTRARQUE ou CONSOLE DE COMMANDEMENT seulement. Tant qu'une unité NÉCRON amie (unités TITANESQUES exclues) est à 6\" du porteur, à chaque attaque d'une figurine de l'unité, relancez tout jet de Touche de 1 et relancez tout jet de Blessure de 1."],
+ "Figurine de TÉTRARQUE ou CONSOLE DE COMMANDEMENT seulement. Tant qu'une unité NÉCRON amie (unités TITANESQUES exclues) est à 6\" du porteur, à chaque attaque d'une figurine de l'unité, relancez tout jet de Touche de 1 et relancez tout jet de Blessure de 1.",
+ {c:"f", k:["Overlord","Catacomb Command Barge"]}],
 ["Nébuloscope Miniaturisé",15,"Starshatter Arsenal",
- "Figurine NÉCRON seulement. Les armes de tir dont sont équipées les figurines de l'unité du porteur ont l'aptitude [IGNORE LE COUVERT]."],
+ "Figurine NÉCRON seulement. Les armes de tir dont sont équipées les figurines de l'unité du porteur ont l'aptitude [IGNORE LE COUVERT].",
+ {c:"f", k:[]}],
 ["Noble Exigeant",10,"Starshatter Arsenal",
- "Figurine NÉCRON seulement. À votre phase de Commandement, choisissez 1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) à 6\" du porteur. Jusqu'au début de votre prochaine phase de Commandement, l'unité est éligible pour tirer à un tour où elle a Battu en Retraite."],
+ "Figurine NÉCRON seulement. À votre phase de Commandement, choisissez 1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) à 6\" du porteur. Jusqu'au début de votre prochaine phase de Commandement, l'unité est éligible pour tirer à un tour où elle a Battu en Retraite.",
+ {c:"f", k:[]}],
 ["Champs de Chrono-impédance",25,"Starshatter Arsenal",
- "Figurine NÉCRON seulement. À votre phase de Commandement, choisissez 1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) à 6\" du porteur. Jusqu'au début de votre prochaine phase de Commandement, à chaque attaque qui cible une figurine de l'unité, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
-
-/* --- Conclave de Crypteks */
+ "Figurine NÉCRON seulement. À votre phase de Commandement, choisissez 1 unité de VÉHICULE NÉCRON ou de NÉCRONS MONTÉS (unités TITANESQUES exclues) à 6\" du porteur. Jusqu'au début de votre prochaine phase de Commandement, à chaque attaque qui cible une figurine de l'unité, soustrayez 1 à la caractéristique de Dégâts de l'attaque.",
+ {c:"f", k:[]}],
 ["Boulier Quantique",15,"Cryptek Conclave",
- "Figurine NÉCRON seulement. Chaque fois que vous choisissez l'unité du porteur comme cible d'un Stratagème, jetez 1 D6, en ajoutant 1 si elle est à portée d'un ou plusieurs objectifs : sur 4+, vous gagnez 1PC."],
+ "Figurine NÉCRON seulement. Chaque fois que vous choisissez l'unité du porteur comme cible d'un Stratagème, jetez 1 D6, en ajoutant 1 si elle est à portée d'un ou plusieurs objectifs : sur 4+, vous gagnez 1PC.",
+ {c:"f", k:[]}],
 ["Désintégrateurs Atomiques",10,"Cryptek Conclave",
- "Figurine de CRYPTEK seulement. À votre phase de Tir, chaque fois que l'unité du porteur est choisie pour tirer, quand vous choisissez une aptitude pour la règle de Détachement Augmentations Technosorcières, vous pouvez aussi choisir parmi les aptitudes suivantes : [ANTI-MONSTRE 5+], [ANTI-VÉHICULE 5+]."],
+ "Figurine de CRYPTEK seulement. À votre phase de Tir, chaque fois que l'unité du porteur est choisie pour tirer, quand vous choisissez une aptitude pour la règle de Détachement Augmentations Technosorcières, vous pouvez aussi choisir parmi les aptitudes suivantes : [ANTI-MONSTRE 5+], [ANTI-VÉHICULE 5+].",
+ {c:"f", k:["cryptek"]}],
 ["Gantelet de Compression",20,"Cryptek Conclave",
- "Figurine NÉCRON seulement. Ajoutez 6\" à la caractéristique de Portée des armes de tir dont sont équipées les figurines de l'unité du porteur."],
+ "Figurine NÉCRON seulement. Ajoutez 6\" à la caractéristique de Portée des armes de tir dont sont équipées les figurines de l'unité du porteur.",
+ {c:"f", k:[]}],
 ["Bolas Gravitiques",15,"Cryptek Conclave",
- "Figurine de CRYPTEK seulement. À votre phase de Tir, après que le porteur a tiré, choisissez 1 unité ennemie touchée par une ou plusieurs de ces attaques (sauf les unités TITANESQUES) ; jusqu'au début de votre prochain tour, l'unité ennemie est entravée. Tant qu'une unité est entravée, soustrayez 2 à sa caractéristique de Mouvement et soustrayez 2 aux jets de Charge pour l'unité."],
-
-/* --- Légion Maudite */
+ "Figurine de CRYPTEK seulement. À votre phase de Tir, après que le porteur a tiré, choisissez 1 unité ennemie touchée par une ou plusieurs de ces attaques (sauf les unités TITANESQUES) ; jusqu'au début de votre prochain tour, l'unité ennemie est entravée. Tant qu'une unité est entravée, soustrayez 2 à sa caractéristique de Mouvement et soustrayez 2 aux jets de Charge pour l'unité.",
+ {c:"f", k:["cryptek"]}],
 ["Ankh de Destroyer",20,"Cursed Legion",
- "Figurine de CONSOLE DE COMMANDEMENT ou TÉTRARQUE seulement. Le porteur a le mot-clé CULTE DESTROYER. Ajoutez 2\" à la caractéristique de Mouvement des figurines de l'unité du porteur et ajoutez 2 à la caractéristique d'Attaques des armes de mêlée dont le porteur est équipé."],
+ "Figurine de CONSOLE DE COMMANDEMENT ou TÉTRARQUE seulement. Le porteur a le mot-clé CULTE DESTROYER. Ajoutez 2\" à la caractéristique de Mouvement des figurines de l'unité du porteur et ajoutez 2 à la caractéristique d'Attaques des armes de mêlée dont le porteur est équipé.",
+ {c:"f", k:["Catacomb Command Barge","Overlord"]}],
 ["Esprit Meurtrier",15,"Cursed Legion",
- "Figurine de CRYPTEK seulement. Le porteur a le mot-clé CULTE DESTROYER. Ajoutez 3\" à la caractéristique de Mouvement du porteur. Texte corrigé par le pack de faction v1.1."],
+ "Figurine de CRYPTEK seulement. Le porteur a le mot-clé CULTE DESTROYER. Ajoutez 3\" à la caractéristique de Mouvement du porteur. Texte corrigé par le pack de faction v1.1.",
+ {c:"f", k:["cryptek"]}],
 ["Marque du Nékrosor",20,"Cursed Legion",
- "Figurine de CULTE DESTROYER seulement. À chaque attaque d'une figurine de l'unité du porteur, ajoutez 1 au jet de Touche."],
+ "Figurine de CULTE DESTROYER seulement. À chaque attaque d'une figurine de l'unité du porteur, ajoutez 1 au jet de Touche.",
+ {c:"f", k:["destroyer"]}],
 ["Diadème Maudit",25,"Cursed Legion",
- "Figurine de CULTE DESTROYER seulement. Chaque fois qu'une unité ennemie est choisie pour tirer, après que l'unité a tiré, si une ou plusieurs figurines de l'unité du porteur ont été détruites à cause de ces attaques, l'unité du porteur peut faire un mouvement d'Élan. Dans ce cas, jetez 1 D6 : l'unité du porteur peut se déplacer d'une distance en pouces inférieure ou égale au résultat, mais elle doit finir ce mouvement aussi près que possible de l'unité ennemie la plus proche (sauf les AÉRODYNES). Ce faisant, ces figurines peuvent être déplacées à Portée d'Engagement de l'unité ennemie. Une unité ne peut pas faire un mouvement d'Élan tant qu'elle est Ébranlée."],
-
-/* --- Dynastie Éveillée (codex) */
+ "Figurine de CULTE DESTROYER seulement. Chaque fois qu'une unité ennemie est choisie pour tirer, après que l'unité a tiré, si une ou plusieurs figurines de l'unité du porteur ont été détruites à cause de ces attaques, l'unité du porteur peut faire un mouvement d'Élan. Dans ce cas, jetez 1 D6 : l'unité du porteur peut se déplacer d'une distance en pouces inférieure ou égale au résultat, mais elle doit finir ce mouvement aussi près que possible de l'unité ennemie la plus proche (sauf les AÉRODYNES). Ce faisant, ces figurines peuvent être déplacées à Portée d'Engagement de l'unité ennemie. Une unité ne peut pas faire un mouvement d'Élan tant qu'elle est Ébranlée.",
+ {c:"f", k:["destroyer"]}],
 ["Voile de Ténèbres",20,"Awakened Dynasty",
- "Texte remplacé par le pack de faction : « (Une fois par bataille, par armée) À la fin du tour adverse, si cette unité est non engagée, vous pouvez utiliser cette aptitude. Dans ce cas : ▪ Placez cette unité en réserve stratégique. ▪ Cette unité a Frappe en Profondeur jusqu'au début de votre prochaine phase de Tir. ▪ Cette unité doit faire un mouvement d'arrivée à votre prochaine phase de Mouvement (y compris à votre premier tour). »"],
+ "Texte remplacé par le pack de faction : « (Une fois par bataille, par armée) À la fin du tour adverse, si cette unité est non engagée, vous pouvez utiliser cette aptitude. Dans ce cas : ▪ Placez cette unité en réserve stratégique. ▪ Cette unité a Frappe en Profondeur jusqu'au début de votre prochaine phase de Tir. ▪ Cette unité doit faire un mouvement d'arrivée à votre prochaine phase de Mouvement (y compris à votre premier tour). »",
+ {c:"f", k:[]}],
 ["Nether-realm Casket",20,"Awakened Dynasty",
- "NECRONS model only. While the bearer is leading a unit, models in that unit have the Stealth ability."],
+ "NECRONS model only. While the bearer is leading a unit, models in that unit have the Stealth ability.",
+ {c:"f", k:[]}],
 ["Phasal Subjugator",35,"Awakened Dynasty",
- "NECRONS model only. While a friendly NECRONS unit (excluding CHARACTER units) is within 6\" of the bearer, each time a model in that unit makes an attack, add 1 to the hit roll."],
+ "NECRONS model only. While a friendly NECRONS unit (excluding CHARACTER units) is within 6\" of the bearer, each time a model in that unit makes an attack, add 1 to the hit roll.",
+ {c:"f", k:[]}],
 ["Enaegic Dermal Bond",30,"Awakened Dynasty",
- "NECRONS model only. The bearer has the Feel No Pain 4+ ability."],
-
-/* --- Légion d'Hypercrypte (codex) */
+ "NECRONS model only. The bearer has the Feel No Pain 4+ ability.",
+ {c:"f", k:[]}],
 ["Dimensional Overseer",25,"Hypercrypt Legion",
- "NECRONS model only. While the bearer is on the battlefield or in Strategic Reserves, add 1 to the number of units from your army that you can select for the Hyperphasing rule."],
+ "NECRONS model only. While the bearer is on the battlefield or in Strategic Reserves, add 1 to the number of units from your army that you can select for the Hyperphasing rule.",
+ {c:"f", k:[]}],
 ["Arisen Tyrant",25,"Hypercrypt Legion",
- "NECRONS model only. Each time a model in the bearer's unit makes an attack, re-roll a Hit roll of 1. If the bearer's unit was set up on the battlefield this turn, you can re-roll the Hit roll instead."],
+ "NECRONS model only. Each time a model in the bearer's unit makes an attack, re-roll a Hit roll of 1. If the bearer's unit was set up on the battlefield this turn, you can re-roll the Hit roll instead.",
+ {c:"f", k:[]}],
 ["Hyperspatial Transfer Node",15,"Hypercrypt Legion",
- "NECRONS model only. Each time the bearer's unit Advances, do not make an Advance roll for it. Instead, until the end of the phase, add 6\" to the Move characteristic of models in the bearer's unit."],
+ "NECRONS model only. Each time the bearer's unit Advances, do not make an Advance roll for it. Instead, until the end of the phase, add 6\" to the Move characteristic of models in the bearer's unit.",
+ {c:"f", k:[]}],
 ["Osteoclave Fulcrum",20,"Hypercrypt Legion",
- "NECRONS model only. Models in the bearer's unit have the Deep Strike ability."],
-
-/* --- Légion d'Annihilation (codex) */
+ "NECRONS model only. Models in the bearer's unit have the Deep Strike ability.",
+ {c:"f", k:[]}],
 ["Eternal Madness",25,"Annihilation Legion",
- "NECRONS model only. In the Fight phase, each time a model in the bearer's unit is destroyed, if that model had not fought this phase, roll one D6. On a 4+, do not remove the destroyed model from play; it can fight after the attacking model's unit has finished making its attacks, and is then removed from play."],
+ "NECRONS model only. In the Fight phase, each time a model in the bearer's unit is destroyed, if that model had not fought this phase, roll one D6. On a 4+, do not remove the destroyed model from play; it can fight after the attacking model's unit has finished making its attacks, and is then removed from play.",
+ {c:"f", k:[]}],
 ["Ingrained Superiority",10,"Annihilation Legion",
- "NECRONS model only. Each time a model in the bearer's unit makes an attack, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."],
+ "NECRONS model only. Each time a model in the bearer's unit makes an attack, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1.",
+ {c:"f", k:[]}],
 ["Soulless Reaper",20,"Annihilation Legion",
- "DESTROYER CULT model only. Each time an enemy unit within Engagement Range of the bearer's unit is selected to Fall Back, roll one D6. On a 3+, that unit cannot Fall Back and must Remain Stationary."],
+ "DESTROYER CULT model only. Each time an enemy unit within Engagement Range of the bearer's unit is selected to Fall Back, roll one D6. On a 3+, that unit cannot Fall Back and must Remain Stationary.",
+ {c:"f", k:["destroyer"]}],
 ["Eldritch Nightmare",15,"Annihilation Legion",
- "DESTROYER CULT model only. At the start of the Fight phase, each enemy unit within Engagement Range of the bearer must take a Battle-shock test."],
-
-/* --- Cour Canoptek (codex) */
+ "DESTROYER CULT model only. At the start of the Fight phase, each enemy unit within Engagement Range of the bearer must take a Battle-shock test.",
+ {c:"f", k:["destroyer"]}],
 ["Dimensional Sanctum",20,"Canoptek Court",
- "CRYPTEK model only. Models in the bearer's unit have the Infiltrators ability."],
+ "CRYPTEK model only. Models in the bearer's unit have the Infiltrators ability.",
+ {c:"f", k:["cryptek"]}],
 ["Hyperphasic Fulcrum",15,"Canoptek Court",
- "CRYPTEK model only. While the bearer is leading a unit, if that unit is wholly within your army's Power Matrix, each time a model in that unit makes an attack, re-roll a Wound roll of 1."],
+ "CRYPTEK model only. While the bearer is leading a unit, if that unit is wholly within your army's Power Matrix, each time a model in that unit makes an attack, re-roll a Wound roll of 1.",
+ {c:"f", k:["cryptek"]}],
 ["Autodivinator",15,"Canoptek Court",
- "CRYPTEK model only. Each time your opponent gains a CP as a result of an ability, roll one D6: on a 2+, you also gain 1CP. Errata du pack : ne se déclenche pas quand une règle d'une autre nature octroie des PC, ni quand l'adversaire défausse une carte de Mission Secondaire contre 1PC."],
+ "CRYPTEK model only. Each time your opponent gains a CP as a result of an ability, roll one D6: on a 2+, you also gain 1CP. Errata du pack : ne se déclenche pas quand une règle d'une autre nature octroie des PC, ni quand l'adversaire défausse une carte de Mission Secondaire contre 1PC.",
+ {c:"f", k:["cryptek"]}],
 ["Metalodermal Tesla Weave",10,"Canoptek Court",
- "CRYPTEK model only. Once per phase, when an enemy unit selects the bearer's unit as a target of a charge, roll one D6: on a 2-5, that enemy unit suffers D3 mortal wounds, on a 6, that enemy unit suffers 3 mortal wounds."],
-
-/* --- Phalange d'Obéissance (codex) */
+ "CRYPTEK model only. Once per phase, when an enemy unit selects the bearer's unit as a target of a charge, roll one D6: on a 2-5, that enemy unit suffers D3 mortal wounds, on a 6, that enemy unit suffers 3 mortal wounds.",
+ {c:"f", k:["cryptek"]}],
 ["Honourable Combatant",10,"Obeisance Phalanx",
- "OVERLORD model only. Each time the bearer's unit destroys an enemy CHARACTER unit, your opponent loses 1CP if they have any."],
+ "OVERLORD model only. Each time the bearer's unit destroys an enemy CHARACTER unit, your opponent loses 1CP if they have any.",
+ {c:"f", k:["Overlord"]}],
 ["Unflinching Will",20,"Obeisance Phalanx",
- "OVERLORD model only. The bearer's melee weapons have the [PRECISION] and [ANTI-INFANTRY 5+] abilities."],
+ "OVERLORD model only. The bearer's melee weapons have the [PRECISION] and [ANTI-INFANTRY 5+] abilities.",
+ {c:"f", k:["Overlord"]}],
 ["Warrior Noble",15,"Obeisance Phalanx",
- "OVERLORD model only. Each time a melee attack targets the bearer's unit, subtract 1 from the Hit roll."],
+ "OVERLORD model only. Each time a melee attack targets the bearer's unit, subtract 1 from the Hit roll.",
+ {c:"f", k:["Overlord"]}],
 ["Eternal Conqueror",25,"Obeisance Phalanx",
- "OVERLORD model only. Each time a model in the bearer's unit makes an attack that targets an enemy unit within range of an objective marker, you can re-roll the Hit roll."]
+ "OVERLORD model only. Each time a model in the bearer's unit makes an attack that targets an enemy unit within range of an objective marker, you can re-roll the Hit roll.",
+ {c:"f", k:["Overlord"]}]
 ];
 /* Anciens noms anglais des optimisations que le pack de faction
    nomme desormais en francais : les listes deja enregistrees
