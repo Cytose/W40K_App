@@ -958,6 +958,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .cmprow .cn{flex:1;min-width:0}
 .cmprow .cn b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cmprow .cn i{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:2px}
+/* une unité retirée de la liste depuis qu'on l'a mise en comparaison */
+.cmprow.mort{opacity:.5}
+.cmprow.mort .cn b{color:var(--warn)}
 .hbar-row{padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
 .hbar-row:first-child{border-top:0}
 .hbar-top{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
@@ -995,7 +998,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <div class="screen" id="scSim">
   <div class="subtabs" id="simTabs">
     <button type="button" class="on" data-v="subAtk">Attaque</button>
-    <button type="button" data-v="subFire">Tir cumulé</button>
     <button type="button" data-v="subCmp">Comparer</button>
     <button type="button" data-v="subDef">Encaisser</button>
   </div>
@@ -1131,51 +1133,6 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </section>
 
     </div>
-  <div class="sub" id="subFire">
-  <section class="card">
-    <h2>Cible <span class="chev">▾</span></h2>
-    <div class="body">
-      <button class="picker" id="pickTarget2" type="button">
-        <span class="pk"><span class="p1" id="ptName2">Space Marine</span><span class="p2" id="ptSub2">—</span></span>
-        <span class="arrow">›</span>
-      </button>
-      <p class="hint">La cible est partagée avec l'onglet Simulateur.</p>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Qui tire <span class="chev">▾</span></h2>
-    <div class="body">
-      <div class="chips tight" id="phaseChips">
-        <button type="button" class="chip on" data-p="T">Phase de tir</button>
-        <button type="button" class="chip" data-p="C">Corps à corps</button>
-      </div>
-      <div id="fireList"></div>
-      <div id="situBox"></div>
-    </div>
-  </section>
-
-  <section class="card" id="cardFireRes">
-    <h2>Résultat cumulé <span class="chev">▾</span></h2>
-    <div class="body">
-      <div class="summary" style="margin:0 -14px 10px;border-top:0">
-        <div class="sum hero"><div class="k">Dégâts cumulés</div><div class="v" id="fDmg">—</div></div>
-        <div class="sum"><div class="k">Figs tuées</div><div class="v" id="fSlain">—</div></div>
-        <div class="sum"><div class="k">3 fois sur 4</div><div class="v" id="fWipe">—</div></div>
-      </div>
-      <div class="chart-title">Combien de figurines tombent</div>
-      <p class="chart-sub">Le nombre de figurines couchées selon la certitude qu'on veut, la cible n'étant pas plafonnée à son effectif.</p>
-      <div class="seuils" id="fSeuils"></div>
-      <div class="chart-title">Distribution du résultat</div>
-      <p class="chart-sub" id="fSub"></p>
-      <svg id="fHist" class="chart" role="img" aria-label="Distribution du résultat cumulé"></svg>
-      <div class="chart-title">Contribution de chaque unité</div>
-      <p class="chart-sub">Dégâts réellement infligés dans l'ordre de tir, surtue déduite. « Seule » = ce que l'unité ferait si elle tirait la première.</p>
-      <div id="fTable"></div>
-      <p class="hint" id="fNote"></p>
-    </div>
-  </section>
-  </div>
   <div class="sub" id="subDef">
     <section class="card">
       <h2>Unité qui encaisse <span class="chev">▾</span></h2>
@@ -1232,7 +1189,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <button type="button" id="btnCmpRoster">+ Depuis ma liste</button>
         <button type="button" id="btnCmpCat">+ Du catalogue</button>
       </div>
-      <label class="toggle"><input type="checkbox" id="cmpLed"><span class="box">✓</span><span class="txt">Menées par un personnage<em>applique la règle de détachement qui en dépend</em></span></label>
+      <p class="hint">« Depuis ma liste » compare des <b>unités entières</b> : armement réel, personnages rattachés, améliorations et octrois du détachement compris. C'est ce qu'il faut pour mettre face à face la même escouade menée par deux personnages différents. « Du catalogue » mesure une fiche nue, une arme à la fois.</p>
+      <label class="toggle"><input type="checkbox" id="cmpLed"><span class="box">✓</span><span class="txt">Entrées du catalogue : menées par un personnage<em>applique la règle de détachement qui en dépend — sans effet sur les unités de la liste, qui portent les leurs</em></span></label>
     </div>
   </section>
 
