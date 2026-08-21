@@ -1447,3 +1447,332 @@ camp. La première est devenue « Round ».
 Le texte du Portail d'Éternité fait douze lignes et écrasait les trois autres
 aptitudes de la phase. Au-delà de cent quatre-vingt-dix caractères, un texte se
 replie sur trois lignes et s'ouvre d'une touche.
+
+---
+
+## 25. Les capacités de l'arme agissent sur l'unité entière — 20/08/2026
+
+### Une carte coupée du calcul
+
+Charger une unité entière coupait la carte « Capacités de l'arme » du moteur.
+Cocher Léthal, descendre la touche critique à 4+, changer le seuil d'Anti-X : plus
+rien ne bougeait. `profilPourMoteur` recopiait le profil de l'arme et n'y versait
+que la cible et les quatre modificateurs — touche, blessure, PA, dégâts. Les
+mots-clés et les seuils critiques de l'écran étaient perdus en route.
+
+La carte change donc de sens selon le mode, et le dit. En mode unité elle
+s'appelle **« Ce que la partie ajoute »** et ne fait qu'ajouter :
+
+| Réglage d'écran | En mode unité |
+|---|---|
+| Léthal, Dévastateur, Torrent, Souffle, Soutenu | s'ajoutent ; une arme qui les porte déjà les garde |
+| Touche / blessure critique | ne peuvent que **descendre**, jamais remonter |
+| Tir Rapide, Fonte | ne s'accordent pas : chaque arme applique les siens |
+| PA, dégâts | s'**ajoutent** à ce que l'aura a déjà donné |
+
+Les cases sont remises à zéro en entrant dans le mode — sinon le Léthal coché par
+défaut se serait offert à toute la liste — et l'arme retrouve les siennes en
+sortant.
+
+### Tir Rapide et Fonte sont une distance, pas un cadeau
+
+Ce ne sont pas des mots-clés à distribuer : ils dépendent de la portée. Une unité
+chargée tirait jusqu'ici comme si elle était toujours collée à la cible, ce qui
+gonflait ses dégâts. Chaque arme applique désormais les siens, et seulement à
+mi-portée. Le mot-clé reste affiché en pointillé hors de portée plutôt que caché :
+le voir absent renseigne autant que le voir actif.
+
+### Deux corrections au passage
+
+- La PA et les dégâts octroyés par une aura — le +1 en pénétration d'Illuminor
+  Szeras — étaient **écrasés** par la valeur de l'écran au lieu de s'y ajouter.
+- Cocher une case ou saisir un nombre ne redessinait pas les lignes de profil : le
+  calcul changeait sans que l'affichage suive.
+
+---
+
+## 26. Les mots-clés d'arme remontent au-dessus de la cible — 20/08/2026
+
+### Sept cases à cocher, tout en bas
+
+La carte des capacités vivait **sous** la carte Cible, en pile de cases qu'il
+fallait aller chercher au bas de l'écran. Elle remonte au contact de l'attaquant,
+s'ouvre par défaut, et prend la forme des retouches de partie : une pastille par
+mot-clé, la valeur à côté quand il y en a une, et elle n'apparaît que si la
+capacité est active.
+
+### Deux mots-clés n'arrivaient pas jusqu'au moteur
+
+**« Ignore le couvert »** est porté par six armes de la faction. Il ne quittait
+jamais la fiche : le moteur accordait le couvert à la cible malgré lui, et
+sous-estimait ces armes de tout le bénéfice. Il est maintenant lu de la fiche, et
+peut aussi s'accorder à la main.
+
+**« Tir indirect »** n'existait pas du tout. Il n'est pas automatique — une arme
+qui voit sa cible tire normalement — donc il se déclare : la pastille ne fait
+effet que sur les armes qui le permettent, et applique alors le −1 pour toucher et
+le couvert offert à la cible.
+
+### Ce que la séquence ne traduit pas
+
+Assaut, Lourd, Pistolet, Précision, Tir unique, Attaques supplémentaires, Jumelée
+s'affichent en pointillé sous « Aussi sur cette arme », avec ce qu'ils font. Les
+cacher laissait croire que la fiche avait été perdue.
+
+Les lignes de profil montrent désormais le **profil normalisé**, tir indirect
+compris : la ligne annonçait sinon un jet de touche que le calcul ne faisait pas.
+
+---
+
+## 27. Le couvert passe sur le jet de touche — 20/08/2026
+
+En 11e édition le bénéfice du couvert ne donne plus le +1 en sauvegarde : il
+impose un **−1 au jet pour toucher**. Le moteur appliquait encore la règle de
+l'édition précédente.
+
+`saveTarget` ne connaît plus le couvert du tout — la sauvegarde ne dépend plus que
+de l'armure, de la pénétration et de l'invulnérable — et le −1 rejoint
+`normalise`, là où vivait déjà celui du tir indirect.
+
+### Trois conséquences que l'ancienne règle n'avait pas
+
+| | |
+|---|---|
+| Sauvegarde 3+ ou mieux face à une PA 0 | était épargnée par l'ancienne formule ; elle subit maintenant le couvert comme les autres |
+| Couvert **et** tir indirect | ne se cumulent plus qu'à hauteur d'un seul −1, le plafond à ±1 s'appliquant à leur somme |
+| « Ignore le couvert » | annule désormais un malus de touche et non plus un bonus de sauvegarde — même effet, autre étape de la séquence |
+
+Le couvert ne vaut que contre les attaques de tir : le profil porte maintenant sa
+nature (`kind`) et une arme de mêlée n'en tient pas compte. **C'est une hypothèse
+de ma part** — à corriger si une règle de mêlée en bénéficie.
+
+L'entonnoir affiche le seuil de touche réellement appliqué, et le modificateur
+porte sa cause sur la ligne de profil — « −1 pour toucher (cible à couvert) ».
+Quand un bonus l'annule, la pastille reste visible en pointillé plutôt que de
+disparaître sans explication.
+
+---
+
+## 28. Comparer met face à face des unités entières — 20/08/2026
+
+### Deux suppressions
+
+**« Dans ma liste » quitte le mode « une arme ».** Il faisait doublon depuis que le
+mode « une unité entière » existe : choisir une unité de sa liste pour n'en
+mesurer qu'une arme à la fois, alors que l'onglet voisin charge la même unité avec
+tous ses profils, ses personnages rattachés et les octrois de son détachement. Le
+mode « une arme » redevient ce qu'il doit être : le catalogue, pour peser une arme
+hors de toute liste.
+
+**« Tir cumulé » disparaît** — il faisait tirer plusieurs unités dans l'ordre sur
+la même cible, et le mode « unité entière » couvre le besoin réel. Il reviendra
+retourné au chantier 31.
+
+Ses **sept conditions de détachement**, elles, servaient — et il était le seul
+endroit où les cocher, alors qu'elles changent tous les profils construits depuis
+la liste. Les retirer sans regarder les aurait tuées en silence. Elles rejoignent
+les retouches de partie du simulateur, à côté des aptitudes conditionnelles
+d'unité qui sont exactement de la même nature.
+
+### Comparer prend des unités, non plus des fiches
+
+Une entrée `{src:"roster", id}` apporte l'armement réel, les personnages
+rattachés, l'amélioration et les octrois du détachement — la même construction que
+le chargement d'unité de l'onglet Attaque. C'est ce qui permet de poser côte à
+côte la même escouade menée par deux personnages différents :
+
+| | Points | Dégâts | /100 pts |
+|---|---|---|---|
+| Immortels ×10 + Plasmancien | 195 | 7,6 PV | 3,9 |
+| Immortels ×10 + Psychomancien | 195 | 6,4 PV | 3,3 |
+| Immortels ×10 seuls | 140 | 5,5 PV | 4,0 |
+
+Une unité supprimée de la liste depuis qu'on l'a mise en comparaison se signale et
+quitte le verdict au lieu d'y peser un zéro.
+
+### Un raccord mort depuis le début
+
+Le raccord qui relisait la liste après modification ne servait à rien : la
+fonction posée en fin de fichier **écrasait** celle qui rechargeait l'unité. Changer
+une escouade de 5 à 10 dans l'éditeur ne bougeait ni le profil chargé ni le
+résultat — le simulateur continuait de mesurer l'ancienne unité. Vérifié sur la
+version précédente avant correction : ×5 → ×5, dégâts 2,8 → 2,8. Il s'appelle
+maintenant `__relitUniteChargee`, qui est ce qu'il fait.
+
+---
+
+## 29. « Efface » comptait exactement N morts, pas au moins N — 20/08/2026
+
+La colonne du verdict et le bloc « Unité effacée » de l'onglet Encaisser lisaient
+`slainDist[N]` — la probabilité de coucher **exactement** autant de figurines que
+la cible en compte. Or la distribution n'est pas plafonnée à l'effectif : le tir
+continue sur des figurines fraîches, de sorte que toutes les parties où l'unité
+tombe **et** où il reste de la puissance étaient jetées.
+
+Le biais frappait précisément les unités qui effacent le plus sûrement, puisque ce
+sont elles qui débordent le plus. Contre cinq Space Marines :
+
+| Unité | Avant | Après |
+|---|---|---|
+| Destroyers Lourds Lokhust | 26,3 % | **55,2 %** |
+| Immortels + Plasmancien | 15,6 % | 22,5 % |
+| Immortels + Psychomancien | 5,9 % | 6,8 % |
+
+Le classement s'inversait donc entre unités de puissance voisine.
+
+Le seuil « combien de tireurs pour effacer l'unité une fois sur deux » souffrait du
+même calcul, en pire : à fort volume de tir la probabilité d'un compte exact
+**redescend**, si bien que la dichotomie pouvait conclure qu'aucun nombre de
+tireurs n'y suffisait.
+
+La colonne ne disait pas non plus contre quoi. L'en-tête porte désormais
+l'effectif — « Efface ×5 » — et une ligne sous le tableau nomme la cible et
+définit les quatre colonnes.
+
+### Le verdict tient en deux colonnes
+
+Puissance brute et rendement au point occupaient deux graphiques empilés, donc deux
+titres, deux légendes et deux fois le nom de chaque unité. Une seule ligne par
+unité désormais, deux colonnes, chacune à son échelle, classées par rendement.
+Trois unités tiennent en **744 px** au lieu de dépasser le millier.
+
+---
+
+## 30. Ce que porte chaque unité, et quelle liste est en service — 21/08/2026
+
+### On ne voyait pas l'armement
+
+Le comparateur annonçait « Lokhust Heavy Destroyers ×3 · 160 pts » pour deux
+escouades dont l'une porte des Destructeurs gauss et l'autre des Exterminateurs
+enmitiques. Rien à l'écran ne les séparait : on en choisissait une au hasard.
+
+Chaque unité affiche maintenant son armement — « 3× Gauss destructor » — dans les
+trois endroits où on la désigne : les lignes du comparateur, sa feuille d'ajout, et
+la feuille « charger une unité » de l'onglet Attaque. Le nom des armes entre aussi
+dans la recherche.
+
+L'arme de mêlée par défaut est tue quand il y a mieux à dire : toute figurine la
+porte, aucune unité ne s'en distingue. Elle reste affichée quand c'est tout ce que
+l'unité a. Et quand deux unités portent malgré tout le même nom, elles sont
+numérotées « #1 », « #2 » — le repère suit jusque dans le verdict.
+
+### La liste en service
+
+Le simulateur et l'écran de partie travaillaient sur « la dernière liste ouverte » —
+jamais dit, jamais montré. Avec trois listes, plus moyen de savoir laquelle on
+mesure. Une barre en tête des deux écrans nomme la liste en service et l'ouvre d'une
+touche ; la feuille de choix montre les points, les détachements et, pour chacune,
+si une partie y est en cours.
+
+**Surtout : ouvrir une autre liste effaçait la partie en cours**, sans prévenir et
+sans retour. Les parties sont désormais rangées par liste — chacune retrouve la
+sienne intacte, y compris après un rechargement. L'ancien format à partie unique
+est repris et réécrit dès la première lecture.
+
+Le drapeau « une partie a commencé » lisait la table des unités, que l'écran
+remplit dès qu'il s'affiche : toute partie même vierge se déclarait en cours. Il
+regarde maintenant ce qui a vraiment bougé — le round, le camp, la phase, les PC,
+le score, le journal, ou une unité descendue sous son maximum.
+
+---
+
+## 31. La cible sait ce qu'elle est, et trois écrans en tirent parti — 21/08/2026
+
+### Cinq mots-clés sur la cible
+
+Le moteur ne connaissait de la cible que ses caractéristiques chiffrées. Une règle
+du genre « relance des 1 pour blesser contre les VÉHICULES » ne pouvait donc ni
+s'appliquer ni s'en abstenir : il fallait l'ignorer ou l'accorder toujours, deux
+façons de mentir.
+
+La cible porte maintenant **Infanterie, Véhicule, Monstre, Personnage, Volant**,
+devinés de ce qu'on vient de choisir — un archétype générique, une datasheet
+nécron, ou une unité de la liste. Ils se rectifient d'une touche, parce que
+l'application ne connaît pas les armées adverses, et ils se gardent avec les cibles
+enregistrées.
+
+Ils commandent une nouvelle famille d'aptitudes, celles dont la condition porte sur
+la cible. Rien à cocher : changer la cible suffit à les faire apparaître ou
+disparaître du profil. Sur les Destroyers Lourds Lokhust, l'Exterminateur enmitique
+relance ses 1 contre l'Infanterie, le Destructeur gauss contre les Véhicules et les
+Monstres.
+
+> **Réserve.** Le texte de ces deux règles vient de ce que le joueur m'a dicté, pas
+> d'une source que j'ai pu lire. La pastille le dit en toutes lettres — « règle de
+> fiche — à confirmer sur ta datasheet ».
+
+### Combien il en faut pour coucher cette cible
+
+Le tir cumulé revient, mais retourné. Il donnait un total, ce que le mode « unité
+entière » fait déjà ; ce qui manquait, c'est le **seuil**. Devant un char, la
+question n'est pas « combien de dégâts » mais « est-ce que ce que j'ai suffit, et
+sinon combien il m'en faut de plus ».
+
+Les unités tirent dans l'ordre sur le même vivier, et l'écran **relance le groupe
+après chaque activation ajoutée** — seul moyen d'avoir la vraie probabilité
+cumulée, la surtue de la première changeant ce qui reste à faire aux suivantes.
+
+|  | Points cumulés | Dégâts | Tout couché |
+|---|---|---|---|
+| 1 Destroyers Lourds | 160 | 8,2 PV | 10 % |
+| 2 Destroyers Lourds | 320 | 15,5 PV | 59 % |
+| 3 Destroyers Lourds | 480 | 22,9 PV | **86 %** |
+| 4 Destroyers Lourds | 640 | 30,2 PV | 96 % |
+
+> Il en faut **3** pour coucher Char lourd (T11) trois fois sur quatre, et **2**
+> pour y arriver une fois sur deux.
+
+Chaque ligne porte un multiplicateur : « ×4 » fait tirer quatre escouades
+identiques, de quoi éprouver un effectif qu'on n'a pas encore acheté.
+
+### Les stratagèmes qui changent un jet
+
+Sur les **quarante-trois** fiches de stratagème, j'en ai relu chacune : **six**
+seulement touchent la séquence d'attaque. Les autres déplacent, réaniment,
+protègent, marquent un objectif ou réagissent au tir adverse. Les verser toutes en
+aurait fait une liste à faire défiler ; elles restent dans l'écran En partie, qui
+les donne toutes, filtrées par phase et par camp.
+
+Les six apparaissent en pastilles, coût en PC écrit devant, filtrées par
+détachement retenu, par phase, et par les mots-clés de l'unité chargée : Meurtre
+Méthodique disparaît quand on charge un Monolithe, puisqu'il exclut les VÉHICULES.
+
+**Ciblage Moléculaire** a demandé un vrai travail de moteur. « Ignorer les
+modificateurs au jet de touche » inclut le −1 du couvert et celui du tir indirect,
+qui en 11e édition passent tous deux par le jet de touche mais sont appliqués dans
+la normalisation, pas dans `hitMod`. Le drapeau les court-circuite donc là, et
+laisse le bonus.
+
+Et les règles du détachement, qui s'appliquent depuis toujours sans qu'on les
+coche, se lisent enfin : un bloc en lecture seule sous les pastilles. On ne vérifie
+pas ce qu'on ne voit pas.
+
+### Le palmarès des 136 armes
+
+« Avec quoi je perce ce char » ne se résout pas en essayant les armes une par une.
+L'écran les passe **toutes** au moteur contre la cible du moment et les range :
+par arme ou par unité, en puissance brute ou au point, sur toute la faction ou sur
+ce qu'on possède déjà, en tir ou en mêlée. Les unités de la liste en service
+portent un repère.
+
+Contre du Space Marine, le Rayon Annihilateur du Roi Silencieux sort premier à
+25 PV. Contre un char lourd il tient encore la tête, mais c'est le **Destructeur
+gauss** des Destroyers Lourds qui gagne au point : 4,7 PV pour 100 points contre
+4,0 — et il coûte 160 points au lieu de 420.
+
+Chaque fiche est prise **nue** : effectif maximum, toutes les figurines portant
+l'arme quand l'emplacement le permet, sans détachement, sans personnage rattaché,
+sans retouche. C'est une carte du terrain, pas un calcul de partie, et l'écran le
+dit sous le tableau.
+
+---
+
+## Ce qui reste en suspens après le chantier 31
+
+| Point | Ce qu'il faudrait |
+|---|---|
+| **Anti-X sans mot-clé** | cinq profils portent `anti:N` sans que le catalogue dise **contre quoi** : Obélisque « Tesla sphere ×4 », Voûte Tesseract « Time's Arrow », Trompeur C'tan « Cosmic insanity », et les deux profils de la lance du Dragon du Vide. Le moteur l'applique donc **sans condition**, ce qui surestime ces armes hors de leur vraie cible. Les mots-clés de cible existent maintenant : il ne manque que les cinq valeurs. |
+| **Les deux règles Lokhust** | à confirmer sur la datasheet ; marquées comme telles dans l'écran. |
+| **Le couvert en mêlée** | gaté au tir par hypothèse. |
+| **Traduction** | 0 nom d'unité sur 50, ~98 noms d'arme sur 108, 32 améliorations sur 42 restent en anglais. |
+| **PC au round 1** | le compteur démarre à 0. |
