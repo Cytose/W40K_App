@@ -1944,4 +1944,75 @@ Prophète de la Destruction du Nékrosor.
 
 L'aura d'Illuminor Szeras garde sa **moitié défensive** non automatisée — chaque
 attaque visant l'unité voit sa PA empirée de 1, ce que l'onglet Encaisser
-n'applique pas. Le texte du raccourci le dit.
+n'applique pas. Le texte du raccourci le dit. *(Refermé au chantier 34.)*
+
+## 34. L'onglet Encaisser sait enfin ce qui protège l'unité — 21/08/2026
+
+Une aura peut avoir deux moitiés qui ne regardent pas du même côté. Celle
+d'**Illuminor Szeras** améliore de 1 la PA des attaques que fait l'unité *et*
+empire de 1 la PA des attaques qui la **visent**. Seule la première était
+calculée ; la seconde n'existait que dans le texte d'un raccourci, à retrancher
+à la main.
+
+### Une aura, deux sens
+
+`sens:"def"` sépare les deux moitiés dans la même table. Le côté attaque écarte
+ce qui porte la marque ; l'onglet Encaisser ne lit que cela. `val` est ce qu'on
+ajoute à la PA de l'assaillant — `-1` l'empire d'un cran — et le moteur plafonne
+déjà à 0, donc une PA nulle reste nulle sans rien de spécial à écrire.
+
+```
+vingt Guerriers, dix Bolters lourds
+   sans l'aura   11,1 figurines perdues
+   déclarée       8,3                     un quart de moins
+```
+
+Le profil de la menace annonce la retouche au lieu de la subir en silence :
+`PA 0 au lieu de -1`. Quand la PA vaut déjà 0, rien ne s'affiche — l'aura n'y
+change rien et ne doit pas prétendre le contraire.
+
+### Ce qui protège : deux natures, pas une
+
+L'écran distingue maintenant deux choses que le joueur ne doit pas confondre.
+
+| | Nature | Traitement |
+|---|---|---|
+| Ce qu'un **personnage rattaché** donne | une propriété de la liste : il mène l'unité, point | compté d'office, annoncé en clair |
+| Une **aura d'armée** | tient à une distance que l'application ne connaît pas | proposée, laissée à déclarer |
+
+C'est la même règle que partout ailleurs dans l'application : ne jamais deviner
+une distance, ne jamais faire oublier ce qui est acquis.
+
+### Le défaut trouvé en chemin : deux onglets, deux réponses
+
+L'onglet Attaque lisait déjà l'invulnérable et l'Insensible qu'un personnage
+rattaché accorde à son escouade. L'onglet Encaisser, non — il construisait le
+profil défensif à partir de la seule ligne du catalogue. La même unité de la même
+liste répondait donc deux choses différentes selon l'écran regardé.
+
+```
+dix Immortels menés par Orikan, dix tirs de Plasma surchargé
+   annoncé   7,4 figurines perdues        sauvegarde 6+ après PA
+   réel      4,5                          invulnérable 4+ d'Orikan
+```
+
+Quatre pertes sur dix annoncées en trop. Le Technomancien avait le même sort,
+plus discrètement (Insensible 5+ : 11,1 → 9,9 contre des Bolters lourds).
+
+### Et l'unité visée est enfin la bonne
+
+Les pastilles de choix étaient dédupliquées sur le nom et l'effectif, et l'unité
+retrouvée dans la liste **par son nom**. Deux escouades d'Immortels ×10, l'une
+menée par Orikan et l'autre non, n'en faisaient qu'une — et c'était toujours la
+première qui répondait. Chaque pastille porte maintenant son meneur, la clé de
+déduplication le compte, et la résolution passe par l'identité de l'unité. Une
+figurine visée seule ne mène personne : ni ses auras ni celles qu'elle recevrait
+comme meneuse ne la couvrent.
+
+### Vérification
+
+`ROSTER.defenses(nom, id)` rend ce qui protège une unité, d'office d'un côté et à
+déclarer de l'autre — dix-huit contrôles en navigateur : l'aura proposée aux
+BATTLELINE et refusée aux autres, la PA qui bouge et les pertes qui baissent, le
+personnage rattaché compté, le côté attaque qui ignore la moitié défensive, et
+deux escouades homonymes qui ne se confondent plus.

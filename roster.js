@@ -209,6 +209,9 @@ function conditionsDe(ru, ph){
   /* les auras d'une autre figurine de l'armee : la source doit y etre */
   const armee = (typeof AURAS_ARMEE !== "undefined") ? AURAS_ARMEE : [];
   armee.forEach((a, i)=>{
+    /* les auras defensives ne retouchent pas les attaques de l'unite
+       mais celles qui la visent : elles vivent dans l'onglet Encaisser */
+    if(a.sens === "def") return;
     const presente = R.units.some(x => x.name === a.source ||
                                        x.chars.some(c => c.name === a.source));
     if(!presente) return;
@@ -354,9 +357,11 @@ window.ROSTER = {
     if(!R) return null;
     const out = [];
     R.units.forEach(ru=>{
-      out.push({ nom: ru.name, taille: ru.size, arme: armePrincipale(ru),
+      out.push({ id: ru.id, nom: ru.name, taille: ru.size, arme: armePrincipale(ru),
+                 chars: ru.chars.map(c => c.name),
                  groupe: nomAffiche(ru), perso: false });
-      ru.chars.forEach(c => out.push({ nom: c.name, taille: 1, arme: armePersoPrincipale(c),
+      ru.chars.forEach(c => out.push({ id: ru.id, nom: c.name, taille: 1,
+                 arme: armePersoPrincipale(c), chars: [],
                  groupe: nomAffiche(ru), perso: true }));
     });
     return { liste: R.nom, unites: out };
@@ -382,6 +387,14 @@ window.ROSTER = {
     const w = unitWeps(porteur || ru.name)[i];
     return w ? octroisArme(ru, porteur, w).map(o => o.nom + " (" + o.source + ")" +
       (o.mot ? " → " + o.mot : " → " + o.champ + " " + o.val)) : null;
+  },
+  /* ce qui protege une unite de la liste : d'office a gauche, a
+     declarer a droite. Crochet de verification de l'onglet Encaisser. */
+  defenses: function(nom, id){
+    if(!R) return null;
+    const d = defensesDe(ruDef({nom:nom, id:id}));
+    return { auto: d.auto.map(a => a.nom + " (" + a.source + ") → " + a.champ + " " + a.val),
+             decl: d.decl.map(a => a.nom + " (" + a.source + ") → " + a.champ + " " + a.val) };
   }
 };
 
@@ -1097,18 +1110,63 @@ function pointsDe(L){
    cherche pas la justesse d'une liste adverse, seulement à
    savoir si une unité tient un volume de tir donné.
    ========================================================== */
-let defUnite = null, defMenace = 0, defTireurs = 10;
+let defUnite = null, defMenace = 0, defTireurs = 10, defProtOn = {};
+
+/* La cible retrouvee dans la liste : ce sont ses mots-cles a elle, et
+   ceux de son personnage rattache, qui decident des auras qui la
+   couvrent. Une figurine visee seule ne porte que les siens. */
+const ruDef = c => {
+  const nom = (c && c.nom) || "";
+  /* une figurine visee seule ne mene personne : ni les auras qu'elle
+     donnerait a une escouade, ni celles qu'elle en recevrait */
+  if(!R || !c || c.perso) return {name:nom, chars:[]};
+  /* par identite d'abord : deux escouades du meme nom peuvent etre
+     menees par des personnages differents, donc protegees autrement */
+  return R.units.find(x => x.id === c.id) ||
+         R.units.find(x => x.name === nom) || {name:nom, chars:[]};
+};
 
 function defCible(){
   /* l'unite choisie, a defaut la premiere de la liste */
   if(defUnite){
     const u = unitRow(defUnite.nom);
-    if(u) return {u:u, taille:defUnite.taille, nom:defUnite.nom};
+    if(u) return {u:u, taille:defUnite.taille, nom:defUnite.nom,
+                  id:defUnite.id, perso:defUnite.perso};
   }
   const ru = R && R.units[0];
-  if(ru){ const u = unitRow(ru.name); if(u) return {u:u, taille:ru.size, nom:ru.name}; }
+  if(ru){ const u = unitRow(ru.name);
+          if(u) return {u:u, taille:ru.size, nom:ru.name, id:ru.id, perso:false}; }
   const u = unitRow("Immortals");
   return u ? {u:u, taille:10, nom:"Immortals"} : null;
+}
+
+/* Ce qui protege l'unite visee. Deux natures, que l'application ne doit
+   pas confondre : ce qu'un personnage rattache donne est une propriete
+   de la liste — il mene l'unite, point — donc compte d'office ; une aura
+   d'armee tient a une distance que l'application ne connait pas, donc
+   proposee et laissee a declarer. L'onglet Attaque lit deja les deux du
+   cote de la cible ; sans ceci l'onglet Encaisser repondait autre chose
+   sur la meme unite de la meme liste. */
+function defensesDe(ru){
+  const auto = [], decl = [];
+  const perso = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
+  (ru.chars || []).forEach(c=>{
+    (perso[c.name] || []).forEach(a=>{
+      if(a.champ !== "inv" && a.champ !== "fnp") return;
+      auto.push({ nom:a.nom, source:c.name, texte:a.texte, champ:a.champ, val:a.val });
+    });
+  });
+  const armee = (typeof AURAS_ARMEE !== "undefined") ? AURAS_ARMEE : [];
+  armee.forEach((a, i)=>{
+    if(a.sens !== "def") return;
+    if(!R || !R.units.some(x => x.name === a.source ||
+                                x.chars.some(c => c.name === a.source))) return;
+    if(a.kw && a.kw.length && !a.kw.some(k => groupeA(ru, k))) return;
+    if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
+    decl.push({ id:"def|" + a.source + "|" + i, nom:a.nom, source:a.source,
+                quand:a.quand, texte:a.texte, champ:a.champ, val:a.val });
+  });
+  return { auto:auto, decl:decl };
 }
 
 function renderDef(){
@@ -1121,28 +1179,74 @@ function renderDef(){
   const wrap = document.createElement("div");
   wrap.className = "chips tight";
   const vus = new Set();
-  const proposer = (nom, taille) => {
-    const cle = nom + "|" + taille;
+  const proposer = x => {
+    /* deux escouades identiques donnent la meme reponse : une seule
+       pastille. Menees par des personnages differents, non — la cle
+       tient donc au meneur autant qu'au nom et a l'effectif. */
+    const cle = x.nom + "|" + x.taille + "|" + (x.chars || []).join(",");
     if(vus.has(cle)) return;
     vus.add(cle);
-    const u = unitRow(nom); if(!u) return;
+    const u = unitRow(x.nom); if(!u) return;
+    const meme = cible && cible.nom === x.nom && cible.taille === x.taille &&
+                 cible.id === x.id && !!cible.perso === !!x.perso;
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "chip" + (cible && cible.nom === nom && cible.taille === taille ? " on" : "");
-    b.innerHTML = nom + ' ×' + taille;
-    b.addEventListener("click", ()=>{ defUnite = {nom:nom, taille:taille}; renderDef(); });
+    b.className = "chip" + (meme ? " on" : "");
+    b.innerHTML = x.nom + ' ×' + x.taille +
+      ((x.chars || []).length ? '<small> + ' + x.chars.join(", ") + '</small>' : '');
+    b.addEventListener("click", ()=>{
+      defUnite = {nom:x.nom, taille:x.taille, id:x.id, perso:x.perso};
+      renderDef();
+    });
     wrap.appendChild(b);
   };
-  if(r && r.unites.length) r.unites.forEach(x => proposer(x.nom, x.taille));
-  else UNITS.slice(0, 8).forEach(u => proposer(u[0], u[6][u[6].length-1]));
+  if(r && r.unites.length) r.unites.forEach(proposer);
+  else UNITS.slice(0, 8).forEach(u => proposer({nom:u[0], taille:u[6][u[6].length-1]}));
   host.appendChild(wrap);
 
   if(!cible){ el("defProf").textContent = ""; return; }
   const u = cible.u;
+
+  /* --- ce qui la protege : d'abord, parce que la ligne de profil doit
+     annoncer la sauvegarde qu'elle aura vraiment */
+  const prot = defensesDe(ruDef(cible));
+  let dInv = u[4] || 0, dFnp = u[8] || 0, dApMod = 0;
+  const garde = a=>{
+    if(a.champ === "inv") dInv = dInv ? Math.min(dInv, a.val) : a.val;
+    else if(a.champ === "fnp") dFnp = dFnp ? Math.min(dFnp, a.val) : a.val;
+    else if(a.champ === "apMod") dApMod += a.val;
+  };
+  prot.auto.forEach(garde);
+  prot.decl.forEach(a => { if(defProtOn[a.id]) garde(a); });
+  const donne = (base, val) => val && val !== base ? ' <em>accordée</em>' : '';
+
   el("defProf").innerHTML = '<span class="stat">×' + cible.taille + ' · E' + u[2] +
-    ' · Svg ' + u[3] + '+' + (u[4] ? ' / ' + u[4] + '++' : '') + ' · ' + u[5] + ' PV' +
-    (u[8] ? ' · Insensible ' + u[8] + '+' : '') + '</span>' +
+    ' · Svg ' + u[3] + '+' + (dInv ? ' / ' + dInv + '++' + donne(u[4] || 0, dInv) : '') +
+    ' · ' + u[5] + ' PV' +
+    (dFnp ? ' · Insensible ' + dFnp + '+' + donne(u[8] || 0, dFnp) : '') + '</span>' +
     '<span class="kw">' + (cible.taille * u[5]) + ' PV au total</span>';
+
+  const box = el("defProt");
+  if(box){
+    box.innerHTML = "";
+    prot.auto.forEach(a=>{
+      const d = document.createElement("div");
+      d.className = "vinfo";
+      d.innerHTML = '<b>' + a.nom + '</b><i>' + a.source + ' · déjà compté</i>' +
+                    '<span>' + a.texte + '</span>';
+      box.appendChild(d);
+    });
+    prot.decl.forEach(a=>{
+      const on = !!defProtOn[a.id];
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "vpre vcond" + (on ? " on" : "");
+      b.title = a.texte;
+      b.innerHTML = a.nom + '<small>' + a.quand + '</small>';
+      b.addEventListener("click", ()=>{ defProtOn[a.id] = !on; renderDef(); });
+      box.appendChild(b);
+    });
+  }
 
   /* --- ce qu'elle recoit */
   const th = el("defThreats");
@@ -1157,9 +1261,12 @@ function renderDef(){
   });
   const m = MENACES[defMenace];
   const f = parseFlags(m[6]);
+  const paEff = Math.max(0, m[4] + dApMod);
   el("defThreatProf").innerHTML =
     '<span class="stat">A ' + m[1] + ' · ' + (f.torrent ? 'auto' : m[2] + '+') +
-    ' · F' + m[3] + ' · PA ' + (m[4] ? '-' + m[4] : '0') + ' · D ' + m[5] + '</span>' +
+    ' · F' + m[3] + ' · PA ' + (paEff ? '-' + paEff : '0') +
+    (paEff !== m[4] ? ' <em>au lieu de ' + (m[4] ? '-' + m[4] : '0') + '</em>' : '') +
+    ' · D ' + m[5] + '</span>' +
     (m[6] ? '<span class="kw">' + motsArme(m[6]) + '</span>' : '') +
     '<span class="warn">' + m[7] + '</span>';
 
@@ -1167,8 +1274,9 @@ function renderDef(){
   const prof = {
     attacks: scaleDice(m[1], defTireurs),
     bs: m[2] || 4, str: m[3], ap: m[4], dmg: m[5],
-    tough: u[2], sv: u[3], inv: u[4] || 0, wounds: u[5],
-    models: cible.taille, fnp: u[8] || 0, dmgRed: 0, cover: false,
+    apMod: dApMod,
+    tough: u[2], sv: u[3], inv: dInv, wounds: u[5],
+    models: cible.taille, fnp: dFnp, dmgRed: 0, cover: false,
     torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
     sustainedOn: !!f.sust, sustainedN: f.sust || "1",
     blast: !!f.blast, rapidOn: false, rapidN: 0,
