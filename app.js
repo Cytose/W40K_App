@@ -366,6 +366,26 @@ function majAnti(){
 }
 /* la categorie d'une unite necron : « categorie() » vit dans roster.js,
    hors de portee d'ici, mais la table brute est dans data.js */
+/* La version, en pied de page. On garde souvent plusieurs copies du
+   fichier autonome dans ses telechargements, toutes du meme nom : sans
+   cette ligne, rien ne distingue celle d'aujourd'hui de celle d'hier, et
+   on croit a un defaut corrige depuis longtemps. */
+(function(){
+  const m = document.querySelector('meta[name="build"]');
+  const v = m ? m.content : "";
+  const txt = !v || v === "source"
+    ? "Version de travail — non compilée."
+    : "Version " + v + ".";
+  /* deux endroits : le pied de page du simulateur, et les Réglages — ce
+     dernier est le seul atteignable depuis n'importe quel écran. */
+  const e = document.getElementById("verBuild");
+  if(e) e.textContent = txt;
+  const g = document.getElementById("verSettings");
+  if(g) g.textContent = txt + (v && v !== "source"
+    ? " C'est l'empreinte des sources : deux copies qui l'affichent sont identiques."
+    : "");
+})();
+
 const catDe = nom => {
   const t = (typeof CAT !== "undefined") ? CAT.find(x => x[0] === nom) : null;
   return t ? t[1] : "Autre";

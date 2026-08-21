@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Simulateur de séquence d'attaque Warhammer 40 000 (11e édition) pour les Nécrons.">
 <title>W40K App</title>
+<!-- L'empreinte de la version, ecrite par build.js. « source » signale
+     une copie non compilee : on travaille dessus, elle n'a pas d'empreinte. -->
+<meta name="build" content="source">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="icon" href="icon.svg">
@@ -268,6 +271,10 @@ input.sheet-search{
 .pu.tap:hover{border-color:var(--glow)}
 .pu.tap>b:after{content:" ⓘ";font-size:10px;color:var(--tx3);font-weight:400}
 .fiche-note{font-size:12px;line-height:1.5;color:var(--tx3);margin:4px 0 0}
+/* la version, en pied de page : sans elle, impossible de savoir quelle
+   copie on a sous les yeux quand on en garde plusieurs */
+.ver{display:inline-block;margin-top:6px;font-size:10px;letter-spacing:.06em;
+  color:var(--tx3);opacity:.8;font-variant-numeric:tabular-nums}
 /* ---- le metier de l'unite : douze roles, quatre familles ---- */
 .roles{margin:8px 0 0;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--s2)}
 .roles-tete{display:flex;align-items:baseline;gap:6px}
@@ -1501,7 +1508,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     Chaîne touche → blessure → sauvegarde calculée exactement ; répartition des dégâts entre figurines
     simulée 30 000 fois (les dégâts ne débordent pas d'une figurine à l'autre).<br>
     Données 11<sup>e</sup> éd. : faction pack Necrons v1.0 + Wahapedia. Points à revérifier au MFM.
-    Tous les champs sont modifiables. Non affilié à Games Workshop.
+    Tous les champs sont modifiables. Non affilié à Games Workshop.<br>
+    <span class="ver" id="verBuild"></span>
   </footer>
 </div>
 
@@ -1555,6 +1563,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <div class="ctl"><input type="number" id="listCap" min="100" max="10000" step="50"></div>
       </div>
       <p class="hint">Partage, impression, QR code, sauvegarde et import sont regroupés dans « Partager ».</p>
+      <!-- On garde souvent plusieurs copies du fichier autonome, toutes du meme
+           nom. Sans cette ligne, rien ne distingue celle d'aujourd'hui de celle
+           d'hier, et on croit a un defaut corrige depuis longtemps. -->
+      <div class="padsep">Version</div>
+      <p class="hint" id="verSettings" style="margin-top:2px"></p>
     </div>
   </section>
 

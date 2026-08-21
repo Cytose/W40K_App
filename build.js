@@ -11,7 +11,15 @@ const fs=require('fs'), zlib=require('zlib'), crypto=require('crypto'), terser=r
 const SOURCES=['index.html','data.js','engine.js','app.js','roster.js'];
 const STATIQUES=['manifest.json','icon.svg'];
 (async()=>{
-  const html=fs.readFileSync('index.html','utf8');
+  /* L'empreinte se calcule d'abord : elle est ecrite DANS les sorties, pour
+     qu'une copie ouverte trois semaines plus tard dise de quand elle date.
+     Elle porte sur les sources telles qu'elles sont sur le disque — la
+     substitution qui suit n'entre donc pas dans son propre calcul. */
+  const sig=crypto.createHash('sha256')
+    .update(SOURCES.map(f=>fs.readFileSync(f)).reduce((a,b)=>Buffer.concat([a,b])))
+    .digest('hex').slice(0,8);
+  const html=fs.readFileSync('index.html','utf8')
+    .replace('<meta name="build" content="source">','<meta name="build" content="'+sig+'">');
   const css=html.match(/<style>([\s\S]*?)<\/style>/)[1]
     .replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s*([{}:;,>])\s*/g,'$1')
     .replace(/;}/g,'}').replace(/\n+/g,'').replace(/\s{2,}/g,' ').trim();
@@ -45,7 +53,12 @@ const STATIQUES=['manifest.json','icon.svg'];
 
   /* le site : les sources telles quelles, plus le fichier autonome a
      telecharger depuis la page */
-  for(const f of SOURCES.concat(STATIQUES)) fs.copyFileSync(f,'dist/'+f);
+  /* index.html part avec son empreinte injectee, pas la copie brute :
+     le site deploye doit pouvoir dire sa version comme le fichier autonome */
+  for(const f of SOURCES.concat(STATIQUES))
+    if(f !== 'index.html') fs.copyFileSync(f,'dist/'+f);
+  fs.writeFileSync('dist/index.html', fs.readFileSync('index.html','utf8')
+    .replace('<meta name="build" content="source">','<meta name="build" content="'+sig+'">'));
   fs.writeFileSync('dist/W40K_App.html',full);
   /* et la meme a la racine, comme l'annonce l'en-tete : c'est CE fichier
      que le depot suit et que la verification hors-ligne ouvre. Sans cette
@@ -57,9 +70,6 @@ const STATIQUES=['manifest.json','icon.svg'];
      l'empreinte des sources : un deploiement qui change quoi que ce soit
      invalide l'ancien cache au lieu de le laisser resservir la version
      precedente. */
-  const sig=crypto.createHash('sha256')
-    .update(SOURCES.map(f=>fs.readFileSync(f)).reduce((a,b)=>Buffer.concat([a,b])))
-    .digest('hex').slice(0,8);
   fs.writeFileSync('dist/sw.js', fs.readFileSync('sw.js','utf8')
     .replace(/w40k-app-\w+/,'w40k-app-'+sig));
   console.log('site', SOURCES.length+STATIQUES.length+2, 'fichiers | empreinte', sig,
