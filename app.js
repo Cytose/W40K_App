@@ -657,10 +657,18 @@ function profilPourMoteur(p){
        le joueur declare qu'il tire sans voir */
     indirect: !!p.indirectCap && !!S.indirect
   });
+  /* « tout jet REUSSI devient critique » n'est pas un seuil fixe : il
+     suit la caracteristique et ses modificateurs. La Faim de Chair des
+     Ecorcheurs, notee 2+, faisait toucher l'unite sur 2+ au lieu de 3+,
+     puisqu'une touche critique reussit toujours. La demande reste donc
+     en attente et se resout apres la boucle, modificateurs connus. */
+  let toutH = false, toutW = false;
   condPour(p).forEach(c=>{
     if(c.mot) q[c.mot === "sust" ? "sustainedOn" : c.mot] = true;
-    else if(c.champ === "critH") q.critH = Math.min(q.critH, c.val);
-    else if(c.champ === "critW") q.critW = Math.min(q.critW, c.val);
+    else if(c.champ === "critH") { if(c.val === "tous") toutH = true;
+                                   else q.critH = Math.min(q.critH, c.val); }
+    else if(c.champ === "critW") { if(c.val === "tous") toutW = true;
+                                   else q.critW = Math.min(q.critW, c.val); }
     else if(c.champ === "rrH") q.rrH = plusFort(q.rrH, c.val);
     else if(c.champ === "rrW") q.rrW = plusFort(q.rrW, c.val);
     else if(c.champ === "hitMod") q.hitMod = borne1(q.hitMod + c.val);
@@ -669,6 +677,11 @@ function profilPourMoteur(p){
     else if(c.champ === "strMod") q.str = Math.max(1, q.str + c.val);
     else if(c.champ === "dmgMod") q.dmgMod = (q.dmgMod || 0) + c.val;
   });
+  /* le plus petit jet qui reussisse : la caracteristique moins le
+     modificateur, et jamais moins de 2 puisqu'un 1 rate toujours */
+  const plancher = (cible, mod) => Math.max(2, cible - Math.max(-1, Math.min(1, mod || 0)));
+  if(toutH) q.critH = Math.min(q.critH, plancher(q.bs, q.hitMod));
+  if(toutW) q.critW = Math.min(q.critW, plancher(ENG.woundTarget(q.str, q.tough), q.wndMod));
   return q;
 }
 const profilsActifs = () => !atkUnit ? [] :

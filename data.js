@@ -9,35 +9,35 @@
 /* UNITS : [nom, M, E, Svg, Invu, PV, tailles[], points{}, fnp, rôle, legends, notes, CO, Cd]
    CO et Cd viennent du catalogue BattleScribe. */
 const UNITS = [
-["Convergence of Dominion",0,9,3,0,7,[1,2,3],{"1":60,"2":120,"3":180},0,"",0,"Fortification, immobile (M —). 60 points par élément, confirmé. Profil et armement repris du catalogue BattleScribe. La composition de 1 à 3 éléments n'a pas de source : à corriger si l'unité se prend autrement.",0,"8+"],
+["Convergence of Dominion",0,9,3,0,7,[1,2,3],{"1":60,"2":120,"3":180},0,"",0,"Fortification, immobile (M —), CO 0. Composition de 1 à 3 Stèles Stellaires et 60 points par élément : confirmés sur la datasheet. Nœuds de Réanimation (Aura) : FNP 6+ à l'INFANTERIE NÉCRONS à 6\". Couvert Ancestral : donne le bénéfice du couvert aux figurines qu'elle masque. Socle : la fiche dit « utiliser le modèle ».",0,"8+"],
 ["Necron Warriors",5,4,4,0,1,[10,20],{"10":80,"20":190},0,"",0,"Battleline. Their Number is Legion : relance du dé de Réanimation.",2,"7+"],
 ["Immortals",5,5,3,0,1,[5,10],{"5":70,"10":140},0,"",0,"Battleline. Aucune règle défensive propre.",2,"7+"],
 ["Lychguard",5,5,3,4,2,[5,10],{"5":80,"10":160},0,"",0,"Invu 4+ SEULEMENT avec bouclier de dispersion. Guardian Protocols : -1 pour blesser si un NOBLE mène l'unité et F > E.",1,"7+"],
 ["Deathmarks",5,5,3,0,1,[5,10],[[1,{"5":60,"10":120}],[3,{"5":70,"10":130}]],0,"",0,"Frappe en Profondeur.",1,"7+"],
 ["Flayed Ones",5,4,4,0,1,[5,10],{"5":55,"10":100},0,"",0,"Infiltrators + Discrétion.",1,"7+"],
-["Triarch Praetorians",10,5,3,0,2,[5,10],{"5":80,"10":160},0,"",0,"Frappe en Profondeur. Aucune invu listée en 11e (à revérifier).",1,"7+"],
+["Triarch Praetorians",10,5,3,0,2,[5,10],{"5":80,"10":160},0,"",0,"Frappe en Profondeur. Aucune sauvegarde invulnérable : confirmé sur la datasheet.",1,"7+"],
 ["Cryptothralls",5,4,3,0,3,[2],{"2":60},0,"",0,"Bound Creation : le CRYPTEK de l'unité gagne FNP 4+.",1,"8+"],
 ["Skorpekh Destroyers",8,6,3,0,3,[3,6],[[1,{"3":85,"6":170}],[3,{"3":95,"6":180}]],0,"",0,"",2,"7+"],
 ["Ophydian Destroyers",10,5,4,0,3,[3,6],[[1,{"3":80,"6":145}],[3,{"3":90,"6":155}]],0,"",0,"Tunnelling Horrors : repart en Réserves en fin de tour adverse.",2,"7+"],
 ["Lokhust Destroyers",8,6,3,0,3,[1,2,3,6],[[1,{"1":40,"2":55,"3":80,"6":170}],[3,{"1":50,"2":65,"3":90,"6":180}]],0,"",0,"",2,"7+"],
 ["Lokhust Heavy Destroyers",8,6,3,0,4,[1,2,3],[[1,{"1":50,"2":100,"3":160}],[3,{"1":60,"2":110,"3":170}]],0,"",0,"",2,"7+"],
-["Tomb Blades",12,5,4,0,2,[3,6],[[1,{"3":70,"6":140}],[3,{"3":80,"6":150}]],0,"",0,"Shieldvanes : Svg 3+ mais M 8\". Shadowloom : Discrétion. Deep Strike en 11e.",2,"7+"],
+["Tomb Blades",12,5,4,0,2,[3,6],[[1,{"3":70,"6":140}],[3,{"3":80,"6":150}]],0,"",0,"Shieldvanes : Svg 3+ mais M 8\". Shadowloom : Discrétion. Nébuloscope : ignore le couvert. Éclaireurs 9\" (et non Frappe en Profondeur : corrigé sur la datasheet).",2,"7+"],
 ["Canoptek Scarab Swarms",10,2,6,0,4,[3,6],{"3":40,"6":80},0,"",0,"CO 0 (1 à 6\" d'un CRYPTEK).",0,"8+"],
 ["Canoptek Wraiths",10,6,3,4,4,[3,6],[[1,{"3":95,"6":220}],[2,{"3":115,"6":240}]],0,"",0,"Invu 4+ permanente.",2,"8+"],
-["Canoptek Spyders",5,7,3,0,6,[1,2],{"1":65,"2":110},0,"",0,"Gloom Prism : FNP 5+ vs mortelles/psychiques à 6\". Deadly Demise 1.",2,"8+"],
-["Canoptek Reanimator",8,6,3,0,6,[1],{"1":75},4,"",0,"FNP 4+ permanent. Aura 3\" : +D3 PV réanimés.",3,"8+"],
+["Canoptek Spyders",5,7,3,0,6,[1,2],{"1":65,"2":110},0,"",0,"Prisme Lugubre (Aura) : FNP 5+ vs mortelles/psychiques à 6\". Griffes de Fabricateur (Aura) : FNP 6+ aux VÉHICULES NÉCRONS à 6\". Essaim Canoptek : rend une figurine à un essaim de Scarabées par phase de Commandement. Deadly Demise 1.",2,"8+"],
+["Canoptek Reanimator",8,6,3,0,6,[1],{"1":75},4,"",0,"FNP 4+ permanent. Faisceau de Réanimation Nanoscarabée (Aura) 3\" : +D3 PV réanimés. Socle ø60mm, Cd 7+ : relevés sur la datasheet.",3,"7+"],
 ["Canoptek Doomstalker",8,8,3,4,12,[1],{"1":140},0,"",0,"Profil dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3.",4,"8+"],
 ["Canoptek Macrocytes",8,3,4,0,1,[5],{"5":70},0,"",0,"NOUVEAU 11e. Harassment Swarm : -1 pour toucher aux ennemis non-MONSTRE/VÉHICULE à 3\".",1,"8+"],
 ["Canoptek Tomb Crawlers",5,4,3,0,3,[2],{"2":50},0,"",0,"NOUVEAU 11e. Weapon Sentinels : ignore les modificateurs de touche/blessure à 12\".",1,"8+"],
-["Triarch Stalker",8,8,3,4,12,[1],[[1,{"1":110}],[3,{"1":120}]],0,"",0,"Targeting Relay : retire le couvert à la cible touchée. Scouts 8\".",4,"7+"],
+["Triarch Stalker",8,8,3,4,12,[1],[[1,{"1":110}],[3,{"1":120}]],0,"",0,"Relais de Ciblage : retire le bénéfice du couvert à une unité touchée, jusqu'à la fin de la phase. Éclaireurs 8\". Socle : la fiche dit « utiliser le modèle » — aucune dimension standard.",4,"7+"],
 ["Doomsday Ark",10,9,3,4,14,[1],[[1,{"1":210}],[3,{"1":230}]],0,"",0,"Profil dégradé à 1-5 PV : -1 pour toucher. Deadly Demise D3.",5,"7+"],
 ["Ghost Ark",10,9,3,4,14,[1],{"1":100},0,"",0,"Transport 10 Necron Warriors + 1 perso. Repair Barge. Deadly Demise D3.",3,"7+"],
-["Annihilation Barge",10,8,3,4,9,[1],{"1":95},0,"",0,"Deadly Demise 1.",3,"7+"],
+["Annihilation Barge",10,8,3,4,9,[1],{"1":95},0,"",0,"Deadly Demise 1. Arcs Malveillants : D3 blessures mortelles aux unités frôlées par le destructeur tesla jumelé. Socle : la fiche dit « utiliser le modèle » — aucune dimension standard.",3,"7+"],
 ["Monolith",8,13,2,0,22,[1],[[1,{"1":420}],[2,{"1":440}]],0,"",0,"TITANIC FLY en 11e. Pas d'invu. Dégradé à 1-7 PV : -1 pour toucher. Deadly Demise D6.",8,"7+"],
 ["Obelisk",8,13,2,0,24,[1],[[1,{"1":280}],[2,{"1":310}]],0,"",0,"TITANIC FLY. Pas d'invu. Dégradé à 1-8 PV : -1 pour toucher. Deadly Demise D6.",8,"7+"],
 ["Tesseract Vault",8,12,2,4,24,[1],[[1,{"1":465}],[2,{"1":485}]],0,"",0,"TITANIC FLY. Dégradé à 1-8 PV : un seul pouvoir C'tan par phase. Deadly Demise D6+3.",8,"7+"],
-["Doom Scythe",0,9,3,0,12,[1],{"1":200},0,"",0,"AÉRODYNE. Le pack de faction remplace son M et son CO par « — » : en 11e un aérodyne ne fait qu'un mouvement d'arrivée (règles de base 23.02) et ne tient pas d'objectif. Dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3. Le pack nomme cette fiche « Faucheur » ; le rattachement au Doom Scythe est une déduction, pas une lecture.",0,"7+"],
-["Night Scythe",14,9,3,0,12,[1],{"1":125},0,"",0,"Refondu en 11e : le pack lui retire AÉRODYNE, fixe son M à 14\" et lui donne Stationnaire et Frappe en Profondeur. Mot-clé CHÂSSIS. Transport 1 unité INFANTERIE. Le pack nomme cette fiche « Moissonneur » ; le rattachement au Night Scythe est une déduction, pas une lecture.",0,"7+"],
+["Doom Scythe",0,9,3,0,12,[1],{"1":200},0,"",0,"AÉRODYNE. Le pack de faction remplace son M et son CO par « — » : en 11e un aérodyne ne fait qu'un mouvement d'arrivée (règles de base 23.02) et ne tient pas d'objectif. Dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3. La datasheet lue confirme le nom Doom Scythe, le M et le CO à « — », et l'Incitation Atavique.",0,"7+"],
+["Night Scythe",14,9,3,0,12,[1],{"1":125},0,"",0,"Refondu en 11e : plus AÉRODYNE, M 14\", Frappe en Profondeur et Envahisseur Quantique (arrive au 1er, 2e ou 3e mouvement). Transport 1 unité INFANTERIE NÉCRONS. Mots-clés VÉHICULE, VOL, TRANSPORT — pas CHÂSSIS. Datasheet lue : le nom Night Scythe est confirmé.",0,"7+"],
 ["Overlord",5,5,2,4,6,[1],{"1":90},0,"Leader",0,"Implacable Resilience : -1 Dégât sur chaque attaque allouée. Orbe de résurrection en option.",1,"6+"],
 ["Overlord with Translocation Shroud",5,5,2,4,6,[1],{"1":90},0,"Leader",0,"Fiche distincte de l'Overlord : lame seule, orbe de résurrection d'office. Linceul de Translocation : avance sans jet, +6\" de Mouvement, et traverse figurines et décor.",1,"6+"],
 ["Royal Warden",5,5,3,0,4,[1],{"1":50},0,"Leader",0,"Engrammatic Logic.",1,"6+"],
@@ -184,9 +184,9 @@ const WEAPONS = [
 ["Deathmarks","Synaptic disintegrator","T","1",3,5,2,"2","heavy precision","36\""],
 ["Deathmarks","Close combat weapon","C","2",3,4,0,"1","","càc"],
 ["Flayed Ones","Flayer claws","C","4",3,4,1,"1","sust:1 twin","càc"],
-["Triarch Praetorians","Rod of covenant (tir)","T","1",3,5,2,"2","","càc"],
+["Triarch Praetorians","Rod of covenant (tir)","T","1",3,5,2,"2","","12\""],
 ["Triarch Praetorians","Rod of covenant (càc)","C","3",3,5,2,"2","","càc"],
-["Triarch Praetorians","Particle caster","T","3",3,5,0,"1","dev","12\""],
+["Triarch Praetorians","Particle caster","T","3",3,5,0,"1","dev pistol","12\""],
 ["Triarch Praetorians","Voidblade","C","4",3,5,2,"1","","càc"],
 ["Cryptothralls","Scouring eye","T","2",4,5,1,"1","","6\""],
 ["Cryptothralls","Scythed limbs","C","4",4,5,1,"1","","càc"],
@@ -205,7 +205,7 @@ const WEAPONS = [
 ["Canoptek Wraiths","Vicious claws","C","4",4,6,1,"2","","càc"],
 ["Canoptek Wraiths","Whip coils","C","8",4,5,0,"1","","càc"],
 ["Canoptek Wraiths","Transdimensional beamer","T","1",4,4,2,"3","","12\""],
-["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev","12\""],
+["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev pistol","12\""],
 ["Canoptek Spyders","Particle beamer ×2","T","2D6",3,6,0,"1","blast dev","18\""],
 ["Canoptek Spyders","Automaton claws","C","5",4,8,2,"2","","càc"],
 ["Canoptek Reanimator","Atomiser beam ×2","T","6",4,6,2,"1","","12\""],
@@ -238,12 +238,12 @@ const WEAPONS = [
 ["Monolith","Death ray ×4","T","4",3,12,4,"D6+1","sust:D3","24\""],
 ["Monolith","Particle whip","T","3D6",3,8,1,"2","blast dev","24\""],
 ["Monolith","Portal of exile","C","6",2,8,2,"3","","càc"],
-["Obelisk","Tesla sphere ×4","T","24",3,7,0,"1","sust:2 anti:4","24\""],
+["Obelisk","Tesla sphere ×4","T","24",3,7,0,"1","sust:2 anti:4:vol","24\""],
 ["Obelisk","Armoured bulk","C","6",4,8,0,"1","","càc"],
 ["Tesseract Vault","Tesla spheres ×4","T","24",3,7,0,"1","sust:2","24\""],
 ["Tesseract Vault","Antimatter Meteor (C'tan)","T","D6+3",3,10,3,"3","blast dev indirect","24\""],
 ["Tesseract Vault","Cosmic Fire (C'tan)","T","3D6",4,6,2,"1","torrent dev ignorescover","18\""],
-["Tesseract Vault","Time's Arrow (C'tan)","T","1",2,3,2,"6","dev precision anti:4","24\""],
+["Tesseract Vault","Time's Arrow (C'tan)","T","1",2,3,2,"6","dev precision anti:4:perso","24\""],
 ["Tesseract Vault","Armoured bulk","C","6",4,8,0,"1","","càc"],
 ["Doom Scythe","Heavy death ray","T","3",3,16,4,"D6+1","sust:D3","36\""],
 ["Doom Scythe","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\""],
@@ -441,15 +441,17 @@ const KW_CATEGORIE = {
    [champ]  ce qui change dans le profil, même vocabulaire qu'AURAS_PERSO
    ============================================================ */
 const APTIS_CIBLE = {
+ /* « Optimisés pour le Carnage » — texte de la datasheet. La clause de
+    l'Exterminateur enmitique EXCLUT au lieu d'inclure : elle vaut contre
+    tout ce qui n'est ni MONSTRE ni VÉHICULE, et pas seulement contre de
+    l'INFANTERIE. Le Destructeur gauss, lui, inclut. */
  "Lokhust Heavy Destroyers": [
-   { arme:"Enmitic exterminator", vs:["inf"], champ:"rrW", val:"ones",
-     nom:"Rafale d'éradication",
-     source:"règle de fiche — à confirmer sur ta datasheet",
-     texte:"L'Exterminateur enmitique relance ses jets de blessure de 1 contre une unité d'INFANTERIE." },
+   { arme:"Enmitic exterminator", sauf:["veh","mon"], champ:"rrW", val:"ones",
+     nom:"Optimisés pour le Carnage",
+     texte:"À chaque attaque d'une figurine de cette unité avec un exterminateur enmitique ciblant une unité qui n'est ni MONSTRE ni VÉHICULE, relancez tout jet de Blessure de 1." },
    { arme:"Gauss destructor", vs:["veh","mon"], champ:"rrW", val:"ones",
-     nom:"Tueur de colosses",
-     source:"règle de fiche — à confirmer sur ta datasheet",
-     texte:"Le Destructeur gauss relance ses jets de blessure de 1 contre une unité de VÉHICULE ou de MONSTRE." }
+     nom:"Optimisés pour le Carnage",
+     texte:"À chaque attaque d'une figurine de cette unité avec un destructeur gauss ciblant un MONSTRE ou un VÉHICULE, relancez tout jet de Blessure de 1." }
  ]
 };
 
@@ -706,17 +708,17 @@ const ENH_ANCIENS = {
    signifie « inconnu » et s'affiche « — » dans l'application.
    ============================================================ */
 const BASES = {
-"Necron Warriors":"32","Immortals":"32","Lychguard":"40","Deathmarks":"32","Flayed Ones":"32",
-"Triarch Praetorians":"40","Cryptothralls":"40","Skorpekh Destroyers":"50",
+"Necron Warriors":"32","Immortals":"32","Lychguard":"32","Deathmarks":"32","Flayed Ones":"28.5",
+"Triarch Praetorians":"32","Cryptothralls":"32","Skorpekh Destroyers":"50",
 "Ophydian Destroyers":"50","Lokhust Destroyers":"60","Lokhust Heavy Destroyers":"60",
-"Tomb Blades":"60","Canoptek Scarab Swarms":"40","Canoptek Wraiths":"60",
-"Canoptek Spyders":"60","Canoptek Reanimator":"80","Canoptek Doomstalker":"80",
-"Canoptek Macrocytes":"","Canoptek Tomb Crawlers":"50","Triarch Stalker":"120×92",
-"Doomsday Ark":"170×105","Ghost Ark":"170×105","Annihilation Barge":"170×105",
-"Monolith":"","Obelisk":"","Tesseract Vault":"","Doom Scythe":"120×92","Night Scythe":"120×92",
+"Tomb Blades":"32","Canoptek Scarab Swarms":"40","Canoptek Wraiths":"50",
+"Canoptek Spyders":"60","Canoptek Reanimator":"60","Canoptek Doomstalker":"90",
+"Canoptek Macrocytes":"28.5","Canoptek Tomb Crawlers":"50","Triarch Stalker":"",
+"Doomsday Ark":"60","Ghost Ark":"60","Annihilation Barge":"",
+"Monolith":"160","Obelisk":"120×92","Tesseract Vault":"120×92","Doom Scythe":"120×92","Night Scythe":"120×92",
 "Overlord":"40","Overlord with Translocation Shroud":"40","Royal Warden":"32","Lokhust Lord":"60","Skorpekh Lord":"60",
 "Hexmark Destroyer":"50","Technomancer":"50","Plasmancer":"32","Chronomancer":"40",
-"Psychomancer":"40","Geomancer":"50","Catacomb Command Barge":"170×105",
+"Psychomancer":"40","Geomancer":"50","Catacomb Command Barge":"60",
 "C'tan Shard of the Nightbringer":"90","C'tan Shard of the Deceiver":"40",
 "C'tan Shard of the Void Dragon":"80","Transcendent C'tan":"60",
 "Imotekh the Stormlord":"40","Trazyn the Infinite":"25","Orikan the Diviner":"40",
@@ -1482,20 +1484,15 @@ const APTIS_COND = {
      quand:"…et elle est sur un objectif adverse",
      texte:"Si la cible est en outre à portée d'un pion d'objectif contrôlé par votre adversaire, vous pouvez relancer le jet de Touche." }
  ],
- "Lokhust Heavy Destroyers" : [
-   { champ:"rrW", val:"ones", port:"T", nom:"Optimisés pour le Carnage",
-     quand:"L'arme est accordée à la cible",
-     texte:"Exterminateur enmitique contre une unité qui n'est ni MONSTRE ni VÉHICULE, ou destructeur Gauss contre un MONSTRE ou un VÉHICULE : relancez tout jet de Blessure de 1." }
- ],
  "Nekrosor Ammentar" : [
    { champ:"rrW", val:"ones", port:"", nom:"Prophète de la Destruction",
      quand:"Le Nékrosor a détruit une unité ennemie cette phase",
      texte:"Chaque fois que cette figurine détruit une unité ennemie, choisissez 1 autre unité de CULTE DESTROYER amie à 9\" d'elle. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité choisie, relancez tout jet de Blessure de 1." }
  ],
  "Flayed Ones" : [
-   { champ:"critH", val:2, port:"C", nom:"Faim de Chair",
+   { champ:"critH", val:"tous", port:"C", nom:"Faim de Chair",
      quand:"La cible est sous son demi-effectif",
-     texte:"À chaque attaque de mêlée d'une figurine de cette unité contre une cible En Dessous de son Demi-effectif, un jet de touche réussi donne une touche critique." }
+     texte:"À chaque attaque de mêlée d'une figurine de cette unité contre une cible En Dessous de son Demi-effectif, un jet de touche RÉUSSI donne une touche critique. Le seuil suit donc la CC et ses modificateurs — ce n'est pas un seuil fixe." }
  ],
  "Doomsday Ark" : [
    { mot:"dev", port:"T", nom:"Oblitération Écrasante",
@@ -1511,7 +1508,7 @@ const APTIS_COND = {
      texte:"Voir ci-dessus : la relance porte aussi sur le jet de Blessure." }
  ],
  "Orikan the Diviner" : [
-   { champ:"critW", val:2, port:"C", nom:"Les Astres Sont Alignés",
+   { champ:"critW", val:"tous", port:"C", nom:"Les Astres Sont Alignés",
      quand:"Aptitude déclenchée (une fois par partie)",
      texte:"Jusqu'à la fin de la phase, triplez les Attaques et la Force du Bâton de Demain, et tout jet de Blessure réussi de cette figurine donne une blessure critique. Le triplement des Attaques et de la Force n'est pas appliqué automatiquement — à saisir à la main." }
  ]

@@ -1853,3 +1853,95 @@ L'aura d'Illuminor Szeras a une **seconde moitié, défensive** — chaque attaq
 visant l'unité voit sa Pénétration d'Armure empirée de 1. L'onglet Encaisser ne
 l'applique pas : le texte du raccourci le dit désormais en toutes lettres plutôt
 que de laisser croire l'aura entière.
+
+---
+
+## 33. Les cinquante fiches relues, une par une — 21/08/2026
+
+Le joueur a envoyé la faction entière en photo. Chaque datasheet a été comparée
+ligne à ligne au catalogue : caractéristiques, profils d'arme, mots-clés, coûts,
+paliers d'effectif, textes de règles.
+
+**Le fond était juste.** Sur cinquante et une unités et cent trente-huit profils
+d'arme, pas un M, une E, une Svg, un PV, un coût ni un palier à reprendre. Ce qui
+a été trouvé tenait dans trois catégories.
+
+### Anti-X est refermé
+
+Les cinq profils qui portaient `anti:N` sans dire contre quoi ont tous leur
+mot-clé :
+
+| Arme | Règle |
+|---|---|
+| Trompeur C'tan · Folie cosmique | ANTI-PERSONNAGE 4+ |
+| Dragon du Vide · lance (tir et mêlée) | ANTI-VÉHICULE 2+ |
+| **Obélisque · Sphère tesla** | **ANTI-VOLANT 4+** |
+| **Voûte Tesseract · Flèche du Temps** | **ANTI-PERSONNAGE 4+** |
+
+Plus aucune aptitude Anti-X n'est accordée sans condition.
+
+### Le défaut de calcul : un seuil qui n'en était pas un
+
+La **Faim de Chair** des Écorcheurs et **Les Astres Sont Alignés** d'Orikan disent
+« un jet **réussi** donne un critique ». Toutes deux étaient encodées « 2+ ». Or
+dans le moteur une touche critique réussit toujours : un seuil de 2+ faisait
+toucher les Écorcheurs sur 2+ au lieu de 3+.
+
+```
+dix Écorcheurs, Faim de Chair déclarée
+   annoncé   25,0 PV
+   réel      20,0 PV        un quart de trop
+```
+
+Le seuil n'est pas un chiffre mais une conséquence — le plus petit jet qui
+réussisse. La valeur `"tous"` le dit et se résout après les conditions, quand les
+modificateurs sont connus : à CC 3+ le critique tombe à 3+, avec +1 pour toucher
+il descend à 2+.
+
+### La règle des Destroyers Lourds, confirmée — et corrigée
+
+Elle était encodée sur la dictée du joueur, marquée « à confirmer sur ta
+datasheet ». La fiche la confirme, et corrige une nuance : la clause de
+l'Exterminateur enmitique **exclut** MONSTRE et VÉHICULE au lieu d'inclure
+INFANTERIE. Un ennemi qui ne serait ni l'un ni l'autre — une BÊTE, un ESSAIM —
+recevait donc l'aptitude à tort dans un sens et pas dans l'autre. Les aptitudes
+conditionnées par la cible savent maintenant exclure autant qu'inclure.
+
+Le doublon manuel qui restait dans les conditions de partie disparaît : la règle
+s'applique seule, correctement.
+
+### Quinze écarts de fiche
+
+| | |
+|---|---|
+| Aeonstave du Chronomancien | ni Déflagration ni portée |
+| Bâton d'alliance des Prétoriens | tirait « au contact » au lieu de 12" |
+| Deux projecteurs de particules | avaient perdu PISTOLET |
+| Huit profils de mêlée | portaient la portée de leur jumeau de tir |
+| Masse blindée des Menhirs | absente du Roi Silencieux |
+| Réanimateur Canoptek | Cd 8+ au lieu de 7+ |
+| Overlord au Linceul de Translocation | fiche entière absente |
+| **Vingt-cinq socles** | dont deux C'tan, quatre socles volants ronds pris pour des rectangles, et trois « utiliser le modèle » |
+
+### Sept règles qui n'atteignaient pas le calcul
+
+Folie Meurtrière Infectieuse du Nékrosor (Touches Soutenues 1, MONSTRES et
+TITANESQUES exclus — les auras ne savaient qu'inclure), Phaeron des Astres et
+Phaeron des Lames du Roi Silencieux (dont un +1 en Force que le profil ne savait
+pas recevoir), Maître Chronomancien d'Orikan (invulnérable 4+ à l'unité menée),
+Prophète de la Destruction du Nékrosor.
+
+### Quatre réserves tombent
+
+| Réserve | Verdict de la fiche |
+|---|---|
+| « le rattachement au Doom Scythe est une déduction » | nom, M et CO à « — » confirmés |
+| « le pack nomme cette fiche Moissonneur » | Night Scythe confirmé — et le mot-clé CHÂSSIS que la note affirmait n'existe pas |
+| « aucune invu listée pour les Prétoriens (à revérifier) » | ils n'en ont pas |
+| « la composition 1 à 3 de la Convergence n'a pas de source » | confirmée |
+
+### Ce qui reste ouvert
+
+L'aura d'Illuminor Szeras garde sa **moitié défensive** non automatisée — chaque
+attaque visant l'unité voit sa PA empirée de 1, ce que l'onglet Encaisser
+n'applique pas. Le texte du raccourci le dit.
