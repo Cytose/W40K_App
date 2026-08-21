@@ -585,15 +585,8 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .padbar span{flex:1;min-width:0;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--tx3);font-weight:700}
 .padbar .ghost.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
-.tile .tmove{display:none;position:absolute;left:0;right:0;bottom:0;height:30px}
-.pad.range .tile .tmove{display:flex}
-.tile .tmove button{flex:1;border:0;border-top:1px solid var(--line);background:var(--s3);
-  color:var(--glow);font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;line-height:1}
-.tile .tmove button + button{border-left:1px solid var(--line)}
-.tile .tmove button:disabled{color:var(--tx3);opacity:.4}
 .pad.range .tile{cursor:grab}
 .pad.range .tile.add{display:none}
-.pad.range .tile .tb{margin-bottom:26px}
 /* la case se prend au doigt : le navigateur ne doit pas interpreter le
    geste comme un defilement de page */
 .pad.range .tile{touch-action:none;-webkit-user-select:none;user-select:none}
@@ -605,7 +598,6 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 /* pendant le glissement, les cases qui s'ecartent le font en glissant */
 .pad.range.glissant .tile{transition:transform .16s ease}
 .pad.range.glissant .tile.glisse{transition:none}
-.pad.range.glissant .tile .tmove{opacity:.35}
 
 /* ---------- pave de l'editeur ---------- */
 #pad{margin-top:2px}
@@ -636,6 +628,57 @@ button.todo:active{background:var(--s2)}
 /* un metier que personne ne fait : c'est le manque le plus couteux
    d'une liste, il prend la couleur d'alerte */
 .todo.tdo-role{border-left-color:var(--alert)}
+
+/* Quatre vues du meme pave, en onglets : un bouton qui tourne obligeait a
+   cliquer trois fois pour revenir, et ne disait jamais ou l'on est. */
+.padvues{display:flex;gap:0;margin-top:8px;border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;background:var(--s1)}
+.padvues button{flex:1 1 0;min-width:0;min-height:34px;padding:0 4px;background:transparent;
+  border:0;border-right:1px solid var(--line);color:var(--tx3);font:inherit;font-size:11.5px;
+  font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.padvues button:last-child{border-right:0}
+.padvues button.on{background:var(--glow-soft);color:var(--glow)}
+
+/* ---- la carte des metiers ----
+   Chaque unite une seule fois, reliee a ses metiers. Les colonnes plutot
+   qu'un cercle : douze etiquettes autour d'un disque sont illisibles sur
+   un telephone, alors qu'en lignes elles gardent leur nom entier. */
+.carte{margin-top:10px}
+.carte svg{display:block;width:100%;height:auto;overflow:visible}
+.carte .cfam{font-size:2.6px;font-weight:800;letter-spacing:.28px;fill:var(--tx3);
+  text-transform:uppercase}
+.carte .crole{font-size:3.4px;font-weight:600;fill:var(--tx2)}
+.carte .crole.vide{fill:var(--tx3)}
+.carte .crole.manque{fill:var(--alert);font-weight:800}
+.carte .cdot{fill:var(--s3);stroke:var(--line-hi);stroke-width:.4}
+.carte .cdot.att{stroke:var(--cyan)}
+.carte .cdot.manque{fill:var(--alert);stroke:var(--alert)}
+.carte .clien{fill:none;stroke:var(--line-hi);stroke-width:.4;opacity:.75}
+.carte .cunit{fill:var(--s3);stroke:var(--line-hi);stroke-width:.5}
+.carte .chit{fill:transparent;cursor:pointer}
+.carte .cbase{opacity:.28}
+.carte .clien.on{stroke:var(--glow);stroke-width:.7;opacity:1}
+.carte .cunit.on{fill:var(--glow-soft);stroke:var(--glow);stroke-width:.8}
+.carte .cdot.on{stroke:var(--glow);stroke-width:.8}
+.carte .crole.on{fill:var(--glow);font-weight:800}
+.carte .crow{fill:transparent;cursor:pointer}
+.carte .cgrid{stroke:var(--line);stroke-width:.2;opacity:.5}
+/* la legende et la ligne de selection : du texte, pas une infobulle —
+   une valeur ne doit jamais n'etre lisible qu'au survol */
+.carte-leg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:10px;color:var(--tx3)}
+.carte-leg b{font-weight:700;color:var(--tx2)}
+.carte-leg .pc{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px;
+  vertical-align:-1px;border:1px solid var(--line-hi);background:var(--s3)}
+.carte-leg .pc.att{border-color:var(--cyan)}
+.carte-leg .pc.manque{background:var(--alert);border-color:var(--alert)}
+.carte-sel{margin-top:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+  background:var(--s2);font-size:11.5px;color:var(--tx2);line-height:1.45}
+.carte-sel b{display:block;font-size:12.5px;color:var(--tx);font-weight:800}
+.carte-sel i{font-style:normal;color:var(--tx3)}
+.carte-sel button{margin-top:7px;min-height:32px;padding:0 12px;background:transparent;
+  border:1px solid var(--line-hi);border-radius:7px;color:var(--glow);font:inherit;
+  font-size:11.5px;font-weight:700;cursor:pointer}
+.carte-vide{padding:14px;text-align:center;color:var(--tx3);font-size:12px}
 
 /* barre de recherche du pave : chercher dans SA liste, pas au catalogue */
 .padfind{display:flex;align-items:center;gap:7px;margin-top:9px}
@@ -1469,14 +1512,20 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <div id="rosterTodo"></div>
       <div class="padbar">
         <span id="padCount"></span>
-        <button type="button" class="ghost" id="btnPadGrp" title="Regrouper les cases par rôle">Par rôle</button>
         <button type="button" class="ghost" id="btnReorder">Réorganiser</button>
+      </div>
+      <div class="padvues" id="padVues" role="tablist" aria-label="Comment ranger les unités">
+        <button type="button" role="tab" data-v="">À plat</button>
+        <button type="button" role="tab" data-v="cat">Catégorie</button>
+        <button type="button" role="tab" data-v="tac">Rôle</button>
+        <button type="button" role="tab" data-v="carte">Carte</button>
       </div>
       <div class="padfind" id="padFind" hidden>
         <input type="search" id="padQ" placeholder="Chercher dans ma liste…" autocomplete="off">
         <button type="button" class="ghost" id="btnPadQClear" hidden aria-label="Effacer">×</button>
       </div>
       <div class="padgrid" id="padUnits"></div>
+      <div class="carte" id="padCarte" hidden></div>
       <p class="padhint" id="padHint" hidden>Appui long sur une case : régler, fiche, dupliquer, retirer.</p>
       <div class="padsep">Réglages de la liste</div>
       <div class="padgrid pad3" id="padTools"></div>

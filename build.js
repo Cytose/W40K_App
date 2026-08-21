@@ -47,6 +47,11 @@ const STATIQUES=['manifest.json','icon.svg'];
      telecharger depuis la page */
   for(const f of SOURCES.concat(STATIQUES)) fs.copyFileSync(f,'dist/'+f);
   fs.writeFileSync('dist/Necron_Aide_Jeu.html',full);
+  /* et la meme a la racine, comme l'annonce l'en-tete : c'est CE fichier
+     que le depot suit et que la verification hors-ligne ouvre. Sans cette
+     ligne il restait fige a sa derniere ecriture manuelle, et la suite
+     hors-ligne validait une version vieille de treize chantiers. */
+  fs.writeFileSync('Necron_Aide_Jeu.html',full);
 
   /* Le service worker sert le cache hors-ligne. Son nom de cache porte
      l'empreinte des sources : un deploiement qui change quoi que ce soit
