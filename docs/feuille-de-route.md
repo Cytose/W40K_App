@@ -2016,3 +2016,96 @@ déclarer de l'autre — dix-huit contrôles en navigateur : l'aura proposée au
 BATTLELINE et refusée aux autres, la PA qui bouge et les pertes qui baissent, le
 personnage rattaché compté, le côté attaque qui ignore la moitié défensive, et
 deux escouades homonymes qui ne se confondent plus.
+
+## 35. Chaque unité a un métier, et la Disposition dit lesquels comptent — 21/08/2026
+
+L'application savait ranger une liste par **catégorie de fiche** — Battleline,
+Infanterie, Véhicule. Utile pour retrouver une unité, muet sur la partie. Ce
+chantier lui donne le vocabulaire qui manquait : ce que chaque unité **fait**.
+
+### Ce qui a été écarté, et pourquoi
+
+Le vocabulaire compétitif mélange deux choses. « Alpha strike »,
+« contre-charge », « pièce d'échange », « denial » ne sont pas des métiers
+d'unité — ce sont des **plans** ou des **moments**. Une unité n'est pas
+« alpha strike » ; c'est la liste qui a un plan d'alpha strike. « Denial », c'est
+ce que fait un écran. « Slot filler » est mort avec l'organisation d'armée de la
+9e édition.
+
+Un rôle utile répond à une question qu'on se pose **la liste ouverte**.
+
+### Douze rôles, quatre familles
+
+| Famille | Rôles |
+|---|---|
+| **Marquer** | Garde arrière · Preneur de milieu · Faiseur d'actions |
+| **Tenir** | Enclume · Écran |
+| **Détruire** | Anti-char · Anti-élite · Anti-masse · Marteau |
+| **Peser** | Harcèlement · Soutien · Transport |
+
+Les rôles de destruction se découpent **par profil de cible**, parce que c'est
+ainsi qu'on relit une liste : « ai-je du tir » ne veut rien dire, « qui tue un
+char » se vérifie. Un anti-char (Force haute, PA, dégâts par coup) et un
+anti-masse (volume d'attaques, la PA se gaspille) ne partagent aucune arme.
+Les trois premiers disent QUOI on tue ; le Marteau dit OÙ — un autre axe,
+assumé, parce que gagner un corps à corps qu'on choisit est une question
+distincte de percer un blindage.
+
+Trois rôles au plus par unité, et **pas de rôle principal** : une unité qui fait
+deux métiers apparaît dans les deux. C'est justement la question qu'on se pose —
+« qui couvre ce travail », et non « à quoi sert celle-ci ».
+
+### Le rôle vit sur la liste, pas sur la fiche
+
+Les mêmes vingt Guerriers gardent l'objectif arrière dans une liste et servent
+d'enclume au milieu dans une autre. Le rôle appartient donc à l'unité **de la
+liste**. Le catalogue ne fournit qu'une suggestion — les cinquante et une fiches
+nécrones en ont une, tirée des profils d'arme et des aptitudes de mouvement —
+affichée en pointillé tant qu'on n'y a pas touché, et jamais enregistrée. Le
+premier clic fige le choix ; un bouton rend la suggestion.
+
+### Le vrai levier : la Disposition de Force
+
+L'application relevait déjà la Disposition de chaque détachement sur le MFM sans
+rien en faire. En 11e, c'est elle qui dit **comment tu marques**.
+
+| Disposition | Les métiers qu'elle réclame |
+|---|---|
+| Prendre et Tenir | garde arrière, preneur de milieu, enclume, écran |
+| Purger l'Ennemi | anti-char, anti-élite, anti-masse, marteau |
+| Reconnaissance | faiseur d'actions, harcèlement, transport |
+| Perturbation | faiseur d'actions, harcèlement, écran |
+| Actifs Prioritaires | preneur de milieu, enclume, anti-char, garde arrière |
+
+La bonne question n'est donc pas « ma liste est-elle équilibrée » dans l'absolu,
+mais **« ai-je ce qu'il faut pour la façon dont MOI je marque »**. Une liste sans
+anti-char est cassée en Purger l'Ennemi ; la même peut très bien tenir en Prendre
+et Tenir.
+
+Le bilan le dit en tête, avant les points non dépensés :
+
+> **Aucun anti-char, aucun anti-masse** — Ta disposition Purger l'Ennemi marque
+> là-dessus. C'est 2 métiers que ta liste ne fait pas.
+
+Et quand un seul métier manque, la ligne rappelle ce qu'il demande, de quoi
+partir chercher l'unité.
+
+### Un manque doit se voir là où on le cherche
+
+Première version : la vue par rôle ne montrait que les rôles **occupés**. Le
+métier absent — l'information la plus chère de l'écran — n'y apparaissait
+nulle part. Un rôle que la Disposition réclame et que personne ne fait a
+maintenant sa ligne, en rouge, marquée « personne ». Une ligne vide vaut mieux
+qu'une ligne absente : c'est la case non cochée d'une liste de courses.
+
+Le pavé cycle désormais sur trois vues au lieu de deux : à plat, par catégorie de
+fiche, par rôle tactique. Et il prévient qu'une unité comptée dans deux métiers
+apparaît dans les deux, sinon la somme des lignes ne tombe pas sur le total de la
+liste et on croit à un défaut.
+
+### Vérification
+
+`ROSTER.roles(id)` rend les métiers d'une unité, d'où ils viennent et ce que la
+Disposition attend. Trente et un contrôles en navigateur, plus cinq sur le
+partage : le rôle choisi voyage dans le lien, la suggestion se recalcule à
+l'arrivée — si le catalogue a changé entre-temps, c'est la nouvelle qui vaut.
