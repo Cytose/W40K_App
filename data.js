@@ -1520,9 +1520,17 @@ const APTIS_COND = {
    l'unite chargee porte le mot-cle vise — et restent a declarer. */
 const AURAS_ARMEE = [
  { source:"Illuminor Szeras", kw:["battleline"], champ:"apMod", val:1,
-   nom:"Augmentation Mécanique (Aura)",
+   nom:"Augmentation Mécanique (Aura) — attaque",
    quand:"L'unité est à 3\" d'Illuminor Szeras",
-   texte:"Tant qu'une unité de BATTLELINE NÉCRONS amie est à 3\" de cette figurine, à chaque attaque d'une figurine de cette unité, améliorez de 1 la caractéristique de Pénétration d'Armure. L'aura a une seconde moitié, défensive — chaque attaque VISANT cette unité voit sa Pénétration d'Armure empirée de 1 — que l'onglet Encaisser n'applique pas tout seul : il faut la retrancher à la main de la PA de l'attaquant." },
+   texte:"Tant qu'une unité de BATTLELINE NÉCRONS amie est à 3\" de cette figurine, à chaque attaque d'une figurine de cette unité, améliorez de 1 la caractéristique de Pénétration d'Armure." },
+ /* La seconde moitie de la meme aura ne porte pas sur les attaques de
+    l'unite mais sur celles qui la VISENT. « sens » la range du cote de
+    l'onglet Encaisser ; le cote offensif l'ecarte. `val` est ce qu'on
+    ajoute a la PA de l'assaillant : -1 l'empire d'un cran. */
+ { source:"Illuminor Szeras", kw:["battleline"], sens:"def", champ:"apMod", val:-1,
+   nom:"Augmentation Mécanique (Aura) — défense",
+   quand:"L'unité est à 3\" d'Illuminor Szeras",
+   texte:"Tant qu'une unité de BATTLELINE NÉCRONS amie est à 3\" de cette figurine, à chaque attaque qui vise cette unité, empirez de 1 la caractéristique de Pénétration d'Armure de cette attaque." },
  /* Le Nékrosor donne des Touches Soutenues 1 a presque toute l'armee.
     « sauf » exclut ce que la fiche exclut : MONSTRE et TITANESQUE. */
  { source:"Nekrosor Ammentar", kw:[], sauf:["monster","titanic"], mot:"sust",
