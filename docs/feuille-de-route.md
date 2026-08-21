@@ -2257,3 +2257,13 @@ en trente tireurs au lieu de cinquante-deux.
 
 `test_carte` passe à vingt-huit : aucun trait au repos, un anneau par métier
 supplémentaire, et le décompte présent sur chaque ligne occupée.
+
+**L'audit qui va avec.** Le catalogue a été passé au crible sur les deux défauts
+à la fois :
+
+- **une seule unité mixte** — Szarekh. Le « ×2 » du Projecteur de particules des
+  Araignées Canoptek désigne deux armes sur la même figurine, ce qui est déjà
+  compté par figurine et reste juste.
+- **plus une seule arme orpheline** — toutes les entrées de `WEAPONS` sont
+  désormais portées, d'office ou par un emplacement de choix. La masse blindée
+  des Menhirs était la dernière.
