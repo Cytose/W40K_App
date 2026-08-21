@@ -15,7 +15,7 @@ const UNITS = [
 ["Lychguard",5,5,3,4,2,[5,10],{"5":80,"10":160},0,"",0,"Invu 4+ SEULEMENT avec bouclier de dispersion. Guardian Protocols : -1 pour blesser si un NOBLE mène l'unité et F > E.",1,"7+"],
 ["Deathmarks",5,5,3,0,1,[5,10],[[1,{"5":60,"10":120}],[3,{"5":70,"10":130}]],0,"",0,"Frappe en Profondeur.",1,"7+"],
 ["Flayed Ones",5,4,4,0,1,[5,10],{"5":55,"10":100},0,"",0,"Infiltrators + Discrétion.",1,"7+"],
-["Triarch Praetorians",10,5,3,0,2,[5,10],{"5":80,"10":160},0,"",0,"Frappe en Profondeur. Aucune invu listée en 11e (à revérifier).",1,"7+"],
+["Triarch Praetorians",10,5,3,0,2,[5,10],{"5":80,"10":160},0,"",0,"Frappe en Profondeur. Aucune sauvegarde invulnérable : confirmé sur la datasheet.",1,"7+"],
 ["Cryptothralls",5,4,3,0,3,[2],{"2":60},0,"",0,"Bound Creation : le CRYPTEK de l'unité gagne FNP 4+.",1,"8+"],
 ["Skorpekh Destroyers",8,6,3,0,3,[3,6],[[1,{"3":85,"6":170}],[3,{"3":95,"6":180}]],0,"",0,"",2,"7+"],
 ["Ophydian Destroyers",10,5,4,0,3,[3,6],[[1,{"3":80,"6":145}],[3,{"3":90,"6":155}]],0,"",0,"Tunnelling Horrors : repart en Réserves en fin de tour adverse.",2,"7+"],
@@ -184,9 +184,9 @@ const WEAPONS = [
 ["Deathmarks","Synaptic disintegrator","T","1",3,5,2,"2","heavy precision","36\""],
 ["Deathmarks","Close combat weapon","C","2",3,4,0,"1","","càc"],
 ["Flayed Ones","Flayer claws","C","4",3,4,1,"1","sust:1 twin","càc"],
-["Triarch Praetorians","Rod of covenant (tir)","T","1",3,5,2,"2","","càc"],
+["Triarch Praetorians","Rod of covenant (tir)","T","1",3,5,2,"2","","12\""],
 ["Triarch Praetorians","Rod of covenant (càc)","C","3",3,5,2,"2","","càc"],
-["Triarch Praetorians","Particle caster","T","3",3,5,0,"1","dev","12\""],
+["Triarch Praetorians","Particle caster","T","3",3,5,0,"1","dev pistol","12\""],
 ["Triarch Praetorians","Voidblade","C","4",3,5,2,"1","","càc"],
 ["Cryptothralls","Scouring eye","T","2",4,5,1,"1","","6\""],
 ["Cryptothralls","Scythed limbs","C","4",4,5,1,"1","","càc"],
@@ -205,7 +205,7 @@ const WEAPONS = [
 ["Canoptek Wraiths","Vicious claws","C","4",4,6,1,"2","","càc"],
 ["Canoptek Wraiths","Whip coils","C","8",4,5,0,"1","","càc"],
 ["Canoptek Wraiths","Transdimensional beamer","T","1",4,4,2,"3","","12\""],
-["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev","12\""],
+["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev pistol","12\""],
 ["Canoptek Spyders","Particle beamer ×2","T","2D6",3,6,0,"1","blast dev","18\""],
 ["Canoptek Spyders","Automaton claws","C","5",4,8,2,"2","","càc"],
 ["Canoptek Reanimator","Atomiser beam ×2","T","6",4,6,2,"1","","12\""],
@@ -706,8 +706,8 @@ const ENH_ANCIENS = {
    signifie « inconnu » et s'affiche « — » dans l'application.
    ============================================================ */
 const BASES = {
-"Necron Warriors":"32","Immortals":"32","Lychguard":"40","Deathmarks":"32","Flayed Ones":"32",
-"Triarch Praetorians":"40","Cryptothralls":"40","Skorpekh Destroyers":"50",
+"Necron Warriors":"32","Immortals":"32","Lychguard":"32","Deathmarks":"32","Flayed Ones":"28.5",
+"Triarch Praetorians":"32","Cryptothralls":"32","Skorpekh Destroyers":"50",
 "Ophydian Destroyers":"50","Lokhust Destroyers":"60","Lokhust Heavy Destroyers":"60",
 "Tomb Blades":"60","Canoptek Scarab Swarms":"40","Canoptek Wraiths":"50",
 "Canoptek Spyders":"60","Canoptek Reanimator":"80","Canoptek Doomstalker":"80",
@@ -1493,9 +1493,9 @@ const APTIS_COND = {
      texte:"Chaque fois que cette figurine détruit une unité ennemie, choisissez 1 autre unité de CULTE DESTROYER amie à 9\" d'elle. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité choisie, relancez tout jet de Blessure de 1." }
  ],
  "Flayed Ones" : [
-   { champ:"critH", val:2, port:"C", nom:"Faim de Chair",
+   { champ:"critH", val:"tous", port:"C", nom:"Faim de Chair",
      quand:"La cible est sous son demi-effectif",
-     texte:"À chaque attaque de mêlée d'une figurine de cette unité contre une cible En Dessous de son Demi-effectif, un jet de touche réussi donne une touche critique." }
+     texte:"À chaque attaque de mêlée d'une figurine de cette unité contre une cible En Dessous de son Demi-effectif, un jet de touche RÉUSSI donne une touche critique. Le seuil suit donc la CC et ses modificateurs — ce n'est pas un seuil fixe." }
  ],
  "Doomsday Ark" : [
    { mot:"dev", port:"T", nom:"Oblitération Écrasante",
@@ -1511,7 +1511,7 @@ const APTIS_COND = {
      texte:"Voir ci-dessus : la relance porte aussi sur le jet de Blessure." }
  ],
  "Orikan the Diviner" : [
-   { champ:"critW", val:2, port:"C", nom:"Les Astres Sont Alignés",
+   { champ:"critW", val:"tous", port:"C", nom:"Les Astres Sont Alignés",
      quand:"Aptitude déclenchée (une fois par partie)",
      texte:"Jusqu'à la fin de la phase, triplez les Attaques et la Force du Bâton de Demain, et tout jet de Blessure réussi de cette figurine donne une blessure critique. Le triplement des Attaques et de la Force n'est pas appliqué automatiquement — à saisir à la main." }
  ]
