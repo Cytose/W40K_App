@@ -2691,108 +2691,119 @@ function stepper(get, set, min, max){
 /* ==========================================================
    LA CARTE DES METIERS
 
-   La vue « Rôle » range les unites sous chaque metier : une unite
-   qui en fait deux y apparait deux fois. C'est juste — on cherche
-   « qui couvre ce travail » — mais on ne peut plus lire l'armee
-   comme un tout : la meme escouade revient et on croit a un double.
+   Trois formes essayees, et ce que chacune a appris.
 
-   La carte repond a l'autre question : chaque unite UNE SEULE
-   FOIS, reliee a ses metiers. Une escouade a deux metiers flotte
-   entre ses deux lignes, et on voit d'un coup d'oeil ce qui tient
-   sur une seule figurine.
+   1. Barycentre + un lien par metier, tout trace en permanence.
+      Sur treize unites : quinze hexagones entasses et trente-cinq
+      courbes croisees. Le tort n'etait pas le dessin mais le fait
+      de TOUT tracer, TOUT le temps.
+   2. Une ligne par metier, chaque unite posee sur la sienne.
+      Lisible, mais plate : on lit un tableau, pas une carte, et la
+      position ne dit plus rien de l'unite.
+   3. Celle-ci. Les douze metiers en couronne, groupes par famille,
+      et chaque unite posee au BARYCENTRE des siens.
 
-   En colonnes plutot qu'en cercle : douze etiquettes disposees
-   autour d'un disque sont illisibles sur un telephone, alors qu'en
-   lignes elles gardent leur nom entier et se lisent de haut en bas.
+   Ce que la position dit, et qu'aucune des deux premieres ne
+   disait : au BORD, sur un metier, c'est un specialiste ; vers le
+   CENTRE, c'est une unite tiree entre plusieurs travaux. La
+   polyvalence se lit a la distance au centre, sans anneau, sans
+   trait, sans etiquette.
+
+   Les etiquettes tiennent parce que les familles sont placees pour
+   ca : les noms longs en haut et en bas, ou toute la largeur est
+   disponible ; les courts sur les cotes. « Preneur de milieu »
+   centre en haut occupe 26 des 100 unites de la boite ; place a
+   droite il en aurait demande quarante.
 
    La couleur ne sert qu'a l'etat — cyan « ta disposition le
-   reclame », rouge « et personne ne le fait ». Les familles se
-   lisent a leur place, pas a leur teinte : quatre couleurs de plus
-   entreraient en conflit avec l'alerte, qui doit rester seule a
-   crier.
+   reclame », rouge « et personne ne le fait ». L'epaisseur du trait
+   dit le RANG du metier dans l'unite : epais pour le principal,
+   fin pour le troisieme.
    ========================================================== */
 let carteSel = null;   /* {t:"u", id} ou {t:"r", cle} */
 
 /* geometrie, en unites de la boite (100 de large) */
-const C_X0 = 3, C_LAB = 35, C_DOT = 38, C_U0 = 43, C_U1 = 84, C_CNT = 97;
-const C_TETE = 5.4, C_LIGNE = 10.4, C_HAUT = 4;
+const H_CX = 50, H_CY = 41, H_RA = 26.5, H_RL = 29.5, H_RU = 18, H_BAS = 82;
+/* l'ordre autour de la couronne : Marquer en haut, Peser a droite,
+   Detruire en bas, Tenir a gauche. Les familles a noms longs vont
+   ou la largeur est libre. */
+const H_FAM = ["Marquer", "Peser", "Détruire", "Tenir"];
+
+/* Les angles, calcules une fois : chaque metier prend une part egale,
+   chaque famille est separee de la suivante par un intervalle. */
+function carteAngles(){
+  const lots = H_FAM.map(f => ({fam:f, roles:ROLES.filter(r => r[2] === f).map(r => r[0])}))
+                    .filter(x => x.roles.length);
+  const n = lots.reduce((a, x) => a + x.roles.length, 0);
+  const gap = 15, pas = (360 - gap * lots.length) / n;
+  const out = {}, fams = [];
+  /* Marquer commence de facon que son milieu tombe en haut (-90) */
+  let a = -90 - (lots[0].roles.length * pas) / 2;
+  lots.forEach(l=>{
+    fams.push({fam:l.fam, a: a + (l.roles.length * pas) / 2});
+    l.roles.forEach((k, i) => { out[k] = a + pas * (i + 0.5); });
+    a += l.roles.length * pas + gap;
+  });
+  return {parCle:out, fams:fams, pas:pas};
+}
+const hRad = a => Math.PI / 180 * a;
+const hPos = (a, r) => ({ x: H_CX + r * Math.cos(hRad(a)), y: H_CY + r * Math.sin(hRad(a)) });
 
 function carteModele(){
-  const lignes = [];      /* {fam} ou {cle, y} */
-  let y = C_HAUT;
-  ROLES_FAMILLES.forEach(fam=>{
-    const lot = ROLES.filter(r => r[2] === fam);
-    if(!lot.length) return;
-    y += C_TETE;
-    lignes.push({fam:fam, y:y - 2});
-    lot.forEach(r=>{
-      lignes.push({cle:r[0], nom:r[1], y:y + C_LIGNE / 2});
-      y += C_LIGNE;
-    });
-  });
-  const parCle = {};
-  lignes.forEach(l => { if(l.cle) parCle[l.cle] = l; });
-
-  /* les unites sans aucun metier ont leur propre ligne, en bas :
-     une liste ou trois escouades n'ont pas de travail doit le dire */
+  const A = carteAngles();
   const orphelines = R.units.filter(ru => !rolesDe(ru).length);
-  let ligneOrph = null;
-  if(orphelines.length){
-    y += C_TETE;
-    lignes.push({fam:"Sans rôle", y:y - 2});
-    ligneOrph = {cle:"—", nom:"Sans rôle", y:y + C_LIGNE / 2};
-    lignes.push(ligneOrph);
-    parCle["—"] = ligneOrph;
-    y += C_LIGNE;
-  }
 
-  /* Un noeud par unite, POSE SUR SA LIGNE — celle de son premier
-     metier. Premiere version : au barycentre de ses metiers, avec un
-     lien vers chacun. Sur une vraie liste cela donnait quinze hexagones
-     entasses et trente-cinq courbes croisees : illisible au repos.
-
-     Une unite posee sur une ligne n'a besoin d'aucun trait pour dire
-     ce qu'elle y fait. Les autres metiers se lisent aux ANNEAUX qui
-     l'entourent — un anneau par metier supplementaire — et se
-     nomment au toucher. Le detail est a la demande ; la vue d'ensemble
-     doit tenir sans un seul trait. */
+  /* Un noeud par unite, au barycentre de ses metiers, ramene vers le
+     centre pour degager la couronne et ses etiquettes. Une unite sans
+     metier se pose au centre exact : elle n'est tiree par rien. */
   const noeuds = R.units.map(ru=>{
-    const cles = rolesDe(ru).length ? rolesDe(ru) : ["—"];
+    const cles = rolesDe(ru);
     const pts = pointsUnite(ru);
-    /* la surface suit les points, pas le rayon : un hexagone de rayon
-       double parait quatre fois plus gros */
-    const r = Math.max(1.9, Math.min(3.8, Math.sqrt(Math.max(pts, 1)) / 4.8));
-    return { ru:ru, id:ru.id, cles:cles, pts:pts,
-             y: (parCle[cles[0]] || {y:C_HAUT}).y, r:r,
-             /* rayon encombre : le noeud plus ses anneaux */
-             rr: r + (cles.length - 1) * 1.05 };
+    let x = H_CX, y = H_CY;
+    if(cles.length){
+      let sx = 0, sy = 0;
+      cles.forEach(k=>{ const p = hPos(A.parCle[k] || 0, H_RA); sx += p.x; sy += p.y; });
+      /* 0.66 : un specialiste se pose aux deux tiers de son rayon,
+         assez loin du bord pour ne pas toucher son etiquette */
+      x = H_CX + (sx / cles.length - H_CX) * 0.66;
+      y = H_CY + (sy / cles.length - H_CY) * 0.66;
+    }
+    /* la surface suit les points, pas le rayon */
+    return { ru:ru, id:ru.id, cles:cles, pts:pts, x:x, y:y,
+             r: Math.max(1.8, Math.min(3.6, Math.sqrt(Math.max(pts, 1)) / 5)) };
   });
 
-  /* Placement : chacune reste sur SA ligne et se pose au premier creux
-     libre en partant de la gauche. Deterministe — la carte doit etre
-     la meme a chaque affichage, sinon on ne la reconnait pas. */
-  const parY = {};
-  noeuds.slice().sort((a, b) => a.y - b.y || b.pts - a.pts || a.id - b.id).forEach(nd=>{
-    const lot = parY[nd.y] = parY[nd.y] || [];
-    let x = C_U0 + nd.rr;
-    lot.forEach(q => { x = Math.max(x, q.x + q.rr + nd.rr + 1.2); });
-    /* la ligne deborde : on repart a gauche un cran plus bas, dans la
-       hauteur de la ligne, plutot que de superposer deux escouades */
-    if(x + nd.rr > C_U1){
-      nd.y += C_LIGNE * 0.34;
-      const l2 = parY[nd.y] = parY[nd.y] || [];
-      x = C_U0 + nd.rr;
-      l2.forEach(q => { x = Math.max(x, q.x + q.rr + nd.rr + 1.2); });
-      l2.push(nd);
-    } else lot.push(nd);
-    nd.x = Math.min(x, C_U1 - nd.rr);
-  });
-
-  const bas = Math.max(y, noeuds.reduce((m, n) => Math.max(m, n.y + n.rr), 0) + 3);
-  return { lignes:lignes, parCle:parCle, noeuds:noeuds, haut:bas + 2 };
+  /* Ecartement : quelques passes qui repoussent les voisins trop
+     proches. Deterministe, et borne au disque interieur pour que rien
+     ne vienne mordre la couronne. */
+  for(let tour = 0; tour < 160; tour++){
+    let bouge = false;
+    for(let i = 0; i < noeuds.length; i++)
+      for(let j = i + 1; j < noeuds.length; j++){
+        const a = noeuds[i], b = noeuds[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        let d = Math.hypot(dx, dy);
+        const min = a.r + b.r + 1.6;
+        if(d >= min) continue;
+        /* deux unites exactement au meme point : on les separe sur un
+           axe fixe plutot qu'au hasard — la carte doit etre stable */
+        if(d < 0.001){ dx = (i % 2 ? 1 : -1); dy = (j % 2 ? 0.6 : -0.6); d = Math.hypot(dx, dy); }
+        const pousse = (min - d) / 2 / d;
+        a.x -= dx * pousse; a.y -= dy * pousse;
+        b.x += dx * pousse; b.y += dy * pousse;
+        bouge = true;
+      }
+    if(!bouge) break;
+    noeuds.forEach(nd=>{
+      const dx = nd.x - H_CX, dy = nd.y - H_CY, d = Math.hypot(dx, dy);
+      const max = H_RU - nd.r;
+      if(d > max){ nd.x = H_CX + dx / d * max; nd.y = H_CY + dy / d * max; }
+    });
+  }
+  return { A:A, noeuds:noeuds, orphelines:orphelines };
 }
 
-/* un hexagone : le meme motif que le reste de l'application */
+/* un hexagone : le motif de toute l'application */
 function hexa(cx, cy, r){
   const p = [];
   for(let i = 0; i < 6; i++){
@@ -2809,92 +2820,92 @@ function renderCarte(){
     host.innerHTML = '<div class="carte-vide">Ta liste est vide.</div>';
     return;
   }
-  const M = carteModele(), attendus = rolesAttendus();
+  const M = carteModele(), A = M.A, attendus = rolesAttendus();
   const occupe = {};
   M.noeuds.forEach(n => n.cles.forEach(k => (occupe[k] = occupe[k] || []).push(n)));
 
-  /* ce qui est allume : rien de selectionne = tout au meme niveau */
   const sel = carteSel;
-  const nOn = n => !sel || (sel.t === "u" ? sel.id === n.id : n.cles.indexOf(sel.cle) >= 0);
-  const rOn = k => !sel || (sel.t === "r" ? sel.cle === k
-                                          : (M.noeuds.find(n => n.id === sel.id) || {cles:[]}).cles.indexOf(k) >= 0);
-
   const ech = v => String(Math.round(v * 100) / 100);
+  /* le rang du metier dans l'unite : 0 pour le principal. C'est lui qui
+     donne l'epaisseur du trait et l'intensite de la pastille. */
+  const rang = (n, k) => n.cles.indexOf(k);
+  const EPAIS = [0.95, 0.6, 0.38], OPAQ = [1, 0.72, 0.48];
   let g = '';
 
-  /* Les liens ne se dessinent QUE pour ce qu'on a touche. En tracer
-     trente-cinq en permanence transformait la carte en plat de
-     spaghettis : chaque unite est deja posee sur sa ligne, elle n'a
-     besoin d'aucun trait pour dire ce qu'elle y fait. */
-  if(sel) M.noeuds.forEach(n => n.cles.forEach(k=>{
-    const l = M.parCle[k]; if(!l) return;
-    const on = sel.t === "u" ? sel.id === n.id : sel.cle === k;
-    if(!on) return;
-    /* le point de controle s'ecarte avec la distance parcourue : sans
-       cela quatre liens partant du meme point se superposaient en un
-       seul trait epais, et on ne comptait plus rien */
-    const mx = C_DOT + 3 + Math.min(11, Math.abs(l.y - n.y) * 0.32);
-    g += '<path class="clien on" d="M' + ech(C_DOT + 1.6) + ' ' + ech(l.y) +
-         ' C' + ech(mx) + ' ' + ech(l.y) + ' ' + ech(mx) + ' ' + ech(n.y) +
-         ' ' + ech(n.x - n.rr) + ' ' + ech(n.y) + '"/>';
-  }));
-
-  /* les lignes : famille, nom du metier, pastille */
-  M.lignes.forEach(l=>{
-    if(l.fam){
-      g += '<text class="cfam" x="' + C_X0 + '" y="' + ech(l.y) + '">' + l.fam + '</text>';
-      g += '<line class="cgrid" x1="' + C_X0 + '" y1="' + ech(l.y + 1.4) +
-           '" x2="' + C_U1 + '" y2="' + ech(l.y + 1.4) + '"/>';
-      return;
-    }
-    const lot = occupe[l.cle] || [];
-    const att = attendus.indexOf(l.cle) >= 0;
-    const manque = att && !lot.length;
-    const on = rOn(l.cle);
-    g += '<rect class="crow" x="' + C_X0 + '" y="' + ech(l.y - C_LIGNE / 2) +
-         '" width="' + (C_CNT - C_X0) + '" height="' + C_LIGNE + '" data-r="' + l.cle + '"/>';
-    g += '<text class="crole' + (manque ? " manque" : (lot.length ? "" : " vide")) +
-         (sel && on ? " on" : "") + (sel && !on ? " cbase" : "") +
-         '" x="' + C_LAB + '" y="' + ech(l.y + 1.2) + '" text-anchor="end">' +
-         l.nom + (manque ? " · personne" : "") + '</text>';
-    g += '<circle class="cdot' + (manque ? " manque" : (att ? " att" : "")) +
-         (sel && on ? " on" : "") + (sel && !on ? " cbase" : "") +
-         '" cx="' + C_DOT + '" cy="' + ech(l.y) + '" r="1.6"/>';
-    /* Combien d'unites font ce metier — y compris celles qui sont posees
-       sur une AUTRE ligne, leur premier metier. Sans ce chiffre, la ligne
-       « Enclume » paraissait vide alors que trois escouades y travaillent :
-       la carte aurait menti dans le sens le plus couteux. */
-    if(lot.length)
-      g += '<text class="ccnt' + (sel && on ? " on" : "") + (sel && !on ? " cbase" : "") +
-           '" x="' + C_CNT + '" y="' + ech(l.y + 1) + '" text-anchor="end">' +
-           lot.length + ' · ' + lot.reduce((a, n) => a + n.pts, 0) + '</text>';
+  /* la couronne : hexagone de fond, separations de famille, noms */
+  g += '<polygon class="hcadre" points="' + hexa(H_CX, H_CY, H_RA + 5.5) + '"/>';
+  g += '<circle class="hanneau" cx="' + H_CX + '" cy="' + H_CY + '" r="' + H_RA + '"/>';
+  A.fams.forEach(f=>{
+    const p1 = hPos(f.a, 5), p2 = hPos(f.a, 20);
+    g += '<line class="hsep" x1="' + ech(p1.x) + '" y1="' + ech(p1.y) +
+         '" x2="' + ech(p2.x) + '" y2="' + ech(p2.y) + '"/>';
+    /* entre le disque ou vivent les unites (20,5) et la couronne (26,5) :
+       plus au centre, le nom passait sous les hexagones */
+    const pf = hPos(f.a, 22.6);
+    g += '<text class="hfam" x="' + ech(pf.x) + '" y="' + ech(pf.y) +
+         '" text-anchor="middle">' + f.fam + '</text>';
   });
 
-  /* Les unites, une seule fois chacune, posees sur leur premier
-     metier. Un anneau de plus par metier supplementaire : on voit
-     d'un coup d'oeil qui est specialiste et qui fait trois choses,
-     sans un seul trait. */
-  M.noeuds.forEach(n=>{
-    const on = nOn(n);
+  /* les liens, seulement pour ce qu'on a touche */
+  if(sel) M.noeuds.forEach(n => n.cles.forEach(k=>{
+    const on = sel.t === "u" ? sel.id === n.id : sel.cle === k;
+    if(!on) return;
+    const p = hPos(A.parCle[k], H_RA);
+    const rg = Math.min(rang(n, k), 2);
+    /* le trait passe par un point tire vers le centre : deux liens
+       partant du meme noeud s'ecartent au lieu de se superposer */
+    const mx = (n.x + p.x) / 2 + (H_CX - (n.x + p.x) / 2) * 0.28;
+    const my = (n.y + p.y) / 2 + (H_CY - (n.y + p.y) / 2) * 0.28;
+    g += '<path class="hlien" style="stroke-width:' + EPAIS[rg] + ';opacity:' + OPAQ[rg] +
+         '" d="M' + ech(n.x) + ' ' + ech(n.y) + ' Q' + ech(mx) + ' ' + ech(my) +
+         ' ' + ech(p.x) + ' ' + ech(p.y) + '"/>';
+  }));
+
+  /* les douze metiers : pastille dimensionnee par ce qui les couvre */
+  ROLES.forEach(r=>{
+    const k = r[0], a = A.parCle[k]; if(a === undefined) return;
+    const lot = occupe[k] || [], att = attendus.indexOf(k) >= 0, manque = att && !lot.length;
+    const pa = hPos(a, H_RA);
+    const co = Math.cos(hRad(a));
+    const anc = co > 0.15 ? "start" : co < -0.15 ? "end" : "middle";
+    /* une etiquette centree est a la meme hauteur que ses deux voisines :
+       on la pousse plus loin du centre pour degager la ligne */
+    const pl = hPos(a, anc === "middle" ? H_RL + 3.2 : H_RL);
+    /* touche : le metier lui-meme, ou l'unite qui le porte */
+    const on = !sel || (sel.t === "r" ? sel.cle === k
+                : (M.noeuds.find(n => n.id === sel.id) || {cles:[]}).cles.indexOf(k) >= 0);
     const cl = (sel && on ? " on" : "") + (sel && !on ? " cbase" : "");
-    for(let a = n.cles.length - 1; a >= 1; a--)
-      g += '<polygon class="chalo' + cl + '" points="' +
-           hexa(n.x, n.y, n.r + a * 1.05) + '"/>';
-    g += '<polygon class="cunit' + cl + '" points="' + hexa(n.x, n.y, n.r) + '"/>';
-    /* la cible du doigt vaut au moins 24 px a l'ecran, quelle que
-       soit la taille du noeud */
-    g += '<circle class="chit" cx="' + ech(n.x) + '" cy="' + ech(n.y) +
-         '" r="' + ech(Math.max(n.rr + 1.2, 4)) + '" data-u="' + n.id + '"><title>' +
+    /* le rayon de la pastille suit le nombre d'unites : un metier tenu
+       par quatre escouades doit se voir plus qu'un tenu par une */
+    const rp = lot.length ? Math.min(2.6, 1.1 + Math.sqrt(lot.length) * 0.55) : 1.05;
+    g += '<circle class="hdot' + (manque ? " manque" : (att ? " att" : "")) + cl +
+         '" cx="' + ech(pa.x) + '" cy="' + ech(pa.y) + '" r="' + ech(rp) + '"/>';
+    g += '<text class="hrole' + (manque ? " manque" : (lot.length ? "" : " vide")) + cl +
+         '" x="' + ech(pl.x) + '" y="' + ech(pl.y + 1.1) + '" text-anchor="' + anc + '">' +
+         r[1] + (lot.length ? ' <tspan class="hn">' + lot.length + '</tspan>' : (manque ? " · personne" : "")) +
+         '</text>';
+    /* la zone tactile suit l'etiquette, pas la seule pastille */
+    const lx = anc === "start" ? pl.x - 1 : anc === "end" ? pl.x - 20 : pl.x - 10;
+    g += '<rect class="hhit" x="' + ech(Math.min(lx, pa.x - 3)) + '" y="' + ech(pl.y - 3.4) +
+         '" width="' + ech(Math.abs(pa.x - lx) + 23) + '" height="6.8" data-r="' + k + '"/>';
+  });
+
+  /* les unites : une seule fois chacune, au barycentre de ses metiers */
+  M.noeuds.forEach(n=>{
+    const on = !sel || (sel.t === "u" ? sel.id === n.id : n.cles.indexOf(sel.cle) >= 0);
+    const cl = (sel && on ? " on" : "") + (sel && !on ? " cbase" : "");
+    g += '<polygon class="hunit' + cl + '" points="' + hexa(n.x, n.y, n.r) + '"/>';
+    g += '<circle class="hhit" cx="' + ech(n.x) + '" cy="' + ech(n.y) +
+         '" r="' + ech(Math.max(n.r + 1.4, 3.6)) + '" data-u="' + n.id + '"><title>' +
          nomRepere(n.ru) + ' — ' + n.pts + ' pts · ' +
-         n.cles.map(k => k === "—" ? "sans rôle" : roleNom(k)).join(", ") +
-         '</title></circle>';
+         (n.cles.length ? n.cles.map(roleNom).join(", ") : "aucun métier") + '</title></circle>';
   });
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 100 " + ech(M.haut));
+  svg.setAttribute("viewBox", "0 0 100 " + H_BAS);
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-label", "Carte des métiers : " + M.noeuds.length +
-    " unités reliées à leurs rôles");
+    " unités posées entre les rôles qu'elles remplissent");
   svg.innerHTML = g;
   host.appendChild(svg);
 
@@ -2906,35 +2917,35 @@ function renderCarte(){
     renderCarte();
   });
 
-  /* La legende, en toutes lettres : une couleur seule n'informe pas. */
   const leg = document.createElement("div");
   leg.className = "carte-leg";
-  leg.innerHTML = '<span><span class="pc att"></span>réclamé par ta disposition</span>' +
-    '<span><span class="pc manque"></span>réclamé, personne ne le fait</span>' +
+  leg.innerHTML = '<span><b>au bord</b> = spécialiste · <b>au centre</b> = plusieurs métiers</span>' +
     '<span><b>taille</b> = points</span>' +
-    '<span><b>anneaux</b> = métiers en plus</span>' +
-    '<span>chaque unité est posée sur son <b>premier</b> métier ; le chiffre à ' +
-    'droite compte <b>toutes</b> celles qui font la ligne</span>';
+    '<span><b>pastille</b> = combien d\'unités tiennent le métier</span>' +
+    '<span><span class="pc att"></span>réclamé par ta disposition</span>' +
+    '<span><span class="pc manque"></span>réclamé, personne ne le fait</span>' +
+    '<span>au toucher, le <b>trait épais</b> mène au métier principal</span>';
   host.appendChild(leg);
 
-  /* Ce qu'on vient de toucher, ecrit — la carte montre la forme, le
-     texte porte les valeurs. Rien d'ici n'est lisible au seul survol :
-     la vue « Rôle » liste les memes unites metier par metier. */
   const box = document.createElement("div");
   box.className = "carte-sel";
   if(!sel){
+    const orph = M.orphelines.length;
     box.innerHTML = '<b>' + M.noeuds.length + ' unités, ' +
-      Object.keys(occupe).filter(k => k !== "—").length + ' métiers couverts</b>' +
-      '<i>Touche une unité pour voir où vont ses autres métiers, ou un métier ' +
-      'pour voir qui le fait. La vue « Rôle » donne la même chose en liste.</i>';
+      Object.keys(occupe).length + ' métiers couverts</b>' +
+      '<i>Touche une unité pour voir où vont ses métiers, ou un métier pour voir qui le tient. ' +
+      (orph ? orph + (orph > 1 ? ' unités sont' : ' unité est') + ' au centre sans aucun métier. '
+            : '') +
+      'La vue « Rôle » donne la même chose en liste.</i>';
   } else if(sel.t === "u"){
     const n = M.noeuds.find(x => x.id === sel.id);
     if(!n){ carteSel = null; return renderCarte(); }
-    const ms = rolesDe(n.ru);
     box.innerHTML = '<b>' + nomRepere(n.ru) + ' ×' + n.ru.size + '</b>' +
       '<i>' + n.pts + ' pts · ' +
-      (ms.length ? ms.map(roleNom).join(", ") : "aucun métier") +
-      (rolesFixes(n.ru) ? "" : " <em>(suggestion)</em>") + '</i>';
+      (n.cles.length ? n.cles.map((k, i) => (i ? "" : "<b>") + roleNom(k) + (i ? "" : "</b>")).join(", ")
+                     : "aucun métier") +
+      (n.cles.length > 1 ? " <em>(le premier est le principal)</em>" : "") +
+      (rolesFixes(n.ru) ? "" : " <em>— suggestion du catalogue</em>") + '</i>';
     const b = document.createElement("button");
     b.type = "button"; b.textContent = "Régler cette unité";
     b.addEventListener("click", ()=> ouvrePanneau("cardUnits", n.ru.id));
@@ -2943,13 +2954,19 @@ function renderCarte(){
     const lot = occupe[sel.cle] || [];
     const pts = lot.reduce((a, n) => a + n.pts, 0);
     const att = attendus.indexOf(sel.cle) >= 0;
-    box.innerHTML = '<b>' + (sel.cle === "—" ? "Sans rôle" : roleNom(sel.cle)) +
-      ' — ' + (lot.length ? lot.length + " unité" + (lot.length > 1 ? "s" : "") +
-                            ", " + pts + " pts" : "personne") + '</b>' +
-      '<i>' + (lot.length ? lot.map(n => nomRepere(n.ru)).join(", ") + ". " : "") +
-      (sel.cle === "—" ? "Une unité sans métier est une unité qu'on ne sait pas jouer."
-                       : roleTexte(sel.cle)) +
-      (att ? " <em>Ta disposition marque là-dessus.</em>" : "") + '</i>';
+    /* qui en fait son metier principal, et qui l'assure en second : la
+       difference compte quand on cherche a qui confier le travail */
+    const princ = lot.filter(n => rang(n, sel.cle) === 0);
+    box.innerHTML = '<b>' + roleNom(sel.cle) + ' — ' +
+      (lot.length ? lot.length + " unité" + (lot.length > 1 ? "s" : "") + ", " + pts + " pts"
+                  : "personne") + '</b>' +
+      '<i>' + (lot.length
+        ? (princ.length ? "<b>En principal :</b> " + princ.map(n => nomRepere(n.ru)).join(", ") + ". " : "")
+          + (lot.length > princ.length
+             ? "En second : " + lot.filter(n => rang(n, sel.cle) > 0).map(n => nomRepere(n.ru)).join(", ") + ". "
+             : "")
+        : "") +
+      roleTexte(sel.cle) + (att ? " <em>Ta disposition marque là-dessus.</em>" : "") + '</i>';
   }
   host.appendChild(box);
 }
