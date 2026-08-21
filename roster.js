@@ -3846,7 +3846,10 @@ function cmpProfiles(c){
   let w = list[c.w];
   if(!w || w[2] !== cmpPhaseV) w = list.find(x => x[2] === cmpPhaseV);
   if(!w) return [];
-  const pseudo = {name:c.name, chars: el("cmpLed").checked ? [{name:"—"}] : []};
+  /* une entree du catalogue n'est menee par personne : c'est une fiche
+     nue. Pour voir ce qu'un personnage change, on entre l'unite depuis
+     la liste — la, le meneur est le vrai, avec ses vraies auras. */
+  const pseudo = {name:c.name, chars: []};
   const p = weaponProfile(c.name, w, c.size, pseudo);
   p.label = w[1];
   return [p];
@@ -3927,10 +3930,6 @@ function renderCmpList(){
     row.appendChild(nx); row.appendChild(rm);
     host.appendChild(row);
   });
-  /* la case « menées par un personnage » ne sert qu'aux entrées du
-     catalogue : une unité de la liste porte ses vrais personnages */
-  const lab = el("cmpLed").closest("label");
-  if(lab) lab.hidden = !CMP.some(c => c.src !== "roster");
   renderCmp();
 }
 /* Les deux mesures d'une unite, cote a cote sur une seule ligne. Elles
@@ -5207,7 +5206,6 @@ el("listEditor").insertBefore(bar, el("listEditor").children[1] || null);
 
 el("btnCmpRoster").addEventListener("click", ()=> openCmpPick("roster"));
 el("btnCmpCat").addEventListener("click", ()=> openCmpPick("cat"));
-el("cmpLed").addEventListener("change", renderCmpList);
 el("pickTarget3").addEventListener("click", ()=> el("pickTarget").click());
 el("cmpPhase").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
