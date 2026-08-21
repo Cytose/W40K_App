@@ -881,10 +881,15 @@ function octroisArme(ru, porteur, w){
   (vs[fig] || []).forEach(a=>{
     if(a.port && a.port !== w[2]) return;
     if(a.arme && a.arme !== w[1]) return;
-    if(!(a.vs || []).some(k => kwC[k])) return;
+    /* deux facons de viser : « contre X » (vs) et « contre tout sauf X »
+       (sauf). Les Destroyers Lourds ont une clause de chaque genre. */
+    if(a.vs && !a.vs.some(k => kwC[k])) return;
+    if(a.sauf && a.sauf.some(k => kwC[k])) return;
     out.push({ mot:a.mot, champ:a.champ, val:a.val,
                nom:a.nom, texte:a.texte,
-               source:(a.source || fig) + " · " + libelleCible(a.vs) });
+               source:(a.source || fig) + " · " +
+                      (a.sauf ? "cible ni " + libelleCible(a.sauf).replace(/^cible /, "").replace(" ou ", " ni ")
+                              : libelleCible(a.vs)) });
   });
   return out;
 }
