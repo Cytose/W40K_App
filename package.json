@@ -1,5 +1,5 @@
 {
-  "name": "necron-aide-jeu",
+  "name": "w40k-app",
   "version": "1.0.0",
   "private": true,
   "description": "Aide de jeu Necrons pour Warhammer 40 000, 11e edition : editeur de listes, simulateur de sequence d'attaque et aide de jeu en partie.",

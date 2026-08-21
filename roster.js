@@ -8,6 +8,10 @@ const {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti,
 /* ==========================================================
    ETAT DE LA LISTE
    ========================================================== */
+/* Les cles de stockage gardent leur prefixe historique. Les renommer
+   avec le projet couperait chaque joueur de ses listes deja
+   enregistrees : le navigateur ne saurait plus ou les chercher. Un nom
+   de projet est une etiquette, une cle de stockage est une adresse. */
 const RKEY = "mathhammer.roster.v1";   /* ancien format, une seule liste */
 const LKEY = "mathhammer.lists.v1";
 
