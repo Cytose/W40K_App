@@ -640,35 +640,38 @@ button.todo:active{background:var(--s2)}
 .padvues button.on{background:var(--glow-soft);color:var(--glow)}
 
 /* ---- la carte des metiers ----
-   Chaque unite une seule fois, reliee a ses metiers. Les colonnes plutot
-   qu'un cercle : douze etiquettes autour d'un disque sont illisibles sur
-   un telephone, alors qu'en lignes elles gardent leur nom entier. */
+   Les douze metiers en couronne, chaque unite au barycentre des siens.
+   Au bord = specialiste, au centre = plusieurs travaux : la position
+   porte l'information, ce qui evite d'avoir a tracer quoi que ce soit
+   tant qu'on n'a rien touche. */
 .carte{margin-top:10px}
 .carte svg{display:block;width:100%;height:auto;overflow:visible}
-.carte .cfam{font-size:2.6px;font-weight:800;letter-spacing:.28px;fill:var(--tx3);
-  text-transform:uppercase}
-.carte .crole{font-size:3.4px;font-weight:600;fill:var(--tx2)}
-.carte .crole.vide{fill:var(--tx3)}
-.carte .crole.manque{fill:var(--alert);font-weight:800}
-/* combien d'unites font ce metier, celles posees ailleurs comprises */
-.carte .ccnt{font-size:2.9px;font-weight:700;fill:var(--tx3);font-variant-numeric:tabular-nums}
-.carte .ccnt.on{fill:var(--glow)}
-.carte .cdot{fill:var(--s3);stroke:var(--line-hi);stroke-width:.4}
-.carte .cdot.att{stroke:var(--cyan)}
-.carte .cdot.manque{fill:var(--alert);stroke:var(--alert)}
-.carte .clien{fill:none;stroke:var(--line-hi);stroke-width:.4;opacity:.75}
-.carte .cunit{fill:var(--s3);stroke:var(--line-hi);stroke-width:.5}
-/* un anneau par metier supplementaire : la versatilite se lit sans trait */
-.carte .chalo{fill:none;stroke:var(--line-hi);stroke-width:.32;opacity:.55}
-.carte .chalo.on{stroke:var(--glow);opacity:.85}
-.carte .chit{fill:transparent;cursor:pointer}
-.carte .cbase{opacity:.28}
-.carte .clien.on{stroke:var(--glow);stroke-width:.7;opacity:1}
-.carte .cunit.on{fill:var(--glow-soft);stroke:var(--glow);stroke-width:.8}
-.carte .cdot.on{stroke:var(--glow);stroke-width:.8}
-.carte .crole.on{fill:var(--glow);font-weight:800}
-.carte .crow{fill:transparent;cursor:pointer}
-.carte .cgrid{stroke:var(--line);stroke-width:.2;opacity:.5}
+.carte .hcadre{fill:none;stroke:var(--line-hi);stroke-width:.3;opacity:.75}
+.carte .hanneau{fill:none;stroke:var(--line);stroke-width:.2;opacity:.45}
+.carte .hsep{stroke:var(--line);stroke-width:.2;opacity:.4}
+/* le nom de famille est pose entre le disque des unites et la couronne :
+   un lisere de la couleur du fond le detache de ce qui passe dessous,
+   quel que soit l'encombrement de la liste */
+.carte .hfam{font-size:2.5px;font-weight:800;letter-spacing:.28px;fill:var(--tx3);
+  opacity:.9;text-transform:uppercase;paint-order:stroke;stroke:var(--s0);
+  stroke-width:1.1px;stroke-linejoin:round}
+.carte .hrole{font-size:3.1px;font-weight:600;fill:var(--tx2)}
+.carte .hrole.vide{fill:var(--tx3)}
+.carte .hrole.manque{fill:var(--alert);font-weight:800}
+.carte .hrole .hn{font-size:2.6px;font-weight:800;fill:var(--tx3)}
+.carte .hrole.on{fill:var(--glow)}
+.carte .hrole.on .hn{fill:var(--glow)}
+.carte .hdot{fill:var(--s3);stroke:var(--line-hi);stroke-width:.35}
+.carte .hdot.att{stroke:var(--cyan)}
+.carte .hdot.manque{fill:var(--alert);stroke:var(--alert)}
+.carte .hdot.on{stroke:var(--glow);stroke-width:.6}
+.carte .hunit{fill:var(--s3);stroke:var(--line-hi);stroke-width:.45}
+.carte .hunit.on{fill:var(--glow-soft);stroke:var(--glow);stroke-width:.7}
+/* l'epaisseur du trait dit le rang du metier : elle est posee sur
+   chaque lien, la regle ne fixe que la couleur */
+.carte .hlien{fill:none;stroke:var(--glow)}
+.carte .hhit{fill:transparent;cursor:pointer}
+.carte .cbase{opacity:.22}
 /* la legende et la ligne de selection : du texte, pas une infobulle —
    une valeur ne doit jamais n'etre lisible qu'au survol */
 .carte-leg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:10px;color:var(--tx3)}
@@ -680,7 +683,9 @@ button.todo:active{background:var(--s2)}
 .carte-sel{margin-top:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
   background:var(--s2);font-size:11.5px;color:var(--tx2);line-height:1.45}
 .carte-sel b{display:block;font-size:12.5px;color:var(--tx);font-weight:800}
+.carte-sel i b{display:inline;font-size:11.5px;color:var(--tx2)}
 .carte-sel i{font-style:normal;color:var(--tx3)}
+.carte-sel em{font-style:normal;color:var(--cyan)}
 .carte-sel button{margin-top:7px;min-height:32px;padding:0 12px;background:transparent;
   border:1px solid var(--line-hi);border-radius:7px;color:var(--glow);font:inherit;
   font-size:11.5px;font-weight:700;cursor:pointer}

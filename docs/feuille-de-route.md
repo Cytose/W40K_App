@@ -2267,3 +2267,81 @@ supplémentaire, et le décompte présent sur chaque ligne occupée.
 - **plus une seule arme orpheline** — toutes les entrées de `WEAPONS` sont
   désormais portées, d'office ou par un emplacement de choix. La masse blindée
   des Menhirs était la dernière.
+
+## 38. La carte devient une carte — 21/08/2026
+
+Troisième forme, et la bonne. Les deux premières ont chacune appris quelque chose
+qu'il fallait garder.
+
+| Forme | Ce qu'elle a appris |
+|---|---|
+| **Barycentre + tous les liens tracés** (ch. 36) | le tort n'était pas le dessin mais le fait de **tout tracer, tout le temps** — quinze hexagones et trente-cinq courbes sur treize unités |
+| **Une ligne par métier** (ch. 37) | lisible, mais **plate** : on lit un tableau, pas une carte, et la position ne dit plus rien de l'unité |
+| **Couronne + barycentre** | la position redevient porteuse, sans un seul trait au repos |
+
+### Ce que la position dit
+
+Les douze métiers en couronne, groupés par famille, et chaque unité posée au
+**barycentre des siens**. D'où la lecture que ni l'une ni l'autre des deux
+premières formes ne donnait :
+
+> **au bord** = spécialiste, posé sur son métier · **au centre** = unité tirée
+> entre plusieurs travaux
+
+La polyvalence se lit à la distance au centre. Les anneaux du chantier 37
+deviennent inutiles et disparaissent : une même information, dessinée deux fois,
+est une information de trop. Une unité sans aucun métier se pose au centre exact
+— elle n'est tirée par rien.
+
+### Le cercle était possible, à une condition
+
+Au chantier 37 j'avais écarté la couronne en affirmant que douze étiquettes ne
+tiennent pas autour d'un disque de 390 px. C'était vrai **pour une disposition
+quelconque**, faux pour celle-ci : les familles sont placées selon la longueur de
+leurs noms.
+
+« Preneur de milieu » et « Faiseur d'actions » font dix-sept caractères — placés
+en haut, centrés, ils occupent 26 des 100 unités de la boîte et tiennent ; à
+droite ils en auraient réclamé quarante et débordé. **Marquer** va donc en haut,
+**Détruire** en bas (quatre noms moyens), **Tenir** et **Peser** sur les côtés
+(noms courts). Les douze positions ont été calculées avant d'écrire une ligne de
+rendu.
+
+### L'épaisseur du trait dit le rang
+
+Au toucher — et seulement au toucher — les liens apparaissent, **épais pour le
+métier principal, plus fins pour les suivants** (0,95 / 0,6 / 0,38). Toucher un
+métier montre du même coup qui le tient en principal et qui l'assure en second,
+et la légende le dit en toutes lettres :
+
+> **Enclume — 4 unités, 610 pts.** En principal : Lychguard. En second : Necron
+> Warriors, Canoptek Scarab Swarms, Canoptek Wraiths.
+
+C'est la différence qui compte quand on cherche à qui confier le travail.
+
+### Ce qui remplace le décompte par ligne
+
+La forme en lignes portait à droite le nombre d'unités tenant chaque métier, pour
+qu'une ligne ne paraisse jamais faussement vide. En couronne, ce rôle revient à
+la **pastille**, dont le rayon suit la racine du nombre d'unités, et au chiffre
+accolé à l'étiquette. Un métier réclamé par la Disposition et tenu par personne
+reste en rouge, suivi de « personne ».
+
+### Détails de rendu qui ont demandé une correction
+
+- Les étiquettes quasi verticales se chevauchaient : celle du haut et celle du bas
+  sont poussées de 3,2 unités plus loin du centre.
+- Les noms de famille passaient sous les hexagones : ils portent un liséré de la
+  couleur du fond (`paint-order:stroke`), qui les détache quoi qu'il y ait
+  dessous.
+- L'écartement des nœuds tourne jusqu'à cent soixante passes, borné au disque
+  intérieur. Deux unités exactement superposées sont séparées sur un axe fixe et
+  non au hasard : la carte doit être la même à chaque affichage.
+
+### Vérification
+
+`test_carte` passe à trente-quatre. Outre les contrôles d'ouverture, trois
+nouveaux mesurent ce que la forme prétend dire : l'unité sans métier est au
+centre exact, une unité à deux métiers est plus près du bord qu'une à trois,
+personne ne déborde de la couronne. Et l'épaisseur des traits est lue dans le DOM,
+du plus épais au plus fin.
