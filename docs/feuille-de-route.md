@@ -2178,3 +2178,82 @@ la remettre en face du code.
 les cases toujours attrapables, cinq unités pour cinq hexagones et pas un de plus,
 les douze métiers présents même vides, le métier réclamé que personne ne fait, la
 sélection dans les deux sens, et la cible du doigt mesurée à l'écran.
+
+## 37. Le Roi Silencieux, et une carte qui se lit sans un trait — 21/08/2026
+
+### Une unité mixte n'est pas une escouade uniforme
+
+Une ligne d'`UNITS` décrit **une** figurine, et l'effectif la multiplie. Cela vaut
+pour une escouade, et pour elle seule. Szarekh n'en est pas une : il tient le
+sceptre, le bâton et les armes du Triarcat ; ses deux Menhirs Triarcaux n'ont que
+leur rayon annihilateur et leur masse blindée.
+
+L'application donnait tout à tout le monde :
+
+| Arme | Annoncé | Réel |
+|---|---|---|
+| Weapons of the Final Triarch | 36 attaques | **12** |
+| Staff of Stars | 36 | **12** |
+| Sceptre of Eternal Glory | 6 | **2** |
+| Annihilator beam | 6 | **2** (1 par menhir) |
+| Armoured bulk | *portée par personne* | 4 (2 par menhir) |
+
+La masse blindée des Menhirs existait dans le catalogue depuis le chantier 33
+mais n'avait jamais rejoint la liste d'équipement : elle n'atteignait aucun calcul.
+
+`ARMEMENT` accepte désormais **`n`** — combien de figurines portent chaque arme
+d'office. Absent, c'est toutes, le cas courant. Les valeurs d'attaque redeviennent
+ce qu'elles doivent être : **par figurine**.
+
+### La même cause, en pire, côté encaissement
+
+L'unité était comptée comme **trois figurines de 16 PV** : 48 au lieu de 26
+(Szarekh 16, chaque Menhir 5). `COMPO` décrit la composition d'une unité mixte,
+dans l'ordre où le défenseur sacrifie ses figurines — l'escorte d'abord. Le moteur
+accepte un `pvPool` figurine par figurine, et retombe sur son chemin court quand
+il n'y en a pas, ce qui est le cas de tout le reste du catalogue.
+
+```
+dix canons laser, pour l'effacer une fois sur deux
+   annoncé   52 tireurs
+   réel      30
+```
+
+### La carte : le défaut n'était pas la forme
+
+Sur une vraie liste de treize unités, la carte du chantier 36 donnait quinze
+hexagones entassés et trente-cinq courbes croisées. Illisible.
+
+Le tort n'était pas le dessin mais **le fait de tout tracer, tout le temps**.
+
+- Une unité est désormais **posée sur la ligne de son premier métier**. Elle n'a
+  plus besoin d'un trait pour dire ce qu'elle y fait.
+- Ses autres métiers se lisent aux **anneaux** qui l'entourent — un par métier
+  supplémentaire. On voit d'un coup d'œil qui est spécialiste et qui fait trois
+  choses, sans une seule ligne.
+- **Les liens ne se dessinent qu'au toucher.** Vue d'ensemble d'abord, détail à la
+  demande.
+
+Le cercle demandé n'était pas tenable : « Preneur de milieu » fait dix-sept
+caractères, et autour d'un disque de 390 px les douze étiquettes deviennent des
+abréviations. Les niveaux, eux, sont gardés — en anneaux concentriques plutôt
+qu'en orbites.
+
+**Le piège évité :** poser chaque unité sur son *premier* métier laissait des
+lignes visuellement vides alors que des unités y travaillaient — « Enclume » sans
+un seul hexagone quand quatre escouades l'assurent. Chaque ligne porte donc à
+droite le décompte de **toutes** celles qui la font, principal ou non. Sans lui,
+la carte aurait menti dans le sens le plus coûteux.
+
+Dernier réglage : quatre liens partant du même point se superposaient en un seul
+trait épais. Le point de contrôle s'écarte avec la distance parcourue.
+
+### Vérification
+
+`test_szarekh`, treize contrôles : les cinq armes à leur vraie valeur, l'armure
+des menhirs qui n'est plus orpheline, une escouade uniforme qui n'a pas bougé, la
+composition écrite, le pool `[5,5,16]` reçu par le moteur, et l'unité qui s'efface
+en trente tireurs au lieu de cinquante-deux.
+
+`test_carte` passe à vingt-huit : aucun trait au repos, un anneau par métier
+supplémentaire, et le décompte présent sur chaque ligne occupée.

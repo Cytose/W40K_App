@@ -259,17 +259,23 @@ function auMoins(dist, k){
 
 function simulate(s, N){
   const P = prep(s), W = s.wounds;
+  /* Une unite peut melanger des figurines de resistance differente : le
+     Roi Silencieux tient 16 PV, chacun de ses Menhirs 5. `pvPool` donne
+     les PV figurine par figurine, dans l'ordre ou le defenseur les
+     sacrifie. Absent — le cas courant — tout le monde a W. */
+  const pool = (s.pvPool && s.pvPool.length) ? s.pvPool : null;
+  const pvDe = k => pool ? pool[k % pool.length] : W;
   const slainCount = [], dmgCount = [];
   let sumDealt=0, sumRaw=0, sumSlain=0;
   for(let it=0; it<N; it++){
     const unsaved = rollUnsaved(P);
-    let cur=W, slain=0, dealt=0, raw=0;
+    let k=0, cur=pvDe(0), slain=0, dealt=0, raw=0;
     for(let i=0;i<unsaved;i++){
       const d = rollDamage(P);
       raw += d;
       const applied = d < cur ? d : cur;
       dealt += applied; cur -= applied;
-      if(cur <= 0){ slain++; cur = W; }
+      if(cur <= 0){ slain++; k++; cur = pvDe(k); }
     }
     pousse(slainCount, slain); pousse(dmgCount, dealt);
     sumDealt += dealt; sumRaw += raw; sumSlain += slain;
@@ -286,13 +292,16 @@ function simulateCombined(list, N){
   if(!list.length) return null;
   const preps = list.map(prep);
   const W = list[0].wounds;
+  /* meme pool que ci-dessus : la cible est la meme pour tous les profils */
+  const pool = (list[0].pvPool && list[0].pvPool.length) ? list[0].pvPool : null;
+  const pvDe = k => pool ? pool[k % pool.length] : W;
   const slainCount = [], dmgCount = [];
   const perDealt = new Float64Array(list.length);
   const perRaw = new Float64Array(list.length);
   let sumDealt=0, sumRaw=0, sumSlain=0;
 
   for(let it=0; it<N; it++){
-    let cur=W, slain=0, dealt=0;
+    let k=0, cur=pvDe(0), slain=0, dealt=0;
     for(let pi=0; pi<preps.length; pi++){
       const P = preps[pi];
       const unsaved = rollUnsaved(P);
@@ -302,7 +311,7 @@ function simulateCombined(list, N){
         mineRaw += d;
         const applied = d < cur ? d : cur;
         mine += applied; cur -= applied;
-        if(cur <= 0){ slain++; cur = W; }
+        if(cur <= 0){ slain++; k++; cur = pvDe(k); }
       }
       perDealt[pi] += mine; perRaw[pi] += mineRaw;
       dealt += mine; sumRaw += mineRaw;
