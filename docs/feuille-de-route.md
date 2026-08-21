@@ -2345,3 +2345,57 @@ nouveaux mesurent ce que la forme prétend dire : l'unité sans métier est au
 centre exact, une unité à deux métiers est plus près du bord qu'une à trois,
 personne ne déborde de la couronne. Et l'épaisseur des traits est lue dans le DOM,
 du plus épais au plus fin.
+
+## 39. L'application dit quelle version elle est — 21/08/2026
+
+Signalement : « les armes du Roi Silencieux ne sont toujours pas à jour, même sur
+le standalone que tu m'as donné — six attaques de menhirs au lieu de deux ».
+
+### Ce que la vérification a donné
+
+Les **cinq** écrans du fichier envoyé ont été ouverts un par un :
+
+| Écran | Ce qu'il affiche |
+|---|---|
+| Panneau d'unité | `×2 Annihilator beam (menhir)` · A **1** par figurine |
+| Fiche | idem |
+| Panneau Armement | idem |
+| Simulateur, unité chargée | `Annihilator beam (menhir) ×2 · A 2` |
+| Moteur | `A2` |
+
+Six attaques, c'est exactement `A2 × 3 figurines` : le comportement d'avant le
+chantier 37. Le fichier ouvert n'était pas celui envoyé — trois copies avaient
+été transmises dans la journée, toutes du même nom, et le navigateur les empile
+dans le même dossier.
+
+### Le vrai défaut n'était pas dans le calcul
+
+Il était dans l'impossibilité de savoir **quelle copie on regarde**. Une
+application distribuée en un seul fichier qu'on garde en plusieurs exemplaires
+doit pouvoir se nommer, sinon chaque correction est suspecte d'être absente.
+
+`build.js` calcule déjà l'empreinte SHA-256 des cinq sources pour nommer le cache
+du service worker. Elle est désormais **écrite dans les sorties** — fichier
+autonome et site déployé — et affichée :
+
+> **Version** — Version 93b61eff. C'est l'empreinte des sources : deux copies qui
+> l'affichent sont identiques.
+
+Une copie non compilée, celle sur laquelle on travaille, l'annonce autrement :
+« Version de travail — non compilée ». Elle n'a pas d'empreinte, et prétendre le
+contraire serait pire que de se taire.
+
+### Deux détails qui ont demandé une reprise
+
+- L'empreinte se calculait **après** la fabrication des sorties. Elle est remontée
+  en tête du script, sans quoi elle n'aurait pu être injectée dans ce qu'elle
+  décrit. Elle porte sur les sources telles qu'elles sont sur le disque :
+  la substitution qui suit n'entre pas dans son propre calcul.
+- `dist/index.html` était une copie brute de la source, donc sans empreinte. Le
+  site déployé restait muet là où le fichier autonome parlait. Il est maintenant
+  écrit, pas copié.
+
+Premier emplacement essayé : le pied de page. Mesuré à l'écran, il est dans
+`#scSim` et ne s'affiche donc que sous l'onglet Simulateur — inutilisable pour se
+repérer. La version vit dans **Réglages**, atteignable depuis n'importe où ; la
+ligne du pied de page est conservée, elle ne coûte rien.
