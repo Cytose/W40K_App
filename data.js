@@ -1105,6 +1105,125 @@ const CAT = [
 const CAT_ORDRE = ["Epic Hero","Personnage","Battleline","Infanterie","Bête","Monté","Véhicule","Monstre","Fortification","Autre"];
 
 /* ============================================================
+   RÔLES TACTIQUES
+
+   CAT dit ce qu'une unité EST — Battleline, Véhicule, Personnage.
+   Utile pour ranger, muet pour jouer. Ce tableau dit ce qu'elle
+   FAIT : le métier qu'on lui confie en construisant la liste.
+
+   Un rôle utile répond à une question qu'on se pose la liste
+   ouverte. « Alpha strike », « contre-charge », « pièce d'échange »
+   n'en sont pas : ce sont des plans ou des moments, pas des
+   métiers — une unité n'est pas « alpha strike », c'est la liste
+   qui a un plan d'alpha strike.
+
+   Les quatre rôles de destruction se découpent par PROFIL DE
+   CIBLE, parce que c'est ainsi qu'on relit une liste : « ai-je du
+   tir » ne veut rien dire, « qui tue un char » se vérifie. Les
+   trois premiers disent QUOI on tue, le Marteau dit OÙ — c'est un
+   autre axe, assumé : gagner un corps à corps qu'on choisit est
+   une question distincte de percer un blindage.
+
+   [cle, nom, famille, ce que le rôle demande]
+   ============================================================ */
+const ROLES = [
+["garde",     "Garde arrière",     "Marquer",  "Tient mon objectif toute la partie et refuse les arrivées adverses. Pas cher, encaisse un peu, ne bouge jamais."],
+["milieu",    "Preneur de milieu", "Marquer",  "Va prendre un objectif contesté et le garde sous le feu. Il lui faut du CO et de quoi survivre au contact."],
+["actions",   "Faiseur d'actions", "Marquer",  "Fait les actions secondaires pendant que le reste se bat. Pas cher, mobile, CO correct, dégâts médiocres — et sacrifiable."],
+["enclume",   "Enclume",           "Tenir",    "Encaisse la frappe adverse et immobilise ce qui la porte. Dure à tuer par le nombre, la sauvegarde ou la réanimation."],
+["ecran",     "Écran",             "Tenir",    "Corps sacrifiables posés devant : interdit la frappe en profondeur, absorbe une charge, gagne un tour."],
+["antichar",  "Anti-char",         "Détruire", "Perce les véhicules et les monstres : E9 et plus, sauvegarde 2-3+, beaucoup de PV. Il faut de la Force haute, de la PA et des dégâts par coup."],
+["antielite", "Anti-élite",        "Détruire", "Efface l'infanterie lourde : 2 ou 3 PV, sauvegarde 2-3+, souvent une invulnérable. Il faut de la PA et des dégâts 2, pas du volume."],
+["antimasse", "Anti-masse",        "Détruire", "Efface les hordes : 1 PV, sauvegarde 4-6+, beaucoup de corps. Il faut du volume d'attaques ; la PA et les dégâts se gaspillent."],
+["marteau",   "Marteau",           "Détruire", "Gagne le corps à corps qu'on choisit. Ferme la distance, frappe le premier si possible, et rentabilise le tour où il arrive."],
+["harcele",   "Harcèlement",       "Peser",    "Arrive de réserve ou par le flanc, menace l'arrière et force une réaction. Petite empreinte, mobilité, frappe en profondeur ou éclaireurs."],
+["soutien",   "Soutien",           "Peser",    "Rend les autres meilleurs : auras, réanimation, réparation, relances. Se juge à ce qu'il ajoute, jamais à ce qu'il tue."],
+["transport", "Transport",         "Peser",    "Amène l'enclume ou les faiseurs d'actions là où il faut avant le tour 3, et les protège en route."]
+];
+const ROLES_FAMILLES = ["Marquer","Tenir","Détruire","Peser"];
+
+/* La suggestion du catalogue : ce que l'unité fait le plus souvent,
+   le principal en premier. Elle ne s'impose pas — une liste peut
+   confier n'importe quel métier à n'importe quelle unité, et c'est
+   le joueur qui décide. Elle sert à ne pas partir de la page
+   blanche sur cinquante et une fiches. */
+const ROLES_UNITE = {
+"Convergence of Dominion"          : ["garde","antielite","ecran"],
+"Necron Warriors"                  : ["milieu","garde","enclume"],
+"Immortals"                        : ["milieu","garde","antimasse"],
+"Lychguard"                        : ["enclume","marteau","antielite"],
+"Deathmarks"                       : ["harcele","antielite","actions"],
+"Flayed Ones"                      : ["harcele","antimasse","actions"],
+"Triarch Praetorians"              : ["harcele","antielite","marteau"],
+"Cryptothralls"                    : ["ecran","soutien"],
+"Skorpekh Destroyers"              : ["marteau","antielite"],
+"Ophydian Destroyers"              : ["marteau","harcele","antielite"],
+"Lokhust Destroyers"               : ["harcele","antielite"],
+"Lokhust Heavy Destroyers"         : ["antichar","antimasse"],
+"Tomb Blades"                      : ["actions","harcele","ecran"],
+"Canoptek Scarab Swarms"           : ["ecran","enclume"],
+"Canoptek Wraiths"                 : ["marteau","enclume","antielite"],
+"Canoptek Spyders"                 : ["soutien","antimasse"],
+"Canoptek Reanimator"              : ["soutien"],
+"Canoptek Doomstalker"             : ["antichar","garde"],
+"Canoptek Macrocytes"              : ["ecran","actions"],
+"Canoptek Tomb Crawlers"           : ["ecran","actions"],
+"Triarch Stalker"                  : ["antichar","antielite","antimasse"],
+"Doomsday Ark"                     : ["antichar","antimasse"],
+"Ghost Ark"                        : ["transport","soutien","antimasse"],
+"Annihilation Barge"               : ["antielite","harcele"],
+"Monolith"                         : ["enclume","antimasse","antichar"],
+"Obelisk"                          : ["antimasse","enclume","milieu"],
+"Tesseract Vault"                  : ["antimasse","antielite","enclume"],
+"Doom Scythe"                      : ["antichar","harcele"],
+"Night Scythe"                     : ["transport","harcele"],
+"Overlord"                         : ["soutien","marteau"],
+"Overlord with Translocation Shroud": ["soutien","marteau","harcele"],
+"Royal Warden"                     : ["soutien"],
+"Lokhust Lord"                     : ["soutien","marteau"],
+"Skorpekh Lord"                    : ["marteau","soutien"],
+"Hexmark Destroyer"                : ["harcele","actions","antielite"],
+"Technomancer"                     : ["soutien"],
+"Plasmancer"                       : ["soutien"],
+"Chronomancer"                     : ["soutien"],
+"Psychomancer"                     : ["soutien"],
+"Geomancer"                        : ["soutien","antielite"],
+"Catacomb Command Barge"           : ["soutien","harcele"],
+"C'tan Shard of the Nightbringer"  : ["marteau","antichar","antielite"],
+"C'tan Shard of the Deceiver"      : ["marteau","harcele","antielite"],
+"C'tan Shard of the Void Dragon"   : ["antichar","marteau"],
+"Transcendent C'tan"               : ["marteau","antielite","antichar"],
+"Imotekh the Stormlord"            : ["soutien","marteau"],
+"Trazyn the Infinite"              : ["soutien","actions"],
+"Orikan the Diviner"               : ["soutien"],
+"Illuminor Szeras"                 : ["soutien","antielite"],
+"Nekrosor Ammentar"                : ["marteau","soutien","harcele"],
+"Szarekh, The Silent King"         : ["soutien","antichar","enclume"]
+};
+
+/* En 11e, le détachement débloque une Disposition de Force, et
+   c'est elle qui dit comment tu marques. La bonne question n'est
+   donc pas « ma liste est-elle équilibrée » dans l'absolu, mais
+   « ai-je ce qu'il faut pour la façon dont MOI je marque ». Une
+   liste sans anti-char est cassée en Purge the Foe ; la même peut
+   très bien tenir en Take and Hold. */
+const DISPO_FR = {
+"Take and Hold"   : "Prendre et Tenir",
+"Purge the Foe"   : "Purger l'Ennemi",
+"Reconnaissance"  : "Reconnaissance",
+"Disruption"      : "Perturbation",
+"Priority Assets" : "Actifs Prioritaires"
+};
+const DISPO_ROLES = {
+"Take and Hold"   : ["garde","milieu","enclume","ecran"],
+"Purge the Foe"   : ["antichar","antielite","antimasse","marteau"],
+"Reconnaissance"  : ["actions","harcele","transport"],
+"Disruption"      : ["actions","harcele","ecran"],
+"Priority Assets" : ["milieu","enclume","antichar","garde"]
+};
+
+
+/* ============================================================
    APTITUDES : les aptitudes propres a chaque unite.
    Texte anglais repris tel quel du catalogue BattleScribe — pas
    de traduction maison, une regle mal traduite se paie en partie.

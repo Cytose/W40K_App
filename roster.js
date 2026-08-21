@@ -84,6 +84,12 @@ function normaliseListe(L){
     if(ru.enh === undefined) ru.enh = null;
     ru.enh = migreEnh(ru.enh);
     if(ru.enhP === undefined) ru.enhP = "";
+    /* un role mal forme ne doit pas figer l'ecran : on retombe sur
+       la suggestion plutot que de garder une valeur qu'on ne sait
+       pas lire */
+    if(ru.roles !== undefined && !Array.isArray(ru.roles)) delete ru.roles;
+    if(Array.isArray(ru.roles))
+      ru.roles = ru.roles.filter(roleRow).slice(0, ROLES_MAX);
     /* l'armement se decrit desormais par emplacement. On convertit
        l'ancienne repartition, qui ne connaissait que des armes : chaque
        ligne rejoint la premiere option qui contient son arme. */
@@ -390,6 +396,13 @@ window.ROSTER = {
   },
   /* ce qui protege une unite de la liste : d'office a gauche, a
      declarer a droite. Crochet de verification de l'onglet Encaisser. */
+  /* les metiers d'une unite de la liste, et d'ou ils viennent */
+  roles: function(id){
+    const ru = R && R.units.find(x => String(x.id) === String(id));
+    if(!ru) return null;
+    return { choisi: rolesFixes(ru), roles: rolesDe(ru).slice(),
+             suggere: rolesSug(ru.name).slice(), attendus: rolesAttendus() };
+  },
   defenses: function(nom, id){
     if(!R) return null;
     const d = defensesDe(ruDef({nom:nom, id:id}));
@@ -692,6 +705,43 @@ const dispoDetach = n => { const d = detachRow(n); return (d && d[8]) || ""; };
 const CATMAP = {};
 CAT.forEach(([n, c]) => CATMAP[n] = c);
 const categorie = n => CATMAP[n] || "Autre";
+
+/* ----------------------------------------------------------------
+   RÔLES TACTIQUES
+   CAT dit ce qu'une unite EST, le role dit ce qu'elle FAIT dans
+   CETTE liste. C'est pourquoi le role vit sur l'unite de la liste
+   et non sur la fiche du catalogue : les memes vingt Guerriers
+   gardent l'objectif arriere dans une liste et servent d'enclume
+   au milieu dans une autre.
+
+   `ru.roles` absent = rien de choisi, on montre la suggestion du
+   catalogue en grise. Une fois touche, c'est un tableau — meme
+   vide, ce qui veut dire « je ne lui donne aucun role ».
+   ---------------------------------------------------------------- */
+const ROLEMAP = {};
+if(typeof ROLES !== "undefined") ROLES.forEach(r => ROLEMAP[r[0]] = r);
+const roleRow    = k => ROLEMAP[k] || null;
+const roleNom    = k => (ROLEMAP[k] || [k, k])[1];
+const roleFam    = k => (ROLEMAP[k] || ["", "", ""])[2];
+const roleTexte  = k => (ROLEMAP[k] || ["", "", "", ""])[3];
+const rolesSug   = nom => (typeof ROLES_UNITE !== "undefined" && ROLES_UNITE[nom]) || [];
+const rolesFixes = ru => Array.isArray(ru.roles);
+/* les roles effectifs : ceux qu'on a choisis, sinon la suggestion */
+const rolesDe    = ru => rolesFixes(ru) ? ru.roles : rolesSug(ru.name);
+const ROLES_MAX  = 3;
+
+/* Les roles que la Disposition de Force du detachement reclame.
+   Plusieurs detachements, plusieurs dispositions : on prend la
+   reunion, parce que le joueur choisira sur quoi il marque au
+   moment de la partie, pas maintenant. */
+function rolesAttendus(){
+  const t = (typeof DISPO_ROLES !== "undefined") ? DISPO_ROLES : {};
+  const out = [];
+  (R ? R.detach : []).forEach(dn=>{
+    (t[dispoDetach(dn)] || []).forEach(k => { if(out.indexOf(k) < 0) out.push(k); });
+  });
+  return out;
+}
 /* un nom de groupe ne vaut que pour un ensemble : seule, une unite
    s'annonce par son propre nom */
 const estGroupe = ru => ru.chars.length > 0;
@@ -1518,7 +1568,11 @@ function armeGlisse(b){
    Le mode « Reorganiser » les ignore tous : on ne deplace pas une case
    dans un pave filtre ou replie, sous peine de la poser ailleurs qu'ou
    on croit. */
-let padGroupe = false;
+/* Trois regroupements, pas deux : "" a plat, "cat" par categorie de
+   fiche (ce que l'unite EST), "tac" par role tactique (ce qu'elle
+   FAIT). Une unite a plusieurs roles apparait sous chacun — c'est
+   voulu : la question est « qui couvre ce travail ». */
+let padGroupe = "";
 let padQ = "";
 let padRoleOuvert = "";
 
@@ -1597,8 +1651,9 @@ function renderPad(){
   const bg = el("btnPadGrp");
   if(bg){
     bg.hidden = modeRange || R.units.length < 4;
-    bg.classList.toggle("on", padGroupe);
-    bg.textContent = padGroupe ? "À plat" : "Par rôle";
+    bg.classList.toggle("on", !!padGroupe);
+    bg.textContent = padGroupe === "" ? "Par catégorie"
+                   : padGroupe === "cat" ? "Par rôle" : "À plat";
   }
   const pf = el("padFind");
   if(pf) pf.hidden = modeRange || R.units.length < 6;
@@ -1670,15 +1725,47 @@ function renderPad(){
        lignes — combien d'unites, combien de points par role — et on
        n'ouvre que celui qu'on vient regler. */
     const parRole = {};
-    vues.forEach(x => (parRole[categorie(x.ru.name)] = parRole[categorie(x.ru.name)] || []).push(x));
-    CAT_ORDRE.forEach(cat=>{
-      const lot = parRole[cat]; if(!lot || !lot.length) return;
+    if(padGroupe === "tac"){
+      /* une unite sans aucun role tombe dans « Sans rôle » : c'est
+         exactement ce qu'on veut voir en relisant une liste */
+      vues.forEach(x=>{
+        const l = rolesDe(x.ru);
+        (l.length ? l : ["—"]).forEach(k => (parRole[k] = parRole[k] || []).push(x));
+      });
+    } else {
+      vues.forEach(x => (parRole[categorie(x.ru.name)] = parRole[categorie(x.ru.name)] || []).push(x));
+    }
+    const attendus = padGroupe === "tac" ? rolesAttendus() : [];
+    const ordre = padGroupe === "tac"
+      ? ROLES.map(r => r[0]).concat(["—"])
+      : CAT_ORDRE;
+    ordre.forEach(cat=>{
+      const lot = parRole[cat];
+      /* Un metier que la Disposition reclame et que PERSONNE ne fait doit
+         se voir ici, la ou on le cherche — pas seulement dans le bilan.
+         Une ligne vide vaut mieux qu'une ligne absente : c'est la case
+         non cochee d'une liste de courses. */
+      if(!lot || !lot.length){
+        if(padGroupe !== "tac" || attendus.indexOf(cat) < 0) return;
+        const v = document.createElement("div");
+        v.className = "padrole vide";
+        v.innerHTML = '<span class="rchev">·</span>' +
+          '<span class="rnom">' + roleNom(cat) + ' <em class="rdispo">disposition</em></span>' +
+          '<span class="rcnt">personne</span>';
+        v.title = roleTexte(cat);
+        gu.appendChild(v);
+        return;
+      }
       const ouvert = !!q || padRoleOuvert === cat;
       const pts = lot.reduce((a, x) => a + pointsUnite(x.ru), 0);
       const t = document.createElement("button");
       t.type = "button"; t.className = "padrole" + (ouvert ? " on" : "");
+      const etiq = padGroupe === "tac"
+        ? (cat === "—" ? "Sans rôle" : roleNom(cat)) : cat;
       t.innerHTML = '<span class="rchev">' + (ouvert ? "▾" : "▸") + '</span>' +
-        '<span class="rnom">' + cat + '</span>' +
+        '<span class="rnom">' + etiq +
+          (attendus.indexOf(cat) >= 0 ? ' <em class="rdispo">disposition</em>' : '') +
+        '</span>' +
         '<span class="rcnt">' + lot.length + ' · ' + pts + ' pts</span>';
       t.addEventListener("click", ()=>{
         padRoleOuvert = (padRoleOuvert === cat) ? "" : cat;
@@ -1697,8 +1784,16 @@ function renderPad(){
     gu.appendChild(v);
   }
   const hint = el("padHint");
-  if(hint) hint.hidden = modeRange || !R.units.length ||
-    (padGroupe && !q && !padRoleOuvert);
+  if(hint){
+    hint.hidden = modeRange || !R.units.length ||
+      (padGroupe && !q && !padRoleOuvert);
+    /* en vue tactique une unite compte dans chacun de ses metiers :
+       le dire, sinon la somme des lignes ne tombe pas sur le total
+       de la liste et on croit a un bug */
+    hint.textContent = padGroupe === "tac"
+      ? "Une unité qui fait deux métiers compte dans les deux : les points de chaque ligne se recoupent."
+      : "Appui long sur une case : régler, fiche, dupliquer, retirer.";
+  }
   if(modeRange){ gt.innerHTML = ""; return; }
   if(q){ if(hint) hint.hidden = true; gt.innerHTML = ""; return; }
   const plus = document.createElement("button");
@@ -2524,6 +2619,72 @@ function stepper(get, set, min, max){
   w.appendChild(mk("−",-1)); w.appendChild(val); w.appendChild(mk("+",1));
   return w;
 }
+/* ----------------------------------------------------------------
+   LE METIER DE L'UNITE
+   Douze roles en quatre familles, trois au plus par unite. Pas de
+   role « principal » : une unite qui fait deux metiers apparait
+   dans les deux, ce qui est justement la question qu'on se pose —
+   « qui couvre ce travail ? » et non « a quoi sert celle-ci ».
+
+   Tant que rien n'est touche, la suggestion du catalogue s'affiche
+   en grise et compte partout : une liste toute neuve se relit deja.
+   Le premier clic fige le choix, et un bouton rend la suggestion.
+   ---------------------------------------------------------------- */
+function blocRoles(ru){
+  const box = document.createElement("div");
+  box.className = "roles";
+  const choisi = rolesFixes(ru), actifs = rolesDe(ru);
+  const attendus = rolesAttendus();
+
+  const tete = document.createElement("div");
+  tete.className = "roles-tete";
+  tete.innerHTML = '<b>Rôle tactique</b><i>' +
+    (choisi ? (actifs.length ? actifs.length + " sur " + ROLES_MAX
+                             : "aucun rôle — assumé")
+            : "suggestion du catalogue, à toi de la corriger") + '</i>';
+  if(choisi){
+    const rz = document.createElement("button");
+    rz.type = "button"; rz.className = "xbtn"; rz.textContent = "⟳";
+    rz.title = "Revenir à la suggestion du catalogue";
+    rz.addEventListener("click", ()=>{ delete ru.roles; saveR(); renderList(); });
+    tete.appendChild(rz);
+  }
+  box.appendChild(tete);
+
+  ROLES_FAMILLES.forEach(fam=>{
+    const lot = ROLES.filter(r => r[2] === fam);
+    if(!lot.length) return;
+    const t = document.createElement("div");
+    t.className = "roles-fam"; t.textContent = fam;
+    box.appendChild(t);
+    const ligne = document.createElement("div");
+    ligne.className = "roles-ligne";
+    lot.forEach(r=>{
+      const on = actifs.indexOf(r[0]) >= 0;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "rolec" + (on ? " on" : "") + (choisi ? "" : " sug") +
+                    (attendus.indexOf(r[0]) >= 0 ? " att" : "");
+      b.title = r[3];
+      b.textContent = r[1];
+      /* plein et pas coche : le clic n'aurait rien fait sans le dire */
+      const plein = !on && actifs.length >= ROLES_MAX;
+      if(plein) b.classList.add("plein");
+      b.addEventListener("click", ()=>{
+        const l = actifs.slice();
+        const i = l.indexOf(r[0]);
+        if(i >= 0) l.splice(i, 1);
+        else if(l.length >= ROLES_MAX){ toast("Trois rôles au plus — retires-en un d'abord."); return; }
+        else l.push(r[0]);
+        ru.roles = l; saveR(); renderList();
+      });
+      ligne.appendChild(b);
+    });
+    box.appendChild(ligne);
+  });
+  return box;
+}
+
 /* Quel membre du groupe on regle en ce moment : "" pour l'escouade, sinon
    le nom du personnage rattache. Un groupe de trois membres tenait sur un
    panneau qu'il fallait parcourir en entier pour trouver la bonne arme ;
@@ -2600,6 +2761,8 @@ function renderRoster(){
       (sc ? sc + ' mm' : '—') + '</i></div>' +
       '<span class="rpts">' + unitPoints(ru) + ' pts</span>';
     div.appendChild(head);
+
+    div.appendChild(blocRoles(ru));
 
     if(u[6].length > 1){
       const sc = document.createElement("div");
@@ -3370,6 +3533,48 @@ function bilanListe(){
       out.push({cl:"tdo-det", t:(dpMax - dp) + " PD non dépensé" + (dpMax - dp > 1 ? "s" : ""),
                 d:"Tu peux encore prendre un détachement.", go:"cardDetach"});
   }
+
+  /* ---- les metiers que personne ne fait ----
+     Le bilan des roles n'a de sens qu'au regard de la Disposition de
+     Force du detachement : c'est elle qui dit comment on marque. Une
+     liste sans anti-char est cassee en Purge the Foe ; la meme peut
+     tres bien tenir en Prendre et Tenir. Sans detachement, on ne dit
+     rien plutot que d'inventer un etalon. */
+  const attendus = rolesAttendus();
+  if(attendus.length){
+    const couvert = {};
+    R.units.forEach(ru => rolesDe(ru).forEach(k=>{
+      (couvert[k] = couvert[k] || []).push(ru);
+    }));
+    const noms = R.detach.map(dn => (typeof DISPO_FR !== "undefined" &&
+                  DISPO_FR[dispoDetach(dn)]) || dispoDetach(dn)).filter(Boolean);
+    const dit = [].concat(noms.filter((x, i) => noms.indexOf(x) === i)).join(" et ");
+    const vides = attendus.filter(k => !couvert[k]);
+    const maigres = attendus.filter(k => couvert[k] && couvert[k].length === 1);
+    if(vides.length)
+      out.push({cl:"tdo-role",
+                t:"Aucun " + vides.map(roleNom).join(", aucun ").toLowerCase(),
+                /* un seul metier manquant : on rappelle ce qu'il demande, ca
+                   suffit a chercher l'unite. Plusieurs : la definition de l'un
+                   d'eux ne dirait rien des autres, on garde la disposition. */
+                d:"Ta disposition " + dit + " marque là-dessus. " +
+                  (vides.length === 1 ? roleTexte(vides[0])
+                                      : "C'est " + vides.length + " métiers que ta liste ne fait pas.")});
+    else if(maigres.length)
+      out.push({cl:"tdo-role", t:"Un seul " + roleNom(maigres[0]).toLowerCase() +
+                  (maigres.length > 1 ? " (et un seul " + roleNom(maigres[1]).toLowerCase() + ")" : ""),
+                d:nomAffiche(couvert[maigres[0]][0]) + " le porte à lui seul. " +
+                  "S'il tombe au tour 1, ta disposition " + dit + " n'a plus de réponse."});
+  }
+  /* une unite de la liste a qui on n'a donne aucun metier */
+  const sansRole = R.units.filter(ru => rolesFixes(ru) && !ru.roles.length);
+  if(sansRole.length)
+    out.push({cl:"tdo-role", t:sansRole.length + " unité" + (sansRole.length > 1 ? "s" : "") +
+                " sans rôle",
+              d:sansRole.map(nomAffiche).slice(0,3).join(", ") +
+                (sansRole.length > 3 ? " et " + (sansRole.length - 3) + " autres." : ".") +
+                " Une unité sans métier est une unité qu'on ne sait pas jouer.",
+              uid:sansRole[0].id});
 
   const pts = totalPoints(), cap = R.cap || 2000;
   if(pts < cap){
@@ -4688,8 +4893,12 @@ function unb64u(str){
 const packList = () => ({
   t: R.nom, p: R.cap,
   d: R.detach, f: R.fd || "",
-  u: R.units.map(ru => ({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars, x: ru.sel ? 1 : 0,
-    g: ru.grp || "", e: ru.enh || "", ep: ru.enhP || "" }))
+  /* le role choisi voyage ; la suggestion non — elle se recalcule a
+     l'arrivee, et si le catalogue a change entre-temps c'est la
+     nouvelle qui vaut */
+  u: R.units.map(ru => Object.assign({ n: ru.name, s: ru.size, l: ru.lo, c: ru.chars,
+    x: ru.sel ? 1 : 0, g: ru.grp || "", e: ru.enh || "", ep: ru.enhP || "" },
+    rolesFixes(ru) ? {r: ru.roles} : {}))
 });
 
 async function encodeList(){
@@ -4723,7 +4932,8 @@ function applyPacked(o){
   L.fd = o.f || "";
   L.units = o.u.map(u => ({
     id: L.nextId++, name: u.n, size: u.s, lo: u.l || [], chars: u.c || [], sel: u.x !== 0,
-    grp: u.g || nomGroupe(), enh: migreEnh(u.e || null), enhP: u.ep || ""
+    grp: u.g || nomGroupe(), enh: migreEnh(u.e || null), enhP: u.ep || "",
+    roles: Array.isArray(u.r) ? u.r.filter(roleRow).slice(0, ROLES_MAX) : undefined
   }));
   LISTS.push(L); ouvre(L);
   saveR(); renderList();
@@ -4997,7 +5207,8 @@ if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
   renderPad();
 });
 if(el("btnPadGrp")) el("btnPadGrp").addEventListener("click", ()=>{
-  padGroupe = !padGroupe; renderPad();
+  padGroupe = padGroupe === "" ? "cat" : padGroupe === "cat" ? "tac" : "";
+  padRoleOuvert = ""; renderPad();
 });
 if(el("padQ")) el("padQ").addEventListener("input", e=>{
   padQ = e.target.value; renderPad();

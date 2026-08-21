@@ -23,6 +23,7 @@
   --glow:#9BE85C;         /* accent lumineux, hors graphiques */
   --glow-soft:rgba(155,232,92,.13);
   --warn:#E0A030;
+  --alert:#D4553F;        /* le manque qui coute une partie, pas une finition */
   --tap:46px; --r:10px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -267,6 +268,33 @@ input.sheet-search{
 .pu.tap:hover{border-color:var(--glow)}
 .pu.tap>b:after{content:" ⓘ";font-size:10px;color:var(--tx3);font-weight:400}
 .fiche-note{font-size:12px;line-height:1.5;color:var(--tx3);margin:4px 0 0}
+/* ---- le metier de l'unite : douze roles, quatre familles ---- */
+.roles{margin:8px 0 0;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--s2)}
+.roles-tete{display:flex;align-items:baseline;gap:6px}
+.roles-tete b{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3)}
+.roles-tete i{flex:1;font-style:normal;font-size:10.5px;color:var(--tx3)}
+.roles-tete .xbtn{flex:0 0 auto}
+.roles-fam{margin:7px 0 4px;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--tx3);opacity:.75}
+.roles-ligne{display:flex;flex-wrap:wrap;gap:5px}
+.rolec{padding:5px 9px;background:transparent;border:1px solid var(--line);border-radius:20px;
+  color:var(--tx3);font:inherit;font-size:11px;font-weight:600;cursor:pointer;line-height:1.2}
+.rolec.on{border-color:var(--glow);color:var(--glow);background:var(--glow-soft)}
+/* suggestion pas encore validee : le trait pointille dit « pas de toi » */
+.rolec.sug.on{border-style:dashed}
+/* ce que la Disposition du detachement reclame : un point, pas une couleur
+   de plus — la pastille dit deja si le role est pris */
+.rolec.att:after{content:" •";color:var(--cyan);font-weight:700}
+.rolec.plein{opacity:.45}
+/* en-tete de groupe du pave : le role que la Disposition reclame */
+.rdispo{font-style:normal;font-size:9px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--cyan);border:1px solid var(--line-hi);
+  border-radius:4px;padding:1px 4px;margin-left:5px}
+/* le metier que la Disposition reclame et que personne ne fait : une
+   ligne vide, parce qu'une ligne absente ne se remarque pas */
+.padrole.vide{cursor:default;border-left:2px solid var(--alert);opacity:.9}
+.padrole.vide .rnom{color:var(--tx3)}
+.padrole.vide .rcnt{color:var(--alert);border-color:var(--alert)}
 /* disposition de force du detachement, relevee sur le MFM */
 .dispo{flex:0 0 auto;align-self:flex-start;font-size:10px;font-weight:700;letter-spacing:.05em;
   text-transform:uppercase;color:var(--cyan);border:1px solid var(--line-hi);border-radius:4px;
@@ -605,6 +633,9 @@ button.todo:active{background:var(--s2)}
 .todo.tdo-enh{border-left-color:var(--warn)}
 .todo.tdo-att{border-left-color:var(--green)}
 .todo.tdo-arm{border-left-color:var(--line-hi)}
+/* un metier que personne ne fait : c'est le manque le plus couteux
+   d'une liste, il prend la couleur d'alerte */
+.todo.tdo-role{border-left-color:var(--alert)}
 
 /* barre de recherche du pave : chercher dans SA liste, pas au catalogue */
 .padfind{display:flex;align-items:center;gap:7px;margin-top:9px}
