@@ -1,5 +1,5 @@
 /* Service worker — cache app shell pour usage hors-ligne */
-const CACHE = "mathhammer-necrons-v2";
+const CACHE = "w40k-app-v2";
 const ASSETS = ["./", "./index.html", "./data.js", "./engine.js", "./app.js", "./roster.js", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", e => {

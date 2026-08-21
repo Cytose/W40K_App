@@ -21,7 +21,7 @@ changement prenne effet.
 
 ## Utiliser l'application
 
-Le plus simple est le fichier autonome **`Necron_Aide_Jeu.html`** : tout y est
+Le plus simple est le fichier autonome **`W40K_App.html`** : tout y est
 embarqué, il suffit de le poser où on veut et de l'ouvrir d'un double-clic.
 Aucune installation, aucun réseau.
 
@@ -29,7 +29,7 @@ Pour travailler sur les sources, il faut les servir par HTTP —
 `python3 -m http.server` puis `http://localhost:8000` — car un navigateur
 refuse de charger des scripts séparés depuis `file://`. Après modification,
 `node build.js` régénère `dist/` (nécessite `npm i terser`) : le fichier
-autonome produit est `dist/Necron_Aide_Jeu.html`, à recopier à la racine.
+autonome produit est `dist/W40K_App.html`, à recopier à la racine.
 
 Le **lien de partage** n'est proposé que sur une version servie en HTTP ;
 depuis un fichier local, il faut passer par « Exporter / importer la liste ».
@@ -55,7 +55,7 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 - **le site** — `index.html`, `data.js`, `engine.js`, `app.js`, `roster.js`,
   `sw.js`, `manifest.json`, `icon.svg`, les sources telles quelles, un fichier
   par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
-- **le fichier autonome** — `dist/Necron_Aide_Jeu.html`, l'application repliée
+- **le fichier autonome** — `dist/W40K_App.html`, l'application repliée
   en un seul fichier, recopiée à la racine du dépôt et téléchargeable depuis le
   site. `dist/hors-ligne.html` en est la variante compressée, qui se déplie au
   chargement.
