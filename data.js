@@ -163,7 +163,15 @@ const ARMEMENT = {
  "Orikan the Diviner" : { f:[0], s:[] }, /* d'office : Staff of Tomorrow */
  "Illuminor Szeras" : { f:[0,1,2], s:[] }, /* d'office : Eldritch lance (tir), Eldritch lance (càc), Impaling legs */
  "Nekrosor Ammentar" : { f:[2,0,1], s:[] }, /* d'office : Blade tail and whip coils, Enmitic disintegrators, Unmaker Gauntlet */
- "Szarekh, The Silent King" : { f:[0,1,2,3], s:[] } /* d'office : Sceptre of Eternal Glory, Staff of Stars, Annihilator beam (×2 menhirs), Weapons of the Final Triarch */
+ /* Une unite ou toutes les figurines ne portent PAS la meme chose :
+    Szarekh tient le sceptre, le baton et les armes du Triarcat ; les
+    deux Menhirs Triarcaux n'ont que leur rayon annihilateur et leur
+    masse blindee. `n` dit combien de figurines portent chaque arme
+    d'office — sans lui, l'application les donnait aux trois, et douze
+    attaques de melee en devenaient trente-six. */
+ "Szarekh, The Silent King" : { f:[0,1,3,2,4], s:[], n:{0:1, 1:1, 3:1, 2:2, 4:2} }
+ /* Szarekh : Sceptre of Eternal Glory, Staff of Stars, Weapons of the Final Triarch
+    Menhirs (x2) : Annihilator beam, Armoured bulk */
 };
 
 /* WEAPONS : [unite, arme, "T"|"C", A par figurine, CT/CC, F, PA, D, drapeaux, portee]
@@ -307,9 +315,9 @@ const WEAPONS = [
 ["Nekrosor Ammentar","Blade tail and whip coils","C","6",2,6,1,"1","extra","càc"],
 ["Szarekh, The Silent King","Sceptre of Eternal Glory","T","2",2,10,3,"3","dev","24\""],
 ["Szarekh, The Silent King","Staff of Stars","T","12",2,6,1,"1","indirect","24\""],
-["Szarekh, The Silent King","Annihilator beam (×2 menhirs)","T","2",2,14,4,"6","","24\""],
+["Szarekh, The Silent King","Annihilator beam (menhir)","T","1",2,14,4,"6","","24\""],
 ["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"],
-["Szarekh, The Silent King","Armoured bulk (×2 menhirs)","C","2",4,4,0,"1","","càc"]
+["Szarekh, The Silent King","Armoured bulk (menhir)","C","2",4,4,0,"1","","càc"]
 ];
 
 /* ============================================================
@@ -1103,6 +1111,29 @@ const CAT = [
 ["Convergence of Dominion","Fortification"]
 ];
 const CAT_ORDRE = ["Epic Hero","Personnage","Battleline","Infanterie","Bête","Monté","Véhicule","Monstre","Fortification","Autre"];
+
+/* ============================================================
+   UNITES MIXTES
+
+   Une ligne d'UNITS decrit UNE figurine, et l'effectif la
+   multiplie. Cela vaut pour une escouade uniforme, et pour elle
+   seule. Le Roi Silencieux n'en est pas une : il tient 16 PV,
+   chacun de ses deux Menhirs Triarcaux en tient 5. Sans ce
+   tableau, l'application lui pretait trois figurines de 16 PV —
+   48 au lieu de 26.
+
+   L'ordre est celui dans lequel le defenseur sacrifie ses
+   figurines : l'escorte d'abord, la figurine qui donne son nom a
+   l'unite en dernier. Les autres caracteristiques (E, Svg, Invu)
+   sont communes, sinon il faudrait les repeter ici.
+   ============================================================ */
+const COMPO = {
+ "Szarekh, The Silent King" : [
+   { n:2, pv:5,  nom:"Menhir Triarcal" },
+   { n:1, pv:16, nom:"Szarekh" }
+ ]
+};
+
 
 /* ============================================================
    RÔLES TACTIQUES
