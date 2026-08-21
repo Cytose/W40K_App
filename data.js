@@ -39,6 +39,7 @@ const UNITS = [
 ["Doom Scythe",0,9,3,0,12,[1],{"1":200},0,"",0,"AÉRODYNE. Le pack de faction remplace son M et son CO par « — » : en 11e un aérodyne ne fait qu'un mouvement d'arrivée (règles de base 23.02) et ne tient pas d'objectif. Dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3. Le pack nomme cette fiche « Faucheur » ; le rattachement au Doom Scythe est une déduction, pas une lecture.",0,"7+"],
 ["Night Scythe",14,9,3,0,12,[1],{"1":125},0,"",0,"Refondu en 11e : le pack lui retire AÉRODYNE, fixe son M à 14\" et lui donne Stationnaire et Frappe en Profondeur. Mot-clé CHÂSSIS. Transport 1 unité INFANTERIE. Le pack nomme cette fiche « Moissonneur » ; le rattachement au Night Scythe est une déduction, pas une lecture.",0,"7+"],
 ["Overlord",5,5,2,4,6,[1],{"1":90},0,"Leader",0,"Implacable Resilience : -1 Dégât sur chaque attaque allouée. Orbe de résurrection en option.",1,"6+"],
+["Overlord with Translocation Shroud",5,5,2,4,6,[1],{"1":90},0,"Leader",0,"Fiche distincte de l'Overlord : lame seule, orbe de résurrection d'office. Linceul de Translocation : avance sans jet, +6\" de Mouvement, et traverse figurines et décor.",1,"6+"],
 ["Royal Warden",5,5,3,0,4,[1],{"1":50},0,"Leader",0,"Engrammatic Logic.",1,"6+"],
 ["Lokhust Lord",8,6,3,4,6,[1],{"1":70},0,"Leader",0,"Nanoscarab Amulet (option) : FNP 5+.",2,"6+"],
 ["Skorpekh Lord",8,7,3,4,7,[1],[[1,{"1":90}],[3,{"1":100}]],0,"Leader",0,"Rejoint les Skorpekh Destroyers.",2,"6+"],
@@ -142,6 +143,7 @@ const ARMEMENT = {
  "Doom Scythe" : { f:[0,1,2], s:[] }, /* d'office : Heavy death ray, Twin tesla destructor, Armoured bulk */
  "Night Scythe" : { f:[0,1], s:[] }, /* d'office : Twin tesla destructor, Armoured bulk */
  "Overlord" : { f:[], s:[{min:1, o:[[2,0],[3],[1,4]]}] }, /* aucune arme d'office */
+ "Overlord with Translocation Shroud" : { f:[0], s:[] }, /* d'office : Overlord's blade */
  "Royal Warden" : { f:[1,0], s:[] }, /* d'office : Close combat weapon, Relic gauss blaster */
  "Lokhust Lord" : { f:[], s:[{min:1, o:[[1],[0,2]]}] }, /* aucune arme d'office */
  "Skorpekh Lord" : { f:[0,2,1], s:[] }, /* d'office : Enmitic annihilator, Flensing claw, Hyperphase harvester */
@@ -252,25 +254,26 @@ const WEAPONS = [
 ["Overlord","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
 ["Overlord","Overlord's blade","C","4",2,8,3,"2","dev","càc"],
 ["Overlord","Voidscythe","C","3",3,12,3,"3","dev","càc"],
-["Overlord","Staff of light (càc)","C","4",2,5,2,"1","","18\""],
+["Overlord","Staff of light (càc)","C","4",2,5,2,"1","","càc"],
+["Overlord with Translocation Shroud","Overlord's blade","C","4",2,8,3,"2","dev","càc"],
 ["Royal Warden","Relic gauss blaster","T","2",3,5,1,"2","lethal rf:2","24\""],
 ["Royal Warden","Close combat weapon","C","4",3,5,0,"1","","càc"],
 ["Lokhust Lord","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
 ["Lokhust Lord","Lord's blade","C","4",2,8,3,"2","dev","càc"],
-["Lokhust Lord","Staff of light (càc)","C","4",2,5,2,"1","","18\""],
+["Lokhust Lord","Staff of light (càc)","C","4",2,5,2,"1","","càc"],
 ["Skorpekh Lord","Enmitic annihilator","T","2",2,6,1,"1","rf:2","18\""],
 ["Skorpekh Lord","Hyperphase harvester","C","4",2,10,3,"3","","càc"],
 ["Skorpekh Lord","Flensing claw","C","8",2,6,1,"1","","càc"],
 ["Hexmark Destroyer","Enmitic disintegrator pistols","T","6",2,6,2,"1","ignorescover pistol","18\""],
 ["Hexmark Destroyer","Close combat weapon","C","4",3,5,0,"1","","càc"],
 ["Technomancer","Staff of light (tir)","T","3",4,5,2,"1","","18\""],
-["Technomancer","Staff of light (càc)","C","2",4,5,2,"1","","18\""],
+["Technomancer","Staff of light (càc)","C","2",4,5,2,"1","","càc"],
 ["Plasmancer","Plasmic lance (tir)","T","3",4,7,3,"2","","18\""],
-["Plasmancer","Plasmic lance (càc)","C","2",4,7,3,"2","","18\""],
-["Chronomancer","Aeonstave blast","T","D6",4,5,1,"1","",""],
+["Plasmancer","Plasmic lance (càc)","C","2",4,7,3,"2","","càc"],
+["Chronomancer","Aeonstave blast","T","D6",4,5,1,"1","blast","18\""],
 ["Chronomancer","Aeonstave","C","3",4,5,1,"1","","càc"],
 ["Psychomancer","Abyssal lance (tir)","T","1",4,6,3,"3","","18\""],
-["Psychomancer","Abyssal lance (càc)","C","1",4,6,3,"3","","18\""],
+["Psychomancer","Abyssal lance (càc)","C","1",4,6,3,"3","","càc"],
 ["Geomancer","Sismolance — faisceau réverbérant","T","2",4,8,2,"2","melta:2","18\""],
 ["Geomancer","Sismolance — ondes de choc","T","D6+2",4,4,0,"1","torrent ignorescover","18\""],
 ["Geomancer","Sismolance (càc)","C","2",4,8,2,"2","","càc"],
@@ -278,26 +281,26 @@ const WEAPONS = [
 ["Catacomb Command Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\""],
 ["Catacomb Command Barge","Staff of light (tir)","T","3",2,5,2,"1","","18\""],
 ["Catacomb Command Barge","Overlord's blade","C","4",2,8,3,"2","dev","càc"],
-["Catacomb Command Barge","Staff of light (càc)","C","4",3,5,2,"1","","18\""],
+["Catacomb Command Barge","Staff of light (càc)","C","4",3,5,2,"1","","càc"],
 ["C'tan Shard of the Nightbringer","Gaze of death","T","D3",2,12,3,"D6+3","","18\""],
 ["C'tan Shard of the Nightbringer","Scythe — strike","C","6",2,14,4,"D6+2","dev","càc"],
 ["C'tan Shard of the Nightbringer","Scythe — sweep","C","14",2,8,2,"2","","càc"],
-["C'tan Shard of the Deceiver","Cosmic insanity","T","6",2,6,2,"2","dev precision anti:4","18\""],
+["C'tan Shard of the Deceiver","Cosmic insanity","T","6",2,6,2,"2","dev precision anti:4:perso","18\""],
 ["C'tan Shard of the Deceiver","Golden fists","C","8",2,10,3,"3","","càc"],
-["C'tan Shard of the Void Dragon","Spear of the Void Dragon (tir)","T","D3",2,8,3,"D6+2","anti:2","12\""],
+["C'tan Shard of the Void Dragon","Spear of the Void Dragon (tir)","T","D3",2,8,3,"D6+2","anti:2:veh","12\""],
 ["C'tan Shard of the Void Dragon","Voltaic storm","T","D6+3",2,7,1,"2","blast sust:2","18\""],
-["C'tan Shard of the Void Dragon","Spear — strike","C","5",2,12,4,"D6+2","anti:2","càc"],
+["C'tan Shard of the Void Dragon","Spear — strike","C","5",2,12,4,"D6+2","anti:2:veh","càc"],
 ["C'tan Shard of the Void Dragon","Spear — sweep","C","10",2,8,1,"2","","càc"],
 ["C'tan Shard of the Void Dragon","Canoptek tail blades","C","6",2,6,1,"1","extra","càc"],
 ["Transcendent C'tan","Seismic assault","T","6",2,8,2,"2","assault sust:1","12\""],
 ["Transcendent C'tan","Crackling tendrils","C","8",2,10,3,"D6","sust:1","càc"],
 ["Imotekh the Stormlord","Staff of the Destroyer (tir)","T","3",2,6,3,"2","","18\""],
 ["Imotekh the Stormlord","Gauntlet of Fire","T","D6",4,5,1,"1","torrent ignorescover","12\""],
-["Imotekh the Stormlord","Staff of the Destroyer (càc)","C","4",2,6,3,"2","dev","18\""],
+["Imotekh the Stormlord","Staff of the Destroyer (càc)","C","4",2,6,3,"2","dev","càc"],
 ["Trazyn the Infinite","Empathic Obliterator","C","4",2,7,0,"D3","sust:D3","càc"],
 ["Orikan the Diviner","Staff of Tomorrow","C","2",3,4,3,"D3","dev","càc"],
 ["Illuminor Szeras","Eldritch lance (tir)","T","3",3,9,3,"3","","36\""],
-["Illuminor Szeras","Eldritch lance (càc)","C","4",3,9,3,"3","","36\""],
+["Illuminor Szeras","Eldritch lance (càc)","C","4",3,9,3,"3","","càc"],
 ["Illuminor Szeras","Impaling legs","C","4",3,6,1,"1","extra","càc"],
 ["Nekrosor Ammentar","Enmitic disintegrators","T","4",2,6,2,"1","ignorescover pistol sust:2","18\""],
 ["Nekrosor Ammentar","Unmaker Gauntlet","C","6",2,10,3,"3","","càc"],
@@ -305,7 +308,8 @@ const WEAPONS = [
 ["Szarekh, The Silent King","Sceptre of Eternal Glory","T","2",2,10,3,"3","dev","24\""],
 ["Szarekh, The Silent King","Staff of Stars","T","12",2,6,1,"1","indirect","24\""],
 ["Szarekh, The Silent King","Annihilator beam (×2 menhirs)","T","2",2,14,4,"6","","24\""],
-["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"]
+["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"],
+["Szarekh, The Silent King","Armoured bulk (×2 menhirs)","C","2",4,4,0,"1","","càc"]
 ];
 
 /* ============================================================
@@ -319,7 +323,7 @@ const KW = {
               "Orikan the Diviner","Illuminor Szeras"],
   destroyer: ["Skorpekh Destroyers","Ophydian Destroyers","Lokhust Destroyers","Lokhust Heavy Destroyers",
               "Hexmark Destroyer","Skorpekh Lord","Lokhust Lord","Nekrosor Ammentar"],
-  noble    : ["Overlord","Imotekh the Stormlord","Trazyn the Infinite",
+  noble    : ["Overlord","Overlord with Translocation Shroud","Imotekh the Stormlord","Trazyn the Infinite",
               "Catacomb Command Barge","Royal Warden"],
   triarch  : ["Triarch Praetorians","Triarch Stalker","Szarekh, The Silent King"],
   lychguard: ["Lychguard"],
@@ -513,6 +517,7 @@ const ATTACH = {
 "Overlord":["Immortals","Lychguard","Necron Warriors"],
 "Plasmancer":["Immortals","Necron Warriors"],
 "Psychomancer":["Immortals","Necron Warriors"],
+"Overlord with Translocation Shroud":["Immortals","Lychguard","Necron Warriors"],
 "Royal Warden":["Immortals","Necron Warriors"],
 "Skorpekh Lord":["Skorpekh Destroyers"],
 "Technomancer":["Canoptek Wraiths","Immortals","Necron Warriors"],
@@ -709,13 +714,13 @@ const BASES = {
 "Canoptek Macrocytes":"","Canoptek Tomb Crawlers":"50","Triarch Stalker":"120×92",
 "Doomsday Ark":"170×105","Ghost Ark":"170×105","Annihilation Barge":"170×105",
 "Monolith":"","Obelisk":"","Tesseract Vault":"","Doom Scythe":"120×92","Night Scythe":"120×92",
-"Overlord":"40","Royal Warden":"40","Lokhust Lord":"60","Skorpekh Lord":"60",
-"Hexmark Destroyer":"40","Technomancer":"40","Plasmancer":"40","Chronomancer":"40",
-"Psychomancer":"40","Geomancer":"","Catacomb Command Barge":"170×105",
-"C'tan Shard of the Nightbringer":"60","C'tan Shard of the Deceiver":"60",
+"Overlord":"40","Overlord with Translocation Shroud":"40","Royal Warden":"32","Lokhust Lord":"60","Skorpekh Lord":"60",
+"Hexmark Destroyer":"50","Technomancer":"50","Plasmancer":"32","Chronomancer":"40",
+"Psychomancer":"40","Geomancer":"50","Catacomb Command Barge":"170×105",
+"C'tan Shard of the Nightbringer":"90","C'tan Shard of the Deceiver":"40",
 "C'tan Shard of the Void Dragon":"80","Transcendent C'tan":"60",
-"Imotekh the Stormlord":"40","Trazyn the Infinite":"40","Orikan the Diviner":"40",
-"Illuminor Szeras":"80","Nekrosor Ammentar":"","Szarekh, The Silent King":"100"
+"Imotekh the Stormlord":"40","Trazyn the Infinite":"25","Orikan the Diviner":"40",
+"Illuminor Szeras":"80","Nekrosor Ammentar":"80","Szarekh, The Silent King":"100"
 };
 
 /* ============================================================
@@ -1072,6 +1077,7 @@ const CAT = [
 ["Doom Scythe","Véhicule"],
 ["Night Scythe","Véhicule"],
 ["Overlord","Personnage"],
+["Overlord with Translocation Shroud","Personnage"],
 ["Royal Warden","Personnage"],
 ["Lokhust Lord","Personnage"],
 ["Skorpekh Lord","Personnage"],
@@ -1295,6 +1301,11 @@ const APTITUDES = {
   ["Écharde C'tan","Cette figurine ne peut pas recevoir d'Optimisations."],
   ["Longe Relativiste — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : à votre tour, quand cette unité fait un mouvement d'arrivée ou d'avance en utilisant son aptitude Déplacement Transdimensionnel, elle peut finir ce mouvement à plus de 6\" à l'horizontale des unités ennemies (et non à plus de 8\"). Quand elle finit ce mouvement à 8\" ou moins d'une unité ennemie, jusqu'à la fin du tour, elle n'est pas éligible pour déclarer une charge. Si votre armée inclut plus d'un C'tan Transcendant, chacun doit prendre cette aptitude."]
  ],
+ "Overlord with Translocation Shroud" : [
+  ["Ma Volonté Sera Faite","Une fois par round de bataille, une unité de votre armée ayant cette aptitude peut l'utiliser quand son unité est ciblée par un stratagème : le coût de cette utilisation est réduit de 1 PC."],
+  ["Linceul de Translocation","À chaque fois que l'unité de cette figurine Avance, ne faites pas de jet d'Avance : ajoutez 6\" au Mouvement des figurines de l'unité jusqu'à la fin de la phase. De plus, à chaque mouvement Normal, d'Avance ou de Repli, l'unité peut traverser figurines et décor à l'horizontale (sans finir son mouvement dessus)."],
+  ["Orbe de Résurrection","(Une fois par partie, par unité) À la fin d'une phase, cette unité peut ressusciter : ses Protocoles de Réanimation s'activent, mais elle récupère D6 points de vie au lieu de D3. Vous ne pouvez pas ressusciter plus d'une unité par tour."]
+ ],
  "Imotekh the Stormlord" : [
   ["Grand Strategist","At the start of your Command phase, if this model is on the battlefield, you gain 1CP."],
   ["Lord of the Storm","Once per battle, at the end of your Command phase, this model can use this ability. If it does, roll one D6 for each enemy unit within 12\" of this model: on a 2-5, that enemy unit suffers D3 mortal wounds; on a 6, that enemy unit suffers D3+3 mortal wounds."]
@@ -1323,6 +1334,9 @@ const APTITUDES = {
  "Szarekh, The Silent King" : [
   ["Damaged: 1-6 wounds remaining","While this unit's Szarekh model has 1-6 wounds remaining, halve the Attacks characteristic of that model's weapons, and each time this unit makes an attack, subtract 1 from the Hit roll."],
   ["Voice of the Triarch","At the start of the battle round, select one Triarch ability. Until the start of the next battle round, this unit has that ability."],
+  ["Le Roi Silencieux","Tant qu'une unité de NÉCRONS amie est à 6\" de la figurine de Szarekh de cette unité, ajoutez 1 à sa caractéristique de Commandement."],
+  ["Phaeron des Astres (Aura)","Tant qu'une unité de NÉCRONS amie (unités de MONSTRE exclues) est à 6\" de la figurine de Szarekh de cette unité, à chaque attaque d'une figurine de cette unité, relancez tout jet de Touche de 1 et tout jet de Blessure de 1."],
+  ["Phaeron des Lames (Aura)","Tant qu'une unité de NÉCRONS amie (unités de MONSTRE exclues) est à 6\" de la figurine de Szarekh de cette unité, vous pouvez relancer les jets de Charge faits pour elle, et à chaque attaque de mêlée d'une de ses figurines, ajoutez 1 à la caractéristique de Force de cette attaque."],
   ["Marche Implacable (Aura)","Tant qu'une unité de NÉCRONS amie est à 6\" ou moins de la figurine de Szarekh de cette unité, ajoutez 2\" à la caractéristique de Mouvement des figurines de l'unité amie. Texte remplacé par le pack de faction v1.1, qui redéfinit aussi les mots-clés : toutes les figurines VÉHICULE, HÉROS ÉPIQUE, TRIARCAT ; figurine de Szarekh PERSONNAGE, LE ROI SILENCIEUX."],
   ["Triarchal Menhirs","If this unit's Szarekh model is destroyed, all of this unit's remaining Triarchal Menhir models are also destroyed."]
  ]
@@ -1473,6 +1487,11 @@ const APTIS_COND = {
      quand:"L'arme est accordée à la cible",
      texte:"Exterminateur enmitique contre une unité qui n'est ni MONSTRE ni VÉHICULE, ou destructeur Gauss contre un MONSTRE ou un VÉHICULE : relancez tout jet de Blessure de 1." }
  ],
+ "Nekrosor Ammentar" : [
+   { champ:"rrW", val:"ones", port:"", nom:"Prophète de la Destruction",
+     quand:"Le Nékrosor a détruit une unité ennemie cette phase",
+     texte:"Chaque fois que cette figurine détruit une unité ennemie, choisissez 1 autre unité de CULTE DESTROYER amie à 9\" d'elle. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité choisie, relancez tout jet de Blessure de 1." }
+ ],
  "Flayed Ones" : [
    { champ:"critH", val:2, port:"C", nom:"Faim de Chair",
      quand:"La cible est sous son demi-effectif",
@@ -1506,7 +1525,28 @@ const AURAS_ARMEE = [
  { source:"Illuminor Szeras", kw:["battleline"], champ:"apMod", val:1,
    nom:"Augmentation Mécanique (Aura)",
    quand:"L'unité est à 3\" d'Illuminor Szeras",
-   texte:"Tant qu'une unité de BATTLELINE NÉCRONS amie est à 3\" de cette figurine, à chaque attaque d'une figurine de cette unité, améliorez de 1 la caractéristique de Pénétration d'Armure." }
+   texte:"Tant qu'une unité de BATTLELINE NÉCRONS amie est à 3\" de cette figurine, à chaque attaque d'une figurine de cette unité, améliorez de 1 la caractéristique de Pénétration d'Armure. L'aura a une seconde moitié, défensive — chaque attaque VISANT cette unité voit sa Pénétration d'Armure empirée de 1 — que l'onglet Encaisser n'applique pas tout seul : il faut la retrancher à la main de la PA de l'attaquant." },
+ /* Le Nékrosor donne des Touches Soutenues 1 a presque toute l'armee.
+    « sauf » exclut ce que la fiche exclut : MONSTRE et TITANESQUE. */
+ { source:"Nekrosor Ammentar", kw:[], sauf:["monster","titanic"], mot:"sust",
+   nom:"Folie Meurtrière Infectieuse (Aura)",
+   quand:"L'unité est à 6\" du Nékrosor, et porte CULTE DESTROYER ou vise la cible éligible la plus proche",
+   texte:"Tant qu'une unité de NÉCRONS amie (unités de MONSTRE et TITANESQUES exclues) est à 6\" de cette figurine, à chaque attaque d'une figurine de l'unité, si la figurine a le mot-clé CULTE DESTROYER ou si l'unité ennemie est la cible éligible la plus proche, l'attaque a l'aptitude [TOUCHES SOUTENUES 1]." },
+ /* Les trois aptitudes du Triarcat s'excluent : une seule par round de
+    bataille, choisie au debut. Le « quand » le dit ; le choix reste au
+    joueur, l'application ne peut pas le faire a sa place. */
+ { source:"Szarekh, The Silent King", kw:[], sauf:["monster"], champ:"rrH", val:"ones",
+   nom:"Phaeron des Astres (Aura) — touche",
+   quand:"Aptitude du Triarcat choisie ce round, et unité à 6\" de Szarekh",
+   texte:"Tant qu'une unité de NÉCRONS amie (unités de MONSTRE exclues) est à 6\" de la figurine de Szarekh, à chaque attaque d'une figurine de cette unité, relancez tout jet de Touche de 1 et tout jet de Blessure de 1." },
+ { source:"Szarekh, The Silent King", kw:[], sauf:["monster"], champ:"rrW", val:"ones",
+   nom:"Phaeron des Astres (Aura) — blessure",
+   quand:"Aptitude du Triarcat choisie ce round, et unité à 6\" de Szarekh",
+   texte:"Voir ci-dessus : la même aptitude porte aussi sur le jet de Blessure. Les deux cases vont ensemble." },
+ { source:"Szarekh, The Silent King", kw:[], sauf:["monster"], champ:"strMod", val:1, port:"C",
+   nom:"Phaeron des Lames (Aura)",
+   quand:"Aptitude du Triarcat choisie ce round, et unité à 6\" de Szarekh",
+   texte:"Tant qu'une unité de NÉCRONS amie (unités de MONSTRE exclues) est à 6\" de la figurine de Szarekh, vous pouvez relancer ses jets de Charge, et à chaque attaque de mêlée d'une de ses figurines, ajoutez 1 à la caractéristique de Force de cette attaque." }
 ];
 
 /* Figurines dont la fiche impose « -1 pour toucher » sous un seuil de
@@ -1538,6 +1578,10 @@ const AURAS_PERSO = {
  "Skorpekh Lord" : [
    { mot:"lethal", port:"C", nom:"Uni dans la Destruction",
      texte:"Tant que cette figurine mène une unité, les armes de mêlée des figurines de cette unité ont l'aptitude [TOUCHES LÉTHALES]." }
+ ],
+ "Orikan the Diviner" : [
+   { champ:"inv", val:4, port:"", nom:"Maître Chronomancien",
+     texte:"Tant que cette figurine mène une unité, les figurines de cette unité ont une sauvegarde invulnérable de 4+." }
  ],
  "Technomancer" : [
    { champ:"fnp", val:5, port:"", nom:"Rites de Réanimation",

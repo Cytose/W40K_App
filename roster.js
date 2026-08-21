@@ -2,7 +2,8 @@
 "use strict";
 const el = id => document.getElementById(id);
 const {scaleDice, analytic, simulateCombined, simulate, seuilTues, auMoins} = ENG;
-const {S, unitRow, unitWeps, parseFlags, drawBars, binned, pct, num, rendSeuils} = SIM;
+const {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti,
+       drawBars, binned, pct, num, rendSeuils} = SIM;
 
 /* ==========================================================
    ETAT DE LA LISTE
@@ -211,7 +212,13 @@ function conditionsDe(ru, ph){
     const presente = R.units.some(x => x.name === a.source ||
                                        x.chars.some(c => c.name === a.source));
     if(!presente) return;
+    if(a.port && a.port !== port) return;
     if(a.kw && a.kw.length && !a.kw.some(k => groupeA(ru, k))) return;
+    /* certaines auras excluent au lieu d'inclure : la Folie Meurtriere
+       du Nekrosor vaut pour toute l'armee SAUF les MONSTRES et les
+       TITANESQUES. Sans cette ligne, un Monolithe recevrait des
+       Touches Soutenues qu'il n'a pas. */
+    if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
     out.push({ id: "aura|" + a.source + "|" + i, sur: "", nom: a.nom,
                quand: a.quand, texte: a.texte,
                champ: a.champ, mot: a.mot, val: a.val });
@@ -308,15 +315,19 @@ window.ROSTER = {
     /* le plus resistant du groupe porte les caracteristiques : c'est lui
        qu'on doit abattre en dernier, et c'est sur lui qu'on repartit les
        blessures allouees */
-    let fnp = u[8] || 0;
+    let fnp = u[8] || 0, inv = u[4] || 0;
     const auras = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
     ru.chars.forEach(c => (auras[c.name] || []).forEach(a=>{
       if(a.champ === "fnp") fnp = Math.max(fnp, a.val);
+      /* Orikan donne une invulnerable 4+ a l'unite qu'il mene : une
+         unite qui n'en avait pas en gagne une, une qui en avait une
+         moins bonne l'ameliore. 0 veut dire « aucune ». */
+      else if(a.champ === "inv") inv = inv ? Math.min(inv, a.val) : a.val;
     }));
     /* la Necrodermis et les aptitudes du meme genre retranchent un degat */
     const red = /Necrodermis|Implacable Resilience|Quantum Shielding|-1 D.g.t/i
                   .test(String(u[11] || "")) ? 1 : 0;
-    return { tough: u[2], sv: u[3], inv: u[4] || 0, wounds: u[5],
+    return { tough: u[2], sv: u[3], inv: inv, wounds: u[5],
              models: ru.size + ru.chars.length,
              fnp: fnp, dmgRed: red };
   },
@@ -979,7 +990,14 @@ function weaponProfile(unitName, w, bearers, ru){
     rapidOn: !!f.rf, rapidN: f.rf ? Math.min(120, (+f.rf) * bearers) : 1,
     meltaOn: !!f.melta, meltaN: f.melta ? +f.melta : 2,
     twin: !!f.twin,
-    critH: 6, critW: f.anti ? +f.anti : 6,
+    /* Anti-X est conditionne par ce qu'est la cible : l'accorder sans
+       condition surestime l'arme partout ailleurs. Les mots-cles de la
+       cible suffisent a trancher — rien a cocher. */
+    critH: 6, critW: antiActif(antiDe(f), S.kwCible) ? antiDe(f).seuil : 6,
+    /* garde sous la main de quoi l'expliquer sur la ligne de profil,
+       y compris quand l'aptitude ne joue pas : une arme qui perd son
+       Anti-X doit le montrer, pas disparaitre en silence */
+    anti: antiDe(f),
     hitMod: 0, wndMod: 0, rrH: "none", rrW: f.twin ? "failed" : "none"
   });
   if(ru){
@@ -999,6 +1017,7 @@ function weaponProfile(unitName, w, bearers, ru){
       else if(o.champ === "hitMod") p.hitMod = Math.max(-1, Math.min(1, p.hitMod + o.val));
       else if(o.champ === "wndMod") p.wndMod = Math.max(-1, Math.min(1, p.wndMod + o.val));
       else if(o.champ === "apMod") p.apMod = (p.apMod || 0) + o.val;
+      else if(o.champ === "strMod") p.str = Math.max(1, p.str + o.val);
     });
     /* on garde la trace de qui a donne quoi : un crit 5+ qui apparait
        sans nom ne se verifie pas, et un joueur qui ne peut pas verifier
@@ -3136,7 +3155,8 @@ function motsArme(flags){
   if(f.sust)    k.push("Touches Soutenues " + f.sust);
   if(f.rf)      k.push("Tir Rapide " + f.rf);
   if(f.melta)   k.push("Fusion " + f.melta);
-  if(f.anti)    k.push("Anti-X " + f.anti + "+");
+  const anti = antiDe(f);
+  if(anti)      k.push(libelleAnti(anti));
   if(f.assault) k.push("Assaut");
   if(f.heavy)   k.push("Lourd");
   if(f.precision) k.push("Précision");

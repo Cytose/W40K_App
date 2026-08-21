@@ -1776,3 +1776,80 @@ dit sous le tableau.
 | **Le couvert en mêlée** | gaté au tir par hypothèse. |
 | **Traduction** | 0 nom d'unité sur 50, ~98 noms d'arme sur 108, 32 améliorations sur 42 restent en anglais. |
 | **PC au round 1** | le compteur démarre à 0. |
+
+---
+
+## 32. Quinze fiches relues, et Anti-X sait enfin contre quoi — 21/08/2026
+
+Le joueur a envoyé quinze datasheets en photo. Je les ai comparées ligne à ligne
+au catalogue. **Les caractéristiques étaient justes** — cinquante unités, aucune
+valeur de M, E, Svg, PV, points ou effectif à reprendre. Ce qui manquait était
+ailleurs.
+
+### Anti-X : le trou signalé au chantier 31 se referme
+
+Cinq profils portaient `anti:N` sans que le catalogue dise **contre quoi**. Le
+moteur l'accordait donc toujours. Trois sont maintenant renseignés :
+
+| Arme | Vraie règle |
+|---|---|
+| Trompeur C'tan · Folie cosmique | **ANTI-PERSONNAGE 4+** |
+| Dragon du Vide · lance (tir) | **ANTI-VÉHICULE 2+** |
+| Dragon du Vide · lance (mêlée) | **ANTI-VÉHICULE 2+** |
+
+Le drapeau devient `anti:4:perso` — seuil, puis mot-clé visé. Rien à cocher : la
+cible porte ses mots-clés depuis le chantier 31, donc l'aptitude s'allume ou
+s'éteint toute seule. Éteinte, elle reste affichée **en pointillé** avec sa
+raison, comme le Tir Rapide hors de portée : une arme qui perd son Anti-X doit
+le montrer, pas disparaître en silence.
+
+Le surcoût était réel. Le Trompeur, dont la Folie cosmique a aussi Blessures
+Dévastatrices, était **surévalué de 22 %** contre tout ce qui n'est pas un
+personnage — 6,1 PV annoncés contre 5,0 réels sur cinq Space Marines. La lance
+du Dragon du Vide, elle, ne perd rien : à F8 contre E4 elle blesse déjà sur 2+.
+
+Deux profils restent sans mot-clé — Obélisque « Tesla sphere ×4 » et Voûte
+Tesseract « Time's Arrow ». Faute de leur fiche, ils s'appliquent sans
+condition, et **l'écran le dit** plutôt que de le taire.
+
+### Six écarts de fiche
+
+| | |
+|---|---|
+| Aeonstave du Chronomancien | ni **Déflagration** ni portée : deux caractéristiques perdues |
+| Huit profils de mêlée | portaient la portée de leur jumeau de tir (« Bâton de lumière (càc) · 18" ») |
+| Roi Silencieux | la masse blindée des deux Menhirs n'était pas au catalogue |
+| Sept socles | Hexmark 50, Plasmancien 32, Géomancien 50, Garde Royal 32, Technomancien 50, Nékrosor 80, Trazyn 25 |
+| Deux socles de C'tan | Fossoyeur **90**, Trompeur **40** — tous deux notés 60 |
+| Overlord au Linceul de Translocation | fiche entière absente : 90 pts, lame seule, orbe d'office |
+
+### Quatre règles qui n'atteignaient pas le calcul
+
+Leur texte était au catalogue et se lisait dans la fiche ; simplement, rien ne
+descendait jusqu'au moteur.
+
+- **Folie Meurtrière Infectieuse** (Nékrosor) — Touches Soutenues 1 à toute unité
+  NÉCRONS à 6". La fiche **exclut** MONSTRE et TITANESQUE : les auras ne savaient
+  qu'inclure, elles savent maintenant exclure. Un Monolithe ne reçoit rien.
+- **Phaeron des Astres** (Roi Silencieux) — relance des 1 à la touche *et* à la
+  blessure, MONSTRES exclus.
+- **Phaeron des Lames** (Roi Silencieux) — **+1 en Force en mêlée**. Le profil ne
+  savait pas recevoir un modificateur de Force par condition : il le sait.
+  L'aptitude ne se propose donc qu'au corps à corps.
+- **Maître Chronomancien** (Orikan) — invulnérable 4+ à l'unité menée. Le côté
+  cible d'une unité de la liste ne lisait que l'insensibilité d'un Technomancien ;
+  il lit maintenant aussi l'invulnérable octroyée. Dix Immortels menés par Orikan
+  passent de « pas d'invu » à 4+.
+
+Les trois aptitudes du Triarcat s'excluent — une seule par round de bataille. Le
+libellé de chaque case le dit ; le choix reste au joueur.
+
+**Prophète de la Destruction** (Nékrosor) rejoint les conditions de partie, comme
+toute règle suspendue à un événement du tour.
+
+### Ce qui reste ouvert
+
+L'aura d'Illuminor Szeras a une **seconde moitié, défensive** — chaque attaque
+visant l'unité voit sa Pénétration d'Armure empirée de 1. L'onglet Encaisser ne
+l'applique pas : le texte du raccourci le dit désormais en toutes lettres plutôt
+que de laisser croire l'aura entière.

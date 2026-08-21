@@ -164,6 +164,22 @@ function parseFlags(str){
   });
   return o;
 }
+/* « anti:2:veh » : le seuil de blessure critique, puis le mot-cle vise.
+   Anti-X ne vaut QUE contre ce mot-cle — c'est le sens meme de la regle,
+   et l'appliquer sans condition surestime l'arme partout ailleurs. Une
+   valeur sans mot-cle (« anti:4 ») est une fiche qu'on n'a pas encore pu
+   lire : faute de savoir contre quoi, elle vaut partout, et l'ecran le
+   dit au lieu de le taire. */
+function antiDe(f){
+  if(!f || !f.anti) return null;
+  const p = String(f.anti).split(":"), seuil = +p[0];
+  return seuil ? { seuil: seuil, kw: p[1] || "" } : null;
+}
+const antiActif = (a, kw) => !!a && (!a.kw || !!(kw || {})[a.kw]);
+const nomMotCible = k => ((typeof MOTS_CIBLE !== "undefined" ? MOTS_CIBLE : [])
+                          .find(x => x[0] === k) || [k, k])[1];
+const libelleAnti = a => "Anti-" + (a.kw ? nomMotCible(a.kw) : "X") + " " + a.seuil + "+";
+
 const unitRow  = n => UNITS.find(u => u[0] === n);
 const unitWeps = n => WEAPONS.filter(w => w[0] === n);
 
@@ -187,7 +203,7 @@ function applyWeapon(){
   S.rapidOn = !!f.rf;        S.rapidN = f.rf ? Math.min(60, (+f.rf) * curSize) : 1;
   S.meltaOn = !!f.melta;     S.meltaN = f.melta ? +f.melta : 2;
   S.critH   = 6;
-  S.critW   = f.anti ? +f.anti : 6;
+  S.critW   = antiActif(antiDe(f), S.kwCible) ? antiDe(f).seuil : 6;
   S.rrW     = f.twin ? "failed" : "none";
   /* Ignore le couvert est une propriete de l'arme : elle vaut toujours.
      Le tir indirect, lui, se decide au moment de tirer — une arme qui
@@ -236,14 +252,19 @@ function refreshAttacker(){
   if(f.sust)    kws.push("Sustained Hits " + f.sust);
   if(f.rf)      kws.push("Rapid Fire " + f.rf);
   if(f.melta)   kws.push("Melta " + f.melta);
-  if(f.anti)    kws.push("Anti-X " + f.anti + "+");
+  const anti = antiDe(f);
+  if(anti) kws.push(libelleAnti(anti) +
+                    (antiActif(anti, S.kwCible) ? "" : " — inactif"));
   const notes = [];
   Object.keys(KWLABEL).forEach(k=>{ if(f[k]) notes.push(KWLABEL[k]); });
 
   const warn = [];
   if(u[6].length > 1) warn.push("Calculé pour " + curSize + " figurines portant cette arme.");
   if(f.rf) warn.push("Rapid Fire compté (à mi-portée) — décoche-le dans « Capacités » si tu tires de loin.");
-  if(f.anti) warn.push("Anti-X ne vaut que contre le bon mot-clé.");
+  if(anti && !anti.kw)
+    warn.push("Anti-X : le mot-clé visé n'est pas au catalogue, l'aptitude est donc appliquée sans condition — à corriger sur la fiche.");
+  else if(anti && !antiActif(anti, S.kwCible))
+    warn.push("Anti-" + nomMotCible(anti.kw) + " ne joue pas : la cible ne porte pas ce mot-clé.");
   if(notes.length) warn.push("Sans effet sur les dés : " + notes.join(", ") + ".");
 
   el("profBox").innerHTML =
@@ -330,6 +351,18 @@ function renderCiblesGardees(){
 function poseKwCible(liste){
   S.kwCible = {};
   (liste || []).forEach(k => { S.kwCible[k] = true; });
+  majAnti();
+}
+/* Changer de cible change ce qu'Anti-X vaut. Le seuil se repose donc
+   tout seul — mais uniquement sur une arme qui porte le drapeau : un
+   seuil regle a la main sur une autre arme n'a aucune raison de sauter. */
+function majAnti(){
+  const list = (typeof curUnit === "undefined") ? null : unitWeps(curUnit);
+  if(!list || !list.length) return;
+  const w = list[curWeapon] || list[0];
+  const a = antiDe(parseFlags(w[8]));
+  if(!a) return;
+  S.critW = antiActif(a, S.kwCible) ? a.seuil : 6;
 }
 /* la categorie d'une unite necron : « categorie() » vit dans roster.js,
    hors de portee d'ici, mais la table brute est dans data.js */
@@ -633,6 +666,7 @@ function profilPourMoteur(p){
     else if(c.champ === "hitMod") q.hitMod = borne1(q.hitMod + c.val);
     else if(c.champ === "wndMod") q.wndMod = borne1(q.wndMod + c.val);
     else if(c.champ === "apMod") q.apMod = (q.apMod || 0) + c.val;
+    else if(c.champ === "strMod") q.str = Math.max(1, q.str + c.val);
     else if(c.champ === "dmgMod") q.dmgMod = (q.dmgMod || 0) + c.val;
   });
   return q;
@@ -683,7 +717,13 @@ function pastilles(q, brut){
   const dit = c => (brut.octrois || []).filter(o => o.champ === c || (c === "mot" && o.mot))
                      .map(o => o.nom + " · " + o.source).join(" ; ");
   if(q.critH < 6) out.push({t:"Touche crit. " + q.critH + "+", cl:"m", d:dit("critH")});
-  if(q.critW < 6) out.push({t:"Blessure crit. " + q.critW + "+", cl:"m", d:dit("critW")});
+  if(q.critW < 6) out.push({t:"Blessure crit. " + q.critW + "+", cl:"m",
+                            d:dit("critW") ||
+                              (brut.anti && antiActif(brut.anti, S.kwCible)
+                                 ? libelleAnti(brut.anti) : "")});
+  else if(brut.anti) out.push({t:libelleAnti(brut.anti).toUpperCase(), cl:"d",
+                               d:brut.anti.kw ? "la cible ne porte pas ce mot-clé"
+                                              : "mot-clé visé inconnu au catalogue"});
   if(q.rrH !== "none") out.push({t:"Relance touche " + RR_MOT[q.rrH], cl:"m", d:dit("rrH")});
   if(q.rrW !== "none") out.push({t:"Relance blessure " + RR_MOT[q.rrW], cl:"m", d:dit("rrW")});
   /* le modificateur de touche porte sa cause : un -1 qui arrive sans nom
@@ -698,6 +738,10 @@ function pastilles(q, brut){
   else if(causeH.length) out.push({t:causeH.join(" + ").toUpperCase(), cl:"d",
                                    d:"compensé par un bonus"});
   if(q.wndMod) out.push({t:(q.wndMod > 0 ? "+" : "−") + "1 pour blesser", cl:"m", d:""});
+  /* la Force retouchee par une condition : la ligne montre deja le
+     chiffre final, la pastille dit qu'il a bouge */
+  if(brut.str !== undefined && q.str !== brut.str)
+    out.push({t:"F " + (q.str > brut.str ? "+" : "−") + Math.abs(q.str - brut.str), cl:"m", d:""});
   if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:""});
   if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:""});
   return out;
@@ -1423,7 +1467,7 @@ if("serviceWorker" in navigator){
 chargeCibles();
 if(el("btnSaveCible")) el("btnSaveCible").addEventListener("click", gardeCible);
 
-global.SIM = {S, unitRow, unitWeps, parseFlags, GENERIC_TARGETS,
+global.SIM = {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti, GENERIC_TARGETS,
   applyGenericTarget, applyNecronTarget, drawBars, binned, pct, num, rendSeuils,
   get tgtName(){ return tgtName; }, get tgtUnit(){ return tgtUnit; },
   /* crochets de verification : dans quel mode on est, ce qui est charge,
