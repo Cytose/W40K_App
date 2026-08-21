@@ -1647,13 +1647,19 @@ function renderPad(){
   }
 
   /* les commandes d'affichage n'ont de sens qu'a partir de quelques cases,
-     et disparaissent pendant la reorganisation */
-  const bg = el("btnPadGrp");
-  if(bg){
-    bg.hidden = modeRange || R.units.length < 4;
-    bg.classList.toggle("on", !!padGroupe);
-    bg.textContent = padGroupe === "" ? "Par catégorie"
-                   : padGroupe === "cat" ? "Par rôle" : "À plat";
+     et disparaissent pendant la reorganisation. Quatre onglets plutot
+     qu'un bouton qui tourne : on voit ou l'on est, et on y va d'un geste. */
+  const bv = el("padVues");
+  if(bv){
+    bv.hidden = modeRange || R.units.length < 4;
+    /* la barre disparait sous quatre unites : sans ce repli, une liste
+       qu'on vide resterait bloquee sur la carte sans moyen d'en sortir */
+    if(bv.hidden && padGroupe){ padGroupe = ""; carteSel = null; }
+    bv.querySelectorAll("button").forEach(x=>{
+      const on = x.dataset.v === padGroupe;
+      x.classList.toggle("on", on);
+      x.setAttribute("aria-selected", on ? "true" : "false");
+    });
   }
   const pf = el("padFind");
   if(pf) pf.hidden = modeRange || R.units.length < 6;
@@ -1661,6 +1667,23 @@ function renderPad(){
   if(pq && pq.value !== padQ) pq.value = padQ;
   const pqc = el("btnPadQClear");
   if(pqc) pqc.hidden = !padQ;
+
+  /* la carte remplace la grille : elle repond a une autre question et
+     ne se lit pas a cote d'elle */
+  const gc = el("padCarte");
+  const enCarte = padGroupe === "carte" && !modeRange;
+  if(gc) gc.hidden = !enCarte;
+  /* .padgrid impose display:grid, qui l'emporte sur l'attribut hidden :
+     sans cette ligne la grille de cases restait sous la carte */
+  gu.style.display = enCarte ? "none" : "";
+  if(enCarte){
+    renderCarte();
+    const hc = el("padHint"); if(hc) hc.hidden = true;
+    const fc = el("padFind"); if(fc) fc.hidden = true;
+    gt.innerHTML = "";
+    dessineOutils();
+    return;
+  }
 
   gu.innerHTML = "";
   /* Le filtre porte sur ce qu'on a sous les yeux : le nom de l'unite, celui
@@ -1688,24 +1711,9 @@ function renderPad(){
       '<span class="tx">×' + ru.size + (rang ? '<br>' + rang : '') + '</span></span>' +
       (uniteSuspecte(ru) ? '<span class="tmark"></span>' : '');
     if(modeRange){
-      const mv = document.createElement("span");
-      mv.className = "tmove";
-      const fl = (txt, delta, off) => {
-        const x = document.createElement("button");
-        x.type = "button"; x.textContent = txt; x.disabled = off;
-        x.setAttribute("aria-label", delta < 0 ? "Avancer" : "Reculer");
-        x.addEventListener("click", e=>{
-          e.stopPropagation();
-          const j = iu + delta;
-          if(j < 0 || j >= R.units.length) return;
-          R.units.splice(j, 0, R.units.splice(iu, 1)[0]);
-          saveR(); renderList();
-        });
-        return x;
-      };
-      mv.appendChild(fl("◀", -1, iu === 0));
-      mv.appendChild(fl("▶", 1, iu === R.units.length - 1));
-      b.appendChild(mv);
+      /* deux fleches par case alourdissaient chaque tuile pour une
+         manoeuvre que le glisser-deposer fait d'un geste et en voyant
+         ou l'on pose. */
       armeGlisse(b);
     } else {
       appuiLong(b, ()=> ouvreActionsUnite(ru));
@@ -1804,6 +1812,14 @@ function renderPad(){
   plus.addEventListener("click", openUnitPick);
   gu.appendChild(plus);
 
+  dessineOutils();
+}
+
+/* Les reglages de la liste : ils restent sous toutes les vues du pave,
+   y compris la carte — on n'a pas a revenir a plat pour ouvrir les
+   detachements. */
+function dessineOutils(){
+  const gt = el("padTools"); if(!gt) return;
   const dp = totalDP(), dpMax = capDP();
   const outils = [
     ["cardDetach",   "◈", "Détachements", dp + " / " + dpMax + " PD"],
@@ -2619,6 +2635,235 @@ function stepper(get, set, min, max){
   w.appendChild(mk("−",-1)); w.appendChild(val); w.appendChild(mk("+",1));
   return w;
 }
+/* ==========================================================
+   LA CARTE DES METIERS
+
+   La vue « Rôle » range les unites sous chaque metier : une unite
+   qui en fait deux y apparait deux fois. C'est juste — on cherche
+   « qui couvre ce travail » — mais on ne peut plus lire l'armee
+   comme un tout : la meme escouade revient et on croit a un double.
+
+   La carte repond a l'autre question : chaque unite UNE SEULE
+   FOIS, reliee a ses metiers. Une escouade a deux metiers flotte
+   entre ses deux lignes, et on voit d'un coup d'oeil ce qui tient
+   sur une seule figurine.
+
+   En colonnes plutot qu'en cercle : douze etiquettes disposees
+   autour d'un disque sont illisibles sur un telephone, alors qu'en
+   lignes elles gardent leur nom entier et se lisent de haut en bas.
+
+   La couleur ne sert qu'a l'etat — cyan « ta disposition le
+   reclame », rouge « et personne ne le fait ». Les familles se
+   lisent a leur place, pas a leur teinte : quatre couleurs de plus
+   entreraient en conflit avec l'alerte, qui doit rester seule a
+   crier.
+   ========================================================== */
+let carteSel = null;   /* {t:"u", id} ou {t:"r", cle} */
+
+/* geometrie, en unites de la boite (100 de large) */
+const C_X0 = 3, C_LAB = 35, C_DOT = 38, C_U0 = 49, C_U1 = 96;
+const C_TETE = 5.4, C_LIGNE = 7.6, C_HAUT = 4;
+
+function carteModele(){
+  const lignes = [];      /* {fam} ou {cle, y} */
+  let y = C_HAUT;
+  ROLES_FAMILLES.forEach(fam=>{
+    const lot = ROLES.filter(r => r[2] === fam);
+    if(!lot.length) return;
+    y += C_TETE;
+    lignes.push({fam:fam, y:y - 2});
+    lot.forEach(r=>{
+      lignes.push({cle:r[0], nom:r[1], y:y + C_LIGNE / 2});
+      y += C_LIGNE;
+    });
+  });
+  const parCle = {};
+  lignes.forEach(l => { if(l.cle) parCle[l.cle] = l; });
+
+  /* les unites sans aucun metier ont leur propre ligne, en bas :
+     une liste ou trois escouades n'ont pas de travail doit le dire */
+  const orphelines = R.units.filter(ru => !rolesDe(ru).length);
+  let ligneOrph = null;
+  if(orphelines.length){
+    y += C_TETE;
+    lignes.push({fam:"Sans rôle", y:y - 2});
+    ligneOrph = {cle:"—", nom:"Sans rôle", y:y + C_LIGNE / 2};
+    lignes.push(ligneOrph);
+    parCle["—"] = ligneOrph;
+    y += C_LIGNE;
+  }
+
+  /* Un noeud par unite, pose a la hauteur moyenne de ses metiers.
+     La taille suit les points — en SURFACE, pas en rayon : un disque
+     de rayon double parait quatre fois plus gros, ce qui mentirait
+     d'un facteur deux sur une liste. */
+  const noeuds = R.units.map(ru=>{
+    const cles = rolesDe(ru).length ? rolesDe(ru) : ["—"];
+    const ys = cles.map(k => (parCle[k] || {y:C_HAUT}).y);
+    const pts = pointsUnite(ru);
+    return { ru:ru, id:ru.id, cles:cles, pts:pts,
+             y: ys.reduce((a, v) => a + v, 0) / ys.length,
+             r: Math.max(2.1, Math.min(5.2, Math.sqrt(Math.max(pts, 1)) / 3.4)) };
+  });
+
+  /* Placement en x : on descend la liste par hauteur et on pose
+     chacune au premier creux libre. Deterministe — la carte doit
+     etre la meme a chaque affichage, sinon on ne la reconnait pas. */
+  const poses = [];
+  noeuds.slice().sort((a, b) => a.y - b.y || a.id - b.id).forEach(nd=>{
+    let x = C_U0 + nd.r, tours = 0;
+    const gene = () => poses.some(q =>
+      Math.hypot(q.x - x, q.y - nd.y) < q.r + nd.r + 1.3);
+    while(gene() && x + nd.r < C_U1){ x += 0.8; }
+    /* rien ne rentre sur cette ligne : on descend d'un demi-cran
+       plutot que de superposer deux escouades */
+    while(gene() && tours < 6){ nd.y += 1.6; x = C_U0 + nd.r; tours++;
+      while(gene() && x + nd.r < C_U1) x += 0.8; }
+    nd.x = Math.min(x, C_U1 - nd.r);
+    poses.push(nd);
+  });
+
+  const bas = Math.max(y, noeuds.reduce((m, n) => Math.max(m, n.y + n.r), 0) + 3);
+  return { lignes:lignes, parCle:parCle, noeuds:noeuds, haut:bas + 2 };
+}
+
+/* un hexagone : le meme motif que le reste de l'application */
+function hexa(cx, cy, r){
+  const p = [];
+  for(let i = 0; i < 6; i++){
+    const a = Math.PI / 180 * (60 * i - 90);
+    p.push((cx + r * Math.cos(a)).toFixed(2) + "," + (cy + r * Math.sin(a)).toFixed(2));
+  }
+  return p.join(" ");
+}
+
+function renderCarte(){
+  const host = el("padCarte"); if(!host) return;
+  host.innerHTML = "";
+  if(!R.units.length){
+    host.innerHTML = '<div class="carte-vide">Ta liste est vide.</div>';
+    return;
+  }
+  const M = carteModele(), attendus = rolesAttendus();
+  const occupe = {};
+  M.noeuds.forEach(n => n.cles.forEach(k => (occupe[k] = occupe[k] || []).push(n)));
+
+  /* ce qui est allume : rien de selectionne = tout au meme niveau */
+  const sel = carteSel;
+  const nOn = n => !sel || (sel.t === "u" ? sel.id === n.id : n.cles.indexOf(sel.cle) >= 0);
+  const rOn = k => !sel || (sel.t === "r" ? sel.cle === k
+                                          : (M.noeuds.find(n => n.id === sel.id) || {cles:[]}).cles.indexOf(k) >= 0);
+
+  const ech = v => String(Math.round(v * 100) / 100);
+  let g = '';
+
+  /* les liens d'abord : ils passent sous les noeuds */
+  M.noeuds.forEach(n => n.cles.forEach(k=>{
+    const l = M.parCle[k]; if(!l) return;
+    const on = !sel || (sel.t === "u" ? sel.id === n.id : sel.cle === k);
+    const mx = (C_DOT + n.x) / 2;
+    g += '<path class="clien' + (on && sel ? " on" : "") + (sel && !on ? " cbase" : "") +
+         '" d="M' + ech(C_DOT + 1.6) + ' ' + ech(l.y) + ' C' + ech(mx) + ' ' + ech(l.y) +
+         ' ' + ech(mx) + ' ' + ech(n.y) + ' ' + ech(n.x - n.r) + ' ' + ech(n.y) + '"/>';
+  }));
+
+  /* les lignes : famille, nom du metier, pastille */
+  M.lignes.forEach(l=>{
+    if(l.fam){
+      g += '<text class="cfam" x="' + C_X0 + '" y="' + ech(l.y) + '">' + l.fam + '</text>';
+      g += '<line class="cgrid" x1="' + C_X0 + '" y1="' + ech(l.y + 1.4) +
+           '" x2="' + C_U1 + '" y2="' + ech(l.y + 1.4) + '"/>';
+      return;
+    }
+    const lot = occupe[l.cle] || [];
+    const att = attendus.indexOf(l.cle) >= 0;
+    const manque = att && !lot.length;
+    const on = rOn(l.cle);
+    g += '<rect class="crow" x="' + C_X0 + '" y="' + ech(l.y - C_LIGNE / 2) +
+         '" width="' + (C_U1 - C_X0) + '" height="' + C_LIGNE + '" data-r="' + l.cle + '"/>';
+    g += '<text class="crole' + (manque ? " manque" : (lot.length ? "" : " vide")) +
+         (sel && on ? " on" : "") + (sel && !on ? " cbase" : "") +
+         '" x="' + C_LAB + '" y="' + ech(l.y + 1.2) + '" text-anchor="end">' +
+         l.nom + (manque ? " · personne" : "") + '</text>';
+    g += '<circle class="cdot' + (manque ? " manque" : (att ? " att" : "")) +
+         (sel && on ? " on" : "") + (sel && !on ? " cbase" : "") +
+         '" cx="' + C_DOT + '" cy="' + ech(l.y) + '" r="1.6"/>';
+  });
+
+  /* les unites, une seule fois chacune */
+  M.noeuds.forEach(n=>{
+    const on = nOn(n);
+    g += '<polygon class="cunit' + (sel && on ? " on" : "") + (sel && !on ? " cbase" : "") +
+         '" points="' + hexa(n.x, n.y, n.r) + '"/>';
+    /* la cible du doigt vaut au moins 24 px a l'ecran, quelle que
+       soit la taille du noeud */
+    g += '<circle class="chit" cx="' + ech(n.x) + '" cy="' + ech(n.y) +
+         '" r="' + ech(Math.max(n.r + 1.6, 4)) + '" data-u="' + n.id + '"><title>' +
+         nomRepere(n.ru) + ' — ' + n.pts + ' pts</title></circle>';
+  });
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 100 " + ech(M.haut));
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Carte des métiers : " + M.noeuds.length +
+    " unités reliées à leurs rôles");
+  svg.innerHTML = g;
+  host.appendChild(svg);
+
+  svg.addEventListener("click", e=>{
+    const u = e.target.closest("[data-u]"), r = e.target.closest("[data-r]");
+    if(u) carteSel = {t:"u", id:+u.dataset.u};
+    else if(r) carteSel = {t:"r", cle:r.dataset.r};
+    else carteSel = null;
+    renderCarte();
+  });
+
+  /* La legende, en toutes lettres : une couleur seule n'informe pas. */
+  const leg = document.createElement("div");
+  leg.className = "carte-leg";
+  leg.innerHTML = '<span><span class="pc"></span>métier</span>' +
+    '<span><span class="pc att"></span>réclamé par ta disposition</span>' +
+    '<span><span class="pc manque"></span>réclamé, personne ne le fait</span>' +
+    '<span><b>taille</b> = points de l\'unité</span>';
+  host.appendChild(leg);
+
+  /* Ce qu'on vient de toucher, ecrit — la carte montre la forme, le
+     texte porte les valeurs. Rien d'ici n'est lisible au seul survol :
+     la vue « Rôle » liste les memes unites metier par metier. */
+  const box = document.createElement("div");
+  box.className = "carte-sel";
+  if(!sel){
+    box.innerHTML = '<b>' + M.noeuds.length + ' unités, ' +
+      Object.keys(occupe).filter(k => k !== "—").length + ' métiers couverts</b>' +
+      '<i>Touche une unité pour voir ses métiers, un métier pour voir qui le fait. ' +
+      'La vue « Rôle » donne la même chose en liste.</i>';
+  } else if(sel.t === "u"){
+    const n = M.noeuds.find(x => x.id === sel.id);
+    if(!n){ carteSel = null; return renderCarte(); }
+    const ms = rolesDe(n.ru);
+    box.innerHTML = '<b>' + nomRepere(n.ru) + ' ×' + n.ru.size + '</b>' +
+      '<i>' + n.pts + ' pts · ' +
+      (ms.length ? ms.map(roleNom).join(", ") : "aucun métier") +
+      (rolesFixes(n.ru) ? "" : " <em>(suggestion)</em>") + '</i>';
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = "Régler cette unité";
+    b.addEventListener("click", ()=> ouvrePanneau("cardUnits", n.ru.id));
+    box.appendChild(b);
+  } else {
+    const lot = occupe[sel.cle] || [];
+    const pts = lot.reduce((a, n) => a + n.pts, 0);
+    const att = attendus.indexOf(sel.cle) >= 0;
+    box.innerHTML = '<b>' + (sel.cle === "—" ? "Sans rôle" : roleNom(sel.cle)) +
+      ' — ' + (lot.length ? lot.length + " unité" + (lot.length > 1 ? "s" : "") +
+                            ", " + pts + " pts" : "personne") + '</b>' +
+      '<i>' + (lot.length ? lot.map(n => nomRepere(n.ru)).join(", ") + ". " : "") +
+      (sel.cle === "—" ? "Une unité sans métier est une unité qu'on ne sait pas jouer."
+                       : roleTexte(sel.cle)) +
+      (att ? " <em>Ta disposition marque là-dessus.</em>" : "") + '</i>';
+  }
+  host.appendChild(box);
+}
+
 /* ----------------------------------------------------------------
    LE METIER DE L'UNITE
    Douze roles en quatre familles, trois au plus par unite. Pas de
@@ -5206,9 +5451,10 @@ if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
   if(modeRange) padQ = "";
   renderPad();
 });
-if(el("btnPadGrp")) el("btnPadGrp").addEventListener("click", ()=>{
-  padGroupe = padGroupe === "" ? "cat" : padGroupe === "cat" ? "tac" : "";
-  padRoleOuvert = ""; renderPad();
+if(el("padVues")) el("padVues").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-v]"); if(!b) return;
+  padGroupe = b.dataset.v;
+  padRoleOuvert = ""; carteSel = null; renderPad();
 });
 if(el("padQ")) el("padQ").addEventListener("input", e=>{
   padQ = e.target.value; renderPad();

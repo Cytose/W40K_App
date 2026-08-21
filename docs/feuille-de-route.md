@@ -2109,3 +2109,72 @@ liste et on croit à un défaut.
 Disposition attend. Trente et un contrôles en navigateur, plus cinq sur le
 partage : le rôle choisi voyage dans le lien, la suggestion se recalcule à
 l'arrivée — si le catalogue a changé entre-temps, c'est la nouvelle qui vaut.
+
+## 36. Quatre vues, et une carte où chaque unité n'apparaît qu'une fois — 21/08/2026
+
+Trois retours d'usage sur les rôles, et un défaut trouvé en les traitant.
+
+### Un bouton qui tourne ne dit jamais où l'on est
+
+Le pavé changeait de regroupement par un seul bouton qui cyclait : pour revenir à
+plat depuis la catégorie il fallait cliquer deux fois, et l'étiquette annonçait
+l'action suivante au lieu de l'état courant. Quatre onglets le remplacent —
+**À plat · Catégorie · Rôle · Carte** — un clic par vue, et celui qui est allumé
+dit où l'on se trouve.
+
+### Les flèches de réorganisation disparaissent
+
+Chaque case portait deux flèches ◀ ▶ pendant la réorganisation, alourdissant la
+tuile pour une manœuvre que le glisser-déposer — déjà en place — fait d'un geste
+et en montrant où l'on pose. Elles partent ; `armeGlisse` reste seul.
+
+### La carte des métiers
+
+La vue « Rôle » range les unités sous chaque métier : une unité qui en fait deux
+y apparaît deux fois. C'est juste — on y cherche *qui couvre ce travail* — mais on
+ne peut plus lire l'armée comme un tout : la même escouade revient et on croit à
+un double.
+
+La carte répond à l'autre question : **chaque unité une seule fois**, reliée à ses
+métiers. Une escouade à deux métiers flotte entre ses deux lignes, et on voit d'un
+coup d'œil ce qui ne tient que sur une seule figurine.
+
+**En colonnes plutôt qu'en cercle.** Douze étiquettes disposées autour d'un disque
+sont illisibles sur un téléphone ; en lignes elles gardent leur nom entier et se
+lisent de haut en bas, groupées par famille.
+
+**La couleur ne sert qu'à l'état.** Cyan « ta disposition le réclame », rouge
+« et personne ne le fait ». Quatre teintes de famille en plus seraient entrées en
+conflit avec l'alerte, qui doit rester seule à crier — les familles se lisent à
+leur place, pas à leur couleur.
+
+**La taille du nœud suit les points, en surface et non en rayon** : un hexagone de
+rayon double paraît quatre fois plus gros, ce qui mentirait d'un facteur deux sur
+une liste.
+
+Toucher une unité allume ses métiers ; toucher un métier allume ses unités. Ce qui
+est sélectionné s'écrit **en toutes lettres** sous la carte — une valeur ne doit
+jamais n'être lisible qu'au survol, et la vue « Rôle » donne la même chose en
+liste. La cible du doigt fait au moins 24 px quel que soit le nœud.
+
+Une ligne « Sans rôle » apparaît en bas dès qu'une unité n'a aucun métier : une
+liste où trois escouades n'ont pas de travail doit le dire.
+
+### Le défaut trouvé en chemin : une suite qui validait le passé
+
+`build.js` annonce dans son propre en-tête que le fichier autonome est « recopié
+sur `Necron_Aide_Jeu.html` à la racine ». **Il ne le faisait pas** — il n'écrivait
+que `dist/Necron_Aide_Jeu.html`. Le fichier suivi par le dépôt était donc figé à
+sa dernière écriture manuelle, celle du chantier 24.
+
+Or c'est ce fichier-là que la vérification hors-ligne ouvre. Pendant treize
+chantiers, `verif_horsligne` a rendu 28/28 sur une application vieille de deux
+semaines : elle ne testait plus rien de ce qui était écrit. Une ligne suffisait à
+la remettre en face du code.
+
+### Vérification
+
+`test_carte`, vingt-cinq contrôles : les quatre onglets, l'absence de flèches et
+les cases toujours attrapables, cinq unités pour cinq hexagones et pas un de plus,
+les douze métiers présents même vides, le métier réclamé que personne ne fait, la
+sélection dans les deux sens, et la cible du doigt mesurée à l'écran.
