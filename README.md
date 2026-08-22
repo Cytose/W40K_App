@@ -34,6 +34,36 @@ autonome produit est `dist/W40K_App.html`, à recopier à la racine.
 Le **lien de partage** n'est proposé que sur une version servie en HTTP ;
 depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 
+## Travailler à plusieurs
+
+Le dépôt porte quatre branches, et une règle simple : **une branche appartient
+à une personne, et personne d'autre ne la réécrit.**
+
+| Branche | À qui | Qui la réécrit |
+|---|---|---|
+| `main` | tout le monde | personne directement — on y arrive par fusion d'une PR |
+| `dev/kevin` | Kevin | Kevin seul |
+| `dev/Guillaume` | Guillaume | Guillaume seul |
+| `claude/...` | l'assistant | l'assistant seul |
+
+Cette règle est née d'une panne. Après chaque fusion, les branches `dev/*`
+étaient réalignées sur `main` par un `push --force`. Vu du dépôt, c'était
+propre : tout le monde repartait de la dernière version. Vu de celui qui
+travaillait dessus, sa branche changeait sous ses pieds, et son `push` suivant
+était refusé — *non-fast-forward*. Le symptôme ressemble à un problème de
+droits ; ce n'en est pas un.
+
+**Pour récupérer les derniers changements, c'est à toi de tirer, quand tu
+veux :**
+
+```
+git fetch origin
+git merge origin/main        # ou : git rebase origin/main
+```
+
+Personne ne pousse dans la branche d'un autre. Une branche qu'on ne contrôle
+pas est une branche sur laquelle on ne peut pas travailler.
+
 ## Contenu
 
 | Fichier | Rôle |
