@@ -2494,3 +2494,94 @@ emplacements, celle de l'Overlord vide de toute arme de mêlée en phase de tir,
 deux armements du Monolithe qui se distinguent à la lecture tout en montrant leur
 arme commune, et le Roi Silencieux dont les trois armes sont nommées — parce que
 lui tire vraiment tout.
+
+## 41. Le catalogue confronté au catalogue officiel — 22/08/2026
+
+Les cinquante et une fiches de `data.js` ont été saisies à la main depuis les
+fiches d'unité. Une saisie manuelle dérape sans prévenir : Szarekh a porté
+trente-six attaques de corps à corps au lieu de douze pendant des semaines, parce
+qu'un facteur trois s'était glissé partout. C'est un joueur qui l'a vu, pas un
+test — et un joueur ne relit pas cinquante et une fiches.
+
+Le dépôt **BSData/wh40k-11e** transcrit les mêmes fiches en JSON. Deux
+transcriptions indépendantes de la même source : là où elles divergent, l'une des
+deux a tort, et il n'y a plus qu'à trancher.
+
+### Ce que la confrontation a demandé
+
+Les deux catalogues ne parlent pas la même langue. La PA est positive ici et
+négative là. Les profils alternatifs d'une arme sont préfixés au catalogue
+(`➤ Rayon thermique - focalisé`) et suffixés dans l'application
+(`Rayon thermique — focalisé`). Les bornes d'effectif sont portées tantôt par le
+groupe de figurines, tantôt par la figurine elle-même, et les groupes s'emboîtent.
+Les armes communes sont partagées et référencées par identifiant : sans résoudre
+les liens, la moitié de l'armement manque à l'appel.
+
+Le plus délicat tient au **nombre de porteurs**. Le Monolithe a quatre arcs de
+flux à trois attaques ; l'application écrit « Arc de flux gauss ×4 » avec douze
+attaques, le catalogue écrit trois attaques et quatre exemplaires. Les deux disent
+la même chose. Le contrôle compare donc des **totaux**, porteurs compris — c'est
+précisément ce contrôle-là qui aurait attrapé Szarekh sans attendre qu'un joueur
+compte ses dés.
+
+Les premières passes ont surtout mesuré mes propres défauts de lecture : toutes
+les unités paraissaient tenir en une figurine, la lance abyssale du Psychomancien
+se comparait à elle-même dans la mauvaise phase, et les deux Tomb Crawlers
+n'en faisaient qu'un parce qu'ils portent le même nom. Un instrument mal réglé
+crie plus fort qu'un vrai écart.
+
+### Ce qui en est sorti
+
+Sur cinquante et une unités : **aucun écart de points, aucun écart d'effectif,
+aucun écart de coût par copie**, et quarante-neuf caractéristiques de
+Commandement sur cinquante. Les multiplicateurs d'armes — Monolithe ×4,
+Obélisque ×4, Arche Fantôme ×2, Réanimateur ×2 — sont tous justes. Le catalogue
+tenait mieux que je ne le craignais.
+
+Quatre corrections :
+
+- **Réanimateur Canoptek**, Commandement 7+ → **8+**. Une note affirmait que le
+  7+ avait été relevé sur la fiche ; l'application tombant juste sur les
+  quarante-neuf autres, l'outlier était de ce côté-ci.
+- **Szarekh**, fracas blindé du menhir : **2 attaques → 1**. Un reliquat de la
+  multiplication par trois que la correction précédente n'avait pas atteint —
+  elle avait rectifié le faisceau, pas l'armure.
+- **Chronomancien**, `Aeonstave` → **`Chronomancer's stave`**. Le mot
+  « Aeonstave » n'existe nulle part dans le catalogue 11e : c'est un nom de 10e
+  édition. Les deux profils portent désormais le même nom et se regroupent, comme
+  une seule arme à deux profils.
+- **Tomb Crawlers**, `Transdimensional isolator` → **`Dimensional isolator`**.
+
+Une divergence reste, et elle est voulue : l'invulnérable 4+ des Lychguards ne
+vaut qu'avec le bouclier de dispersion. Le catalogue ne sait pas conditionner une
+sauvegarde, l'application si. Elle est inscrite comme écart assumé — visible dans
+le rapport, sans faire échouer le contrôle. Un écart qu'on ne voit plus est un
+écart qu'on ne revoit jamais.
+
+Un point a failli être « corrigé » à tort : le catalogue donne un faucheur gauss
+jumelé fixe au premier Tomb Crawler et un choix au second, là où l'application
+modélise un seul emplacement. Vérification faite, `omax` plafonne l'isolateur à un
+exemplaire et la validation exige que l'emplacement soit rempli — l'application
+garantit déjà le faucheur minimum. Rien à changer.
+
+### Rejouable
+
+`npm run catalogue` relance la confrontation ; l'outil vit dans
+`outils/catalogue.js` et sort en erreur au premier écart. Il attend un clone du
+catalogue officiel à côté du dépôt :
+
+```
+git clone --depth 1 https://github.com/BSData/wh40k-11e.git ../wh40k-11e
+npm run catalogue
+```
+
+Il ne corrige rien : il dit où les deux catalogues divergent, à charge du lecteur
+de trancher. À la prochaine mise à jour officielle, la relecture des cinquante et
+une fiches tient en une commande.
+
+### Reste à décider
+
+Seize unités du catalogue officiel manquent à l'application : treize `[Legends]`,
+trois `[Crucible]`, et le Seraptek Heavy Construct. Aucune n'est jouable en partie
+classée. Le champ `legends` de `UNITS` existe et n'est utilisé nulle part : la
+place est prête si tu les veux.
