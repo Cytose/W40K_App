@@ -176,6 +176,24 @@ def main():
     if os.path.exists(f):
         carnet = json.load(open(f, encoding='utf-8'))
 
+    # les noms de mission : chaque joueur a la sienne selon sa Disposition
+    # des Forces, et la table les porte separement. On les confronte dans
+    # les deux sens avant de passer a la geometrie.
+    mm = mk = 0
+    for fiche in carnet.values():
+        if not isinstance(fiche, dict): continue
+        for cle, att in ((fiche['p1'] + '|' + fiche['p2'], fiche.get('mission1')),
+                         (fiche['p2'] + '|' + fiche['p1'], fiche.get('mission2'))):
+            if att is None: continue
+            if L['missions'].get(cle) == att: mm += 1
+            else:
+                mk += 1
+                print('  ÉCART mission  %-34s officiel « %s », chez nous « %s »'
+                      % (cle, att, L['missions'].get(cle)))
+    if mm or mk:
+        print('\n%d noms de mission confrontés, %d écart%s.'
+              % (mm + mk, mk, 's' if mk > 1 else ''))
+
     print('\n%-6s %-46s %-21s %6s %7s %7s' %
           ('page', 'carte', 'patron', 'note', 'couvre', 'écart'))
     print('─' * 96)

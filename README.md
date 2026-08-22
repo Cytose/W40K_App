@@ -618,10 +618,21 @@ exprimés en pouces sur le plateau 44 × 60, et les confronte à nos polygones.
 Les images ne sont pas versionnées : ce sont les pages d'un document de Games
 Workshop, à fournir soi-même.
 
-Sur les six pages vérifiées à ce jour, notre zone couvre **98,8 % à 99,8 %**
-de l'aplat officiel, rien ne tombe dans la mauvaise zone, et la lettre
-d'agencement imprimée sur la page ressort à chaque fois comme la meilleure
-des trois — les deux autres tombant entre 0,18 et 0,91.
+**Résultat sur les 45 cartes : 45 conformes, aucun écart.** Notre zone couvre
+de 98,0 % à 99,8 % de l'aplat officiel, rien ne tombe dans la mauvaise zone,
+et à chaque fois la lettre d'agencement imprimée sur la page ressort comme la
+meilleure des trois. L'écart résiduel — de 2,00″ à 3,75″ — est l'épaisseur
+d'un décor posé sur la zone.
+
+Les **90 noms de mission** sont confrontés au passage, eux aussi sans écart.
+Chaque joueur a la sienne selon sa Disposition des Forces, et la table les
+porte séparément : *Locate and Deny* pour le joueur Perturbation face à Atouts
+Prioritaires, *Extract Relic* pour son adversaire.
+
+`outils/cartes.json` porte ce que dit le bandeau de chaque page — les deux
+Dispositions, les deux missions, la lettre. Les 45 pages ont été lues une par
+une. L'ordre est régulier (trois agencements par appariement, les appariements
+dans l'ordre des Dispositions) mais il a été vérifié, pas supposé.
 
 Trois précautions, chacune apprise d'une mesure fausse :
 
@@ -634,17 +645,15 @@ Trois précautions, chacune apprise d'une mesure fausse :
 - Les décors sont dessinés **par-dessus** les aplats. Comparer les aires donne
   71 % là où la géométrie est juste au dixième de pouce. On ne compare donc
   que là où le document se prononce : un décor masque la couleur, jamais
-  l'inverse. L'écart résiduel — au plus 3,5″ — est exactement l'épaisseur d'un
-  décor posé sur la zone.
+  l'inverse.
 - Qui est rouge et qui est bleu dépend de l'attaquant et du défenseur, et rien
   ne dit laquelle de nos deux zones tient ce rôle. On essaie les deux
   appariements : compter l'échange comme une erreur faisait passer
   *Disruption vs Disruption* pour fausse à 0,000 alors qu'elle est à 0,994.
 
-Vérifié au passage : les noms de mission concordent dans les deux sens.
-Chaque joueur a la sienne selon sa Disposition des Forces, et la table les
-porte séparément — *Locate and Deny* pour le joueur Perturbation face à Atouts
-Prioritaires, *Extract Relic* pour son adversaire.
+Ce qui reste hors de portée : les **positions de décor**. `npm run gabarits`
+en confirme le nombre et les gabarits sur une source indépendante, pas les
+coordonnées ; celles-ci viennent toujours de 40kdc-data.
 
 ## Unités Legends
 

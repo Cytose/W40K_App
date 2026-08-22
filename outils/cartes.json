@@ -1,9 +1,318 @@
 {
-  "_": "Ce que porte le bandeau de chaque page du Compagnon de Rencontre : les deux Dispositions des Forces et la lettre d'agencement. Lu sur les pages elles-mêmes, une par une. Sert à confronter chaque page à SA carte plutôt qu'à la meilleure des 45 — plusieurs appariements partagent un patron de déploiement, donc les zones seules ne suffisent pas à identifier une carte.",
-  "19": { "p1": "PURGE THE FOE",   "p2": "DISRUPTION",      "agencement": "a" },
-  "24": { "p1": "PURGE THE FOE",   "p2": "RECONNAISSANCE",  "agencement": "c" },
-  "30": { "p1": "DISRUPTION",      "p2": "DISRUPTION",      "agencement": "c" },
-  "35": { "p1": "DISRUPTION",      "p2": "PRIORITY ASSETS", "agencement": "b" },
-  "40": { "p1": "RECONNAISSANCE",  "p2": "PRIORITY ASSETS", "agencement": "a" },
-  "45": { "p1": "PRIORITY ASSETS", "p2": "PRIORITY ASSETS", "agencement": "c" }
+ "_": "Ce que porte le bandeau de chaque page du Compagnon de Rencontre Warhammer v1.1 : les deux Dispositions des Forces, la mission de chaque joueur, et la lettre d'agencement. Les 45 pages ont ete lues une par une. L'ordre est regulier — trois agencements A, B, C par appariement, les appariements se suivant dans l'ordre des Dispositions — mais il a ete verifie, pas suppose. Ce carnet sert a confronter chaque page a SA carte plutot qu'a la meilleure des 45 : plusieurs appariements partagent un patron de deploiement, donc les zones seules ne suffisent pas a identifier une carte.",
+ "01": {
+  "p1": "TAKE AND HOLD",
+  "p2": "TAKE AND HOLD",
+  "agencement": "a",
+  "mission1": "Battlefield Dominance",
+  "mission2": "Battlefield Dominance"
+ },
+ "02": {
+  "p1": "TAKE AND HOLD",
+  "p2": "TAKE AND HOLD",
+  "agencement": "b",
+  "mission1": "Battlefield Dominance",
+  "mission2": "Battlefield Dominance"
+ },
+ "03": {
+  "p1": "TAKE AND HOLD",
+  "p2": "TAKE AND HOLD",
+  "agencement": "c",
+  "mission1": "Battlefield Dominance",
+  "mission2": "Battlefield Dominance"
+ },
+ "04": {
+  "p1": "TAKE AND HOLD",
+  "p2": "PURGE THE FOE",
+  "agencement": "a",
+  "mission1": "Immovable Object",
+  "mission2": "Unstoppable Force"
+ },
+ "05": {
+  "p1": "TAKE AND HOLD",
+  "p2": "PURGE THE FOE",
+  "agencement": "b",
+  "mission1": "Immovable Object",
+  "mission2": "Unstoppable Force"
+ },
+ "06": {
+  "p1": "TAKE AND HOLD",
+  "p2": "PURGE THE FOE",
+  "agencement": "c",
+  "mission1": "Immovable Object",
+  "mission2": "Unstoppable Force"
+ },
+ "07": {
+  "p1": "TAKE AND HOLD",
+  "p2": "DISRUPTION",
+  "agencement": "a",
+  "mission1": "Determined Acquisition",
+  "mission2": "Death Trap"
+ },
+ "08": {
+  "p1": "TAKE AND HOLD",
+  "p2": "DISRUPTION",
+  "agencement": "b",
+  "mission1": "Determined Acquisition",
+  "mission2": "Death Trap"
+ },
+ "09": {
+  "p1": "TAKE AND HOLD",
+  "p2": "DISRUPTION",
+  "agencement": "c",
+  "mission1": "Determined Acquisition",
+  "mission2": "Death Trap"
+ },
+ "10": {
+  "p1": "TAKE AND HOLD",
+  "p2": "RECONNAISSANCE",
+  "agencement": "a",
+  "mission1": "Purge and Secure",
+  "mission2": "Reconnaissance Sweep"
+ },
+ "11": {
+  "p1": "TAKE AND HOLD",
+  "p2": "RECONNAISSANCE",
+  "agencement": "b",
+  "mission1": "Purge and Secure",
+  "mission2": "Reconnaissance Sweep"
+ },
+ "12": {
+  "p1": "TAKE AND HOLD",
+  "p2": "RECONNAISSANCE",
+  "agencement": "c",
+  "mission1": "Purge and Secure",
+  "mission2": "Reconnaissance Sweep"
+ },
+ "13": {
+  "p1": "TAKE AND HOLD",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "a",
+  "mission1": "Inescapable Dominion",
+  "mission2": "Secure Asset"
+ },
+ "14": {
+  "p1": "TAKE AND HOLD",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "b",
+  "mission1": "Inescapable Dominion",
+  "mission2": "Secure Asset"
+ },
+ "15": {
+  "p1": "TAKE AND HOLD",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "c",
+  "mission1": "Inescapable Dominion",
+  "mission2": "Secure Asset"
+ },
+ "16": {
+  "p1": "PURGE THE FOE",
+  "p2": "PURGE THE FOE",
+  "agencement": "a",
+  "mission1": "Meatgrinder",
+  "mission2": "Meatgrinder"
+ },
+ "17": {
+  "p1": "PURGE THE FOE",
+  "p2": "PURGE THE FOE",
+  "agencement": "b",
+  "mission1": "Meatgrinder",
+  "mission2": "Meatgrinder"
+ },
+ "18": {
+  "p1": "PURGE THE FOE",
+  "p2": "PURGE THE FOE",
+  "agencement": "c",
+  "mission1": "Meatgrinder",
+  "mission2": "Meatgrinder"
+ },
+ "19": {
+  "p1": "PURGE THE FOE",
+  "p2": "DISRUPTION",
+  "agencement": "a",
+  "mission1": "Punishment",
+  "mission2": "Delaying Action"
+ },
+ "20": {
+  "p1": "PURGE THE FOE",
+  "p2": "DISRUPTION",
+  "agencement": "b",
+  "mission1": "Punishment",
+  "mission2": "Delaying Action"
+ },
+ "21": {
+  "p1": "PURGE THE FOE",
+  "p2": "DISRUPTION",
+  "agencement": "c",
+  "mission1": "Punishment",
+  "mission2": "Delaying Action"
+ },
+ "22": {
+  "p1": "PURGE THE FOE",
+  "p2": "RECONNAISSANCE",
+  "agencement": "a",
+  "mission1": "Consecrate",
+  "mission2": "Triangulation"
+ },
+ "23": {
+  "p1": "PURGE THE FOE",
+  "p2": "RECONNAISSANCE",
+  "agencement": "b",
+  "mission1": "Consecrate",
+  "mission2": "Triangulation"
+ },
+ "24": {
+  "p1": "PURGE THE FOE",
+  "p2": "RECONNAISSANCE",
+  "agencement": "c",
+  "mission1": "Consecrate",
+  "mission2": "Triangulation"
+ },
+ "25": {
+  "p1": "PURGE THE FOE",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "a",
+  "mission1": "Destroyer's Wrath",
+  "mission2": "Vital Link"
+ },
+ "26": {
+  "p1": "PURGE THE FOE",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "b",
+  "mission1": "Destroyer's Wrath",
+  "mission2": "Vital Link"
+ },
+ "27": {
+  "p1": "PURGE THE FOE",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "c",
+  "mission1": "Destroyer's Wrath",
+  "mission2": "Vital Link"
+ },
+ "28": {
+  "p1": "DISRUPTION",
+  "p2": "DISRUPTION",
+  "agencement": "a",
+  "mission1": "Outmanoeuvre",
+  "mission2": "Outmanoeuvre"
+ },
+ "29": {
+  "p1": "DISRUPTION",
+  "p2": "DISRUPTION",
+  "agencement": "b",
+  "mission1": "Outmanoeuvre",
+  "mission2": "Outmanoeuvre"
+ },
+ "30": {
+  "p1": "DISRUPTION",
+  "p2": "DISRUPTION",
+  "agencement": "c",
+  "mission1": "Outmanoeuvre",
+  "mission2": "Outmanoeuvre"
+ },
+ "31": {
+  "p1": "DISRUPTION",
+  "p2": "RECONNAISSANCE",
+  "agencement": "a",
+  "mission1": "Smoke and Mirrors",
+  "mission2": "Surveil the Foe"
+ },
+ "32": {
+  "p1": "DISRUPTION",
+  "p2": "RECONNAISSANCE",
+  "agencement": "b",
+  "mission1": "Smoke and Mirrors",
+  "mission2": "Surveil the Foe"
+ },
+ "33": {
+  "p1": "DISRUPTION",
+  "p2": "RECONNAISSANCE",
+  "agencement": "c",
+  "mission1": "Smoke and Mirrors",
+  "mission2": "Surveil the Foe"
+ },
+ "34": {
+  "p1": "DISRUPTION",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "a",
+  "mission1": "Locate and Deny",
+  "mission2": "Extract Relic"
+ },
+ "35": {
+  "p1": "DISRUPTION",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "b",
+  "mission1": "Locate and Deny",
+  "mission2": "Extract Relic"
+ },
+ "36": {
+  "p1": "DISRUPTION",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "c",
+  "mission1": "Locate and Deny",
+  "mission2": "Extract Relic"
+ },
+ "37": {
+  "p1": "RECONNAISSANCE",
+  "p2": "RECONNAISSANCE",
+  "agencement": "a",
+  "mission1": "Gather Intel",
+  "mission2": "Gather Intel"
+ },
+ "38": {
+  "p1": "RECONNAISSANCE",
+  "p2": "RECONNAISSANCE",
+  "agencement": "b",
+  "mission1": "Gather Intel",
+  "mission2": "Gather Intel"
+ },
+ "39": {
+  "p1": "RECONNAISSANCE",
+  "p2": "RECONNAISSANCE",
+  "agencement": "c",
+  "mission1": "Gather Intel",
+  "mission2": "Gather Intel"
+ },
+ "40": {
+  "p1": "RECONNAISSANCE",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "a",
+  "mission1": "Search and Scour",
+  "mission2": "Vanguard Operation"
+ },
+ "41": {
+  "p1": "RECONNAISSANCE",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "b",
+  "mission1": "Search and Scour",
+  "mission2": "Vanguard Operation"
+ },
+ "42": {
+  "p1": "RECONNAISSANCE",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "c",
+  "mission1": "Search and Scour",
+  "mission2": "Vanguard Operation"
+ },
+ "43": {
+  "p1": "PRIORITY ASSETS",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "a",
+  "mission1": "Sabotage",
+  "mission2": "Sabotage"
+ },
+ "44": {
+  "p1": "PRIORITY ASSETS",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "b",
+  "mission1": "Sabotage",
+  "mission2": "Sabotage"
+ },
+ "45": {
+  "p1": "PRIORITY ASSETS",
+  "p2": "PRIORITY ASSETS",
+  "agencement": "c",
+  "mission1": "Sabotage",
+  "mission2": "Sabotage"
+ }
 }
