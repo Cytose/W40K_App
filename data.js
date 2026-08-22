@@ -708,30 +708,94 @@ const ENH_ANCIENS = {
 };
 
 /* ============================================================
-   EMPREINTE DE SOCLE, en millimetres
-   Trois valeurs seulement sont certaines — Immortals 32,
-   Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 —
-   relevees sur les fiches WarOrgan. Le reste suit les socles
-   Games Workshop habituels et reste A VERIFIER. Une chaine vide
-   signifie « inconnu » et s'affiche « — » dans l'application.
+   SOCLES — Base Size Guide, Warhammer Event Companion v1.1
+   (Games Workshop, mis a jour juin 2026), section NECRONS.
+
+   Remplace les valeurs deduites : les 46 fiches nécrones du guide
+   sont reprises telles qu'il les ecrit, en millimetres.
+
+     "32"          socle rond de 32 mm
+     "120x92"      socle ovale, grand axe x petit axe
+     "coque"       le guide dit Hull : pas de socle, c'est la coque
+                   du modele qui fait l'emprise
+   Deux entrees du guide ne portent pas de dimension mais un nom de
+   produit Citadel : Large Flying Base et Small Flying Base. Le guide
+   ne les chiffre pas. Les valeurs retenues ici sont une DEDUCTION,
+   signalee comme telle : ce sont les deux socles ovales que le meme
+   guide chiffre par ailleurs pour les modeles voles, 120x92 pour le
+   grand et 60x35.5 pour le petit. A confirmer sur la grappe.
    ============================================================ */
-const BASES = {
-"Necron Warriors":"32","Immortals":"32","Lychguard":"32","Deathmarks":"32","Flayed Ones":"28.5",
-"Triarch Praetorians":"32","Cryptothralls":"32","Skorpekh Destroyers":"50",
-"Ophydian Destroyers":"50","Lokhust Destroyers":"60","Lokhust Heavy Destroyers":"60",
-"Tomb Blades":"32","Canoptek Scarab Swarms":"40","Canoptek Wraiths":"50",
-"Canoptek Spyders":"60","Canoptek Reanimator":"60","Canoptek Doomstalker":"90",
-"Canoptek Macrocytes":"28.5","Canoptek Tomb Crawlers":"50","Triarch Stalker":"",
-"Doomsday Ark":"60","Ghost Ark":"60","Annihilation Barge":"",
-"Monolith":"160","Obelisk":"120×92","Tesseract Vault":"120×92","Doom Scythe":"120×92","Night Scythe":"120×92",
-"Overlord":"40","Overlord with Translocation Shroud":"40","Royal Warden":"32","Lokhust Lord":"60","Skorpekh Lord":"60",
-"Hexmark Destroyer":"50","Technomancer":"50","Plasmancer":"32","Chronomancer":"40",
-"Psychomancer":"40","Geomancer":"50","Catacomb Command Barge":"60",
-"C'tan Shard of the Nightbringer":"90","C'tan Shard of the Deceiver":"40",
-"C'tan Shard of the Void Dragon":"80","Transcendent C'tan":"60",
-"Imotekh the Stormlord":"40","Trazyn the Infinite":"25","Orikan the Diviner":"40",
-"Illuminor Szeras":"80","Nekrosor Ammentar":"80","Szarekh, The Silent King":"100"
+const SOCLES = {
+  "Annihilation Barge"                        : "120x92"   ,   /* deduction : grand socle volant */
+  "Canoptek Doomstalker"                      : "90"       ,
+  "Canoptek Macrocytes"                       : "28.5"     ,
+  "Canoptek Reanimator"                       : "60"       ,
+  "Canoptek Scarab Swarms"                    : "40"       ,
+  "Canoptek Spyders"                          : "60"       ,
+  "Canoptek Tomb Crawlers"                    : "50"       ,
+  "Canoptek Wraiths"                          : "50"       ,
+  "Catacomb Command Barge"                    : "120x92"   ,   /* deduction : grand socle volant */
+  "Chronomancer"                              : "40"       ,
+  "Convergence of Dominion"                   : "coque"    ,
+  "Cryptothralls"                             : "32"       ,
+  "C'tan Shard of the Deceiver"               : "40"       ,
+  "C'tan Shard of the Nightbringer"           : "90"       ,
+  "C'tan Shard of the Void Dragon"            : "80"       ,
+  "Deathmarks"                                : "32"       ,
+  "Doom Scythe"                               : "120x92"   ,
+  "Doomsday Ark"                              : "120x92"   ,   /* deduction : grand socle volant */
+  "Flayed Ones"                               : "28.5"     ,
+  "Geomancer"                                 : "50"       ,
+  "Ghost Ark"                                 : "120x92"   ,   /* deduction : grand socle volant */
+  "Hexmark Destroyer"                         : "50"       ,
+  "Illuminor Szeras"                          : "80"       ,
+  "Immortals"                                 : "32"       ,
+  "Imotekh the Stormlord"                     : "40"       ,
+  "Lokhust Destroyers"                        : "120x92"   ,   /* deduction : grand socle volant */
+  "Lokhust Heavy Destroyers"                  : "60"       ,
+  "Lokhust Lord"                              : "120x92"   ,   /* deduction : grand socle volant */
+  "Lychguard"                                 : "32"       ,
+  "Monolith"                                  : "160"      ,
+  "Necron Warriors"                           : "32"       ,
+  "Nekrosor Ammentar"                         : "80"       ,
+  "Night Scythe"                              : "120x92"   ,
+  "Obelisk"                                   : "120x92"   ,
+  "Ophydian Destroyers"                       : "50"       ,
+  "Orikan the Diviner"                        : "40"       ,
+  "Overlord"                                  : "40"       ,
+  "Overlord with Translocation Shroud"        : "40"       ,
+  "Plasmancer"                                : "32"       ,
+  "Psychomancer"                              : "40"       ,
+  "Royal Warden"                              : "32"       ,
+  "Seraptek Heavy Construct"                  : "coque"    ,
+  "Skorpekh Destroyers"                       : "50"       ,
+  "Skorpekh Lord"                             : "60"       ,
+  "Technomancer"                              : "50"       ,
+  "Tesseract Vault"                           : "120x92"   ,
+  "Szarekh, The Silent King"                  : "100"      ,
+  "The Silent King: Triarchal Menhir"         : "50"       ,
+  "Tomb Blades"                               : "60x35.5"  , /* deduction : petit socle volant */
+  "Transcendent C'tan"                        : "60"       ,
+  "Trazyn the Infinite"                       : "25"       ,
+  "Triarch Praetorians"                       : "32"       ,
+  "Triarch Stalker"                           : "coque"    ,
 };
+
+/* BASES : ce que la fiche d'unité affiche, tiré de SOCLES. Un seul fait,
+   une seule source — « 32 » pour un rond, « 120×92 » pour un ovale, vide
+   pour une coque, qui n'a pas de socle à annoncer. */
+const BASES = (function(){
+  const out = {};
+  for(const nom in SOCLES){
+    const v = SOCLES[nom];
+    out[nom] = (v === "coque") ? "" : v.replace("x", "\u00d7");
+  }
+  /* le guide écrit le Roi Silencieux en deux modèles ; la fiche, elle,
+     porte un seul nom */
+  out["Szarekh, The Silent King"] = out["The Silent King: Szarekh"] || "100";
+  return out;
+})();
+
 
 /* ============================================================
    NOMS DE GROUPES
