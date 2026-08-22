@@ -3345,7 +3345,7 @@ function renderRoster(){
       row.className = "lo";
       const ok = porteursPossibles(ru, e);
       const p = porteurRetenu(ru);
-      row.innerHTML = '<span class="ln" style="color:var(--cyan,#5CE8E8)">' + ru.enh +
+      row.innerHTML = '<span class="ln" style="color:var(--cyan)">' + ru.enh +
         ' <em>' + (e && typeof e[1] === "number" ? e[1] + ' pts' : 'coût inconnu') +
         (e ? ' · ' + nomDetach(e[2]) : '') +
         (p === null

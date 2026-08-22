@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0B0F0C">
+<meta name="theme-color" content="#F2F5F7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="W40K App">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,25 +17,60 @@
 <link rel="icon" href="icon.svg">
 <style>
 :root{
-  color-scheme: dark;
-  --s0:#0B0F0C; --s1:#141A16; --s2:#1D2621; --s3:#27332C;
-  --line:#33453A; --line-hi:#48604F;
-  --tx:#EAF2EC; --tx2:#A9BCAF; --tx3:#74897C;
-  --green:#5FA82F;        /* série 1 — validée en bande sombre */
-  --cyan:#2E9FB4;         /* série 2 — validée en bande sombre */
-  --glow:#9BE85C;         /* accent lumineux, hors graphiques */
-  --glow-soft:rgba(155,232,92,.13);
-  --warn:#E0A030;
-  --alert:#D4553F;        /* le manque qui coute une partie, pas une finition */
+  color-scheme: light;
+  /* ------------------------------------------------------------------
+     PALETTE — thème clair
+
+     Les noms sont historiques : six cents règles les désignent, et un jeton
+     est une adresse autant qu'une étiquette. Les valeurs, elles, ont changé
+     deux fois. Le noir/vert/blanc saturé fatiguait à la lecture longue,
+     parce que le texte lui-même était teinté de vert ; puis le fond sombre
+     a cédé la place à un fond clair.
+
+     Tout ce qui porte une couleur vit ici, variantes translucides comprises.
+     Reposer l'application sur un autre thème — y compris le sombre, si tu le
+     veux de retour — ne demande que de réécrire ce bloc.
+
+     Chaque valeur est mesurée, pas choisie à l'oeil : tout texte tient au
+     moins 4,5 : 1 sur le fond le plus clair où il apparaît, et les deux
+     séries de graphique sont séparées de 2,2 : 1 en clarté — pas seulement
+     par la teinte, qui ne suffit ni au soleil ni pour un oeil qui la confond.
+     ------------------------------------------------------------------ */
+  --s0:#F2F5F7;           /* la page */
+  --s1:#FFFFFF;           /* une carte */
+  --s2:#E9EDF1;           /* une surface levée */
+  --s3:#DCE2E7;           /* une surface pressée */
+  --line:#CDD5DB; --line-hi:#93A0A9; --line-soft:#DEE4E9;
+  --tx:#161B1F;           /* 17,4 : 1 sur une carte */
+  --tx2:#48545C;          /*  7,8 : 1 */
+  --tx3:#5D656B;          /*  4,5 : 1 même sur une surface pressée */
+  --glow:#0E7A5C;         /* accent : jade profond */
+  --glow-soft:#E4F2ED;
+  --acc-bd:#9ED0BF;
+  --on-acc:#FFFFFF;       /* ce qui s'écrit sur un aplat d'accent */
+  --green:#2FA07C;        /* série 1 — claire */
+  --cyan:#15618F;         /* bleu de texte et de trait fin */
+  --cyan-bd:#8CB6D2; --cyan-bg:#E4EEF5;
+  --serie2:#1B5B8A;       /* série 2 — sombre, pour les barres */
+  --serie2-fonce:#123E60;
+  --warn:#8A5D0C; --warn-bd:#E0C48A; --warn-bg:#FAF2E2;
+  --warn-tx:#6B480A; --warn-tx2:#7A5410;
+  --alert:#B03A26;        /* le manque qui coûte une partie, pas une finition */
+  --entete:rgba(242,245,247,.94);
+  --ombre:rgba(22,27,31,.14);
+  --voile:rgba(22,27,31,.42);
   --tap:46px; --r:10px;
 }
+
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:var(--s0);
+  /* Le halo vert et la trame teintaient chaque pixel de la page : c'est ce
+     qui donnait au texte son fond verdatre. La trame reste, en gris et deux
+     fois plus discrete — elle tient l'identite sans peser sur la lecture. */
   background-image:
-    radial-gradient(circle at 50% -10%, rgba(95,168,47,.09), transparent 55%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='58' viewBox='0 0 34 58'%3E%3Cpath d='M17 0 L34 9.7 L34 29 L17 38.7 L0 29 L0 9.7 Z' fill='none' stroke='%235FA82F' stroke-opacity='.055' stroke-width='1'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='58' viewBox='0 0 34 58'%3E%3Cpath d='M17 0 L34 9.7 L34 29 L17 38.7 L0 29 L0 9.7 Z' fill='none' stroke='%235D656B' stroke-opacity='.045' stroke-width='1'/%3E%3C/svg%3E");
   color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   font-size:15px;line-height:1.45;
@@ -47,7 +82,7 @@ body{
 /* ---------- en-tête ---------- */
 header{
   position:sticky;top:0;z-index:30;
-  background:rgba(11,15,12,.95);
+  background:var(--entete);
   backdrop-filter:saturate(150%) blur(10px);
   border-bottom:1px solid var(--line);
   padding-top:env(safe-area-inset-top);
@@ -81,7 +116,10 @@ header{
 .sum{background:var(--s1);padding:8px 6px 9px;text-align:center;min-width:0}
 .sum .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sum .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15;margin-top:1px}
-.sum.hero .v{color:var(--glow);text-shadow:0 0 14px rgba(155,232,92,.35)}
+/* Le halo derriere le chiffre luisait sur du noir ; sur du blanc il ne
+   fait qu'un contour flou. Sur fond clair, c'est le poids et la couleur
+   qui portent, pas la lumiere. */
+.sum.hero .v{color:var(--glow)}
 
 /* ---------- cartes à angles coupés ---------- */
 .card{
@@ -134,7 +172,7 @@ header{
 .chips.tight{padding-top:4px}
 
 /* ---------- champs ---------- */
-.row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6)}
+.row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line-soft)}
 .row:first-child{border-top:0}
 .row > label{flex:0 0 42%;font-size:13.5px;color:var(--tx2)}
 .row > .ctl{flex:1;min-width:0;display:flex;justify-content:flex-end}
@@ -155,9 +193,15 @@ input:focus{outline:2px solid var(--glow);outline-offset:-1px}
   background:var(--s2);border:1px solid var(--line);color:var(--tx2);
   font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;font-family:inherit;cursor:pointer;
 }
-.seg button[aria-pressed=true]{background:var(--green);border-color:var(--glow);color:#08120A}
+/* Un ecran du simulateur porte une vingtaine de ces pastilles, et la
+   plupart sont a leur valeur neutre — « 0 », « — ». Les remplir d'un
+   aplat d'accent faisait de « rien n'a change » la tache la plus vive de
+   la page. On garde la convention deja tenue par les chips et les roles :
+   fond teinte, bord et texte en accent. L'etat reste lisible, le regard
+   n'est plus tire vers le neutre. */
+.seg button[aria-pressed=true]{background:var(--glow-soft);border-color:var(--glow);color:var(--glow)}
 .seg.small button{min-width:34px;height:38px;font-size:13px}
-.toggle{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(51,69,58,.6);cursor:pointer}
+.toggle{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line-soft);cursor:pointer}
 .toggle:first-child{border-top:0}
 .toggle .box{
   flex:0 0 22px;height:22px;border:1.5px solid var(--line);background:var(--s2);
@@ -165,7 +209,7 @@ input:focus{outline:2px solid var(--glow);outline-offset:-1px}
   display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;
 }
 .toggle > input[type=checkbox]{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
-.toggle > input[type=checkbox]:checked + .box{background:var(--green);border-color:var(--glow);color:#08120A}
+.toggle > input[type=checkbox]:checked + .box{background:var(--glow);border-color:var(--glow);color:var(--on-acc)}
 .toggle .txt{flex:1;font-size:13.5px;color:var(--tx2)}
 .toggle .txt em{display:block;font-style:normal;font-size:11px;color:var(--tx3);margin-top:1px}
 .toggle > input[type=checkbox]:checked ~ .txt{color:var(--tx)}
@@ -204,15 +248,15 @@ svg.chart{display:block;width:100%;height:auto;overflow:visible}
 .tip{position:fixed;z-index:80;pointer-events:none;opacity:0;transition:opacity .12s;
   background:var(--s3);border:1px solid var(--line-hi);padding:6px 10px;font-size:12px;line-height:1.4;
   clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
-  box-shadow:0 8px 24px rgba(0,0,0,.6);white-space:nowrap}
+  box-shadow:0 8px 24px var(--ombre);white-space:nowrap}
 .tip b{font-variant-numeric:tabular-nums;color:var(--glow)}
 
 /* ---------- tableau & valeurs ---------- */
 table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
-th,td{padding:6px 4px;text-align:right;border-bottom:1px solid rgba(51,69,58,.6)}
+th,td{padding:6px 4px;text-align:right;border-bottom:1px solid var(--line-soft)}
 th:first-child,td:first-child{text-align:left}
 th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);font-weight:700}
-.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6);font-size:13.5px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line-soft);font-size:13.5px}
 .kv:first-child{border-top:0}
 .kv span:first-child{color:var(--tx2)}
 .kv b{font-variant-numeric:tabular-nums;font-size:14.5px}
@@ -339,7 +383,7 @@ input.sheet-search{
 .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(120%);
   bottom:calc(64px + env(safe-area-inset-bottom));z-index:200;display:flex;align-items:center;gap:12px;
   padding:11px 12px 11px 15px;border:1px solid var(--li);border-radius:10px;background:var(--s2);
-  box-shadow:0 8px 26px rgba(0,0,0,.5);font-size:12.5px;color:var(--tx2);
+  box-shadow:0 8px 26px var(--ombre);font-size:12.5px;color:var(--tx2);
   transition:transform .18s ease,opacity .18s;opacity:0;pointer-events:none;max-width:calc(100vw - 24px)}
 .toast.on{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
 .toast button{border:1px solid var(--glow);background:transparent;color:var(--glow);
@@ -528,7 +572,7 @@ pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px 
   white-space:nowrap}
 .catbar .ccnt{flex:0 0 auto;font-size:11px;font-variant-numeric:tabular-nums;color:var(--tx3);
   border:1px solid var(--line);padding:1px 6px}
-.catbar.on{border-color:rgba(155,232,92,.35)}
+.catbar.on{border-color:var(--acc-bd)}
 .catbar.on .cnom{color:var(--glow)}
 
 /* ---------- groupe rattache ---------- */
@@ -571,21 +615,21 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
   background:var(--s2);border:1px solid var(--line);
   clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
 .repart b{color:var(--tx);font-variant-numeric:tabular-nums}
-.repart.ok{border-color:rgba(155,232,92,.35)}
+.repart.ok{border-color:var(--acc-bd)}
 .repart.ok b{color:var(--glow)}
-.repart.todo{border-color:rgba(224,160,48,.45)}
+.repart.todo{border-color:var(--warn-bd)}
 .repart.todo span{color:var(--warn);font-weight:700}
 
 /* ---------- equipement de l'unite ---------- */
-.eqbloc{margin-top:12px;border-top:1px solid rgba(51,69,58,.6);padding-top:10px}
+.eqbloc{margin-top:12px;border-top:1px solid var(--line-soft);padding-top:10px}
 .eqt{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--glow);
   font-weight:800;margin:9px 0 4px}
 .eqt:first-child{margin-top:0}
 .eqwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .unitfoot{display:flex;gap:8px}
 .unitfoot .btn{flex:1}
-.btn.danger{border-color:rgba(224,160,48,.5);color:var(--warn)}
-.btn.danger:active{background:rgba(224,160,48,.12)}
+.btn.danger{border-color:var(--warn-bd);color:var(--warn)}
+.btn.danger:active{background:var(--warn-bg)}
 
 /* ---------- barre et reorganisation du pave ---------- */
 .padbar{display:flex;align-items:center;gap:9px;margin-top:12px}
@@ -599,7 +643,7 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .pad.range .tile{touch-action:none;-webkit-user-select:none;user-select:none}
 /* la case attrapee flotte au-dessus des autres et suit le pointeur */
 .pad.range .tile.glisse{cursor:grabbing;z-index:5;opacity:.92;
-  border-color:var(--glow);box-shadow:0 10px 22px rgba(0,0,0,.55);
+  border-color:var(--glow);box-shadow:0 10px 22px var(--ombre);
   transform-origin:50% 50%}
 .pad.range .tile.glisse:active{background:var(--s1)}
 /* pendant le glissement, les cases qui s'ecartent le font en glissant */
@@ -659,9 +703,9 @@ button.todo:active{background:var(--s2)}
 /* le nom de famille est pose entre le disque des unites et la couronne :
    un lisere de la couleur du fond le detache de ce qui passe dessous,
    quel que soit l'encombrement de la liste */
-.carte .hfam{font-size:2.5px;font-weight:800;letter-spacing:.28px;fill:var(--tx3);
-  opacity:.9;text-transform:uppercase;paint-order:stroke;stroke:var(--s0);
-  stroke-width:1.1px;stroke-linejoin:round}
+.carte .hfam{font-size:2.5px;font-weight:800;letter-spacing:.28px;fill:var(--tx2);
+  text-transform:uppercase;paint-order:stroke;stroke:var(--s0);
+  stroke-width:.85px;stroke-linejoin:round}
 .carte .hrole{font-size:3.1px;font-weight:600;fill:var(--tx2)}
 .carte .hrole.vide{fill:var(--tx3)}
 .carte .hrole.manque{fill:var(--alert);font-weight:800}
@@ -815,7 +859,7 @@ button.todo:active{background:var(--s2)}
 .kwrow .kwc{padding:5px 9px;background:transparent;border:1px solid var(--line);
   border-radius:20px;color:var(--tx3);font:inherit;font-size:11px;font-weight:600;
   cursor:pointer}
-.kwrow .kwc.on{border-color:var(--cyan);color:var(--cyan);background:rgba(31,122,140,.14)}
+.kwrow .kwc.on{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-bg)}
 .vpre{padding:6px 9px;background:transparent;border:1px solid var(--line);
   border-radius:7px;color:var(--tx3);font:inherit;font-size:11.5px;font-weight:600;
   line-height:1.2;text-align:left;cursor:pointer}
@@ -826,12 +870,12 @@ button.todo:active{background:var(--s2)}
   text-transform:uppercase;color:var(--tx3)}
 .vpre.vcond{border-style:dashed}
 /* un stratagème se paie : le coût passe avant le nom */
-.vpre.vstrat{border-color:rgba(31,122,140,.55)}
-.vpre.vstrat.on{border-color:var(--cyan);color:var(--cyan);background:rgba(31,122,140,.14)}
+.vpre.vstrat{border-color:var(--cyan-bd)}
+.vpre.vstrat.on{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-bg)}
 .vpre.vstrat .pc{display:inline-block;margin-right:6px;padding:1px 5px;
   background:var(--s2);border-radius:4px;font-size:9px;font-weight:800;
   letter-spacing:.05em;color:var(--cyan)}
-.vpre.vstrat.on .pc{background:rgba(31,122,140,.3)}
+.vpre.vstrat.on .pc{background:var(--cyan-bg)}
 /* ce que le détachement fait déjà : à lire, pas à cocher */
 .vinfo{flex:0 0 100%;padding:7px 9px;background:var(--s2);border-radius:7px;
   border-left:2px solid var(--line-hi)}
@@ -930,7 +974,7 @@ button.todo:active{background:var(--s2)}
   clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
 .pgrp h4{margin:0;padding:9px 12px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
   color:var(--glow);font-weight:800;border-bottom:1px solid var(--line)}
-.pgrp .pu{padding:9px 12px;border-top:1px solid rgba(51,69,58,.5)}
+.pgrp .pu{padding:9px 12px;border-top:1px solid var(--line-soft)}
 .pgrp .pu:first-of-type{border-top:0}
 .pgrp .pu b{font-size:14px}
 .pgrp .pu i{font-style:normal;font-size:11px;color:var(--tx3);display:block;margin-top:2px;
@@ -978,8 +1022,8 @@ table.arms .wks{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
 .wk{font-size:10px;font-weight:700;letter-spacing:.03em;color:var(--tx2);
   background:var(--s2);border:1px solid var(--line);padding:2px 6px;line-height:1.3;
   white-space:nowrap;cursor:help}
-.wk.wkadd{color:var(--cyan,#5CE8E8);border-color:rgba(92,232,232,.45);
-  background:rgba(92,232,232,.08)}
+.wk.wkadd{color:var(--cyan);border-color:var(--cyan-bd);
+  background:var(--cyan-bg)}
 .wk.wkadd::before{content:"+ ";font-weight:800}
 /* qui porte l'arme, quand ce n'est pas l'escouade : un personnage rattache */
 table.arms .src{font-size:9.5px;color:var(--glow);display:block;line-height:1.35;margin-top:1px;
@@ -990,7 +1034,7 @@ table.arms .q{color:var(--glow);font-weight:700}
 .screen.on{display:block}
 nav.tabs{
   position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
-  background:rgba(11,15,12,.97);backdrop-filter:blur(10px);
+  background:var(--entete);backdrop-filter:blur(10px);
   border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
 }
 nav.tabs button{
@@ -1008,7 +1052,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .ptsbar .c{background:var(--s1);padding:7px 6px 8px;text-align:center;min-width:0}
 .ptsbar .c .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
 .ptsbar .c .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
-.ptsbar .c.over .v{color:#E0654A}
+.ptsbar .c.over .v{color:var(--alert)}
 .ptsbar .c.ok .v{color:var(--glow)}
 
 /* ---------- unite de la liste ---------- */
@@ -1022,7 +1066,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .rhead .rpts{flex:0 0 auto;font-size:13px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums}
 .xbtn{flex:0 0 30px;height:30px;border:1px solid var(--line);background:var(--s2);color:var(--tx3);
   font-size:15px;line-height:1;cursor:pointer;font-family:inherit}
-.lo{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid rgba(51,69,58,.6)}
+.lo{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line-soft)}
 .lo .ln{flex:1;min-width:0;font-size:12.5px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lo .ln em{font-style:normal;color:var(--tx3);font-size:11px}
 /* armement d'un personnage rattache : decale sous sa ligne */
@@ -1031,7 +1075,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .seuil .sk{display:block;font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--tx3);line-height:1.25}
 .seuil .sv{display:block;font-size:19px;font-weight:700;color:var(--glow);font-variant-numeric:tabular-nums;margin-top:3px}
 .seuil.faible .sv{color:var(--tx2)}
-.lo-sous{padding-left:16px;border-top:1px dashed rgba(51,69,58,.5)}
+.lo-sous{padding-left:16px;border-top:1px dashed var(--line-soft)}
 /* ---------- les membres d'un groupe ---------- */
 /* Un groupe de trois membres tenait sur un panneau qu'il fallait parcourir
    en entier ; on en regle un a la fois. */
@@ -1049,25 +1093,25 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .membre.on .ms{color:var(--tx2)}
 /* ce qu'un personnage apporte a l'unite qu'il mene */
 .aura{margin-top:9px;padding:8px 10px;font-size:11.5px;line-height:1.5;color:var(--tx2);
-  background:rgba(92,232,232,.07);border:1px solid rgba(92,232,232,.3);
+  background:var(--cyan-bg);border:1px solid var(--cyan-bd);
   clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
-.aura b{display:block;color:var(--cyan,#5CE8E8);font-size:10px;letter-spacing:.08em;
+.aura b{display:block;color:var(--cyan);font-size:10px;letter-spacing:.08em;
   text-transform:uppercase;margin-bottom:3px}
 .btn.detache{width:100%;margin-top:12px}
 /* ---------- ce que le groupe recoit en jeu ---------- */
-.octbloc{margin-top:12px;border-top:1px solid rgba(51,69,58,.6);padding-top:10px}
+.octbloc{margin-top:12px;border-top:1px solid var(--line-soft);padding-top:10px}
 .oct{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;padding:7px 0;
-  border-top:1px solid rgba(51,69,58,.5)}
+  border-top:1px solid var(--line-soft)}
 .oct:first-of-type{border-top:0}
 .oct .oe{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.05em;
-  color:var(--cyan,#5CE8E8);border:1px solid rgba(92,232,232,.45);
-  background:rgba(92,232,232,.08);padding:2px 6px}
+  color:var(--cyan);border:1px solid var(--cyan-bd);
+  background:var(--cyan-bg);padding:2px 6px}
 .oct .os{flex:0 0 auto;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
   color:var(--tx3)}
 .oct .oi2{flex:1 1 100%;font-size:11.5px;line-height:1.45;color:var(--tx2)}
 .oct .oi2 b{display:block;color:var(--tx);font-weight:700;font-size:11.5px}
 .lo-sous .ln{font-size:12px}
-.lo-perso{border-top:1px solid rgba(92,232,232,.25)}
+.lo-perso{border-top:1px solid var(--cyan-bd)}
 /* option retenue dans un emplacement : son libelle ressort */
 .lo-on .ln{color:var(--tx)}
 /* arme portee d'office : pas de compteur, elle ne se choisit pas */
@@ -1075,8 +1119,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .omax{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
   color:var(--tx3);border:1px solid var(--line);padding:1px 5px;margin-left:3px;
   white-space:nowrap}
-.lo-trop{border-top-color:rgba(224,160,48,.6)}
-.lo-trop .omax{color:var(--warn);border-color:rgba(224,160,48,.6)}
+.lo-trop{border-top-color:var(--warn-bd)}
+.lo-trop .omax{color:var(--warn);border-color:var(--warn-bd)}
 .lo-fixe .lofix{flex:0 0 auto;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;
   color:var(--tx3);border:1px solid var(--line);border-radius:3px;padding:3px 7px;white-space:nowrap}
 .stepper{flex:0 0 auto;display:flex;align-items:center;gap:0}
@@ -1087,18 +1131,18 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .addrow button{flex:1;min-height:34px;border:1px dashed var(--line-hi);background:transparent;color:var(--tx3);
   font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
 .addrow button:active{background:var(--s2)}
-.warnbox{margin-top:10px;padding:9px 11px;border:1px solid #6B4A2A;background:rgba(224,160,48,.09);
-  font-size:11.5px;line-height:1.5;color:#E8C88A;
+.warnbox{margin-top:10px;padding:9px 11px;border:1px solid var(--warn-bd);background:var(--warn-bg);
+  font-size:11.5px;line-height:1.5;color:var(--warn-tx2);
   clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
-.warnbox b{color:#F2D9A8}
+.warnbox b{color:var(--warn-tx)}
 .empty{padding:30px 10px;text-align:center;color:var(--tx3);font-size:13px;line-height:1.6}
 .checkrow{display:flex;align-items:center;gap:10px}
 .cbox{flex:0 0 22px;height:22px;border:1.5px solid var(--line);background:var(--s2);
   clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
   display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent}
-.checkrow.on .cbox{background:var(--green);border-color:var(--glow);color:#08120A}
+.checkrow.on .cbox{background:var(--glow);border-color:var(--glow);color:var(--on-acc)}
 /* ---------- comparateur ---------- */
-.cmprow{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
+.cmprow{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--line-soft)}
 .cmprow:first-child{border-top:0}
 .cmprow .cn{flex:1;min-width:0}
 .cmprow .cn b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1117,8 +1161,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .cmp2{margin-top:2px}
 .cmp2 .c2th{display:grid;grid-template-columns:1fr 1fr;gap:12px;
   font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--tx3);padding-bottom:5px;border-bottom:1px solid rgba(51,69,58,.6)}
-.cmp2 .c2r{padding:8px 0;border-top:1px solid rgba(51,69,58,.6)}
+  color:var(--tx3);padding-bottom:5px;border-bottom:1px solid var(--line-soft)}
+.cmp2 .c2r{padding:8px 0;border-top:1px solid var(--line-soft)}
 .cmp2 .c2r:first-of-type{border-top:0}
 .cmp2 .c2n{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
 .cmp2 .c2n b{flex:1;min-width:0;font-size:13px;white-space:nowrap;
@@ -1133,11 +1177,11 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .cmp2 .c2t{height:10px;background:var(--s2);
   clip-path:polygon(0 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%)}
 .cmp2 .c2f{height:100%;background:linear-gradient(90deg,var(--green),var(--glow))}
-.cmp2 .c2c.b .c2f{background:linear-gradient(90deg,#1F7A8C,var(--cyan))}
+.cmp2 .c2c.b .c2f{background:linear-gradient(90deg,var(--serie2-fonce),var(--serie2))}
 /* combien d'activations il faut : une marche par unité qui tire */
 .esc{margin-top:2px}
 .esc .er{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
-  gap:10px;padding:9px 0;border-top:1px solid rgba(51,69,58,.6)}
+  gap:10px;padding:9px 0;border-top:1px solid var(--line-soft)}
 .esc .er:first-child{border-top:0}
 .esc .en{min-width:0}
 .esc .en b{display:block;font-size:12.5px;font-weight:700;white-space:nowrap;
@@ -1158,7 +1202,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   background:linear-gradient(90deg,var(--green),var(--glow))}
 /* le palmarès : cent trente-six armes rangées contre une cible */
 .top .tr{display:grid;grid-template-columns:26px 1fr auto;align-items:baseline;
-  gap:9px;padding:8px 0;border-top:1px solid rgba(51,69,58,.6)}
+  gap:9px;padding:8px 0;border-top:1px solid var(--line-soft)}
 .top .tr:first-child{border-top:0}
 .top .tr .rg{font-size:11px;font-weight:800;color:var(--tx3);
   font-variant-numeric:tabular-nums;text-align:right}
@@ -1188,9 +1232,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <header>
   <div class="hbar">
     <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="none" stroke="#5FA82F" stroke-width="1.4"/>
-      <path d="M16 8 L23 12 L23 20 L16 24 L9 20 L9 12 Z" fill="none" stroke="#9BE85C" stroke-width="1.2" opacity=".8"/>
-      <path d="M16 13 L19 15 L19 18 L16 20 L13 18 L13 15 Z" fill="#9BE85C"/>
+      <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="none" stroke="#1B5B8A" stroke-width="1.4"/>
+      <path d="M16 8 L23 12 L23 20 L16 24 L9 20 L9 12 Z" fill="none" stroke="#0E7A5C" stroke-width="1.2" opacity=".8"/>
+      <path d="M16 13 L19 15 L19 18 L16 20 L13 18 L13 15 Z" fill="#0E7A5C"/>
     </svg>
     <div class="logo">W40K App<small>Nécrons — 40K 11<sup>e</sup> éd.</small></div>
     <div class="spacer"></div>
