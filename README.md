@@ -606,6 +606,46 @@ posé dans le corps de la carte, il repoussait tout ce qui suit de quarante
 pixels, et `test-plateau.mjs` — qui clique à des coordonnées absolues — touchait
 un autre bouton. Deux de ses contrôles tombaient. Dans l'en-tête, rien ne bouge.
 
+## Les zones confrontées aux pages officielles
+
+`layouts.js` vient de 40kdc-data ; le Compagnon de Rencontre imprime les
+45 agencements. Deux sources indépendantes : si la géométrie générée redonne
+les aplats du document, c'est une vérification et non une coïncidence.
+
+`npm run cartes -- <dossier>` prend un dossier d'images de pages (`pNN.png`),
+repère le plateau, convertit les deux aplats de déploiement en masques
+exprimés en pouces sur le plateau 44 × 60, et les confronte à nos polygones.
+Les images ne sont pas versionnées : ce sont les pages d'un document de Games
+Workshop, à fournir soi-même.
+
+Sur les six pages vérifiées à ce jour, notre zone couvre **98,8 % à 99,8 %**
+de l'aplat officiel, rien ne tombe dans la mauvaise zone, et la lettre
+d'agencement imprimée sur la page ressort à chaque fois comme la meilleure
+des trois — les deux autres tombant entre 0,18 et 0,91.
+
+Trois précautions, chacune apprise d'une mesure fausse :
+
+- Le cadre ne se trouve pas en comptant les pixels sombres d'une ligne : un
+  filet de mise en page en aligne autant. On exige une plage **continue**
+  assez longue — 800 px en largeur, 1100 en hauteur. Cela écarte au passage
+  les repères de bord attaquant et défenseur, rouges et bleus eux aussi, sans
+  avoir à les reconnaître : ils sont horizontaux ou verticaux selon
+  l'agencement, et deux pages sur six y résistaient.
+- Les décors sont dessinés **par-dessus** les aplats. Comparer les aires donne
+  71 % là où la géométrie est juste au dixième de pouce. On ne compare donc
+  que là où le document se prononce : un décor masque la couleur, jamais
+  l'inverse. L'écart résiduel — au plus 3,5″ — est exactement l'épaisseur d'un
+  décor posé sur la zone.
+- Qui est rouge et qui est bleu dépend de l'attaquant et du défenseur, et rien
+  ne dit laquelle de nos deux zones tient ce rôle. On essaie les deux
+  appariements : compter l'échange comme une erreur faisait passer
+  *Disruption vs Disruption* pour fausse à 0,000 alors qu'elle est à 0,994.
+
+Vérifié au passage : les noms de mission concordent dans les deux sens.
+Chaque joueur a la sienne selon sa Disposition des Forces, et la table les
+porte séparément — *Locate and Deny* pour le joueur Perturbation face à Atouts
+Prioritaires, *Extract Relic* pour son adversaire.
+
 ## Unités Legends
 
 Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :
