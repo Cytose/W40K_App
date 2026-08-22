@@ -2911,3 +2911,106 @@ Un piège de test à noter pour la suite : l'en-tête de l'application est colla
 Un pointeur posé sur le plateau alors que celui-ci est en haut de la fenêtre
 tombe sur l'en-tête, et le glissement ne se produit jamais — en silence. Le test
 amène le plateau au milieu de la fenêtre avant chaque geste.
+
+## 46. Les dispositions reprises sur une source mesurable — 22/08/2026
+
+Tu voulais retravailler la carte avec le document officiel. Le proxy réseau
+bloque warhammer-community, donc je n'ai pas pu récupérer le PDF. Mais avant
+de te le demander, j'ai mesuré ce qu'on avait — et cela a suffi à savoir quoi
+chercher.
+
+### Ce que valait la géométrie extraite
+
+`layouts.js` venait d'une analyse d'image des cartes officielles. L'en-tête
+disait honnêtement ses limites ; mesurées, elles étaient sérieuses :
+
+| Mesure | Valeur |
+|---|---|
+| Écart médian à la symétrie centrale | 0,35" (pire : 3,26") |
+| Objectifs sur un pouce entier | 14 sur 259 |
+| Zone de 12 pouces, mesurée | 11,75 |
+| Zone de 18 pouces, mesurée | 17,75 |
+
+Une carte officielle est **exactement** symétrique par rotation de 180 degrés —
+sinon un joueur serait avantagé — et ses côtés sont des pouces entiers. Chacun
+de ces chiffres était donc du bruit.
+
+### La source
+
+Le dépôt communautaire **40kdc-data** (CC BY 4.0) porte les 45 dispositions 11e,
+tenues de Battlemaster pour les décors et du Chapter Approved 2026-2027 pour les
+missions. GitHub passe le proxy, contrairement au reste du web.
+
+Avant de s'en servir, on l'a confrontée à la nôtre. Les quinze appariements s'y
+retrouvent tous, et les boîtes englobantes concordent : `[0..11,8]` chez nous
+contre `[0..12,0]` chez eux, `[0..17,8]` contre `[0..18,0]`. Deux transcriptions
+indépendantes des mêmes cartes, qui se confirment l'une l'autre — et qui
+désignent laquelle des deux porte l'erreur.
+
+### Ce qui a été repris, et ce qui ne l'a pas été
+
+**Zones** — remplacées par la géométrie exacte. Les rectangles font 12 × 60 et
+44 × 18, l'arc de `search-and-destroy` a 28 sommets au lieu de 5.
+
+**Décors** — remplacés par les gabarits nommés, posés par position et rotation
+selon la convention documentée de la source. Cela lève la limite que l'en-tête
+signalait : les socles n'étaient que reconstruits, plus petits que les vrais, et
+leur type officiel n'était pas identifié.
+
+**Missions** — 24 des 25 noms confirmés. Le seul écart : nous écrivions
+« Outmaneuver », l'officiel écrit « **Outmanoeuvre** ».
+
+**Objectifs — conservés.** Ceux de la source sont marqués
+« pre-launch-provisional » et n'en comptent que cinq par carte, quand nos cartes
+en portent six sur trente-trois. Les importer aurait **supprimé un objectif**.
+Vérification faite, ils sont à 5,1 pouces des nôtres en médiane : ce sont les
+anciens de Leviathan, laissés en attente. Ils ne servent donc ni de source ni
+d'instrument de contrôle.
+
+### Deux fois où la mesure a contredit l'intuition
+
+**L'accrochage à la grille.** Les objectifs officiels sont sur des pouces
+entiers ; il paraissait naturel d'y accrocher les nôtres. Mesure faite, non :
+l'écart moyen des objectifs extraits à la grille du pouce vaut **0,248**, soit
+exactement ce que donneraient des positions tirées au hasard (0,25). Sur la
+demi-grille, 0,121 pour 0,125 attendu. L'extraction ne porte aucune structure de
+grille. L'accrocher lui aurait imposé un ordre que la donnée ne montre pas.
+
+**L'objectif central.** Le premier jet ramenait au centre exact tout objectif à
+moins de 3,5 pouces — le seuil que l'ancien fichier utilisait pour *classer* un
+objectif, pas pour le *déplacer*. Il déplaçait donc des objectifs de plus de
+trois pouces, et donnait un objectif central à 29 cartes. La distribution est
+pourtant franchement coupée en deux : neuf cartes ont leur objectif le plus
+proche entre 0,00 et 0,35 pouce du centre, puis plus rien avant 1,41. Le seuil
+tranche maintenant dans ce vide, et **neuf cartes** ont un objectif central —
+les 11e n'en ont pas toutes.
+
+La seule correction appliquée aux objectifs est donc la symétrie centrale, qui
+est certaine et qui divise le bruit par deux.
+
+### Résultat
+
+| | avant | après |
+|---|---|---|
+| Symétrie centrale | médiane 0,35", pire 3,26" | **259 / 259 exacts** |
+| Zones | 11,75 et 17,75 | **12 × 60 et 44 × 18** |
+| Décors | contours reconstruits | **720 gabarits officiels** |
+| Missions | 1 nom fautif | **25 / 25** |
+
+Le fichier passe de 197 à 264 Ko. Les décors sont écrits au dixième de pouce —
+un pixel sur un téléphone — là où le centième gonflait le fichier d'un tiers
+pour une précision que personne ne voit.
+
+### Rejouable, et gardé
+
+`npm run dispositions` régénère `layouts.js` depuis la source. `outils/test-dispositions.mjs`
+tient les invariants — 22 contrôles qui ne dépendent d'aucune source mais des
+règles du jeu : symétrie exacte, zones dans le plateau, trois patrons distincts
+par appariement, aucun objectif dans la zone grise du centre.
+
+### Reste
+
+La carte officielle en fond d'écran, que tu proposais, demande les images de GW.
+Elles ne sont pas accessibles d'ici, et les embarquer redistribuerait leur
+travail. Si tu me les fournis, elles serviront à vérifier la géométrie plutôt
+qu'à être livrées avec l'application.

@@ -5,7 +5,8 @@
   "description": "Aide de jeu Necrons pour Warhammer 40 000, 11e edition : editeur de listes, simulateur de sequence d'attaque et aide de jeu en partie.",
   "scripts": {
     "build": "node build.js",
-    "catalogue": "node outils/catalogue.js"
+    "catalogue": "node outils/catalogue.js",
+    "dispositions": "node outils/dispositions.js"
   },
   "devDependencies": {
     "terser": "^5.36.0"
