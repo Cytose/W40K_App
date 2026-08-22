@@ -4824,28 +4824,34 @@ function palmares(){
     armementsPossibles(nom).forEach(combo=>{
       /* Un groupe d'armes rassemble les profils d'une MEME arme — le
          rayon thermique focalise et disperse. On n'en tire qu'un a la
-         fois : on garde le meilleur au lieu de les additionner. */
-      const parGroupe = {}, noms = [];
+         fois : on garde le meilleur au lieu de les additionner, et on
+         retient LEQUEL, pour pouvoir le nommer. */
+      const parGroupe = {}, ordre = [];
       combo.indices.forEach(i=>{
         const d = degats(i); if(d === null) return;
         const g = groupeDe(nom, i);
-        const cle = g ? g.base : String(i);
-        if(parGroupe[cle] === undefined || d > parGroupe[cle]) parGroupe[cle] = d;
+        /* prefixe : sans lui, une cle purement numerique passerait en
+           tete de l'objet et l'ordre des armes ne suivrait plus la
+           fiche — les armes d'office d'abord, le choix ensuite */
+        const cle = g ? "g:" + g.base : "i:" + i;
+        if(parGroupe[cle] === undefined){ parGroupe[cle] = {dmg:d, i:i}; ordre.push(cle); }
+        else if(d > parGroupe[cle].dmg) parGroupe[cle] = {dmg:d, i:i};
       });
-      const tot = Object.keys(parGroupe).reduce((a, k) => a + parGroupe[k], 0);
+      if(!ordre.length) return;
+      const tot = ordre.reduce((a, k) => a + parGroupe[k].dmg, 0);
       if(!tot) return;
-      /* Le nom de l'armement : ce que les emplacements ont choisi, pas
-         les armes d'office que toutes les versions portent. Et seulement
-         ce qui tire dans CETTE phase — sans quoi le classement de tir
-         annoncait « lame de l'Overlord », qui n'y participe pas. */
-      (combo.choix || []).forEach(i=>{
-        const w = wl[i]; if(!w || w[2] !== topPhaseV) return;
-        const g = groupeDe(nom, i), lib = g ? g.libelle : w[1];
-        if(lib && noms.indexOf(lib) < 0) noms.push(lib);
+      /* TOUTES les armes comptees sont nommees, pas seulement celles du
+         choix : « 3 armes » ne disait pas lesquelles, donc ne permettait
+         pas de travailler. Le profil retenu est nomme en entier quand
+         son arme en a plusieurs dans la phase. */
+      const noms = ordre.map(k=>{
+        const i = parGroupe[k].i, w = wl[i], g = groupeDe(nom, i);
+        const freres = g ? g.profils.filter(x => x.w[2] === topPhaseV).length : 1;
+        return (g && freres < 2) ? g.libelle : w[1];
       });
       rows.push({ arme:noms.join(" + "), unite:nom, n:taille, pts:pts,
                   dmg:tot, mien:!!dansLaListe[nom], groupe:true,
-                  combien:Object.keys(parGroupe).length });
+                  combien:ordre.length });
     });
   });
   const gardes = topQuoiV === "unite" ? rows.filter(r => r.groupe) : rows;
@@ -4877,10 +4883,10 @@ function renderTop(){
     '<span class="rg">' + (i+1) + '</span>' +
     '<span class="tn"><b>' + (r.groupe ? r.unite : r.arme) + '</b>' +
     '<i>' + (r.groupe
-      /* l'armement choisi d'abord : c'est ce qui distingue deux lignes
-         de la meme unite, et c'est donc ce qu'on lit en premier */
-      ? (r.arme ? r.arme + ' · ' : '') + r.combien + ' arme' + (r.combien>1?'s':'') +
-        ' · ×' + r.n + ' · ' + r.pts + ' pts'
+      /* les armes d'abord : c'est ce qui distingue deux lignes de la
+         meme unite, et leur decompte n'apprend plus rien une fois
+         qu'elles sont nommees */
+      ? (r.arme || '—') + ' · ×' + r.n + ' · ' + r.pts + ' pts'
       : r.unite + ' · ×' + r.n + ' · ' + r.pts + ' pts') + '</i></span>' +
     '<span class="tv"><b>' + num(r[cle]) + '</b><i>' +
       (topTriV === "eff" ? 'PV / 100 pts' : 'PV') + '</i></span>' +

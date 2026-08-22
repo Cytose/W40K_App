@@ -2461,10 +2461,36 @@ Et en mode « par arme », deux lignes s'appelaient toutes deux « Rayon thermiq
 Quand un groupe a plusieurs profils dans la même phase, le nom entier est
 conservé ; sinon le libellé court suffit.
 
+### « Une arme, c'est bien, mais on ne sait pas laquelle »
+
+Deuxième retour, immédiat et juste : la ligne nommait l'arme **choisie** et
+comptait le reste — « Death ray · 2 armes ». Laquelle est la seconde ? Un chiffre
+ne permet pas de travailler.
+
+Toutes les armes comptées sont désormais nommées, armes d'office comprises, et le
+décompte disparaît puisqu'il n'apprend plus rien :
+
+```
+Monolithe · Fouet à particules + Rayon de mort            22,7
+Monolithe · Fouet à particules + Arc de flux gauss        13,7
+```
+
+L'arme commune aux deux lignes est visible, la différence saute aux yeux. Et quand
+une arme a plusieurs profils, c'est **celui qui a été retenu** qui est nommé :
+« Rayon thermique — focalisé », pas « Rayon thermique ».
+
+Deux détails ont suivi. Les clés de regroupement portent un préfixe : une clé
+purement numérique serait remontée en tête de l'objet et l'ordre des armes
+n'aurait plus suivi la fiche. Et la sous-ligne, jusqu'ici coupée par des points de
+suspension, s'étend sur deux lignes — la tronquer revenait à ne toujours pas
+savoir de quelle arme il s'agissait.
+
 ### Vérification
 
-`test_palm_armements`, quatorze contrôles : deux lignes pour les Destroyers
-lourds dont aucune n'atteint la somme des deux, les profils du rayon thermique
-non cumulés, l'étiquette de la Barge qui nomme ses deux emplacements, celle de
-l'Overlord vide de toute arme de mêlée en phase de tir, et le Roi Silencieux qui
-garde sa somme — parce que lui tire vraiment tout.
+`test_palm_armements`, dix-sept contrôles : deux lignes pour les Destroyers lourds
+dont aucune n'atteint la somme des deux, le rayon thermique qui nomme son profil
+retenu et jamais les deux, l'étiquette de la Barge qui nomme ses deux
+emplacements, celle de l'Overlord vide de toute arme de mêlée en phase de tir, les
+deux armements du Monolithe qui se distinguent à la lecture tout en montrant leur
+arme commune, et le Roi Silencieux dont les trois armes sont nommées — parce que
+lui tire vraiment tout.
