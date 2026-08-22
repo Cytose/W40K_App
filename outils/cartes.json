@@ -1,0 +1,9 @@
+{
+  "_": "Ce que porte le bandeau de chaque page du Compagnon de Rencontre : les deux Dispositions des Forces et la lettre d'agencement. Lu sur les pages elles-mêmes, une par une. Sert à confronter chaque page à SA carte plutôt qu'à la meilleure des 45 — plusieurs appariements partagent un patron de déploiement, donc les zones seules ne suffisent pas à identifier une carte.",
+  "19": { "p1": "PURGE THE FOE",   "p2": "DISRUPTION",      "agencement": "a" },
+  "24": { "p1": "PURGE THE FOE",   "p2": "RECONNAISSANCE",  "agencement": "c" },
+  "30": { "p1": "DISRUPTION",      "p2": "DISRUPTION",      "agencement": "c" },
+  "35": { "p1": "DISRUPTION",      "p2": "PRIORITY ASSETS", "agencement": "b" },
+  "40": { "p1": "RECONNAISSANCE",  "p2": "PRIORITY ASSETS", "agencement": "a" },
+  "45": { "p1": "PRIORITY ASSETS", "p2": "PRIORITY ASSETS", "agencement": "c" }
+}
