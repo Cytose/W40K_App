@@ -1,19 +1,18 @@
 /* Suite d'intégration de l'axe Plateau.
    Ouvre l'axe sur une liste témoin et mesure ce que l'écran prétend dire.
-   Lancer : node outils/test-plateau.mjs (le site doit être servi sur :8765) */
-import pw from '/home/claude/.npm-global/lib/node_modules/playwright/index.js';
-const { chromium } = pw;
+   Lancer : node outils/test-plateau.mjs (le site doit être servi sur :8099, ou $SITE) */
+import { chromium, base } from './navigateur.mjs';
 const errs = [], ok = [];
 const dit = (quoi, vu, attendu) => {
   const bon = typeof attendu === 'function' ? attendu(vu) : vu === attendu;
   (bon ? ok : errs).push(`${bon ? '✓' : '✗'} ${quoi} : ${JSON.stringify(vu)}`);
 };
 
-const b = await chromium.launch();
+const b = await chromium();
 const p = await b.newPage({ viewport:{width:1000,height:1300} });
 p.on('pageerror', e => errs.push('PAGEERROR: ' + e.message));
 p.on('console', m => { if(m.type()==='error') errs.push('CONSOLE: '+m.text()); });
-await p.goto('http://localhost:8765/index.html');
+await p.goto(base + 'index.html');
 await p.waitForTimeout(1000);
 
 await p.evaluate(() => {
