@@ -4757,6 +4757,33 @@ function portMax(nom, taille){
   });
   return out;
 }
+/* Toutes les facons d'equiper une fiche : le produit des options de
+   chaque emplacement. Une escouade de Destroyers Lourds tient le
+   Destructeur gauss OU l'Exterminateur enmitique — jamais les deux —
+   et les additionner doublait sa puissance dans le classement.
+   Renvoie [{indices, nom}], une entree par armement possible. */
+function armementsPossibles(nom){
+  const fixes = armFixes(nom), slots = armSlots(nom);
+  let combos = [{ indices: fixes.slice(), choix: [] }];
+  slots.forEach(sl=>{
+    const suite = [];
+    combos.forEach(c=>{
+      (sl.o || []).forEach(opt=>{
+        /* `choix` s'accumule d'un emplacement a l'autre : ne garder que
+           le dernier faisait disparaitre le canon gauss de la Barge de
+           Commandement, qui a deux emplacements. */
+        suite.push({ indices: c.indices.concat(opt || []),
+                     choix: c.choix.concat(opt || []) });
+      });
+    });
+    /* garde-fou : deux emplacements a trois options font neuf lignes,
+       trois en feraient vingt-sept. On s'arrete avant d'inonder le
+       classement pour une seule fiche. */
+    combos = suite.slice(0, 12);
+  });
+  return combos;
+}
+
 function palmares(){
   const rows = [];
   const dansLaListe = {};
@@ -4767,26 +4794,59 @@ function palmares(){
     const taille = u[6][u[6].length - 1];
     const wl = unitWeps(nom), port = portMax(nom, taille);
     const pts = ptsPour(u, taille, 1);
-    const parUnite = [];
-    Object.keys(port).map(Number).forEach(i=>{
+    /* le calcul d'un profil, memorise : une arme presente dans deux
+       armements possibles ne se recalcule pas deux fois */
+    const cache = {};
+    const degats = i=>{
+      if(cache[i] !== undefined) return cache[i];
       const w = wl[i], n = port[i];
-      if(!w || !n || w[2] !== topPhaseV) return;
+      if(!w || !n || w[2] !== topPhaseV) return (cache[i] = null);
       const prof = Object.assign(weaponProfile(nom, w, n, null), {
         tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
         fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover, kind:w[2] });
-      const a = analytic(prof);
-      const g = groupeDe(nom, i);
-      rows.push({ arme:(g ? g.libelle : w[1]), unite:nom, n:n, pts:pts,
-                  dmg:a.rawDmg, mien:!!dansLaListe[nom] });
-      parUnite.push(a.rawDmg);
-    });
-    if(topQuoiV === "unite" && parUnite.length){
-      /* l'unite entiere : toutes ses armes de la phase, celles qui
-         s'excluent comprises — c'est un plafond, pas un armement reel */
-      rows.push({ arme:"", unite:nom, n:taille, pts:pts,
-                  dmg:parUnite.reduce((x,y)=>x+y, 0), mien:!!dansLaListe[nom],
-                  groupe:true, combien:parUnite.length });
+      return (cache[i] = analytic(prof).rawDmg);
+    };
+
+    if(topQuoiV !== "unite"){
+      Object.keys(port).map(Number).forEach(i=>{
+        const d = degats(i); if(d === null) return;
+        const w = wl[i], g = groupeDe(nom, i);
+        /* « Rayon thermique » nommait deux lignes differentes, focalise
+           et disperse : quand un groupe a plusieurs profils dans la
+           meme phase, on garde le nom entier pour les distinguer */
+        const freres = g ? g.profils.filter(x => x.w[2] === topPhaseV).length : 1;
+        rows.push({ arme:(g && freres < 2 ? g.libelle : w[1]), unite:nom,
+                    n:port[i], pts:pts, dmg:d, mien:!!dansLaListe[nom] });
+      });
+      return;
     }
+
+    armementsPossibles(nom).forEach(combo=>{
+      /* Un groupe d'armes rassemble les profils d'une MEME arme — le
+         rayon thermique focalise et disperse. On n'en tire qu'un a la
+         fois : on garde le meilleur au lieu de les additionner. */
+      const parGroupe = {}, noms = [];
+      combo.indices.forEach(i=>{
+        const d = degats(i); if(d === null) return;
+        const g = groupeDe(nom, i);
+        const cle = g ? g.base : String(i);
+        if(parGroupe[cle] === undefined || d > parGroupe[cle]) parGroupe[cle] = d;
+      });
+      const tot = Object.keys(parGroupe).reduce((a, k) => a + parGroupe[k], 0);
+      if(!tot) return;
+      /* Le nom de l'armement : ce que les emplacements ont choisi, pas
+         les armes d'office que toutes les versions portent. Et seulement
+         ce qui tire dans CETTE phase — sans quoi le classement de tir
+         annoncait « lame de l'Overlord », qui n'y participe pas. */
+      (combo.choix || []).forEach(i=>{
+        const w = wl[i]; if(!w || w[2] !== topPhaseV) return;
+        const g = groupeDe(nom, i), lib = g ? g.libelle : w[1];
+        if(lib && noms.indexOf(lib) < 0) noms.push(lib);
+      });
+      rows.push({ arme:noms.join(" + "), unite:nom, n:taille, pts:pts,
+                  dmg:tot, mien:!!dansLaListe[nom], groupe:true,
+                  combien:Object.keys(parGroupe).length });
+    });
   });
   const gardes = topQuoiV === "unite" ? rows.filter(r => r.groupe) : rows;
   gardes.forEach(r => { r.eff = r.pts ? r.dmg / r.pts * 100 : 0; });
@@ -4806,7 +4866,7 @@ function renderTop(){
   if(sousTitre) sousTitre.textContent =
     "Contre " + SIM.tgtName + " ×" + S.models + motsCibleEnClair().replace(/^ · /, ", ") +
     ". " + (topQuoiV === "unite"
-      ? "Toutes les armes de la fiche pour cette phase, additionnées."
+      ? "Une ligne par armement possible : les armes qui s'excluent ne sont jamais additionnées."
       : "Une ligne par arme, à l'effectif maximum de son unité.") +
     " Les quarante premières.";
   const cle = topTriV === "eff" ? "eff" : "dmg";
@@ -4817,7 +4877,10 @@ function renderTop(){
     '<span class="rg">' + (i+1) + '</span>' +
     '<span class="tn"><b>' + (r.groupe ? r.unite : r.arme) + '</b>' +
     '<i>' + (r.groupe
-      ? r.combien + ' arme' + (r.combien>1?'s':'') + ' · ×' + r.n + ' · ' + r.pts + ' pts'
+      /* l'armement choisi d'abord : c'est ce qui distingue deux lignes
+         de la meme unite, et c'est donc ce qu'on lit en premier */
+      ? (r.arme ? r.arme + ' · ' : '') + r.combien + ' arme' + (r.combien>1?'s':'') +
+        ' · ×' + r.n + ' · ' + r.pts + ' pts'
       : r.unite + ' · ×' + r.n + ' · ' + r.pts + ' pts') + '</i></span>' +
     '<span class="tv"><b>' + num(r[cle]) + '</b><i>' +
       (topTriV === "eff" ? 'PV / 100 pts' : 'PV') + '</i></span>' +
