@@ -25,7 +25,7 @@ const UNITS = [
 ["Canoptek Scarab Swarms",10,2,6,0,4,[3,6],{"3":40,"6":80},0,"",0,"CO 0 (1 à 6\" d'un CRYPTEK).",0,"8+"],
 ["Canoptek Wraiths",10,6,3,4,4,[3,6],[[1,{"3":95,"6":220}],[2,{"3":115,"6":240}]],0,"",0,"Invu 4+ permanente.",2,"8+"],
 ["Canoptek Spyders",5,7,3,0,6,[1,2],{"1":65,"2":110},0,"",0,"Prisme Lugubre (Aura) : FNP 5+ vs mortelles/psychiques à 6\". Griffes de Fabricateur (Aura) : FNP 6+ aux VÉHICULES NÉCRONS à 6\". Essaim Canoptek : rend une figurine à un essaim de Scarabées par phase de Commandement. Deadly Demise 1.",2,"8+"],
-["Canoptek Reanimator",8,6,3,0,6,[1],{"1":75},4,"",0,"FNP 4+ permanent. Faisceau de Réanimation Nanoscarabée (Aura) 3\" : +D3 PV réanimés. Socle ø60mm, Cd 7+ : relevés sur la datasheet.",3,"7+"],
+["Canoptek Reanimator",8,6,3,0,6,[1],{"1":75},4,"",0,"FNP 4+ permanent. Faisceau de Réanimation Nanoscarabée (Aura) 3\" : +D3 PV réanimés. Socle ø60mm. Cd 8+ : le catalogue officiel dit 8+, une note plus ancienne disait 7+.",3,"8+"],
 ["Canoptek Doomstalker",8,8,3,4,12,[1],{"1":140},0,"",0,"Profil dégradé à 1-4 PV : -1 pour toucher. Deadly Demise D3.",4,"8+"],
 ["Canoptek Macrocytes",8,3,4,0,1,[5],{"5":70},0,"",0,"NOUVEAU 11e. Harassment Swarm : -1 pour toucher aux ennemis non-MONSTRE/VÉHICULE à 3\".",1,"8+"],
 ["Canoptek Tomb Crawlers",5,4,3,0,3,[2],{"2":50},0,"",0,"NOUVEAU 11e. Weapon Sentinels : ignore les modificateurs de touche/blessure à 12\".",1,"8+"],
@@ -150,7 +150,7 @@ const ARMEMENT = {
  "Hexmark Destroyer" : { f:[1,0], s:[] }, /* d'office : Close combat weapon, Enmitic disintegrator pistols */
  "Technomancer" : { f:[0,1], s:[] }, /* d'office : Staff of light (tir), Staff of light (càc) */
  "Plasmancer" : { f:[0,1], s:[] }, /* d'office : Plasmic lance (tir), Plasmic lance (càc) */
- "Chronomancer" : { f:[0,1], s:[] }, /* d'office : Aeonstave blast, Aeonstave */
+ "Chronomancer" : { f:[0,1], s:[] }, /* d'office : Chronomancer's stave, deux profils */
  "Psychomancer" : { f:[0,1], s:[] }, /* d'office : Abyssal lance (tir), Abyssal lance (càc) */
  "Geomancer" : { f:[0,1,2], s:[] }, /* d'office : Sismolance — faisceau réverbérant, Sismolance — ondes de choc, Sismolance (càc) */
  "Catacomb Command Barge" : { f:[], s:[{min:1, o:[[0],[1]]}, {min:1, o:[[2,4],[3]]}] }, /* aucune arme d'office */
@@ -226,7 +226,7 @@ const WEAPONS = [
 ["Canoptek Macrocytes","Atomiser beam","T","1",4,6,1,"1","","12\""],
 ["Canoptek Macrocytes","Claws","C","2",4,4,1,"1","","càc"],
 ["Canoptek Tomb Crawlers","Twin gauss reaper","T","2",4,4,1,"1","lethal twin","12\""],
-["Canoptek Tomb Crawlers","Transdimensional isolator","T","2",4,4,2,"2","","12\""],
+["Canoptek Tomb Crawlers","Dimensional isolator","T","2",4,4,2,"2","","12\""],
 ["Canoptek Tomb Crawlers","Claws","C","4",4,6,1,"1","","càc"],
 ["Triarch Stalker","Heavy gauss cannon array","T","6",3,8,2,"2","lethal","24\""],
 ["Triarch Stalker","Particle shredder","T","D6+6",2,7,0,"1","blast dev","18\""],
@@ -278,8 +278,8 @@ const WEAPONS = [
 ["Technomancer","Staff of light (càc)","C","2",4,5,2,"1","","càc"],
 ["Plasmancer","Plasmic lance (tir)","T","3",4,7,3,"2","","18\""],
 ["Plasmancer","Plasmic lance (càc)","C","2",4,7,3,"2","","càc"],
-["Chronomancer","Aeonstave blast","T","D6",4,5,1,"1","blast","18\""],
-["Chronomancer","Aeonstave","C","3",4,5,1,"1","","càc"],
+["Chronomancer","Chronomancer's stave (tir)","T","D6",4,5,1,"1","blast","18\""],
+["Chronomancer","Chronomancer's stave (càc)","C","3",4,5,1,"1","","càc"],
 ["Psychomancer","Abyssal lance (tir)","T","1",4,6,3,"3","","18\""],
 ["Psychomancer","Abyssal lance (càc)","C","1",4,6,3,"3","","càc"],
 ["Geomancer","Sismolance — faisceau réverbérant","T","2",4,8,2,"2","melta:2","18\""],
@@ -317,7 +317,7 @@ const WEAPONS = [
 ["Szarekh, The Silent King","Staff of Stars","T","12",2,6,1,"1","indirect","24\""],
 ["Szarekh, The Silent King","Annihilator beam (menhir)","T","1",2,14,4,"6","","24\""],
 ["Szarekh, The Silent King","Weapons of the Final Triarch","C","12",2,8,3,"2","lethal","càc"],
-["Szarekh, The Silent King","Armoured bulk (menhir)","C","2",4,4,0,"1","","càc"]
+["Szarekh, The Silent King","Armoured bulk (menhir)","C","1",4,4,0,"1","","càc"]
 ];
 
 /* ============================================================
