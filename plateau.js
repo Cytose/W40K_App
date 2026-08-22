@@ -31,12 +31,28 @@ const MM = 25.4;
 const COHESION = 2;      /* bord à bord, d'une figurine à sa voisine */
 const PRISE_MAX = 9;     /* prise au sol qu'on s'impose sur l'unité entière */
 
-/* Le plateau est stocké en portrait et affiché couché : à l'écran, un
-   plateau debout ne laisse rien voir. X = y, Y = 44 - x, et les angles
-   perdent 90°. */
-const DX = (x,y) => y;
-const DY = (x,y) => W - x;
-const versPlateau = (px,py) => ({ x: W - py, y: px });
+/* Le plateau est stocké en portrait, comme la carte officielle : 44 de
+   large sur 60 de long, origine en haut à gauche.
+
+   Il s'affiche couché par défaut, parce qu'un plateau debout ne laisse
+   presque rien voir sur un téléphone : X = y, Y = 44 - x, et les angles
+   perdent 90°.
+
+   Mais couché, il ne se compare plus au document officiel — la diagonale
+   d'une zone de déploiement penche dans l'autre sens, et on ne sait plus
+   dire si c'est la donnée qui se trompe ou l'affichage. D'où le second
+   mode, debout, où l'écran reprend exactement l'orientation de la carte.
+   La donnée, elle, ne bouge pas : seule la projection change. */
+const ORIENT = "mathhammer.plateau.debout";
+let debout = false;
+try { debout = localStorage.getItem(ORIENT) === "1"; } catch(e){ /* navigation privée */ }
+
+const DX = (x,y) => debout ? x : y;
+const DY = (x,y) => debout ? y : W - x;
+const versPlateau = (px,py) => debout ? ({ x: px, y: py }) : ({ x: W - py, y: px });
+/* couché, tout ce qui porte un angle perd 90° ; debout, rien ne tourne */
+const ROT = () => debout ? 0 : -90;
+const VUE = () => debout ? "-1.5 -1.5 47 63" : "-1.5 -1.5 63 47";
 
 /* ---------- état ---------- */
 /* PLAT[idListe] = { adv, variante, dispo, mode,
@@ -349,6 +365,7 @@ function iconeObjectif(g, genre, coul){
 
 function dessine(L, p, bd){
   const svg = el("mapSvg");
+  svg.setAttribute("viewBox", VUE());
   if(!svg) return;
   svg.innerHTML = "";
 
@@ -378,7 +395,7 @@ function dessine(L, p, bd){
   (bd.decors || []).forEach(t => {
     const b = t.b;
     const g = svgEl("g", {transform:"translate(" + DX(b[0],b[1]) + " " + DY(b[0],b[1]) +
-                                   ") rotate(" + (b[4] - 90) + ")"});
+                                   ") rotate(" + (b[4] + ROT()) + ")"});
     g.appendChild(svgEl("rect", {x:-b[2]/2, y:-b[3]/2, width:b[2], height:b[3], rx:0.25,
       fill:"var(--s3)", stroke:"var(--line-hi)", "stroke-width":0.1}));
     svg.appendChild(g);
@@ -392,7 +409,7 @@ function dessine(L, p, bd){
     const spec = DECORS.find(s => s.t === d.t); if(!spec) return;
     const on = selection && selection.genre === "decor" && selection.id === d.id;
     const g = svgEl("g", {transform:"translate(" + DX(d.x,d.y) + " " + DY(d.x,d.y) +
-                                    ") rotate(" + ((d.r||0) - 90) + ")",
+                                    ") rotate(" + ((d.r||0) + ROT()) + ")",
                           "data-decor":d.id, style:"cursor:move"});
     g.appendChild(svgEl("rect", {x:-spec.w/2, y:-spec.h/2, width:spec.w, height:spec.h, rx:0.2,
       fill:"var(--s3)", stroke: on ? "var(--glow)" : "var(--line-hi)",
@@ -441,7 +458,7 @@ function dessine(L, p, bd){
       const sel = on && selection.fig === i;
       const isolee = coh && coh.isolees.indexOf(i) >= 0;
       const g = svgEl("g", {transform:"translate(" + DX(q.x,q.y) + " " + DY(q.x,q.y) +
-                            ") rotate(" + ((q.a || 0) - 90) + ")",
+                            ") rotate(" + ((q.a || 0) + ROT()) + ")",
                             "data-unite":ru.id, "data-fig":i, style:"cursor:move"});
       g.appendChild(svgEl("ellipse", {cx:0, cy:0, rx:s.w/2, ry:s.h/2,
         fill:coul, "fill-opacity": f.chef ? 0.62 : 0.42,
@@ -547,9 +564,15 @@ function renderMap(){
   '</div>' +
 
   '<div class="card">' +
-    '<h2>Le plateau</h2>' +
+    '<h2>Le plateau' +
+      '<button type="button" id="mapOrient" class="minibtn" aria-pressed="' +
+        (debout ? "true" : "false") + '" title="' +
+        (debout ? "Coucher le plateau pour mieux le voir sur un téléphone"
+                : "Redresser le plateau dans le sens de la carte officielle") + '">' +
+        (debout ? "Coucher" : "Redresser") + '</button>' +
+    '</h2>' +
     '<div class="body">' +
-      '<svg id="mapSvg" viewBox="-1.5 -1.5 63 47" role="img" aria-label="Plateau de jeu"></svg>' +
+      '<svg id="mapSvg" role="img" aria-label="Plateau de jeu"></svg>' +
       '<div class="maplg">' +
         '<span><i style="background:var(--cyan)"></i>Ta zone</span>' +
         '<span><i style="background:var(--alert)"></i>Sa zone</span>' +
@@ -669,6 +692,15 @@ function majHud(L, p, bd){
 /* ---------- interactions ---------- */
 function branche(L, p, bd){
   const hote = el("mapBody");
+
+  /* L'orientation ne touche pas la partie : c'est une préférence
+     d'affichage, gardée hors de l'état de plateau. */
+  const bo = el("mapOrient");
+  if(bo) bo.addEventListener("click", ()=>{
+    debout = !debout;
+    try { localStorage.setItem(ORIENT, debout ? "1" : "0"); } catch(e){ /* tant pis */ }
+    renderMap();
+  });
 
   hote.querySelectorAll("[data-mine]").forEach(b => b.addEventListener("click", ()=>{
     p.dispo = b.dataset.mine; selection = null; savePlat(); renderMap();
