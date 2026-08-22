@@ -193,7 +193,7 @@ function fiche(e){
     vus.add(cle);
     armes.push({nom, genre: t === 'Melee Weapons' ? 'C' : 'T',
       portee: c.Range || '', A: c.A || '', CT: c.BS || c.WS || '',
-      F: c.S || '', PA: c.AP || '', D: c.D || '', n});
+      F: c.S || '', PA: c.AP || '', D: c.D || '', mots: c.Keywords || '', n});
   }
   return {stats, armes};
 }
@@ -246,6 +246,46 @@ function baseArme(n){
   n = ALIAS_ARME[n] || n;
   return n.replace(/\s*\(c'tan\)$/, '');
 }
+/* Les mots-cles : le catalogue les ecrit en toutes lettres, l'application
+   en abrege. C'est le champ que la premiere passe ne comparait pas -- et
+   c'est exactement la qu'un « Tir Rapide 5 » multiplie par deux porteurs
+   s'etait cache en « rf:10 ». */
+const MOTS = [
+  [/^Lethal Hits$/i,            () => 'lethal'],
+  [/^Devastating Wounds$/i,     () => 'dev'],
+  [/^Twin-linked$/i,            () => 'twin'],
+  [/^Blast$/i,                  () => 'blast'],
+  [/^Torrent$/i,                () => 'torrent'],
+  [/^Ignores Cover$/i,          () => 'ignorescover'],
+  [/^Indirect Fire$/i,          () => 'indirect'],
+  [/^Precision$/i,              () => 'precision'],
+  [/^Pistol$/i,                 () => 'pistol'],
+  [/^Heavy$/i,                  () => 'heavy'],
+  [/^Hazardous$/i,              () => null],          /* sans effet sur le jet */
+  [/^One Shot$/i,               () => 'oneshot'],
+  [/^Extra Attacks$/i,          () => 'extra'],
+  [/^Assault$/i,                () => 'assault'],
+  [/^Rapid Fire (\S+)$/i,       m => 'rf:' + m[1]],
+  [/^Sustained Hits (\S+)$/i,   m => 'sust:' + m[1]],
+  [/^Melta (\S+)$/i,            m => 'melta:' + m[1]],
+  [/^Anti-(\S+) (\d)\+$/i,     m => 'anti:' + m[2] + ':' + m[1].toLowerCase()],
+];
+/* les mots du catalogue, traduits dans le vocabulaire de l'application */
+function motsRef(txt){
+  const out = [];
+  String(txt || '').split(',').map(x => x.trim())
+    .filter(x => x && x !== '-' && x !== '—').forEach(m => {
+    const r = MOTS.find(([re]) => re.test(m));
+    if(!r){ out.push('?' + m); return; }
+    const v = r[1](r[0].exec(m));
+    if(v) out.push(v);
+  });
+  return out;
+}
+/* Anti-X et les mots-cles cibles nomment un mot-cle d'unite que
+   l'application abrege a sa facon : on ne compare que le seuil. */
+const cleMot = m => m.replace(/^(anti:\d+):.*$/, '$1');
+
 const nb = (x, d) => {
   const m = /^-?\d+/.exec(String(x == null ? '' : x).trim());
   return m ? parseInt(m[0], 10) : d;
@@ -357,6 +397,22 @@ for(const nom of Object.keys(REF).sort()){
     });
     if((w[2] === 'T') !== (a.genre === 'T'))
       note(nomApp, 'arme', a.nom + ' : type app ' + w[2] + ' / catalogue ' + a.genre);
+
+    /* mots-cles. Un mot numerique -- Tir Rapide, Coups Prolonges, Fusion --
+       porte le meme piege que les attaques : il vaut par arme, et le
+       multiplier par le nombre de porteurs est une erreur silencieuse. */
+    const motsApp = String(w[8] || '').split(/\s+/).filter(Boolean);
+    const attendus = motsRef(a.mots);
+    const inconnus = attendus.filter(m => m[0] === '?');
+    attendus.filter(m => m[0] !== '?').forEach(m => {
+      if(motsApp.some(x => cleMot(x) === cleMot(m))) return;
+      const proche = motsApp.find(x => x.split(':')[0] === m.split(':')[0]);
+      note(nomApp, 'mot-clé', a.nom + ' : ' + (proche
+        ? 'app ' + proche + ' / catalogue ' + m
+        : 'catalogue dit « ' + m +' », absent de l\'application'));
+    });
+    if(inconnus.length)
+      note(nomApp, 'mot-clé', a.nom + ' : non traduit — ' + inconnus.join(', ').replace(/\?/g, ''));
   });
 
   const basesRef = new Set(r.armes.map(a => baseArme(a.nom)));
