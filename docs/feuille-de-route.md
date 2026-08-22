@@ -2585,3 +2585,71 @@ Seize unités du catalogue officiel manquent à l'application : treize `[Legends
 trois `[Crucible]`, et le Seraptek Heavy Construct. Aucune n'est jouable en partie
 classée. Le champ `legends` de `UNITS` existe et n'est utilisé nulle part : la
 place est prête si tu les veux.
+
+## 42. Les armes s'écrivent comme la fiche les écrit — 22/08/2026
+
+Tu as regardé le Monolithe et tu as relevé que le rayon de mort **tire une
+fois**, pas quatre. Le catalogue officiel te donne raison, et il nomme même
+l'option « **Four death rays** » : quatre rayons, une attaque chacun.
+
+L'application affichait `Rayon de mort ×4` avec **A=4**. Le total, pas la fiche.
+Mathématiquement identique — quatre rayons à une attaque font quatre attaques —
+mais illisible : tu lis 1 sur ta fiche, l'application écrit 4, et rien ne te dit
+lequel des deux chiffres est le bon. C'est très exactement le doute que Szarekh
+t'avait laissé, et il était fondé la première fois.
+
+### Ce qui change
+
+Sept unités écrivaient leurs armes multipliées d'avance. Chacune est ramenée au
+profil de la fiche, le nombre d'exemplaires passant dans `ARMEMENT.n` — le
+mécanisme que Szarekh avait déjà inauguré :
+
+| Unité | Arme | Avant | Maintenant |
+|---|---|---|---|
+| Monolithe | Rayon de mort | A4, « ×4 » dans le nom | **A1 × 4 exemplaires** |
+| Monolithe | Arc de flux gauss | A12, Tir Rapide 12 | **A3, Tir Rapide 3, × 4** |
+| Arche Fantôme | Batterie de faucheuses | A10, Tir Rapide 10 | **A5, Tir Rapide 5, × 2** |
+| Arche du Jugement | Batterie de faucheuses | A10, Tir Rapide 10 | **A5, Tir Rapide 5, × 2** |
+| Réanimateur | Faisceau atomiseur | A6 | **A3 × 2** |
+| Obélisque | Sphère tesla | A24 | **A6 × 4** |
+| Coffre Tesseract | Sphère tesla | A24 | **A6 × 4** |
+| Cybernécrophages | Émetteur à particules | A2D6 | **AD6 × 2 chacun** |
+
+**Rien ne bouge en jeu** : les totaux mis en table sont identiques au dé près, et
+l'affichage aussi — l'application composait déjà le libellé `Arme ×N` à partir du
+nombre de porteurs. Ce qui change, c'est que la donnée dit enfin la même chose que
+ta fiche, et qu'un écart futur se verra.
+
+Deux obstacles ont dû tomber pour ça. Le nombre d'exemplaires ne s'appliquait
+qu'aux armes d'office : le rayon de mort vit dans un emplacement — le Monolithe
+choisit entre ses rayons et ses arcs — et serait retombé à une seule attaque. Et
+le compte était plafonné à l'effectif, ce qui ramenait l'Arche Fantôme, figurine
+unique, à une seule batterie sur deux.
+
+### Le trou que ça a révélé
+
+Le contrôle du chantier 41 ne comparait **pas les mots-clés**. C'est précisément
+là que `Tir Rapide 10` s'était caché — un Tir Rapide 5 multiplié par deux
+porteurs, invisible à un contrôle qui ne regardait que les attaques. Un mot-clé
+numérique porte le même piège qu'une caractéristique d'attaques.
+
+`outils/catalogue.js` traduit désormais les dix-huit mots-clés du catalogue dans
+le vocabulaire de l'application et les confronte un par un. Et cette fois, la
+capacité à détecter a été **prouvée** plutôt que supposée : deux erreurs plantées
+exprès — `rf:10` sur l'Arche Fantôme, `sust:D3` retiré au rayon de mort — et le
+rapport les a nommées toutes les deux.
+
+Cette vérification-là n'était pas du zèle. Au premier essai le contrôle annonçait
+zéro écart alors que les deux erreurs étaient bien dans le fichier : l'extracteur
+ne récupérait pas le champ des mots-clés, et la comparaison tournait à blanc. Un
+instrument qui ne mesure rien annonce toujours que tout va bien.
+
+### Vérification
+
+`npm run catalogue` : zéro écart sur cinquante et une unités, mots-clés compris.
+
+`test_porteurs`, vingt-sept contrôles : chaque profil réécrit vaut celui de la
+fiche dans `data.js`, chaque total mis en table vaut celui d'avant la réécriture,
+les deux armements du Monolithe restent exclusifs, Szarekh ne bouge pas, et une
+escouade uniforme — dix Immortels, dix carabines à deux attaques — continue de
+compter par figurine.

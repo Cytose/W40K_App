@@ -120,8 +120,8 @@ const ARMEMENT = {
  "Tomb Blades" : { f:[3], s:[{min:1, o:[[0],[2],[1]]}] }, /* d'office : Close combat weapon */
  "Canoptek Scarab Swarms" : { f:[0], s:[] }, /* d'office : Feeder mandibles */
  "Canoptek Wraiths" : { f:[], s:[{min:1, o:[[0,2],[0,3],[0],[1],[2,1],[3,1]]}] }, /* aucune arme d'office */
- "Canoptek Spyders" : { f:[1], s:[{min:0, o:[[0]]}] }, /* d'office : Automaton claws */
- "Canoptek Reanimator" : { f:[0,1], s:[] }, /* d'office : Atomiser beam ×2, Reanimator's claws */
+ "Canoptek Spyders" : { f:[1], s:[{min:0, o:[[0]]}], n:{0:2} }, /* d'office : Automaton claws */
+ "Canoptek Reanimator" : { f:[0,1], s:[], n:{0:2} }, /* d'office : Atomiser beam ×2, Reanimator's claws */
  "Canoptek Doomstalker" : { f:[0,2,1], s:[] }, /* d'office : Doomsday blaster, Doomstalker limbs, Twin gauss flayer */
  /* Le pack limite deux options a une seule figurine, et la mandibule
     acceleratrice remplace l'arme de tir sans en donner une autre :
@@ -134,12 +134,12 @@ const ARMEMENT = {
     transdimensionnel » : l'isolateur est plafonne a une figurine. */
  "Canoptek Tomb Crawlers" : { f:[2], s:[{min:1, o:[[0],[1]], omax:[0, 1]}] }, /* d'office : Claws */
  "Triarch Stalker" : { f:[4], s:[{min:1, o:[[2,3],[1],[0]]}] }, /* d'office : Stalker's forelimbs */
- "Doomsday Ark" : { f:[0,1,2], s:[] }, /* d'office : Doomsday cannon, Gauss flayer array ×2, Armoured bulk */
- "Ghost Ark" : { f:[0,1], s:[] }, /* d'office : Gauss flayer array ×2, Armoured bulk */
+ "Doomsday Ark" : { f:[0,1,2], s:[], n:{1:2} }, /* d'office : Doomsday cannon, Gauss flayer array ×2, Armoured bulk */
+ "Ghost Ark" : { f:[0,1], s:[], n:{0:2} }, /* d'office : Gauss flayer array ×2, Armoured bulk */
  "Annihilation Barge" : { f:[0,3], s:[{min:1, o:[[1],[2]]}] }, /* d'office : Twin tesla destructor, Armoured bulk */
- "Monolith" : { f:[2,3], s:[{min:1, o:[[1],[0]]}] }, /* d'office : Particle whip, Portal of exile */
- "Obelisk" : { f:[1,0], s:[] }, /* d'office : Armoured bulk, Tesla sphere ×4 */
- "Tesseract Vault" : { f:[4,0,1,2,3], s:[] }, /* d'office : Armoured bulk, Tesla spheres ×4, Antimatter Meteor (C'tan), Cosmic Fire (C'tan), Time's Arrow (C'tan) */
+ "Monolith" : { f:[2,3], s:[{min:1, o:[[1],[0]]}], n:{0:4, 1:4} }, /* d'office : Particle whip, Portal of exile */
+ "Obelisk" : { f:[1,0], s:[], n:{0:4} }, /* d'office : Armoured bulk, Tesla sphere ×4 */
+ "Tesseract Vault" : { f:[4,0,1,2,3], s:[], n:{0:4} }, /* d'office : Armoured bulk, Tesla spheres ×4, Antimatter Meteor (C'tan), Cosmic Fire (C'tan), Time's Arrow (C'tan) */
  "Doom Scythe" : { f:[0,1,2], s:[] }, /* d'office : Heavy death ray, Twin tesla destructor, Armoured bulk */
  "Night Scythe" : { f:[0,1], s:[] }, /* d'office : Twin tesla destructor, Armoured bulk */
  "Overlord" : { f:[], s:[{min:1, o:[[2,0],[3],[1,4]]}] }, /* aucune arme d'office */
@@ -214,9 +214,9 @@ const WEAPONS = [
 ["Canoptek Wraiths","Whip coils","C","8",4,5,0,"1","","càc"],
 ["Canoptek Wraiths","Transdimensional beamer","T","1",4,4,2,"3","","12\""],
 ["Canoptek Wraiths","Particle caster","T","3",4,5,0,"1","dev pistol","12\""],
-["Canoptek Spyders","Particle beamer ×2","T","2D6",3,6,0,"1","blast dev","18\""],
+["Canoptek Spyders","Particle beamer","T","D6",3,6,0,"1","blast dev","18\""],
 ["Canoptek Spyders","Automaton claws","C","5",4,8,2,"2","","càc"],
-["Canoptek Reanimator","Atomiser beam ×2","T","6",4,6,2,"1","","12\""],
+["Canoptek Reanimator","Atomiser beam","T","3",4,6,2,"1","","12\""],
 ["Canoptek Reanimator","Reanimator's claws","C","4",4,5,0,"1","","càc"],
 ["Canoptek Doomstalker","Doomsday blaster","T","D6+1",4,14,3,"3","blast heavy","48\""],
 ["Canoptek Doomstalker","Twin gauss flayer","T","1",4,4,0,"1","lethal rf:1 twin","24\""],
@@ -234,21 +234,21 @@ const WEAPONS = [
 ["Triarch Stalker","Heat ray — dispersé","T","2D6",4,5,1,"1","torrent ignorescover","12\""],
 ["Triarch Stalker","Stalker's forelimbs","C","4",3,7,1,"3","","càc"],
 ["Doomsday Ark","Doomsday cannon","T","D6+1",3,18,4,"4","blast heavy","72\""],
-["Doomsday Ark","Gauss flayer array ×2","T","10",3,4,0,"1","lethal rf:10","24\""],
+["Doomsday Ark","Gauss flayer array","T","5",3,4,0,"1","lethal rf:5","24\""],
 ["Doomsday Ark","Armoured bulk","C","3",4,6,0,"1","","càc"],
-["Ghost Ark","Gauss flayer array ×2","T","10",3,4,0,"1","lethal rf:10","24\""],
+["Ghost Ark","Gauss flayer array","T","5",3,4,0,"1","lethal rf:5","24\""],
 ["Ghost Ark","Armoured bulk","C","3",4,6,0,"1","","càc"],
 ["Annihilation Barge","Twin tesla destructor","T","6",3,8,0,"2","sust:2 twin","36\""],
 ["Annihilation Barge","Gauss cannon","T","3",3,5,2,"2","lethal","24\""],
 ["Annihilation Barge","Tesla cannon","T","4",3,6,0,"1","sust:2","24\""],
 ["Annihilation Barge","Armoured bulk","C","3",4,6,0,"1","","càc"],
-["Monolith","Gauss flux arc ×4","T","12",3,6,1,"1","lethal rf:12","24\""],
-["Monolith","Death ray ×4","T","4",3,12,4,"D6+1","sust:D3","24\""],
+["Monolith","Gauss flux arc","T","3",3,6,1,"1","lethal rf:3","24\""],
+["Monolith","Death ray","T","1",3,12,4,"D6+1","sust:D3","24\""],
 ["Monolith","Particle whip","T","3D6",3,8,1,"2","blast dev","24\""],
 ["Monolith","Portal of exile","C","6",2,8,2,"3","","càc"],
-["Obelisk","Tesla sphere ×4","T","24",3,7,0,"1","sust:2 anti:4:vol","24\""],
+["Obelisk","Tesla sphere","T","6",3,7,0,"1","sust:2 anti:4:vol","24\""],
 ["Obelisk","Armoured bulk","C","6",4,8,0,"1","","càc"],
-["Tesseract Vault","Tesla spheres ×4","T","24",3,7,0,"1","sust:2","24\""],
+["Tesseract Vault","Tesla sphere","T","6",3,7,0,"1","sust:2","24\""],
 ["Tesseract Vault","Antimatter Meteor (C'tan)","T","D6+3",3,10,3,"3","blast dev indirect","24\""],
 ["Tesseract Vault","Cosmic Fire (C'tan)","T","3D6",4,6,2,"1","torrent dev ignorescover","18\""],
 ["Tesseract Vault","Time's Arrow (C'tan)","T","1",2,3,2,"6","dev precision anti:4:perso","24\""],

@@ -546,11 +546,21 @@ const socle = nom => (BASES && BASES[nom]) || "";
 const armRow   = nom => (typeof ARMEMENT !== "undefined" && ARMEMENT[nom]) || null;
 const armFixes = nom => { const a = armRow(nom); return a ? a.f : unitWeps(nom).map((w, i) => i); };
 const armSlots = nom => { const a = armRow(nom); return a ? a.s : []; };
-/* Combien de figurines portent chaque arme d'office. Absent = toutes,
-   ce qui vaut pour une escouade uniforme. Le Roi Silencieux est le seul
-   du catalogue a ne pas l'etre : ses deux Menhirs ne tiennent pas ce
-   qu'il tient. */
+/* Combien d'exemplaires de chaque arme, par indice.
+
+   Deux usages qui se rejoignent. Sur une unite uniforme, absent veut dire
+   « une par figurine » : cinq Immortels portent cinq carabines. Sur une
+   fiche qui compte ses armes, le nombre est explicite : le Monolithe a
+   quatre rayons de mort, l'Arche Fantome deux batteries.
+
+   On aurait pu ecrire « Rayon de mort ×4 » avec quatre attaques d'un
+   coup. Le total serait le meme, mais le profil ne se lirait plus sur la
+   fiche d'unite -- et un joueur qui compare ne peut plus savoir si le
+   quatre est le bon. C'est ce doute qui a laisse Szarekh porter
+   trente-six attaques pendant des semaines. Chaque profil est donc
+   ecrit tel que la fiche l'ecrit, et le nombre vit ici. */
 const armPort = nom => { const a = armRow(nom); return (a && a.n) || null; };
+const nPort = (n, i) => (n && n[i]) || 1;
 const aDesChoix = nom => armSlots(nom).length > 0;
 
 /* ce que l'unite a retenu dans un emplacement */
@@ -561,16 +571,23 @@ const optMax = (sl, oi) => (sl && sl.omax && sl.omax[oi]) || 0;
 const loSlot = (ru, si) => (ru.lo || []).filter(l => l.s === si);
 const totalSlot = (ru, si) => loSlot(ru, si).reduce((a, l) => a + l.n, 0);
 
-/* combien de figurines portent chaque arme, par indice */
+/* combien d'exemplaires de chaque arme l'unite met en jeu, par indice */
 function portParArme(ru){
   const out = {}, slots = armSlots(ru.name), n = armPort(ru.name);
   armFixes(ru.name).forEach(i => {
-    out[i] = (n && n[i]) ? Math.min(n[i], ru.size) : ru.size;
+    /* Le nombre declare est celui de l'unite entiere, pas d'une figurine :
+       l'Arche Fantome porte deux batteries a elle seule, et le Roi
+       Silencieux deux faisceaux pour ses deux Menhirs. Le plafonner a
+       l'effectif ramenait les vehicules a un seul exemplaire. */
+    out[i] = (n && n[i]) ? n[i] : ru.size;
   });
   (ru.lo || []).forEach(l => {
     const s = slots[l.s]; if(!s || l.n <= 0) return;
     const o = s.o[l.o]; if(!o) return;
-    o.forEach(i => { out[i] = (out[i] || 0) + l.n; });
+    /* Une arme prise dans un emplacement compte elle aussi ses
+       exemplaires : le Monolithe choisit ses rayons de mort, et il en
+       recoit quatre, pas un. */
+    o.forEach(i => { out[i] = (out[i] || 0) + l.n * nPort(n, i); });
   });
   return out;
 }
@@ -579,12 +596,12 @@ function portParArme(ru){
    tachyon, ou sa faux, ou son baton. Il tient une seule figurine, donc
    chaque arme compte pour une. */
 function portParArmePerso(c){
-  const out = {}, slots = armSlots(c.name);
-  armFixes(c.name).forEach(i => { out[i] = 1; });
+  const out = {}, slots = armSlots(c.name), n = armPort(c.name);
+  armFixes(c.name).forEach(i => { out[i] = nPort(n, i); });
   (c.lo || []).forEach(l => {
     const sl = slots[l.s]; if(!sl) return;
     const o = sl.o[l.o]; if(!o) return;
-    o.forEach(i => { out[i] = (out[i] || 0) + 1; });
+    o.forEach(i => { out[i] = (out[i] || 0) + nPort(n, i); });
   });
   return out;
 }
