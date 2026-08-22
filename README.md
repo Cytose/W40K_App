@@ -73,6 +73,8 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | axes Listes et En partie, vue Comparer, fiche d'unité, partage, encodeur QR |
+| `layouts.js` | les 45 dispositions de champ de bataille : zones de déploiement, objectifs, décors, missions primaires |
+| `plateau.js` | axe Plateau |
 | `sw.js` | service worker (mode hors-ligne) |
 | `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
 | `vercel.json` | pointe le déploiement sur `dist/` |
@@ -98,11 +100,11 @@ Sans `vercel.json`, Vercel exécute `npm run build` puis cherche un dossier
 `public` : il n'en trouve pas, le déploiement échoue, et le site reste figé sur
 la dernière version publiée avant l'ajout de `package.json`.
 
-## Les trois axes
+## Les quatre axes
 
-L'application est organisée en trois axes, qui correspondent aux trois moments
+L'application est organisée en quatre axes, qui correspondent aux quatre moments
 d'une partie. Elle s'ouvre sur le premier : on construit sa liste avant de la
-mesurer, et on la mesure avant de la jouer.
+mesurer, on la mesure avant de la poser, et on la pose avant de la jouer.
 
 **Listes** — s'ouvre sur l'index de ce qu'on a construit. C'est là que vit le
 cycle de vie d'une liste : créer, et par le bouton `⋯` de chaque carte ouvrir,
@@ -181,6 +183,43 @@ S'y ajoutent points de commandement, unités encore debout, points de vie
 restants par unité et par personnage rattaché, réanimation D3 sur toute l'armée,
 score primaire et secondaire, et journal du tour. La liste ouverte reste
 consultable en dessous, en lecture seule.
+
+**Plateau** — la table telle qu'elle sera. Le croisement de ta Disposition de
+Force et de celle d'en face désigne une des quinze cartes officielles, chacune
+en trois variantes : l'écran affiche celle-là, avec les deux zones de
+déploiement, les objectifs et le décor, à l'échelle sur 44 × 60 pouces et sur
+une grille de six.
+
+La Disposition vient du détachement retenu ; quand plusieurs détachements en
+ouvrent plusieurs, on choisit. Les deux missions primaires que le croisement
+génère sont nommées, la tienne et la sienne.
+
+En dessous, les unités de la liste en service. Toucher une unité la pose dans
+ta zone, **figurine par figurine** : dix Guerriers sont dix socles de 32 mm à
+l'échelle du plateau, posés en quinconce, resserrés jusqu'à ce que l'unité
+tienne dans ses 9 pouces de prise au sol. Les socles viennent du **Base Size
+Guide** de l'Event Companion, ovales compris — une Arche du Jugement occupe ses
+120 × 92 mm, pas un rond de convenance.
+
+On déplace **l'unité entière ou une seule figurine**, au choix, et la
+**distance parcourue s'affiche en pouces sur le plateau pendant le geste**, avec
+ce qu'il reste du mouvement de l'unité. La **cohésion** se vérifie en même
+temps : une figurine à plus de 2 pouces bord à bord de sa voisine — de ses deux
+voisines dès sept figurines — se cerne de rouge, et la prise au sol de l'unité
+est annoncée, signalée au-delà de 9 pouces. « Reformer en quinconce » remet
+l'escouade d'aplomb autour de son centre.
+
+Chaque socle porte la **couleur de la famille de son métier**, et un personnage
+rattaché se distingue par un point clair. L'unité sélectionnée montre ses
+**portées de menace** — mouvement, mouvement + charge (7 pouces, la moyenne de
+2D6, pas une garantie), mouvement + portée de son arme la plus longue, mesurées
+depuis le bord de sa prise au sol — et l'écran dit si elle est toute dans ta
+zone, à cheval, ou dehors.
+
+Le décor officiel est déjà en place. Les cinq empreintes du pack de terrain
+restent disponibles pour le corriger ou éprouver une autre table ; positions et
+décor ajouté sont enregistrés par liste.
+
 
 ## Fonctions
 
@@ -505,6 +544,10 @@ Une liste enregistrée qui contenait une de ces unités — ou un personnage
 rattaché supprimé — la perd au chargement, avec un message qui la nomme.
 Auparavant une unité inconnue disparaissait du pavé sans un mot tout en
 restant dans les données.
-Les empreintes de socle ne viennent d'aucune de ces deux sources : seules
-Immortals 32, Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 sont
-confirmées, le reste suit les socles habituels et reste à vérifier.
+Les empreintes de socle viennent désormais du **Base Size Guide** de
+l'Event Companion v1.1 (Games Workshop, mis à jour juin 2026) : les 46 fiches
+nécrones de sa section NECRONS, reprises telles qu'il les écrit, ovales
+compris. `SOCLES` porte la source, `BASES` n'en est plus qu'une lecture pour la
+fiche d'unité. Deux entrées du guide ne portent pas de dimension mais un nom de
+produit — Large et Small Flying Base : les valeurs retenues, 120 × 92 et
+60 × 35,5, sont une déduction signalée comme telle dans `data.js`.
