@@ -555,9 +555,12 @@ function renderMap(){
         '<span><i style="background:var(--alert)"></i>Sa zone</span>' +
         '<span><i style="background:var(--glow);border-radius:50%"></i>Objectif central</span>' +
         '<span><i style="background:var(--green)"></i>No man\'s land</span>' +
+        /* Les decors ne sont plus des contours reconstruits mais les
+           gabarits officiels : le vert est l'emprise de jeu du decor,
+           celle qu'on mesure, et le brun les elements qui la garnissent. */
         '<span><i style="background:var(--s3);border:1px solid var(--line-hi)"></i>Socle</span>' +
-        '<span><i style="background:var(--green)"></i>Murs</span>' +
-        '<span><i style="background:var(--warn)"></i>Obstacles</span>' +
+        '<span><i style="background:var(--green)"></i>Emprise du décor</span>' +
+        '<span><i style="background:var(--warn)"></i>Ruines</span>' +
       '</div>' +
       '<p class="hint" id="mapHud">Touche une unité pour la poser, glisse-la pour l\'ajuster.</p>' +
     '</div>' +
