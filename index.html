@@ -1166,8 +1166,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .top .tn{min-width:0}
 .top .tn b{display:block;font-size:12.5px;font-weight:700;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
-.top .tn i{display:block;font-style:normal;font-size:10px;color:var(--tx3);
-  margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* la sous-ligne nomme toutes les armes comptees : sur deux lignes au
+   besoin, sinon la liste se faisait couper par les points de suspension
+   et on ne savait toujours pas de quelle arme il s'agissait */
+.top .tn i{font-style:normal;font-size:10px;color:var(--tx3);line-height:1.35;
+  margin-top:1px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical}
 .top .tv{text-align:right}
 .top .tv b{display:block;font-size:13.5px;font-weight:800;color:var(--glow);
   font-variant-numeric:tabular-nums}
