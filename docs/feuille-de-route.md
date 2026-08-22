@@ -2399,3 +2399,72 @@ Premier emplacement essayé : le pied de page. Mesuré à l'écran, il est dans
 `#scSim` et ne s'affiche donc que sous l'onglet Simulateur — inutilisable pour se
 repérer. La version vit dans **Réglages**, atteignable depuis n'importe où ; la
 ligne du pied de page est conservée, elle ne coûte rien.
+
+## 40. Le palmarès additionnait des armes qui s'excluent — 21/08/2026
+
+Signalement, en regardant le classement au point : « les Destroyers Lokhust
+lourds, tu calcules apparemment les deux armes d'un coup ; pareil pour le Triarch
+Stalker, on dirait que tu additionnes les quatre ».
+
+C'était exact, et le code l'admettait en commentaire :
+
+> *l'unite entiere : toutes ses armes de la phase, celles qui s'excluent
+> comprises — c'est un plafond, pas un armement reel*
+
+Un « plafond » présenté comme un classement n'est pas une nuance, c'est une
+erreur : rien ne distinguait une unité qui tire vraiment tout d'une unité dont on
+avait cumulé des armes incompatibles.
+
+### Ce que la fiche dit vraiment
+
+| Unité | Emplacement | Ce qui était compté |
+|---|---|---|
+| Destroyers Lokhust lourds | Destructeur gauss **ou** Exterminateur enmitique | les deux |
+| Triarch Stalker | Rayon thermique **ou** Broyeur de particules **ou** Batterie gauss | les trois, plus les **deux profils** du rayon |
+| Overlord | trois armements distincts | les cinq armes |
+| Roi Silencieux | aucun choix — il tire tout | correct, et il le reste |
+
+### Une ligne par armement possible
+
+`armementsPossibles()` énumère le produit des options de chaque emplacement et
+rend une entrée par combinaison. Le classement montre donc :
+
+```
+Destroyers Lokhust lourds · Destructeur gauss          10,5
+Destroyers Lokhust lourds · Exterminateur enmitique    10,0
+```
+
+au lieu d'une seule ligne à 20,5 qui n'existe sur aucune table. C'est ce que le
+joueur demandait — « plusieurs barres selon le style d'armes » — et c'est aussi
+plus utile : on compare les armements entre eux, ce qui est la question qu'on se
+pose en montant une liste.
+
+**Les profils d'une même arme ne s'additionnent pas non plus.** Le rayon
+thermique focalisé et dispersé sont deux façons de tirer *la même* arme :
+`groupesArmes` les rassemblait déjà pour l'affichage, on garde désormais le
+meilleur des deux au lieu de les cumuler.
+
+Un garde-fou borne l'énumération à douze combinaisons par fiche : deux
+emplacements à trois options en font neuf, trois en feraient vingt-sept, et une
+seule unité noierait le classement.
+
+### Deux défauts d'étiquette trouvés en vérifiant
+
+- **Le choix ne retenait que le dernier emplacement.** La Barge de Commandement
+  en a deux ; elle s'annonçait « Bâton de lumière » en oubliant son canon gauss.
+  L'accumulateur repart maintenant de la combinaison entière.
+- **L'étiquette ignorait la phase.** Le classement de tir annonçait « lame de
+  l'Overlord », une arme de mêlée qui n'y participe pas. Seules les armes de la
+  phase courante nomment l'armement.
+
+Et en mode « par arme », deux lignes s'appelaient toutes deux « Rayon thermique ».
+Quand un groupe a plusieurs profils dans la même phase, le nom entier est
+conservé ; sinon le libellé court suffit.
+
+### Vérification
+
+`test_palm_armements`, quatorze contrôles : deux lignes pour les Destroyers
+lourds dont aucune n'atteint la somme des deux, les profils du rayon thermique
+non cumulés, l'étiquette de la Barge qui nomme ses deux emplacements, celle de
+l'Overlord vide de toute arme de mêlée en phase de tir, et le Roi Silencieux qui
+garde sa somme — parce que lui tire vraiment tout.
