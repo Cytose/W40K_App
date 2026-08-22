@@ -8,7 +8,8 @@
     "catalogue": "node outils/catalogue.js",
     "dispositions": "node outils/dispositions.js",
     "gabarits": "node outils/test-gabarits.mjs",
-    "dispositions-test": "node outils/test-dispositions.mjs"
+    "dispositions-test": "node outils/test-dispositions.mjs",
+    "orientation": "node outils/test-orientation.mjs"
   },
   "devDependencies": {
     "terser": "^5.36.0"

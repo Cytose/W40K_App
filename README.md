@@ -579,6 +579,33 @@ officiels), `npm run dispositions-test` (les invariants de géométrie) et
 `node outils/test-pc.mjs` (le gain de PC, navigateur, site servi sur `:8099`
 ou `$SITE`).
 
+## Le plateau, couché ou debout
+
+Le plateau est **stocké en portrait**, comme la carte officielle : 44″ de large
+sur 60″ de long, origine en haut à gauche. Il s'affichait toujours **couché**,
+parce qu'un plateau debout ne laisse presque rien voir sur un téléphone —
+`X = y`, `Y = 44 − x`, et les angles perdent 90°.
+
+Le problème n'est apparu qu'en comparant l'écran au document : couchée, la
+diagonale d'une zone de déploiement penche dans l'autre sens que sur la carte
+imprimée. Rien n'est faux, mais on ne peut plus rien vérifier — impossible de
+dire si c'est la donnée qui se trompe ou l'affichage.
+
+Un bouton **Redresser** a donc été posé dans l'en-tête de la carte. Debout,
+l'écran reprend exactement l'orientation de la carte officielle, et les deux se
+superposent. La donnée ne bouge pas : seule la projection change.
+
+`node outils/test-orientation.mjs` l'établit dans les deux sens, sur la carte
+Sabotage variante B — deux triangles, le cas où une erreur d'orientation se
+verrait le plus. Couché, les sommets dessinés sont l'image exacte de
+`X = y, Y = 44 − x` appliquée à `layouts.js` ; debout, ce sont les sommets de
+`layouts.js`, sans transformation. Huit contrôles.
+
+Le bouton est dans l'en-tête et non sous le plateau, et ce n'est pas un détail :
+posé dans le corps de la carte, il repoussait tout ce qui suit de quarante
+pixels, et `test-plateau.mjs` — qui clique à des coordonnées absolues — touchait
+un autre bouton. Deux de ses contrôles tombaient. Dans l'en-tête, rien ne bouge.
+
 ## Unités Legends
 
 Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :

@@ -136,6 +136,16 @@ header{
   background:linear-gradient(135deg,var(--green) 45%,transparent 45%);
 }
 .card > h2 .chev{margin-left:auto;color:var(--tx3);font-size:11px;transition:transform .18s}
+/* Un reglage d'affichage loge dans l'en-tete d'une carte : la, il ne
+   repousse rien de ce qui suit. */
+.card > h2 .minibtn{
+  margin-left:auto;font:inherit;font-size:10.5px;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line-hi);background:var(--s1);color:var(--tx2);
+}
+.card > h2 .minibtn[aria-pressed="true"]{
+  border-color:var(--acc-bd);background:var(--glow-soft);color:var(--glow);
+}
 .card.collapsed > h2{border-bottom-color:transparent}
 .card.collapsed > h2 .chev{transform:rotate(-90deg)}
 .card.collapsed > .body{display:none}
