@@ -6,7 +6,9 @@
   "scripts": {
     "build": "node build.js",
     "catalogue": "node outils/catalogue.js",
-    "dispositions": "node outils/dispositions.js"
+    "dispositions": "node outils/dispositions.js",
+    "gabarits": "node outils/test-gabarits.mjs",
+    "dispositions-test": "node outils/test-dispositions.mjs"
   },
   "devDependencies": {
     "terser": "^5.36.0"

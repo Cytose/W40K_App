@@ -2068,10 +2068,10 @@ const GKEY = "mathhammer.partie.v1";
 const PHASES = [["cmd","Cmdt"],["mvt","Mvt"],["tir","Tir"],["chg","Charge"],["cbt","Combat"]];
 const PHASE_LONG = {cmd:"Commandement", mvt:"Mouvement", tir:"Tir", chg:"Charge", cbt:"Combat"};
 const RAPPELS = {
-  cmd: "Gagne 1 PC. Étape d'Ébranlement : jet pour les unités sous la moitié de leur effectif. Fin de phase, Protocoles de Réanimation : chaque unité amie qui a l'aptitude et se trouve sur le champ de bataille soigne D3 points de vie.",
+  cmd: "Étape des PC de Base : les deux joueurs gagnent 1 PC, à chaque tour. Hors PC de Base, on n'en gagne pas plus d'1 par round de bataille. Étape d'Ébranlement : jet pour les unités sous la moitié de leur effectif. Fin de phase, Protocoles de Réanimation : chaque unité amie qui a l'aptitude et se trouve sur le champ de bataille soigne D3 points de vie.",
   mvt: "Mouvement normal, Avance (+D6, plus de tir sauf armes d'Assaut), ou Rester Immobile (+1 pour toucher aux armes Lourdes). Étape des Renforts : Frappe en Profondeur à plus de 9\" de tout ennemi.",
   tir: "Une unité au contact ne tire qu'avec ses Pistolets. Rapid Fire double dans la moitié de la portée, Melta ajoute ses dégâts. Vérifie la portée avant de désigner la cible : la colonne Po est sur chaque fiche.",
-  chg: "2D6, il faut atteindre le contact. Une unité qui a Avancé ou Est Restée Immobile ne charge pas. Surveillance : ton adversaire peut dépenser 1 PC pour tirer.",
+  chg: "2D6, il faut atteindre le contact. Une unité qui a Avancé ou Est Restée Immobile ne charge pas. Tir en État d'Alerte : ton adversaire peut dépenser 1 PC pour tirer au jugé.",
   cbt: "Les unités qui ont chargé frappent en premier, puis alternance en commençant par le joueur dont c'est le tour. Une figurine doit être au contact ou à 2\" d'une figurine de son unité qui l'est."
 };
 let G = null;
@@ -2085,8 +2085,19 @@ let stratTout = false;
    information, aucun filtre n'a de sens.
    « use » retient ce qui a deja servi : cle -> numero de round, pour les
    aptitudes une-fois-par-tour, ou true pour une-fois-par-partie. */
+/* Regles de Base 08.02, Gagner des PC de Base : a l'etape 2 de CHAQUE
+   phase de Commandement, « chaque joueur gagne 1 Point de Commandement ».
+   Les deux joueurs, et a chaque tour — pas une fois par round. Sur un
+   round complet, j'en gagne donc deux : un a ma phase de Commandement,
+   un a celle d'en face. Une partie neuve s'ouvre dans ma propre phase de
+   Commandement : son point est deja acquis, d'ou un depart a 1. */
+const PC_DEPART = 1;
+/* Compagnon de Rencontre v1.1 : les trois sources de points de victoire
+   et leur plafond. Le total maximal est donc 100 PdV. */
+const PDV_PRIM = 45, PDV_SEC = 45, PDV_PEINT = 10;
+const scoreTotal = () => (G.prim || 0) + (G.sec || 0) + (G.peint || 0);
 const partieVierge = () => ({ liste: R ? R.id : "", tour: 1, moi: true,
-  phase: "cmd", pc: 0, prim: 0, sec: 0, u: {}, journal: [], use: {} });
+  phase: "cmd", pc: PC_DEPART, prim: 0, sec: 0, peint: 0, u: {}, journal: [], use: {} });
 
 /* Une partie par liste, et non plus une seule pour toutes. Avant, la
    partie etait enregistree seule : ouvrir une autre liste la remettait
@@ -2131,7 +2142,10 @@ function partieEnCours(id){
   if(!PARTIES) loadParties();
   const g = PARTIES[id];
   if(!g || !g.u) return null;
-  if(g.tour > 1 || !g.moi || g.phase !== "cmd" || g.pc || g.prim || g.sec) return g;
+  /* « pc » a valu 0 au depart avant que le gain des deux joueurs soit
+     applique : les deux valeurs designent donc une partie intacte */
+  if(g.tour > 1 || !g.moi || g.phase !== "cmd" || g.prim || g.sec || g.peint) return g;
+  if(g.pc !== PC_DEPART && g.pc !== 0) return g;
   if(g.journal && g.journal.length) return g;
   /* « u » ne prouve rien : l'ecran cree l'etat de chaque unite des
      qu'il l'affiche, meme sans un point de vie perdu. Ce qui compte,
@@ -2165,15 +2179,15 @@ const d3 = () => 1 + Math.floor(Math.random() * 3);
 
 /* ---------- avancer dans la partie ----------
    Cmdt, Mvt, Tir, Charge, Combat, puis on passe la main ; apres le
-   Combat adverse, round suivant. Le point de commandement se gagne au
-   debut de MON commandement seulement : je ne compte pas ceux d'en
-   face. */
+   Combat adverse, round suivant. Chaque entree dans une phase de
+   Commandement — la mienne comme celle d'en face — me donne 1 PC
+   (08.02). */
 function phaseSuivante(){
   const i = PHASES.findIndex(x => x[0] === G.phase);
   if(i < PHASES.length - 1){ G.phase = PHASES[i + 1][0]; saveG(); return; }
   if(G.moi){
-    G.moi = false; G.phase = "cmd";
-    noteJournal("Au tour de l'adversaire");
+    G.moi = false; G.phase = "cmd"; G.pc++;
+    noteJournal("Au tour de l'adversaire, +1 PC (total " + G.pc + ")");
   } else {
     G.moi = true; G.phase = "cmd";
     G.tour = Math.min(9, G.tour + 1);
@@ -2185,8 +2199,12 @@ function phaseSuivante(){
 function phasePrecedente(){
   const i = PHASES.findIndex(x => x[0] === G.phase);
   if(i > 0){ G.phase = PHASES[i - 1][0]; saveG(); return; }
-  if(!G.moi){ G.moi = true; G.phase = "cbt"; }
-  else if(G.tour > 1){ G.moi = false; G.phase = "cbt"; G.tour--; }
+  /* les deux branches remontent par-dessus une entree en phase de
+     Commandement : le point qu'elle avait donne est repris, sinon le
+     bouton « phase precedente » enrichirait a chaque aller-retour */
+  if(!G.moi){ G.moi = true; G.phase = "cbt"; G.pc = Math.max(0, G.pc - 1); }
+  else if(G.tour > 1){ G.moi = false; G.phase = "cbt"; G.tour--;
+                       G.pc = Math.max(0, G.pc - 1); }
   saveG();
 }
 const nomMoment = () => "Round " + G.tour + " · " +
@@ -2406,7 +2424,7 @@ function renderPartie(){
     const i = PHASES.findIndex(x => x[0] === G.phase);
     suiv.innerHTML = i < PHASES.length - 1
       ? "Phase suivante<small>" + PHASE_LONG[PHASES[i + 1][0]] + "</small>"
-      : (G.moi ? "Passer la main<small>tour adverse</small>"
+      : (G.moi ? "Passer la main<small>tour adverse · +1 PC</small>"
                : "Round suivant<small>ton tour · +1 PC</small>");
     suiv.addEventListener("click", ()=>{ phaseSuivante(); renderPartie(); });
     av.appendChild(prec); av.appendChild(ou); av.appendChild(suiv);
@@ -2482,26 +2500,35 @@ function renderPartie(){
     });
   });
 
-  /* --- score --- */
+  /* --- score ---
+     Compagnon de Rencontre v1.1, Determiner le Vainqueur : le total se
+     compose de trois sources plafonnees — Mission Principale 45 PdV,
+     Missions Secondaires 45 PdV, Armee Paree au Combat 10 PdV. « Tout
+     PdV marque au-dela de ces maximums est ignore » : le compteur
+     s'arrete donc au plafond au lieu de monter indefiniment. */
   const sc = el("gscore"); sc.innerHTML = "";
-  const ligne = (lbl, clef, pas) => {
+  const ligne = (lbl, clef, pas, max) => {
     const r = document.createElement("div");
     r.className = "srow";
     const t = document.createElement("span"); t.textContent = lbl;
     const moins = document.createElement("button"); moins.type = "button"; moins.textContent = "−";
-    const v = document.createElement("b"); v.textContent = G[clef];
+    const v = document.createElement("b");
+    v.textContent = (G[clef] || 0) + " / " + max;
     const plus = document.createElement("button"); plus.type = "button"; plus.textContent = "+";
-    moins.addEventListener("click", ()=>{ G[clef] = Math.max(0, G[clef] - pas); saveG(); renderPartie(); });
-    plus.addEventListener("click", ()=>{ G[clef] += pas; saveG(); renderPartie(); });
+    moins.addEventListener("click", ()=>{ G[clef] = Math.max(0, (G[clef] || 0) - pas); saveG(); renderPartie(); });
+    plus.addEventListener("click", ()=>{ G[clef] = Math.min(max, (G[clef] || 0) + pas); saveG(); renderPartie(); });
+    plus.disabled = (G[clef] || 0) >= max;
+    moins.disabled = !(G[clef] || 0);
     r.appendChild(t); r.appendChild(moins); r.appendChild(v); r.appendChild(plus);
     sc.appendChild(r);
   };
-  ligne("Primaire", "prim", 5);
-  ligne("Secondaire", "sec", 1);
+  ligne("Primaire", "prim", 5, PDV_PRIM);
+  ligne("Secondaire", "sec", 1, PDV_SEC);
+  ligne("Armée peinte", "peint", 10, PDV_PEINT);
   const tot = document.createElement("div");
   tot.className = "srow";
   tot.innerHTML = '<span style="color:var(--glow);font-weight:700">Total</span><b style="color:var(--glow)">' +
-    (G.prim + G.sec) + '</b>';
+    scoreTotal() + ' / ' + (PDV_PRIM + PDV_SEC + PDV_PEINT) + '</b>';
   sc.appendChild(tot);
 
   /* --- stratagemes jouables --- */

@@ -532,6 +532,53 @@ et prend un M de 14″, exactement la refonte que BSData avait déjà relevée s
 le Night Scythe. Ce rattachement est signalé comme déduction sur les deux
 fiches.
 
+## Compagnon de Rencontre, 22/08/2026
+
+Un troisième document officiel s'est ajouté : le **Compagnon de Rencontre
+Warhammer version 1.1**, celui qui porte les 45 agencements de terrain.
+
+Il a d'abord servi à trancher une règle que l'application appliquait de
+travers. Les Règles de Base, section 08.02, disent qu'à l'étape des PC de
+Base « chaque joueur gagne 1 Point de Commandement », et l'encadré de la page
+30 précise « à chaque tour ». Il y a deux phases de Commandement par round de
+bataille : chaque joueur en gagne donc **deux par round**, un au sien, un à
+celui d'en face. L'application n'en accordait qu'un, au tour de son seul
+propriétaire. Le Compagnon confirme la lecture en plafonnant l'autre moitié :
+« à l'exclusion des PC de Base, chaque joueur gagne un maximum de 1 PC par
+round de bataille ».
+
+Le même document fixe les plafonds de score, que l'axe En partie ignorait :
+45 PdV pour la mission principale, 45 pour les missions secondaires, 10 pour
+une armée peinte au standard Paré au Combat, et « tout PdV marqué au-delà de
+ces maximums est ignoré ». Les compteurs s'arrêtent maintenant à leur plafond,
+l'affichent, et la ligne de l'armée peinte a été ajoutée : le total va de 0 à
+100.
+
+Enfin, il donne la liste des gabarits de zones de terrain employés par les
+agencements recommandés, avec leur quantité — 7″ × 11,5″ ×4, 8″ × 11,5″
+polygonal ×2, 10″ × 2,5″ ×2, 6″ × 4″ ×4, 6″ × 2″ ×4, soit seize zones par
+agencement. C'est une source entièrement indépendante de 40kdc-data, d'où
+`layouts.js` est produit. `npm run gabarits` mesure les 720 zones des 45
+cartes et retrouve **les cinq gabarits au compte officiel exact**, ce qui
+vérifie la géométrie générée au lieu de la supposer.
+
+Mesurer demandait une précaution : une boîte englobante alignée sur les axes
+gonfle dès qu'une pièce est posée de biais, et englobe les petites
+excroissances par lesquelles l'ombre d'une ruine déborde de sa zone. Le
+gabarit de 10″ × 2,5″ se lisait ainsi 10,2 × 3,4. On mesure donc l'écartement
+des deux longs côtés porteurs. Le gabarit polygonal, lui, n'est pas un
+rectangle — le document le dit — et se reconnaît par élimination.
+
+Une lacune du glossaire a été comblée au passage : **Mouvement d'Éclaireur**
+(24.32), qui manquait alors que les 35 autres aptitudes de la section 24 y
+étaient. Et le rappel de la phase de Charge parlait encore de
+« Surveillance », nom que la 11e a remplacé par **Tir en État d'Alerte**.
+
+Trois vérifications sont rejouables : `npm run gabarits` (les gabarits
+officiels), `npm run dispositions-test` (les invariants de géométrie) et
+`node outils/test-pc.mjs` (le gain de PC, navigateur, site servi sur `:8099`
+ou `$SITE`).
+
 ## Unités Legends
 
 Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :
