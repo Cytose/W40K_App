@@ -6,8 +6,8 @@
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#0B0F0C",
-  "theme_color": "#0B0F0C",
+  "background_color": "#F2F5F7",
+  "theme_color": "#F2F5F7",
   "lang": "fr",
   "description": "Simulateur de sequence d'attaque Warhammer 40 000 (11e edition), profils Necrons.",
   "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]

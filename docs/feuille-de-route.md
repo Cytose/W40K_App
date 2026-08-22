@@ -2653,3 +2653,81 @@ fiche dans `data.js`, chaque total mis en table vaut celui d'avant la réécritu
 les deux armements du Monolithe restent exclusifs, Szarekh ne bouge pas, et une
 escouade uniforme — dix Immortels, dix carabines à deux attaques — continue de
 compter par figurine.
+
+## 43. Une interface claire, et des couleurs mesurées — 22/08/2026
+
+Le noir, vert et blanc fatiguait à la lecture longue. Puis, la sobriété posée,
+tu as demandé à passer au clair et à laisser le sombre de côté.
+
+### Pourquoi le vert sur noir usait
+
+La cause n'était pas le vert de l'accent, qui n'occupe que de petites surfaces.
+C'était que **le texte lui-même était teinté** : `--tx2` valait `#A9BCAF` et
+`--tx3` `#74897C` — des verts désaturés, pas des gris. À quoi s'ajoutaient un
+halo vert en haut de page et une trame hexagonale verte : chaque pixel du fond
+portait la teinte. Lire longtemps un texte coloré sur un fond coloré demande plus
+d'effort que le même contraste en neutre.
+
+Deuxième cause, mesurable celle-là : `--tx3` tombait à **4,15 : 1** sur les
+surfaces levées, sous le seuil de 4,5. C'est le texte le plus présent de
+l'application.
+
+### Un défaut d'accessibilité trouvé en chemin
+
+Les deux couleurs de série des graphiques — `#5FA82F` et `#2E9FB4` — avaient un
+rapport de luminance de **1,06 : 1**. Elles ne différaient que par la teinte. Au
+soleil, sur un écran médiocre, ou pour un oeil qui confond les teintes, l'onglet
+Comparer montrait deux barres identiques. Elles sont désormais séparées de
+**2,2 : 1** en clarté : même en noir et blanc, on voit laquelle est laquelle.
+
+### Un jeton ne peut pas tenir deux rôles
+
+Le bleu servait à la fois de couleur de texte — des libellés de dix pixels — et
+de remplissage de barre. Un bleu assez sombre pour se détacher du jade dans un
+graphique est trop sombre pour un petit texte, et l'inverse est vrai. Plutôt que
+d'arbitrer à l'oeil, une recherche a balayé les bleus possibles : **aucune valeur
+ne tient les deux exigences**. Ce sont donc deux jetons, `--cyan` pour le texte
+et `--serie2` pour les barres.
+
+### Ce que le passage au clair a demandé
+
+Tout ce qui porte une couleur vit maintenant dans le bloc `:root`, variantes
+translucides comprises : les vingt-deux `rgba()` éparpillées dans la feuille de
+style sont devenues des jetons nommés — `--line-soft`, `--warn-bd`, `--voile`,
+`--ombre`. Reposer l'application sur un autre thème, **le sombre compris s'il te
+manque**, ne demande plus que de réécrire ce bloc.
+
+Deux effets pensés pour le noir ont dû tomber. Le halo derrière les grands
+chiffres luisait sur du noir ; sur du blanc il ne faisait qu'un contour flou.
+Et le liséré qui détache les noms de famille sur la carte des rôles faisait
+1,1 px pour une police de 2,5 px : sur fond sombre c'était un halo, sur fond
+clair il rongeait les lettres.
+
+### Chaque valeur est mesurée
+
+Vingt exigences vérifiées avant d'écrire une ligne de style : tout texte tient au
+moins **4,5 : 1** sur le fond le plus clair où il apparaît — surfaces levées et
+pressées comprises, là où le thème précédent échouait —, les traits et les barres
+tiennent leurs seuils, et les deux séries se séparent en clarté.
+
+Le premier jet du gris tertiaire échouait sur deux des trois fonds. Plutôt que de
+l'assombrir au jugé, une recherche a retenu **la valeur la plus claire** qui tient
+le seuil partout : `#5D656B`. Le contraste est un plancher, pas un objectif — au
+delà, on perd la hiérarchie qui distingue un texte principal d'un texte tertiaire.
+
+### Vérification
+
+Batterie complète, zéro échec : `verif_fonctionnelle` 28, `verif_horsligne` 28
+sur le fichier autonome, `test_carte` 34, `test_roles` 30, `test_porteurs` 27,
+`test_encaisser` 18, `test_comparer` 17, `test_palm_armements` 17, `test_fiches`
+15, `test_palmares` 14, `test_armement` 13, `test_szarekh` 13, `test_lokhust` 6.
+
+Et un examen à l'écran de chaque onglet, des cinq vues du simulateur et de la
+carte des rôles — un changement de couleurs ne casse pas un test, il casse une
+lecture.
+
+### Reste
+
+Le nom de famille « PESER » chevauche encore le bord de l'hexagone sur la carte
+des rôles. Le liséré le rend lisible, mais la géométrie mériterait d'être reprise
+quand on rouvrira ce chantier.
