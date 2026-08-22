@@ -2731,3 +2731,183 @@ lecture.
 Le nom de famille « PESER » chevauche encore le bord de l'hexagone sur la carte
 des rôles. Le liséré le rend lisible, mais la géométrie mériterait d'être reprise
 quand on rouvrira ce chantier.
+
+---
+
+## 44. Un quatrième axe : la table telle qu'elle sera — 22/08/2026
+
+L'application savait construire une liste, la mesurer, et la suivre en partie.
+Entre la mesure et la partie il manquait le moment où l'on **pose** : celui où
+on découvre que le marteau n'atteint rien au tour 2 et que les deux faiseurs
+d'actions sont dans la même zone de souffle.
+
+### Ce qui manquait n'était pas un dessin, c'était les cartes
+
+En 11e, la table n'est pas libre. Le croisement des deux Dispositions de Force
+désigne un des quinze appariements, et chacun vient en trois variantes : les
+quarante-cinq cartes du Warhammer Event Companion. Sans elles, un plateau
+dessiné n'est qu'un rectangle — on ne peut pas s'entraîner sur une table qu'on
+n'aura pas.
+
+Ces coordonnées ne circulent nulle part en texte. Elles ont été extraites des
+cartes officielles par analyse d'image :
+
+| Ce qu'on cherche | Comment |
+|---|---|
+| Zones de déploiement | segmentation de la couleur, puis **enveloppe convexe** — le décor imprimé par-dessus creuse le masque, le hull le répare |
+| Objectifs | **template matching** du glyphe crâne sur le masque des blancs, puis complétion par la symétrie centrale du plateau |
+| Objectifs de départ | disques rouge et bleu saturés portant une tour blanche |
+| Décor | murs de ruine (vert) et obstacles (orange) groupés par proximité, `minAreaRect` par grappe |
+
+Le tout vérifié en **redessinant la géométrie par-dessus les cartes source** :
+les polygones tombent au quart de pouce. `layouts.js` porte le résultat —
+45 dispositions, 664 pièces de décor, et la matrice des 25 missions primaires.
+
+### La limite, qui est réelle
+
+Le socle gris d'une pièce de décor est **indissociable du fond de grille** :
+même clarté, même saturation, et la trame de la grille passe dessus. Ni la
+couleur ni la variance locale ne les séparent. Les socles sont donc reconstruits
+depuis l'emprise colorée des murs et des obstacles — un peu **plus petits que
+les vrais**, et leur type officiel n'est pas identifié. Les positions et les
+orientations, elles, sont bonnes.
+
+C'est pour ça que les cinq empreintes du pack de terrain restent posables à la
+main : ce qui manque se corrige, et se garde.
+
+### Le module ne touche à rien
+
+`plateau.js` ne s'accroche à aucune fonction de `roster.js` ni de `app.js`. Il
+lit la liste en service dans `mathhammer.lists.v1`, les tables de `data.js`, et
+écrit ses positions sous sa propre clé `mathhammer.plateau.v1`. La navigation
+existante bascule déjà les `.screen` par leur `id` ; le module n'ajoute qu'un
+rendu au moment où l'onglet s'ouvre.
+
+Conséquence voulue : retirer les deux lignes de `<script>` rend l'application
+d'avant, à l'octet près. Rien de ce qui marchait ne dépend de ce qui est neuf.
+
+La liste est **relue à chaque affichage** plutôt que gardée en copie : elle a pu
+changer pendant qu'on était sur un autre axe, et une copie périmée poserait des
+unités qui n'existent plus.
+
+### Ce que le jeton dit
+
+Un jeton n'est pas une figurine, c'est la place que le paquet prend. Son rayon
+sort du socle de `BASES` et de l'effectif, personnages rattachés compris, avec
+un tiers d'air entre les socles pour la cohérence.
+
+Sa couleur est celle de la **famille du métier principal** — Marquer, Tenir,
+Détruire, Peser. Quatre couleurs, celles de l'application, et les métiers du
+chapitre 35 servent enfin à autre chose qu'à se lire : on voit en posant que
+tout ce qui marque est du même côté.
+
+Les portées de menace se lisent sur l'unité sélectionnée seulement. La charge
+compte **7 pouces**, la moyenne de 2D6 — l'écran le dit, parce qu'un cercle
+donne l'illusion d'une garantie qu'un jet de dés ne donne pas.
+
+### Deux défauts attrapés en chemin
+
+- **La casse.** `layouts.js` écrit les Dispositions en majuscules, comme le MFM
+  les imprime ; `data.js` les écrit en capitales initiales. Le croisement ne
+  trouvait donc jamais de carte, en silence. La casse du catalogue fait foi
+  partout ; on ne monte en majuscules que pour interroger les cartes.
+- **La carte des décors se refermait.** Poser une pièce relançait le rendu, qui
+  rendait la carte repliée comme au départ — et les boutons pour la pivoter
+  disparaissaient avec elle, juste après le geste qui les appelait. Son état
+  d'ouverture se retient maintenant avec le reste.
+
+### Vérification
+
+Une suite d'intégration ouvre l'axe sur une liste témoin et mesure ce que
+l'écran prétend dire : la Disposition déduite du détachement, la mission nommée,
+le nombre d'objectifs et de pièces de décor de la carte, les jetons réellement
+dans le SVG, les anneaux de portée sur l'unité sélectionnée, et la persistance
+après rechargement. Elle vérifie aussi que **les trois axes existants basculent
+toujours** et que la page ne déborde pas horizontalement.
+
+`node build.js` passe : onze fichiers, et le fichier autonome — 583 ko — ouvre
+l'axe Plateau sans réseau.
+
+---
+
+## 45. Une unité n'est pas un jeton — 22/08/2026
+
+Le chapitre 44 posait une unité comme un disque dont le rayon sortait du socle
+et de l'effectif. C'était lisible et c'était faux : on ne déploie pas un disque,
+on pose des figurines, et ce qui se joue au déploiement — la cohésion, ce qui
+dépasse d'un couvert, ce qu'un souffle attrape — se joue **entre** elles.
+
+### Les socles viennent du guide, plus de l'habitude
+
+`BASES` portait une note franche : trois valeurs confirmées, le reste « suit les
+socles habituels et reste à vérifier ». Le **Base Size Guide** de l'Event
+Companion v1.1 les donne toutes. Sa section NECRONS, 46 fiches, est reprise telle
+qu'elle est écrite dans `SOCLES`, ovales compris.
+
+Vérification faite : sur les cinquante entrées de `BASES`, **quarante-trois
+étaient déjà justes**, et les quatre écarts n'étaient qu'un caractère — `×`
+contre `x`. La note de prudence tombe.
+
+`BASES` n'est plus une table mais **une lecture de `SOCLES`** : un seul fait, une
+seule source. La fiche d'unité affiche toujours la même chose.
+
+| | avant | après |
+|---|---|---|
+| Doomsday Ark | 60 mm rond | 120 × 92 mm ovale |
+| Tomb Blades | 32 mm rond | 60 × 35,5 mm ovale |
+| Triarch Stalker | vide | coque, emprise déclarée |
+
+Deux entrées du guide ne portent pas de dimension mais un nom de produit
+Citadel : **Large Flying Base** et **Small Flying Base**. Le guide ne les
+chiffre pas. Les valeurs retenues — 120 × 92 et 60 × 35,5 — sont les deux socles
+ovales que le même guide chiffre par ailleurs pour d'autres modèles volants.
+C'est une **déduction**, signalée comme telle dans `data.js`, au même titre que
+le Faucheur et le Moissonneur du chapitre 9.
+
+### Le quinconce, et la prise au sol qui se mesure
+
+Une unité arrive en rangs décalés d'un demi-pas : c'est ainsi qu'on pose une
+escouade, et c'est ce qui tient dans le moins de place à cohésion égale. Le pas
+part de 0,35″ d'air entre socles et se resserre — 0,25, 0,15, 0,08, jointif —
+tant que l'unité ne tient pas dans ses **9 pouces** de prise au sol.
+
+Premier défaut, attrapé par le test : la prise au sol était **calculée** sur le
+rectangle théorique des rangs. Or le décalage d'un demi-pas sur les rangs
+impairs déborde de ce rectangle. Vingt Immortels sortaient à 9,11″ en se croyant
+à 8,95″. Elle se **mesure** maintenant, sur les positions réelles : 8,55″.
+
+Second défaut, du même test : une unité d'une seule figurine était déclarée
+hors cohésion. Elle cherchait une voisine et n'en trouvait pas. Une figurine
+seule est en cohésion par définition.
+
+### Ce que le geste dit
+
+Un déplacement se juge en pouces, pas à l'œil. Pendant le glissement, un trait
+part du point de départ et **porte la distance**, et le bandeau la compare au
+mouvement de l'unité : « 7,2″ parcourus · mouvement 5″ · dépassé de 2,2″ ».
+
+Deux modes, parce que les deux servent : **l'unité entière** — toutes les
+figurines suivent le même vecteur, la formation reste intacte — ou **une
+figurine**, pour aller chercher un objectif du bout de l'escouade ou border un
+couvert. « Reformer en quinconce » remet l'escouade d'aplomb autour de son
+centre quand on l'a trop étirée.
+
+La cohésion se lit pendant qu'on pose : une figurine à plus de 2″ bord à bord de
+sa voisine — de ses **deux** voisines dès sept figurines — se cerne de rouge, et
+le bandeau les compte. La mesure bord à bord passe par le rayon moyen du socle :
+c'est une approximation assumée, l'exacte dépendrait de l'orientation des deux
+socles ovales.
+
+### Vérification
+
+`outils/test-plateau.mjs` passe à **vingt-sept contrôles**. Outre ceux du
+chapitre 44, il mesure les cinq unités témoins une par une — cohésion et prise
+au sol —, vérifie que les Tomb Blades sortent bien en 60 × 35,5 ovale et l'Arche
+du Jugement en 120 × 92, puis joue les deux gestes : l'unité entière suit sans
+déformer sa formation, une figurine seule étire la prise au sol et se signale
+isolée, et « Reformer » ramène les deux dans les clous.
+
+Un piège de test à noter pour la suite : l'en-tête de l'application est collante.
+Un pointeur posé sur le plateau alors que celui-ci est en haut de la fenêtre
+tombe sur l'en-tête, et le glissement ne se produit jamais — en silence. Le test
+amène le plateau au milieu de la fenêtre avant chaque geste.

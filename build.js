@@ -8,7 +8,7 @@
    Le chargeur compresse, lui, sort sous dist/hors-ligne.html : il ne doit
    surtout pas occuper dist/index.html, qui est la porte d'entree du site. */
 const fs=require('fs'), zlib=require('zlib'), crypto=require('crypto'), terser=require('terser');
-const SOURCES=['index.html','data.js','engine.js','app.js','roster.js'];
+const SOURCES=['index.html','data.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
 const STATIQUES=['manifest.json','icon.svg'];
 (async()=>{
   /* L'empreinte se calcule d'abord : elle est ecrite DANS les sorties, pour
@@ -23,13 +23,13 @@ const STATIQUES=['manifest.json','icon.svg'];
   const css=html.match(/<style>([\s\S]*?)<\/style>/)[1]
     .replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s*([{}:;,>])\s*/g,'$1')
     .replace(/;}/g,'}').replace(/\n+/g,'').replace(/\s{2,}/g,' ').trim();
-  const js=['data.js','engine.js','app.js','roster.js'].map(f=>fs.readFileSync(f,'utf8')).join('\n');
+  const js=['data.js','engine.js','app.js','roster.js','layouts.js','plateau.js'].map(f=>fs.readFileSync(f,'utf8')).join('\n');
   const min=await terser.minify(js,{compress:{passes:3},mangle:{toplevel:true},format:{comments:false}});
   if(min.error) throw min.error;
   const full=html.replace(/<style>[\s\S]*?<\/style>/,'<style>'+css+'</style>')
     .replace(/\n\s*\n/g,'\n')
     .replace(/<script src="data.js"><\/script>\s*<script src="engine.js"><\/script>/,'<script>'+min.code+'<\/script>')
-    .replace(/\s*<script src="app.js"><\/script>\s*<script src="roster.js"><\/script>/,'');
+    .replace(/\s*<script src="app.js"><\/script>\s*<script src="roster.js"><\/script>\s*<script src="layouts.js"><\/script>\s*<script src="plateau.js"><\/script>/,'');
   fs.mkdirSync('dist',{recursive:true});
   const b64=zlib.gzipSync(Buffer.from(full,'utf8'),{level:9}).toString('base64');
   const loader='<!DOCTYPE html>\n<html lang="fr"><head><meta charset="utf-8">'
