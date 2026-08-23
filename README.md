@@ -608,15 +608,26 @@ un autre bouton. Deux de ses contrôles tombaient. Dans l'en-tête, rien ne boug
 
 ## Le fond de carte
 
-L'axe Plateau peut poser **la page officielle d'un agencement sous la
-géométrie**, pour les comparer d'un coup d'œil : carte « Fond de carte »,
-« Charger une image… », et un curseur d'opacité.
+L'axe Plateau pose **la page officielle d'un agencement sous la géométrie**.
+Les 45 sont livrées avec l'application : carte « Fond de carte », curseur
+d'opacité, et « Masquer » si on veut le tracé seul.
 
-Les images ne sont **pas livrées** avec l'application. Ce sont les pages d'un
-document de Games Workshop, et le dépôt comme le site sont publics : les
-embarquer reviendrait à les rediffuser. C'est donc l'utilisateur qui charge les
-siennes, depuis son propre exemplaire, et elles ne quittent pas son
-navigateur — ni envoi, ni dépôt, ni Vercel.
+Elles viennent du **Compagnon de Rencontre Warhammer v1.1**, publié
+gratuitement par Games Workshop, et sont produites par
+`python3 outils/cartes-images.py <dossier-des-pages>` : le plateau seul,
+découpé de sa page et réduit à 620 pixels de large — quatorze pixels au pouce,
+ce qu'il faut sous un calque à demi opacité. 66 Ko pièce, 2,9 Mo pour les 45.
+Voir `cartes/LISEZ-MOI.md` pour la provenance et les droits : ces images
+appartiennent à Games Workshop, et cette application ne lui est pas affiliée.
+
+Sur le site elles sont un fichier chacune, demandé seulement quand on le
+regarde. Dans le fichier autonome la construction les replie en `data:` — il
+n'y a plus de réseau pour aller les chercher — ce qui le fait passer de 677 Ko
+à **4,6 Mo**. C'est le prix du hors-ligne.
+
+« Charger la mienne… » remplace l'image livrée par un meilleur tirage ; elle
+reste dans le navigateur, rangée dans IndexedDB, et « Reprendre celle
+d'origine » revient à celle du dépôt.
 
 Le calage est automatique. Sur ces pages, le plateau est un rectangle bordé
 d'un trait noir : on le retrouve en cherchant, ligne par ligne et colonne par

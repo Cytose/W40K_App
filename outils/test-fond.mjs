@@ -25,12 +25,21 @@
    ============================================================ */
 import { chromium, base } from './navigateur.mjs';
 import fs from 'fs';
+import path from 'path';
+import { execFileSync } from 'child_process';
+
+const racine = path.resolve(import.meta.dirname, '..');
+const carnet = JSON.parse(fs.readFileSync(path.join(racine, 'outils', 'cartes.json'), 'utf8'));
+const LAY = JSON.parse(execFileSync('node', ['-e',
+  'const fs=require("fs");const s=fs.readFileSync(' + JSON.stringify(path.join(racine, 'layouts.js')) +
+  ',"utf8");const L=new Function(s+"; return LAYOUTS;")();console.log(JSON.stringify(L));'],
+  { encoding: 'utf8' }));
+process.chdir(racine);
 
 const image = process.argv[2];
 if (!image || !fs.existsSync(image)) {
-  console.log('\nIl faut l’image d’une page d’agencement :\n' +
-              '   node outils/test-fond.mjs <page.png>\n' +
-              'Ces images ne sont pas versionnées ; fournis-en une toi-même.\n');
+  console.log('\nIl faut l’image d’une page d’agencement, pour éprouver le remplacement :\n' +
+              '   node outils/test-fond.mjs <page.png>\n');
   process.exit(2);
 }
 
@@ -73,16 +82,35 @@ const ouvre = () => p.evaluate(() => {
 });
 T('elle s’ouvre quand on clique son en-tête', await ouvre());
 
+/* le fond livre est la avant tout geste */
+const href = () => p.evaluate(() =>
+  document.querySelector('#mapSvg image')?.getAttribute('href') || '');
+const livre = await href();
+T('le fond livré est posé sans rien charger', /^cartes\/\d+-[abc]\.jpg$/.test(livre), livre);
+
+/* les 45 fichiers sont bien la */
+const manquants = [];
+for (const [n, f] of Object.entries(carnet)) {
+  if (!f || typeof f !== 'object') continue;
+  const mu = Object.entries(LAY.matchups).find(([, m]) => m.p1 === f.p1 && m.p2 === f.p2 ||
+                                                          m.p2 === f.p1 && m.p1 === f.p2);
+  if (!mu) continue;
+  const nom = 'cartes/' + mu[0] + '-' + f.agencement + '.jpg';
+  if (!fs.existsSync(nom)) manquants.push(nom);
+}
+T('les 45 fonds sont livrés', manquants.length === 0, manquants.slice(0, 3).join(', '));
+
 await p.setInputFiles('#fondFichier', image);
 await p.waitForTimeout(3000);
 
 const pose = await p.evaluate(() => {
   const im = document.querySelector('#mapSvg image');
-  return { la: !!im, op: im ? im.parentNode.getAttribute('opacity') : null,
+  return { la: !!im, mien: /^data:/.test(im?.getAttribute('href') || ''),
+           op: im ? im.parentNode.getAttribute('opacity') : null,
            avert: !!document.querySelector('#mapCardFond .hint[style*="warn"]') };
 });
-T('le fond est posé sous la géométrie', pose.la, 'opacité ' + pose.op);
-T('le cadre du plateau a été reconnu dans l’image', !pose.avert);
+T('mon image remplace celle livrée', pose.la && pose.mien, 'opacité ' + pose.op);
+T('le cadre du plateau a été reconnu dans mon image', !pose.avert);
 
 const cles = await p.evaluate(() => new Promise(res => {
   const r = indexedDB.open('mathhammer.fonds', 1);
@@ -115,15 +143,15 @@ await p.waitForTimeout(600);
 await p.reload(); await p.waitForTimeout(1400);
 await p.evaluate(() => document.querySelector('[data-s="scMap"]').click());
 await p.waitForTimeout(1800);
-T('le fond survit au rechargement',
-  await p.evaluate(() => !!document.querySelector('#mapSvg image')));
+T('mon image survit au rechargement',
+  /^data:/.test(await href()));
 
 T('elle se rouvre après rechargement', await ouvre());
 p.on('dialog', d => d.accept());
 await p.evaluate(() => document.getElementById('fondOter')?.click());
 await p.waitForTimeout(1200);
-T('« Retirer » l’enlève',
-  await p.evaluate(() => !document.querySelector('#mapSvg image')));
+T('« Reprendre celle d’origine » rend le fond livré',
+  /^cartes\/\d+-[abc]\.jpg$/.test(await href()), await href());
 T('aucune erreur JS', errs.length === 0, errs.slice(0, 2).join(' | '));
 
 console.log('\n════ FOND DE CARTE ════');
