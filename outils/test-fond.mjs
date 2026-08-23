@@ -150,6 +150,41 @@ T('elle se rouvre après rechargement', await ouvre());
 p.on('dialog', d => d.accept());
 await p.evaluate(() => document.getElementById('fondOter')?.click());
 await p.waitForTimeout(1200);
+/* Les deux calques : la page officielle et notre tracé, chacun réglable.
+   C'est ce qui permet de vérifier à l'œil qu'ils concordent. */
+const calques = () => p.evaluate(() => ({
+  fond: document.querySelector('#mapSvg image')?.parentNode.getAttribute('opacity'),
+  trace: document.getElementById('mapTrace')?.getAttribute('opacity'),
+  dedans: document.getElementById('mapTrace')?.children.length || 0
+}));
+const regle = (id, v) => p.evaluate(([i, x]) => {
+  const c = document.getElementById(i); if (!c) return;
+  c.value = x;
+  c.dispatchEvent(new Event('input', { bubbles: true }));
+  c.dispatchEvent(new Event('change', { bubbles: true }));
+}, [id, v]);
+
+let q = await calques();
+T('zones, décors et objectifs sont dans un seul calque', q.dedans > 20, q.dedans + ' éléments');
+await regle('traceOp', '25'); await p.waitForTimeout(300);
+q = await calques();
+T('le tracé généré a son propre réglage', q.trace === '0.25', 'opacité ' + q.trace);
+await regle('fondOp', '100'); await p.waitForTimeout(300);
+q = await calques();
+T('les deux calques se règlent séparément',
+  q.fond === '1' && q.trace === '0.25', 'page ' + q.fond + ', tracé ' + q.trace);
+await p.reload(); await p.waitForTimeout(1400);
+await p.evaluate(() => document.querySelector('[data-s="scMap"]').click());
+await p.waitForTimeout(1600);
+q = await calques();
+T('les deux réglages survivent au rechargement',
+  q.fond === '1' && q.trace === '0.25', 'page ' + q.fond + ', tracé ' + q.trace);
+await p.evaluate(() => {
+  const c = document.getElementById('mapCardFond');
+  if (c && c.classList.contains('collapsed')) c.querySelector('h2').click();
+});
+await p.waitForTimeout(300);
+
 T('« Reprendre celle d’origine » rend le fond livré',
   /^cartes\/\d+-[abc]\.jpg$/.test(await href()), await href());
 T('aucune erreur JS', errs.length === 0, errs.slice(0, 2).join(' | '));

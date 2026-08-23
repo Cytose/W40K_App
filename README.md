@@ -625,6 +625,13 @@ regarde. Dans le fichier autonome la construction les replie en `data:` — il
 n'y a plus de réseau pour aller les chercher — ce qui le fait passer de 677 Ko
 à **4,6 Mo**. C'est le prix du hors-ligne.
 
+**Deux calques, deux curseurs.** L'un règle l'opacité de la page officielle,
+l'autre celle du tracé généré — zones, décors et objectifs, réunis dans un seul
+groupe SVG. On fait varier l'un puis l'autre et on voit, à l'œil, si les deux
+coïncident : c'est la vérification que les chiffres de `npm run cartes` donnent
+en colonnes. Les figurines posées restent hors du calque et donc toujours
+visibles : ce sont les pièces du joueur, pas le modèle à vérifier.
+
 « Charger la mienne… » remplace l'image livrée par un meilleur tirage ; elle
 reste dans le navigateur, rangée dans IndexedDB, et « Reprendre celle
 d'origine » revient à celle du dépôt.
