@@ -606,6 +606,40 @@ posé dans le corps de la carte, il repoussait tout ce qui suit de quarante
 pixels, et `test-plateau.mjs` — qui clique à des coordonnées absolues — touchait
 un autre bouton. Deux de ses contrôles tombaient. Dans l'en-tête, rien ne bouge.
 
+## Le fond de carte
+
+L'axe Plateau peut poser **la page officielle d'un agencement sous la
+géométrie**, pour les comparer d'un coup d'œil : carte « Fond de carte »,
+« Charger une image… », et un curseur d'opacité.
+
+Les images ne sont **pas livrées** avec l'application. Ce sont les pages d'un
+document de Games Workshop, et le dépôt comme le site sont publics : les
+embarquer reviendrait à les rediffuser. C'est donc l'utilisateur qui charge les
+siennes, depuis son propre exemplaire, et elles ne quittent pas son
+navigateur — ni envoi, ni dépôt, ni Vercel.
+
+Le calage est automatique. Sur ces pages, le plateau est un rectangle bordé
+d'un trait noir : on le retrouve en cherchant, ligne par ligne et colonne par
+colonne, une plage **continue** de pixels sombres assez longue. Compter les
+pixels sombres ne suffirait pas — un filet de mise en page en aligne autant —
+mais seul le cadre porte une plage d'un seul tenant sur presque toute la
+largeur. C'est la règle de `outils/cartes-officielles.py`, portée en
+JavaScript, et elle écarte au passage les repères de bord attaquant et
+défenseur, qu'ils soient horizontaux ou verticaux. Si aucun cadre n'est
+reconnu, l'image est posée telle quelle et l'application le dit, plutôt que de
+caler de travers en silence.
+
+Le fond suit l'orientation : couché, il pivote d'un quart de tour comme la
+géométrie. Il est rangé dans IndexedDB — une image recadrée pèse quelques
+centaines de kilo-octets, trop pour `localStorage` dès la deuxième — et
+survit donc au rechargement.
+
+`node outils/test-fond.mjs <page.png>` éprouve les dix points qui peuvent
+casser sans bruit. L'un a déjà lâché : la relecture appelait une variable
+absente de `plateau.js`, la promesse levait une `ReferenceError` avalée en
+silence, et le fond ne revenait jamais après rechargement. Rien à la console,
+un écran d'apparence normale.
+
 ## Les zones confrontées aux pages officielles
 
 `layouts.js` vient de 40kdc-data ; le Compagnon de Rencontre imprime les

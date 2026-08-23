@@ -98,7 +98,13 @@ dit('une seule figurine a bougé — la prise au sol s\'étire', ap2.prise > av2
 dit('la figurine écartée est signalée isolée', ap2.isolees, v => v >= 1);
 
 /* reformer répare la formation */
-await p.locator('#mapReforme').click({force:true}); await p.waitForTimeout(400);
+/* On amène le bouton sous les yeux avant de cliquer. Un clic forcé
+   part des coordonnées de l'élément : dès qu'une carte s'ajoute plus
+   haut dans la page, il atterrit sur le bouton d'à côté et la suite
+   échoue en accusant le reformage. C'est arrivé deux fois. */
+await p.locator('#mapReforme').scrollIntoViewIfNeeded();
+await p.waitForTimeout(200);
+await p.locator('#mapReforme').click(); await p.waitForTimeout(400);
 const ap3 = await p.evaluate(() => window.PLATEAU.unite(1));
 dit('reformer en quinconce rétablit la cohésion', ap3.isolees, 0);
 dit('reformer ramène la prise au sol sous 9″', ap3.prise, v => v <= 9.01);

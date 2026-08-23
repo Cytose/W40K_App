@@ -54,6 +54,118 @@ const versPlateau = (px,py) => debout ? ({ x: px, y: py }) : ({ x: W - py, y: px
 const ROT = () => debout ? 0 : -90;
 const VUE = () => debout ? "-1.5 -1.5 47 63" : "-1.5 -1.5 63 47";
 
+/* ==========================================================
+   LE FOND DE CARTE
+
+   La page officielle d'un agencement, posee sous la geometrie, pour
+   comparer d'un coup d'oeil. Les images ne sont pas livrees avec
+   l'application : ce sont les pages d'un document de Games Workshop, et
+   le depot comme le site sont publics. C'est donc l'utilisateur qui
+   charge les siennes, et elles ne quittent jamais son navigateur.
+
+   Le calage est automatique. Sur ces pages, le plateau est un rectangle
+   borde d'un trait noir ; on le retrouve en cherchant, ligne par ligne
+   et colonne par colonne, une plage CONTINUE de pixels sombres assez
+   longue. Compter les pixels sombres ne suffirait pas — un filet de mise
+   en page en aligne autant — mais seul le cadre du plateau porte une
+   plage d'un seul tenant sur presque toute la largeur. C'est la regle
+   que suit outils/cartes-officielles.py, et elle vaut ici pour la meme
+   raison : elle ecarte au passage les reperes de bord attaquant et
+   defenseur, qu'ils soient horizontaux ou verticaux.
+
+   Une image cadree pese quelques centaines de kilo-octets : trop pour
+   localStorage des la deuxieme, d'ou IndexedDB.
+   ========================================================== */
+const FONDS = "mathhammer.fonds";
+let fondBase = null, fondCache = {};
+
+function fondOuvre(){
+  return new Promise((ok, ko) => {
+    if(fondBase) return ok(fondBase);
+    if(!self.indexedDB) return ko(new Error("pas d'IndexedDB"));
+    const r = indexedDB.open(FONDS, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("pages");
+    r.onsuccess = () => { fondBase = r.result; ok(fondBase); };
+    r.onerror = () => ko(r.error);
+  });
+}
+function fondLit(cle){
+  return fondOuvre().then(db => new Promise((ok, ko) => {
+    const t = db.transaction("pages", "readonly").objectStore("pages").get(cle);
+    t.onsuccess = () => ok(t.result || null);
+    t.onerror = () => ko(t.error);
+  })).catch(() => null);
+}
+function fondEcrit(cle, val){
+  return fondOuvre().then(db => new Promise((ok, ko) => {
+    const m = db.transaction("pages", "readwrite").objectStore("pages");
+    const t = val == null ? m.delete(cle) : m.put(val, cle);
+    t.onsuccess = () => ok(true);
+    t.onerror = () => ko(t.error);
+  })).catch(() => false);
+}
+
+/* La cle : l'appariement resolu et la variante, pas la liste — une carte
+   est la meme quelle que soit l'armee qu'on pose dessus. On prend
+   l'identifiant que « plateauDe » a retenu, et non les deux libelles :
+   celui de sa propre Disposition peut etre vide tant qu'aucun detachement
+   ne la fixe, et deux cartes se retrouveraient alors sous la meme cle. */
+const fondCle = (p, bd) => (bd && bd.id != null ? bd.id : "?") + "|" + (p.variante || "a");
+
+/* Y a-t-il, sur cette ligne de pixels, une plage continue d'au moins k
+   sombres ? */
+function plageContinue(sombre, deb, pas, n, k){
+  let suite = 0;
+  for(let i = 0; i < n; i++){
+    suite = sombre[deb + i * pas] ? suite + 1 : 0;
+    if(suite >= k) return true;
+  }
+  return false;
+}
+
+/* Le rectangle du plateau dans l'image d'une page. Rend null si rien ne
+   ressemble a un cadre : mieux vaut le dire que caler de travers. */
+function cadrePage(don, w, h){
+  const sombre = new Uint8Array(w * h);
+  for(let i = 0, j = 0; i < sombre.length; i++, j += 4)
+    sombre[i] = (don[j] + don[j+1] + don[j+2]) < 300 ? 1 : 0;
+  const kx = Math.round(w * 0.48), ky = Math.round(h * 0.47);
+  let x0 = -1, x1 = -1, y0 = -1, y1 = -1;
+  for(let y = 0; y < h; y++)
+    if(plageContinue(sombre, y * w, 1, w, kx)){ if(y0 < 0) y0 = y; y1 = y; }
+  for(let x = 0; x < w; x++)
+    if(plageContinue(sombre, x, w, h, ky)){ if(x0 < 0) x0 = x; x1 = x; }
+  if(x0 < 0 || y0 < 0 || x1 - x0 < w * 0.3 || y1 - y0 < h * 0.2) return null;
+  return {x:x0, y:y0, w:x1 - x0, h:y1 - y0};
+}
+
+/* Charge un fichier, retrouve le plateau, le decoupe, et rend une image
+   au rapport 44 x 60. */
+function fondPrepare(fichier){
+  return new Promise((ok, ko) => {
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = im.naturalWidth; c.height = im.naturalHeight;
+      const x = c.getContext("2d", {willReadFrequently:true});
+      x.drawImage(im, 0, 0);
+      let r;
+      try { r = cadrePage(x.getImageData(0, 0, c.width, c.height).data, c.width, c.height); }
+      catch(e){ r = null; }          /* image d'une autre origine */
+      const cale = !!r;
+      if(!r) r = {x:0, y:0, w:c.width, h:c.height};
+      const d = document.createElement("canvas");
+      d.width = Math.min(1100, r.w); d.height = Math.round(d.width * r.h / r.w);
+      d.getContext("2d").drawImage(im, r.x, r.y, r.w, r.h, 0, 0, d.width, d.height);
+      URL.revokeObjectURL(im.src);
+      ok({ url: d.toDataURL("image/jpeg", 0.82), cale: cale,
+           rapport: +(r.w / r.h).toFixed(4) });
+    };
+    im.onerror = () => ko(new Error("image illisible"));
+    im.src = URL.createObjectURL(fichier);
+  });
+}
+
 /* ---------- état ---------- */
 /* PLAT[idListe] = { adv, variante, dispo, mode,
                      unites:{ [idUnite]: [{x,y,a}, …] }, decors:[], portees:{} } */
@@ -370,11 +482,28 @@ function dessine(L, p, bd){
   svg.innerHTML = "";
 
   svg.appendChild(svgEl("rect", {x:0, y:0, width:H, height:W, fill:"var(--s2)"}));
-  const fine = svgEl("g", {stroke:"var(--line-soft)", "stroke-width":0.03, "stroke-opacity":0.9});
+
+  /* Le fond de carte, sous tout le reste. Il est range en portrait,
+     comme la donnee ; couche, on le fait pivoter d'un quart de tour
+     autour du coin, exactement comme la geometrie. */
+  const fond = fondCache[fondCle(p, bd)];
+  if(fond && p.fondVu !== false){
+    const g = svgEl("g", {opacity: (p.fondOp == null ? 55 : p.fondOp) / 100});
+    const im = svgEl("image", {width: W, height: H, preserveAspectRatio:"none",
+                               transform: debout ? "" : "translate(0 " + W + ") rotate(-90)"});
+    im.setAttributeNS("http://www.w3.org/1999/xlink", "href", fond.url);
+    im.setAttribute("href", fond.url);
+    g.appendChild(im);
+    svg.appendChild(g);
+  }
+  const surFond = !!(fond && p.fondVu !== false);
+  const fine = svgEl("g", {stroke:"var(--line-soft)", "stroke-width":0.03,
+                           "stroke-opacity": surFond ? 0 : 0.9});
   for(let v = 1; v < H; v++) if(v % 6) fine.appendChild(svgEl("line", {x1:v, y1:0, x2:v, y2:W}));
   for(let v = 1; v < W; v++) if(v % 6) fine.appendChild(svgEl("line", {x1:0, y1:v, x2:H, y2:v}));
   svg.appendChild(fine);
-  const gros = svgEl("g", {stroke:"var(--line)", "stroke-width":0.07, "stroke-opacity":0.9});
+  const gros = svgEl("g", {stroke:"var(--line)", "stroke-width":0.07,
+                           "stroke-opacity": surFond ? 0 : 0.9});
   for(let v = 6; v < H; v += 6) gros.appendChild(svgEl("line", {x1:v, y1:0, x2:v, y2:W}));
   for(let v = 6; v < W; v += 6) gros.appendChild(svgEl("line", {x1:0, y1:v, x2:H, y2:v}));
   svg.appendChild(gros);
@@ -589,6 +718,35 @@ function renderMap(){
     '</div>' +
   '</div>' +
 
+  '<div class="card' + (p.fondOuvert ? '' : ' collapsed') + '" id="mapCardFond">' +
+    '<h2>Fond de carte <span class="chev">▾</span></h2>' +
+    '<div class="body">' +
+      '<p class="hint" style="margin:2px 0 8px">Pose la page officielle de cet agencement ' +
+      'sous la géométrie, pour les comparer d\'un coup d\'œil. L\'image reste dans ce ' +
+      'navigateur : elle n\'est ni envoyée ni livrée avec l\'application. Le plateau y est ' +
+      'retrouvé et recadré tout seul.</p>' +
+      '<div class="seg" style="justify-content:flex-start">' +
+        '<button type="button" id="fondChoisir">Charger une image…</button>' +
+        (fondCache[fondCle(p, bd)]
+          ? '<button type="button" id="fondVoir" aria-pressed="' + (p.fondVu !== false) + '">' +
+              (p.fondVu !== false ? 'Masquer' : 'Afficher') + '</button>' +
+            '<button type="button" id="fondOter">Retirer</button>'
+          : '') +
+      '</div>' +
+      '<input type="file" id="fondFichier" accept="image/*" hidden>' +
+      (fondCache[fondCle(p, bd)]
+        ? '<label style="display:block;margin-top:10px">Opacité ' +
+            '<b id="fondVal">' + (p.fondOp == null ? 55 : p.fondOp) + ' %</b>' +
+            '<input type="range" id="fondOp" min="10" max="100" step="5" style="width:100%" ' +
+              'value="' + (p.fondOp == null ? 55 : p.fondOp) + '"></label>' +
+          (fondCache[fondCle(p, bd)].cale
+            ? ''
+            : '<p class="hint" style="color:var(--warn-tx)">Le cadre du plateau n\'a pas été ' +
+              'reconnu sur cette image : elle est posée telle quelle, le calage peut être faux.</p>')
+        : '<p class="hint" style="margin-top:8px">Aucune image pour cet agencement.</p>') +
+    '</div>' +
+  '</div>' +
+
   '<div class="card">' +
     '<h2>Déplacer</h2>' +
     '<div class="body">' +
@@ -643,6 +801,19 @@ function renderMap(){
     '</div>' +
   '</div>';
 
+  /* Le fond vient d'IndexedDB, donc apres coup. On ne le lit qu'une fois
+     par agencement : la reponse, meme vide, reste en cache pour ne pas
+     redessiner en boucle. */
+  const cleF = fondCle(p, bd);
+  if(!(cleF in fondCache)){
+    fondCache[cleF] = null;
+    fondLit(cleF).then(img => {
+      if(!img) return;
+      fondCache[cleF] = img;
+      renderMap();          /* la cle est deja en cache : pas de boucle */
+    }).catch(e => console.warn("fond de carte illisible :", e));
+  }
+
   branche(L, p, bd);
   dessine(L, p, bd);
   majHud(L, p, bd);
@@ -695,6 +866,51 @@ function branche(L, p, bd){
 
   /* L'orientation ne touche pas la partie : c'est une préférence
      d'affichage, gardée hors de l'état de plateau. */
+  const car = el("mapCardFond");
+  if(car){
+    const t = car.querySelector("h2");
+    if(t) t.addEventListener("click", ()=>{
+      p.fondOuvert = car.classList.contains("collapsed");
+      car.classList.toggle("collapsed"); savePlat();
+    });
+  }
+  const fc = el("fondChoisir"), ff = el("fondFichier");
+  if(fc && ff){
+    fc.addEventListener("click", ()=> ff.click());
+    ff.addEventListener("change", ()=>{
+      const f = ff.files && ff.files[0];
+      if(!f) return;
+      fc.disabled = true; fc.textContent = "Lecture…";
+      fondPrepare(f).then(img => {
+        const cle = fondCle(p, bd);
+        fondCache[cle] = img;
+        return fondEcrit(cle, img);
+      }).then(()=>{ p.fondOuvert = true; p.fondVu = true; savePlat(); renderMap(); })
+        .catch(()=>{ fc.disabled = false; fc.textContent = "Charger une image…";
+                     alert("Cette image n'a pas pu être lue."); });
+    });
+  }
+  const fv = el("fondVoir");
+  if(fv) fv.addEventListener("click", ()=>{
+    p.fondVu = p.fondVu === false; savePlat(); renderMap();
+  });
+  const fo = el("fondOter");
+  if(fo) fo.addEventListener("click", ()=>{
+    if(!confirm("Retirer le fond de cet agencement ?")) return;
+    const cle = fondCle(p, bd);
+    delete fondCache[cle];
+    fondEcrit(cle, null).then(()=>{ savePlat(); renderMap(); });
+  });
+  const fop = el("fondOp");
+  if(fop) fop.addEventListener("input", ()=>{
+    p.fondOp = +fop.value;
+    const v = el("fondVal"); if(v) v.textContent = p.fondOp + " %";
+    const g = el("mapSvg") && el("mapSvg").firstChild;
+    const im = el("mapSvg") && el("mapSvg").querySelector("image");
+    if(im && im.parentNode) im.parentNode.setAttribute("opacity", p.fondOp / 100);
+    savePlat();
+  });
+
   const bo = el("mapOrient");
   if(bo) bo.addEventListener("click", ()=>{
     debout = !debout;
