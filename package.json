@@ -10,7 +10,8 @@
     "gabarits": "node outils/test-gabarits.mjs",
     "dispositions-test": "node outils/test-dispositions.mjs",
     "orientation": "node outils/test-orientation.mjs",
-    "cartes": "python3 outils/cartes-officielles.py"
+    "cartes": "python3 outils/cartes-officielles.py",
+    "decors": "python3 outils/cartes-officielles.py --decors"
   },
   "devDependencies": {
     "terser": "^5.36.0"
