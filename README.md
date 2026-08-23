@@ -651,9 +651,46 @@ Trois précautions, chacune apprise d'une mesure fausse :
   appariements : compter l'échange comme une erreur faisait passer
   *Disruption vs Disruption* pour fausse à 0,000 alors qu'elle est à 0,994.
 
-Ce qui reste hors de portée : les **positions de décor**. `npm run gabarits`
-en confirme le nombre et les gabarits sur une source indépendante, pas les
-coordonnées ; celles-ci viennent toujours de 40kdc-data.
+### Le décor
+
+Les zones se lisent d'un coup : deux aplats francs. Le décor, non — c'est du
+gris sur du gris, et trois couches se ressemblent. Le fond du no man's land
+est un gris **chaud** clair, quadrillé, de somme RVB ≈ 625 ; le gabarit posé
+dessus est un gris **neutre** de gravats, entre 250 et 600 ; les ruines qui le
+garnissent portent des teintes franches.
+
+`npm run decors -- <dossier>` classe au pixel, puis vote à la maille de 0,25″
+— une ligne de quadrillage large d'un ou deux pixels est minoritaire dans une
+maille de cinq, elle disparaît sans qu'on ait à l'éroder — et retire enfin les
+taches de moins de dix mailles, un gabarit en faisant des dizaines.
+
+Ce masque suit les **gravats**, pas le contour du gabarit : il en couvre les
+deux tiers. On ne peut donc pas en tirer une cote au dixième de pouce comme
+pour les zones. Deux choses sont établies, toutes deux falsifiables :
+
+- **Chaque page reconnaît sa propre carte parmi les 45.** 41 la reconnaissent
+  seule, avec une avance médiane de 0,22 sur la deuxième ; les 4 autres sont à
+  égalité — au millième — avec une carte que le document lui-même dessine à
+  l'identique. Vérifié en confrontant les pages officielles entre elles :
+  *Perturbation vs Perturbation* et *Reconnaissance vs Reconnaissance*
+  réemploient le même agencement de décor, lettres permutées, avec un
+  recouvrement mutuel de 0,85 à 0,97. Nos données font de même. Rien ne peut
+  départager deux images identiques, et c'est le document qui se répète.
+- **Aucun décalage d'ensemble ne rattrape mieux nos décors.** On essaie les
+  289 translations de ±2″ par quart de pouce : sur 42 cartes le zéro est déjà
+  l'optimum, et les trois autres gagneraient 0,1 % pour un quart de pouce —
+  une maille, soit du bruit.
+
+Couverture médiane 0,85. Les 18 pièces qui tombent sous 0,30 sont toutes du
+gabarit 6″ × 2″ — la barricade, dont l'illustration est une clôture qui remplit
+mal son emprise — et se répartissent sur treize pages ; les trois autres
+familles de gabarit n'en comptent aucune. C'est une limite de la mesure, pas
+une carte fautive.
+
+Ce qui reste hors de portée : la **cote exacte** d'un décor. `npm run gabarits`
+confirme le nombre et les dimensions des gabarits sur une source indépendante,
+`npm run decors` leur agencement ; leurs coordonnées au dixième de pouce
+viennent toujours de 40kdc-data.
 
 ## Unités Legends
 
