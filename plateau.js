@@ -866,14 +866,6 @@ function branche(L, p, bd){
 
   /* L'orientation ne touche pas la partie : c'est une préférence
      d'affichage, gardée hors de l'état de plateau. */
-  const car = el("mapCardFond");
-  if(car){
-    const t = car.querySelector("h2");
-    if(t) t.addEventListener("click", ()=>{
-      p.fondOuvert = car.classList.contains("collapsed");
-      car.classList.toggle("collapsed"); savePlat();
-    });
-  }
   const fc = el("fondChoisir"), ff = el("fondFichier");
   if(fc && ff){
     fc.addEventListener("click", ()=> ff.click());
@@ -1077,9 +1069,11 @@ document.addEventListener("click", ev => {
   if(!h) return;
   const carte = h.parentNode;
   carte.classList.toggle("collapsed");
-  if(carte.id === "mapCardDecor"){
+  const memoire = { mapCardDecor: "decorOuvert", mapCardFond: "fondOuvert" };
+  const champ = memoire[carte.id];
+  if(champ){
     const L = listeEnService();
-    if(L){ etatDe(L).decorOuvert = !carte.classList.contains("collapsed"); savePlat(); }
+    if(L){ etatDe(L)[champ] = !carte.classList.contains("collapsed"); savePlat(); }
   }
 });
 

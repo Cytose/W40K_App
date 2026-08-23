@@ -59,12 +59,19 @@ await clic('Layout C');            await p.waitForTimeout(600);
 const ok = [], ko = [];
 const T = (nom, vrai, dit) => (vrai ? ok : ko).push(nom + (dit ? ' — ' + dit : ''));
 
-await p.evaluate(() => {
-  const c = document.getElementById('mapCardFond');
-  if (c) c.classList.remove('collapsed');
-});
 T('la carte « Fond de carte » existe',
   await p.evaluate(() => !!document.getElementById('mapCardFond')));
+
+/* On ouvre la carte en cliquant son en-tête, comme un doigt — et non en
+   lui retirant sa classe. La première version de cette suite trichait
+   ainsi, et elle est passée au vert sur une carte qui ne s'ouvrait pas :
+   un second gestionnaire basculait la classe une deuxième fois. */
+const ouvre = () => p.evaluate(() => {
+  const c = document.getElementById('mapCardFond');
+  if (c && c.classList.contains('collapsed')) c.querySelector('h2').click();
+  return !!c && !c.classList.contains('collapsed');
+});
+T('elle s’ouvre quand on clique son en-tête', await ouvre());
 
 await p.setInputFiles('#fondFichier', image);
 await p.waitForTimeout(3000);
@@ -111,10 +118,7 @@ await p.waitForTimeout(1800);
 T('le fond survit au rechargement',
   await p.evaluate(() => !!document.querySelector('#mapSvg image')));
 
-await p.evaluate(() => {
-  const c = document.getElementById('mapCardFond');
-  if (c) c.classList.remove('collapsed');
-});
+T('elle se rouvre après rechargement', await ouvre());
 p.on('dialog', d => d.accept());
 await p.evaluate(() => document.getElementById('fondOter')?.click());
 await p.waitForTimeout(1200);
