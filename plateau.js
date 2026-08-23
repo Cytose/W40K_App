@@ -518,14 +518,21 @@ function dessine(L, p, bd){
   for(let v = 6; v < W; v += 6) gros.appendChild(svgEl("line", {x1:0, y1:v, x2:H, y2:v}));
   svg.appendChild(gros);
 
-  if(bd.lui) svg.appendChild(svgEl("polygon", {points:chemin(bd.lui), fill:"var(--alert)",
+  /* Tout ce que l'application dessine d'apres layouts.js — zones, decors,
+     objectifs — tient dans un seul groupe. On peut ainsi le faire palir
+     d'un bloc au-dessus de la page officielle et voir, a l'oeil, si les
+     deux coincident. Les figurines et les portees restent en dehors : ce
+     sont les pieces du joueur, pas le modele a verifier. */
+  const trace = svgEl("g", {id:"mapTrace", opacity: (p.traceOp == null ? 100 : p.traceOp) / 100});
+
+  if(bd.lui) trace.appendChild(svgEl("polygon", {points:chemin(bd.lui), fill:"var(--alert)",
     "fill-opacity":0.13, stroke:"var(--alert)", "stroke-width":0.16, "stroke-opacity":0.85}));
-  if(bd.moi) svg.appendChild(svgEl("polygon", {points:chemin(bd.moi), fill:"var(--cyan)",
+  if(bd.moi) trace.appendChild(svgEl("polygon", {points:chemin(bd.moi), fill:"var(--cyan)",
     "fill-opacity":0.13, stroke:"var(--cyan)", "stroke-width":0.16, "stroke-opacity":0.9}));
   const etiquette = (z, coul, txt) => {
     if(!z || !z.length) return;
     const cx = z.reduce((s,q)=>s+q[0],0)/z.length, cy = z.reduce((s,q)=>s+q[1],0)/z.length;
-    svg.appendChild(svgEl("text", {x:DX(cx,cy), y:DY(cx,cy), "text-anchor":"middle",
+    trace.appendChild(svgEl("text", {x:DX(cx,cy), y:DY(cx,cy), "text-anchor":"middle",
       "font-size":2.1, fill:coul, "fill-opacity":0.42, "letter-spacing":0.32}, txt));
   };
   etiquette(bd.lui, "var(--alert)", "ADVERSAIRE");
@@ -537,10 +544,10 @@ function dessine(L, p, bd){
                                    ") rotate(" + (b[4] + ROT()) + ")"});
     g.appendChild(svgEl("rect", {x:-b[2]/2, y:-b[3]/2, width:b[2], height:b[3], rx:0.25,
       fill:"var(--s3)", stroke:"var(--line-hi)", "stroke-width":0.1}));
-    svg.appendChild(g);
-    (t.w || []).forEach(q => svg.appendChild(svgEl("polygon", {points:chemin(q),
+    trace.appendChild(g);
+    (t.w || []).forEach(q => trace.appendChild(svgEl("polygon", {points:chemin(q),
       fill:"var(--green)", "fill-opacity":0.9})));
-    (t.o || []).forEach(q => svg.appendChild(svgEl("polygon", {points:chemin(q),
+    (t.o || []).forEach(q => trace.appendChild(svgEl("polygon", {points:chemin(q),
       fill:"var(--warn)", "fill-opacity":0.9})));
   });
 
@@ -553,17 +560,17 @@ function dessine(L, p, bd){
     g.appendChild(svgEl("rect", {x:-spec.w/2, y:-spec.h/2, width:spec.w, height:spec.h, rx:0.2,
       fill:"var(--s3)", stroke: on ? "var(--glow)" : "var(--line-hi)",
       "stroke-width": on ? 0.24 : 0.1, "stroke-dasharray": on ? "" : "0.5 0.35"}));
-    svg.appendChild(g);
+    trace.appendChild(g);
   });
 
   const pose = (o, genre, coul) => {
-    svg.appendChild(svgEl("circle", {cx:DX(o[0],o[1]), cy:DY(o[0],o[1]), r:3, fill:"none",
+    trace.appendChild(svgEl("circle", {cx:DX(o[0],o[1]), cy:DY(o[0],o[1]), r:3, fill:"none",
       stroke:coul, "stroke-width":0.08, "stroke-opacity":0.55, "stroke-dasharray":"0.6 0.5"}));
-    svg.appendChild(svgEl("circle", {cx:DX(o[0],o[1]), cy:DY(o[0],o[1]), r:1.55,
+    trace.appendChild(svgEl("circle", {cx:DX(o[0],o[1]), cy:DY(o[0],o[1]), r:1.55,
       fill:"var(--s1)", stroke:coul, "stroke-width":0.16}));
     const g = svgEl("g", {transform:"translate(" + DX(o[0],o[1]) + " " + DY(o[0],o[1]) + ")"});
     iconeObjectif(g, genre, coul);
-    svg.appendChild(g);
+    trace.appendChild(g);
   };
   (bd.objectifs || []).forEach(o => {
     const centre = Math.abs(o[0] - W/2) < 3.5 && Math.abs(o[1] - H/2) < 3.5;
@@ -571,6 +578,8 @@ function dessine(L, p, bd){
   });
   (bd.departLui || []).forEach(o => pose(o, "depart", "var(--alert)"));
   (bd.departMoi || []).forEach(o => pose(o, "depart", "var(--cyan)"));
+
+  svg.appendChild(trace);
 
   /* ---- les figurines ---- */
   (L.units || []).forEach(ru => {
@@ -742,10 +751,17 @@ function renderMap(){
           ? '<button type="button" id="fondOter">Reprendre celle d\'origine</button>' : '') +
       '</div>' +
       '<input type="file" id="fondFichier" accept="image/*" hidden>' +
-      '<label style="display:block;margin-top:10px">Opacité ' +
+      '<label style="display:block;margin-top:10px">Opacité de la page officielle ' +
         '<b id="fondVal">' + (p.fondOp == null ? 55 : p.fondOp) + ' %</b>' +
-        '<input type="range" id="fondOp" min="10" max="100" step="5" style="width:100%" ' +
+        '<input type="range" id="fondOp" min="0" max="100" step="5" style="width:100%" ' +
           'value="' + (p.fondOp == null ? 55 : p.fondOp) + '"></label>' +
+      '<label style="display:block;margin-top:8px">Opacité du tracé généré ' +
+        '<b id="traceVal">' + (p.traceOp == null ? 100 : p.traceOp) + ' %</b>' +
+        '<input type="range" id="traceOp" min="0" max="100" step="5" style="width:100%" ' +
+          'value="' + (p.traceOp == null ? 100 : p.traceOp) + '"></label>' +
+      '<p class="hint" style="margin-top:6px">Fais varier l\'un puis l\'autre pour ' +
+      'superposer les deux : zones, décors et objectifs sont dans le tracé, tes figurines ' +
+      'restent visibles.</p>' +
       (fondCache[fondCle(p, bd)]
         ? (fondCache[fondCle(p, bd)].cale ? '<p class="hint">Ton image, recadrée sur le plateau.</p>'
            : '<p class="hint" style="color:var(--warn-tx)">Le cadre du plateau n\'a pas été ' +
@@ -900,15 +916,24 @@ function branche(L, p, bd){
     delete fondCache[cle];
     fondEcrit(cle, null).then(()=>{ savePlat(); renderMap(); });
   });
-  const fop = el("fondOp");
-  if(fop) fop.addEventListener("input", ()=>{
-    p.fondOp = +fop.value;
-    const v = el("fondVal"); if(v) v.textContent = p.fondOp + " %";
-    const g = el("mapSvg") && el("mapSvg").firstChild;
+  /* Les deux curseurs agissent sur le SVG deja dessine : on ne redessine
+     pas a chaque pixel glisse, sinon le geste saccade. */
+  const glisseur = (id, val, champ, vise) => {
+    const c = el(id);
+    if(!c) return;
+    c.addEventListener("input", ()=>{
+      p[champ] = +c.value;
+      const v = el(val); if(v) v.textContent = p[champ] + " %";
+      const cible = vise();
+      if(cible) cible.setAttribute("opacity", p[champ] / 100);
+    });
+    c.addEventListener("change", savePlat);
+  };
+  glisseur("fondOp", "fondVal", "fondOp", ()=>{
     const im = el("mapSvg") && el("mapSvg").querySelector("image");
-    if(im && im.parentNode) im.parentNode.setAttribute("opacity", p.fondOp / 100);
-    savePlat();
+    return im && im.parentNode;
   });
+  glisseur("traceOp", "traceVal", "traceOp", ()=> el("mapTrace"));
 
   const bo = el("mapOrient");
   if(bo) bo.addEventListener("click", ()=>{
