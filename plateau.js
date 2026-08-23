@@ -79,6 +79,15 @@ const VUE = () => debout ? "-1.5 -1.5 47 63" : "-1.5 -1.5 63 47";
 const FONDS = "mathhammer.fonds";
 let fondBase = null, fondCache = {};
 
+/* Les 45 agencements sont livres avec l'application. Sur le site ils sont
+   un fichier chacun, demandes seulement quand on les regarde ; dans le
+   fichier autonome la construction les replie dans CARTES, puisqu'il n'y a
+   plus de reseau pour aller les chercher. Une image chargee par
+   l'utilisateur passe devant : c'est peut-etre un meilleur tirage que le
+   notre, ou une carte que nous n'avons pas. */
+const carteLivree = cle =>
+  (self.CARTES && self.CARTES[cle]) || ("cartes/" + cle.replace("|", "-") + ".jpg");
+
 function fondOuvre(){
   return new Promise((ok, ko) => {
     if(fondBase) return ok(fondBase);
@@ -486,7 +495,8 @@ function dessine(L, p, bd){
   /* Le fond de carte, sous tout le reste. Il est range en portrait,
      comme la donnee ; couche, on le fait pivoter d'un quart de tour
      autour du coin, exactement comme la geometrie. */
-  const fond = fondCache[fondCle(p, bd)];
+  const cleFond = fondCle(p, bd);
+  const fond = fondCache[cleFond] || { url: carteLivree(cleFond), cale: true, livre: true };
   if(fond && p.fondVu !== false){
     const g = svgEl("g", {opacity: (p.fondOp == null ? 55 : p.fondOp) / 100});
     const im = svgEl("image", {width: W, height: H, preserveAspectRatio:"none",
@@ -496,7 +506,7 @@ function dessine(L, p, bd){
     g.appendChild(im);
     svg.appendChild(g);
   }
-  const surFond = !!(fond && p.fondVu !== false);
+  const surFond = p.fondVu !== false;
   const fine = svgEl("g", {stroke:"var(--line-soft)", "stroke-width":0.03,
                            "stroke-opacity": surFond ? 0 : 0.9});
   for(let v = 1; v < H; v++) if(v % 6) fine.appendChild(svgEl("line", {x1:v, y1:0, x2:v, y2:W}));
@@ -721,29 +731,26 @@ function renderMap(){
   '<div class="card' + (p.fondOuvert ? '' : ' collapsed') + '" id="mapCardFond">' +
     '<h2>Fond de carte <span class="chev">▾</span></h2>' +
     '<div class="body">' +
-      '<p class="hint" style="margin:2px 0 8px">Pose la page officielle de cet agencement ' +
-      'sous la géométrie, pour les comparer d\'un coup d\'œil. L\'image reste dans ce ' +
-      'navigateur : elle n\'est ni envoyée ni livrée avec l\'application. Le plateau y est ' +
-      'retrouvé et recadré tout seul.</p>' +
+      '<p class="hint" style="margin:2px 0 8px">La page officielle de cet agencement, posée ' +
+      'sous la géométrie. Charge la tienne si tu en as un meilleur tirage — elle restera dans ' +
+      'ce navigateur, et « Reprendre celle d\'origine » revient à l\'image livrée.</p>' +
       '<div class="seg" style="justify-content:flex-start">' +
-        '<button type="button" id="fondChoisir">Charger une image…</button>' +
+        '<button type="button" id="fondVoir" aria-pressed="' + (p.fondVu !== false) + '">' +
+          (p.fondVu !== false ? 'Masquer' : 'Afficher') + '</button>' +
+        '<button type="button" id="fondChoisir">Charger la mienne…</button>' +
         (fondCache[fondCle(p, bd)]
-          ? '<button type="button" id="fondVoir" aria-pressed="' + (p.fondVu !== false) + '">' +
-              (p.fondVu !== false ? 'Masquer' : 'Afficher') + '</button>' +
-            '<button type="button" id="fondOter">Retirer</button>'
-          : '') +
+          ? '<button type="button" id="fondOter">Reprendre celle d\'origine</button>' : '') +
       '</div>' +
       '<input type="file" id="fondFichier" accept="image/*" hidden>' +
+      '<label style="display:block;margin-top:10px">Opacité ' +
+        '<b id="fondVal">' + (p.fondOp == null ? 55 : p.fondOp) + ' %</b>' +
+        '<input type="range" id="fondOp" min="10" max="100" step="5" style="width:100%" ' +
+          'value="' + (p.fondOp == null ? 55 : p.fondOp) + '"></label>' +
       (fondCache[fondCle(p, bd)]
-        ? '<label style="display:block;margin-top:10px">Opacité ' +
-            '<b id="fondVal">' + (p.fondOp == null ? 55 : p.fondOp) + ' %</b>' +
-            '<input type="range" id="fondOp" min="10" max="100" step="5" style="width:100%" ' +
-              'value="' + (p.fondOp == null ? 55 : p.fondOp) + '"></label>' +
-          (fondCache[fondCle(p, bd)].cale
-            ? ''
-            : '<p class="hint" style="color:var(--warn-tx)">Le cadre du plateau n\'a pas été ' +
-              'reconnu sur cette image : elle est posée telle quelle, le calage peut être faux.</p>')
-        : '<p class="hint" style="margin-top:8px">Aucune image pour cet agencement.</p>') +
+        ? (fondCache[fondCle(p, bd)].cale ? '<p class="hint">Ton image, recadrée sur le plateau.</p>'
+           : '<p class="hint" style="color:var(--warn-tx)">Le cadre du plateau n\'a pas été ' +
+             'reconnu sur ton image : elle est posée telle quelle, le calage peut être faux.</p>')
+        : '<p class="hint">Image livrée avec l\'application.</p>') +
     '</div>' +
   '</div>' +
 

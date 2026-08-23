@@ -26,9 +26,22 @@ const STATIQUES=['manifest.json','icon.svg'];
   const js=['data.js','engine.js','app.js','roster.js','layouts.js','plateau.js'].map(f=>fs.readFileSync(f,'utf8')).join('\n');
   const min=await terser.minify(js,{compress:{passes:3},mangle:{toplevel:true},format:{comments:false}});
   if(min.error) throw min.error;
+  /* Les fonds de carte. Sur le site ils restent un fichier chacun, demande
+     seulement quand on le regarde — trois megaoctets ne doivent pas partir
+     a chaque ouverture de page. Dans le fichier autonome il n'y a plus de
+     reseau : on les replie en data URI, ce qui pese, mais c'est le prix du
+     hors-ligne. */
+  const cartes={};
+  if(fs.existsSync('cartes'))
+    for(const f of fs.readdirSync('cartes').filter(f=>f.endsWith('.jpg')))
+      cartes[f.replace(/\.jpg$/,'').replace('-','|')]=
+        'data:image/jpeg;base64,'+fs.readFileSync('cartes/'+f).toString('base64');
+  const bagage=Object.keys(cartes).length
+    ? '<script>window.CARTES='+JSON.stringify(cartes)+'<\/script>' : '';
+
   const full=html.replace(/<style>[\s\S]*?<\/style>/,'<style>'+css+'</style>')
     .replace(/\n\s*\n/g,'\n')
-    .replace(/<script src="data.js"><\/script>\s*<script src="engine.js"><\/script>/,'<script>'+min.code+'<\/script>')
+    .replace(/<script src="data.js"><\/script>\s*<script src="engine.js"><\/script>/,bagage+'<script>'+min.code+'<\/script>')
     .replace(/\s*<script src="app.js"><\/script>\s*<script src="roster.js"><\/script>\s*<script src="layouts.js"><\/script>\s*<script src="plateau.js"><\/script>/,'');
   fs.mkdirSync('dist',{recursive:true});
   const b64=zlib.gzipSync(Buffer.from(full,'utf8'),{level:9}).toString('base64');
@@ -60,6 +73,11 @@ const STATIQUES=['manifest.json','icon.svg'];
   fs.writeFileSync('dist/index.html', fs.readFileSync('index.html','utf8')
     .replace('<meta name="build" content="source">','<meta name="build" content="'+sig+'">'));
   fs.writeFileSync('dist/W40K_App.html',full);
+  if(fs.existsSync('cartes')){
+    fs.mkdirSync('dist/cartes',{recursive:true});
+    for(const f of fs.readdirSync('cartes').filter(f=>f.endsWith('.jpg')))
+      fs.copyFileSync('cartes/'+f,'dist/cartes/'+f);
+  }
   /* et la meme a la racine, comme l'annonce l'en-tete : c'est CE fichier
      que le depot suit et que la verification hors-ligne ouvre. Sans cette
      ligne il restait fige a sa derniere ecriture manuelle, et la suite
@@ -73,5 +91,6 @@ const STATIQUES=['manifest.json','icon.svg'];
   fs.writeFileSync('dist/sw.js', fs.readFileSync('sw.js','utf8')
     .replace(/w40k-app-\w+/,'w40k-app-'+sig));
   console.log('site', SOURCES.length+STATIQUES.length+2, 'fichiers | empreinte', sig,
-              '| autonome', full.length, 'o | chargeur', loader.length, 'o');
+              '| autonome', full.length, 'o | chargeur', loader.length, 'o |',
+              Object.keys(cartes).length, 'fonds de carte');
 })();
