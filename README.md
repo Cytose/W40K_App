@@ -634,11 +634,24 @@ géométrie. Il est rangé dans IndexedDB — une image recadrée pèse quelques
 centaines de kilo-octets, trop pour `localStorage` dès la deuxième — et
 survit donc au rechargement.
 
-`node outils/test-fond.mjs <page.png>` éprouve les dix points qui peuvent
-casser sans bruit. L'un a déjà lâché : la relecture appelait une variable
-absente de `plateau.js`, la promesse levait une `ReferenceError` avalée en
-silence, et le fond ne revenait jamais après rechargement. Rien à la console,
-un écran d'apparence normale.
+`node outils/test-fond.mjs <page.png>` éprouve les douze points qui peuvent
+casser sans bruit. Deux ont déjà lâché.
+
+La relecture appelait une variable absente de `plateau.js` : la promesse levait
+une `ReferenceError` avalée en silence, et le fond ne revenait jamais après
+rechargement. Rien à la console, un écran d'apparence normale.
+
+Et la carte ne s'ouvrait pas du tout. `plateau.js` porte déjà un gestionnaire
+**délégué** sur `#scMap .card > h2` — les cartes de cet axe sont créées après
+coup, donc rebranchées ainsi. Le mien basculait la classe une seconde fois :
+elle s'enlevait puis se remettait. L'état d'ouverture se retient maintenant
+dans ce gestionnaire, comme celui de la carte des décors.
+
+Cette seconde faute avait échappé à la suite parce que la suite trichait :
+elle retirait la classe `collapsed` à la main au lieu de cliquer l'en-tête.
+Elle passait donc au vert sur une carte qui ne s'ouvrait pas. Elle clique
+désormais, comme un doigt — et remise dans son état d'avant, elle tombe bien
+sur le bug.
 
 ## Les zones confrontées aux pages officielles
 
