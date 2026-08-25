@@ -207,6 +207,7 @@ function etatDe(L){
   p.unites = p.unites || {}; p.decors = p.decors || [];
   p.mode = p.mode || "unite";
   p.portees = p.portees || { mvt:1, charge:1, tir:0 };
+  if(p.portees.vue == null) p.portees.vue = 0;
   /* migration : la première version posait un seul jeton par unité */
   if(p.jetons){
     for(const id in p.jetons)
@@ -494,6 +495,77 @@ function poserGabarit(d, out, prof){
     out, (prof || 0) + 1));
 }
 
+/* --------------------------------------------------- ligne de vue
+   Une unite posee eclaire le plateau comme une lampe. Deux regles la
+   gouvernent, et elles n'ombrent pas de la meme facon :
+
+     PLEIN 13.11 — le terrain DENSE est opaque. On ne tire pas de ligne
+     de vue au travers, meme par une porte ou une fenetre, tant qu'on est
+     a 3 pouces ou moins du sol. Le mur lui-meme est dans l'ombre.
+
+     OCCULTANT 13.10 — une zone de terrain qui porte du terrain leger ou
+     dense occulte. Si toutes les lignes entre deux figurines la
+     traversent, elles ne se voient pas — SAUF si l'une d'elles s'y
+     trouve. La zone est donc ECLAIREE, et c'est ce qu'il y a derriere
+     elle qui tombe dans l'ombre.
+
+   D'ou deux appels a la meme fonction, avec la face opposee : pour un
+   mur plein on part des aretes tournees VERS la lampe, ce qui met le mur
+   dans son ombre ; pour une zone occultante on part des aretes tournees
+   a l'oppose, ce qui la laisse eclairee.
+
+   L'ombre d'un polygone vue d'un point, c'est la reunion, sur ces
+   aretes, du quadrilatere qui part de l'arete et file au loin dans l'axe
+   des rayons. On les rassemble dans UN seul trace, regle du non-nul :
+   deux ombres qui se recouvrent ne s'assombrissent pas deux fois. */
+const LOIN = 120;
+function ombreDe(src, poly, versLaLampe){
+  /* Le sens de parcours des contours n'est pas garanti par la source :
+     s'y fier ferait eclairer le mur et ombrer ce qui est devant. On le
+     mesure. */
+  let aire = 0;
+  for(let i = 0, j = poly.length - 1; i < poly.length; j = i++)
+    aire += (poly[j][0] - poly[i][0]) * (poly[j][1] + poly[i][1]);
+  const sens = aire >= 0 ? 1 : -1;
+  const out = [];
+  for(let i = 0; i < poly.length; i++){
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const cote = ((b[0]-a[0])*(src[1]-a[1]) - (b[1]-a[1])*(src[0]-a[0])) * sens;
+    if(cote === 0) continue;
+    if((cote > 0) !== versLaLampe) continue;
+    const fuite = q => [q[0] + (q[0]-src[0])*LOIN, q[1] + (q[1]-src[1])*LOIN];
+    /* Toutes les ombres dans le meme sens de parcours. Sans cela, deux
+       quadrilateres de sens contraires s'annulent sous la regle du
+       non-nul et ouvrent une clairiere en pleine ombre. */
+    const q = [a, b, fuite(b), fuite(a)];
+    let aq = 0;
+    for(let k = 0, j = 3; k < 4; j = k++)
+      aq += (q[j][0] - q[k][0]) * (q[j][1] + q[k][1]);
+    out.push(aq < 0 ? q.reverse() : q);
+  }
+  return out;
+}
+/* un point est-il dans un polygone ? regle pair-impair */
+function dedansPoly(q, poly){
+  let d = false;
+  for(let i = 0, j = poly.length - 1; i < poly.length; j = i++){
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if((yi > q[1]) !== (yj > q[1]) &&
+       q[0] < (xj - xi) * (q[1] - yi) / (yj - yi) + xi) d = !d;
+  }
+  return d;
+}
+/* toutes les ombres portees par une carte, vues d'un point */
+function ombresVues(src, poses){
+  const out = [];
+  poses.forEach(q => {
+    if(dedansPoly(src, q.poly)) return;          /* on ne s'ombre pas soi-meme */
+    if(q.k === "f" && !q.dense) return;          /* le leger laisse voir */
+    out.push(...ombreDe(src, q.poly, q.k === "f"));
+  });
+  return out;
+}
+
 /* les elements de decor d'une carte, une fois poses */
 function elementsPoses(bd){
   const out = [];
@@ -615,6 +687,32 @@ function dessine(L, p, bd){
   (bd.departMoi || []).forEach(o => pose(o, "depart", "var(--cyan)"));
 
   svg.appendChild(trace);
+
+  /* ---- la lampe ---- */
+  if(p.portees.vue && selection && selection.genre === "unite"){
+    const ru = (L.units || []).find(u => String(u.id) === String(selection.id));
+    const pos = ru && p.unites[ru.id];
+    if(Array.isArray(pos) && pos.length){
+      const f = (selection.fig != null && pos[selection.fig]) || null;
+      const c = f ? { x:f.x, y:f.y } : centreDe(pos);
+      const src = [c.x, c.y];
+      const quads = ombresVues(src, poses);
+      if(quads.length){
+        /* L'ombre file loin au-dela du plateau ; on la coupe au bord,
+           sans quoi elle deborde dans la marge du cadre. */
+        const clip = svgEl("clipPath", {id:"mapJeu"});
+        clip.appendChild(svgEl("rect", {x:0, y:0, width: debout ? W : H,
+                                        height: debout ? H : W}));
+        svg.appendChild(clip);
+        const d = quads.map(q => "M" + chemin(q).replace(/ /g, "L") + "Z").join("");
+        svg.appendChild(svgEl("path", {d:d, fill:"var(--tx)", "fill-opacity":0.34,
+                                       "fill-rule":"nonzero", "clip-path":"url(#mapJeu)",
+                                       "pointer-events":"none"}));
+      }
+      svg.appendChild(svgEl("circle", {id:"mapLampe", cx:DX(c.x,c.y), cy:DY(c.x,c.y), r:0.5,
+        fill:"var(--glow)", "fill-opacity":0.9, "pointer-events":"none"}));
+    }
+  }
 
   /* ---- les figurines ---- */
   (L.units || []).forEach(ru => {
@@ -768,6 +866,7 @@ function renderMap(){
         '<span><i style="background:var(--s3);border:1px solid var(--line-hi)"></i>Emprise de terrain</span>' +
         '<span><i style="background:var(--green)"></i>Dense — bloque la vue</span>' +
         '<span><i style="background:var(--warn)"></i>Léger — laisse voir</span>' +
+        '<span><i style="background:var(--tx);opacity:0.34"></i>Hors de vue</span>' +
       '</div>' +
       '<p class="hint" id="mapHud">Touche une unité pour la poser, glisse-la pour l\'ajuster.</p>' +
     '</div>' +
@@ -833,7 +932,12 @@ function renderMap(){
         '<button type="button" data-portee="mvt" aria-pressed="' + (p.portees.mvt ? "true" : "false") + '">Mouvement</button>' +
         '<button type="button" data-portee="charge" aria-pressed="' + (p.portees.charge ? "true" : "false") + '">Mvt + charge</button>' +
         '<button type="button" data-portee="tir" aria-pressed="' + (p.portees.tir ? "true" : "false") + '">Mvt + tir</button>' +
+        '<button type="button" data-portee="vue" aria-pressed="' + (p.portees.vue ? "true" : "false") + '">Ligne de vue</button>' +
       '</div>' +
+      '<p class="hint" style="margin:8px 0 0">La ligne de vue part de la figurine choisie, ou du ' +
+      'centre de l\'unité. Le terrain dense est opaque — règle Plein, on ne voit pas au travers ' +
+      'au ras du sol. Une emprise de terrain, elle, reste éclairée : c\'est ce qu\'il y a derrière ' +
+      'qui tombe dans l\'ombre — règle Occultant.</p>' +
     '</div>' +
   '</div>' +
 
