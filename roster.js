@@ -267,6 +267,17 @@ function profilsPhase(ru, ph){
 }
 
 window.ROSTER = {
+  /* crochet de verification : ce que « Maintenant » annonce a une phase
+     et un camp donnes, sans avoir a promener l'ecran En partie */
+  maintenant: function(ph, moi){
+    if(!R) return null;
+    if(!G) loadG();
+    const ph0 = G.phase, moi0 = G.moi;
+    G.phase = ph; G.moi = moi !== false;
+    const out = declenchements().map(x => ({ nom:x.nom, source:x.source, pos:x.pos }));
+    G.phase = ph0; G.moi = moi0;
+    return out;
+  },
   /* crochet de verification : le bilan de la liste ouverte, tel que
      l'ecran le rend */
   bilan: function(){ return R ? bilanListe().map(x => x.t) : null; },
@@ -2300,7 +2311,6 @@ function marqueFait(cle, uniq){
 function declenchements(){
   const camp = G.moi ? "moi" : "adv", out = [];
   const tblM = (typeof MOMENTS !== "undefined") ? MOMENTS : {};
-  const tblA = (typeof APTITUDES !== "undefined") ? APTITUDES : {};
 
   /* la regle de faction et celles des detachements pris */
   ((typeof MOMENTS_ARMEE !== "undefined") ? MOMENTS_ARMEE : []).forEach((m, i)=>{
@@ -2314,7 +2324,7 @@ function declenchements(){
   const vues = {};
   const ajoute = nom => {
     if(vues[nom]) return; vues[nom] = 1;
-    (tblA[nom] || []).forEach(([apt, txt])=>{
+    aptitudesDe(nom).forEach(([apt, txt])=>{
       const m = tblM[nom + "|" + apt];
       if(!m || !concerne(m, G.phase, camp)) return;
       out.push({cle: nom + "|" + apt, nom: apt, source: nom, texte: txt,
@@ -3769,7 +3779,25 @@ function groupeDe(nom, i){
    du champ de son jumeau de tir — la lance plasmique donne les deux —
    c'est « càc » qu'il faut lire */
 const portee = w => w[2] === "C" ? "càc" : (w[9] || "—");
-const aptitudesDe = nom => (typeof APTITUDES !== "undefined" && APTITUDES[nom]) || [];
+/* Les aptitudes d'une fiche, PLUS celle que le detachement lui impose.
+
+   L'Entrave Necrodermique n'est pas sur la fiche : elle n'existe que sous
+   le Pantheon de Malheur, et l'ecrire en dur ferait mentir la fiche des
+   quatre Echardes dans tous les autres detachements. Elle se greffe donc
+   ici, une fois, et tout ce qui lit les aptitudes en herite -- la fiche
+   d'unite comme le « Maintenant » de l'ecran En partie.
+
+   Son texte perd sa phrase de porteur : « Figurine d'ECHARDE C'TAN DU
+   NYCTOPHORE seulement » n'apprend rien sur la fiche du Nyctophore. */
+const sansPorteur = t => String(t).replace(/^Figurine (?:d'|de )[^.]*seulement\.\s*/, "");
+const nomEntrave = t => t[0] + " — Panthéon de Malheur";
+function aptitudesDe(nom, L){
+  const base = (typeof APTITUDES !== "undefined" && APTITUDES[nom]) || [];
+  const t = (typeof ENTRAVES !== "undefined") && ENTRAVES[nom];
+  const d = (L || R || {}).detach || [];
+  if(!t || d.indexOf("Pantheon of Woe") < 0) return base;
+  return base.concat([[nomEntrave(t), sansPorteur(t[2])]]);
+}
 const transportDe = nom => (typeof TRANSPORTS !== "undefined" && TRANSPORTS[nom]) || "";
 
 /* la definition officielle d'une aptitude d'arme, pour l'infobulle des

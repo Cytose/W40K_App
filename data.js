@@ -1126,6 +1126,15 @@ const MOMENTS = {
  "Geomancer|Réverbération Tectonique":            {ph:"mvt", camp:"moi", pos:"", uniq:""},
  "Catacomb Command Barge|Orbe de Résurrection":   {ph:"",    camp:"",    pos:"fin", uniq:"partie"},
  "C'tan Shard of the Nightbringer|Drain de Vie":  {ph:"cbt", camp:"",    pos:"fin", uniq:""},
+ /* Les Entraves Necrodermiques du Pantheon de Malheur. Elles ne sont pas
+    sur la fiche : l'application les pose quand le detachement est pris,
+    et c'est la meme cle qui les amene ici. L'Aiguillon se rappelle DEUX
+    fois -- au mouvement, ou l'on decide d'avancer, et a la charge, ou
+    l'on oublie qu'on a le droit de charger quand meme. */
+ "C'tan Shard of the Nightbringer|Aiguillon Quantique — Panthéon de Malheur":
+                                                  {ph:"mvt chg", camp:"moi", pos:"", uniq:""},
+ "C'tan Shard of the Deceiver|Matrice de Singularité — Panthéon de Malheur":
+                                                  {ph:"",    camp:"",    pos:"", uniq:""},
  "C'tan Shard of the Void Dragon|Absorption de Matière": {ph:"tir", camp:"moi", pos:"debut", uniq:""},
  "C'tan Shard of the Void Dragon|Sourdine Spirituelle — Panthéon de Malheur": {ph:"tir", camp:"adv", pos:"debut", uniq:"tour"},
  "Transcendent C'tan|Déplacement Transdimensionnel": {ph:"mvt", camp:"moi", pos:"", uniq:""},
@@ -1144,6 +1153,10 @@ const MOMENTS_ARMEE = [
  { ph:"cmd", camp:"moi", pos:"fin", nom:"Protocoles de Réanimation",
    source:"Règle de faction",
    texte:"Chaque unité amie qui a cette aptitude et se trouve sur le champ de bataille soigne D3 points de vie." },
+ { ph:"cmd mvt tir chg cbt", camp:"", pos:"debut", detach:"Pantheon of Woe",
+   nom:"Champs de Distorsion — pousser l'aura à 9\"",
+   source:"Panthéon de Malheur",
+   texte:"Au début de chaque phase, chaque unité de MONSTRE NÉCRON peut subir 3 blessures mortelles : jusqu'à la fin de la phase, la portée de son aura passe de 6\" à 9\". Tant qu'une unité ennemie y est, elle est effritée : améliorez de 1 la PA de chaque attaque qui la cible." },
  { ph:"cbt", camp:"adv", pos:"fin", detach:"Hypercrypt Legion", nom:"Hyperphasage",
    source:"Légion d'Hypercrypte",
    texte:"Retire des unités du champ de bataille pour les placer en Réserves Stratégiques : Incursion jusqu'à 1 unité, Force de Frappe jusqu'à 2, Offensive jusqu'à 3." }
@@ -1524,24 +1537,21 @@ const APTITUDES = {
   ["Sauvegarde invulnérable","4+."],
   ["Drain de Vie","À la fin de la phase de Combat, jetez 1 D6 pour chaque unité ennemie à 6\" de cette figurine : sur 4+, l'unité ennemie subit D3 blessures mortelles."],
   ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
-  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
-  ["Aiguillon Quantique — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : cette figurine est éligible pour déclarer une charge à un tour où elle a Avancé. Son coût en points augmente du montant indiqué dans l'Inventaire du Munitorum."]
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."]
  ],
  "C'tan Shard of the Deceiver" : [
   ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+, Discrétion."],
   ["Sauvegarde invulnérable","4+."],
   ["Grande Illusion","Si votre armée inclut cette figurine, après que les deux joueurs ont déployé leurs armées, choisissez jusqu'à trois unités de NÉCRONS de votre armée et redéployez-les. Ce faisant, une ou plusieurs de ces unités peuvent être placées en Réserve Stratégique, quel que soit le nombre d'unités s'y trouvant déjà."],
   ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
-  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
-  ["Matrice de Singularité — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement. Seigneur de la Duperie (Aura) : chaque fois que votre adversaire cible une unité de son armée avec un Stratagème, si l'unité est à 12\" de cette figurine, augmentez de 1PC le coût de cette utilisation."]
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."]
  ],
  "C'tan Shard of the Void Dragon" : [
   ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+."],
   ["Sauvegarde invulnérable","4+."],
   ["Absorption de Matière","Au début de votre phase de Tir, choisissez 1 unité de VÉHICULE ennemie à 12\" de cette figurine et jetez 1 D6 : sur 2+, l'unité ennemie subit D3 blessures mortelles et cette figurine récupère jusqu'à ce nombre de PV perdus."],
   ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
-  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
-  ["Sourdine Spirituelle — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : une fois par tour, au début de la phase de Tir adverse, choisissez 1 unité de VÉHICULE ennemie visible du porteur. L'unité doit faire un test de Commandement. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité, soustrayez 1 au jet de Touche et, si le test de Commandement avait été raté, soustrayez 1 au jet de Blessure également."]
+  ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."]
  ],
  "Transcendent C'tan" : [
   ["Aptitudes de base","Destruction Néfaste D6, Frappe en Profondeur, Insensible à la Douleur 5+."],
@@ -1549,8 +1559,7 @@ const APTITUDES = {
   ["Déplacement Transdimensionnel","À votre phase de Mouvement, quand cette unité est choisie pour faire un mouvement d'avance, vous pouvez utiliser cette aptitude. Dans ce cas : ▪ ce mouvement d'avance n'a pas de distance maximale ; ▪ cette unité peut se déplacer à travers tous types de figurines (y compris les figurines ennemies et celles de MONSTRE/VÉHICULE) ; ▪ après s'être déplacée, cette unité doit être à plus de 8\" à l'horizontale des unités ennemies. Texte remplacé par le pack de faction v1.1."],
   ["Nécroderme","À chaque attaque qui cible cette figurine, soustrayez 1 à la caractéristique de Dégâts de l'attaque."],
   ["Dieu Stellaire Asservi","Cette figurine ne peut pas être votre Seigneur de Guerre."],
-  ["Écharde C'tan","Cette figurine ne peut pas recevoir d'Optimisations."],
-  ["Longe Relativiste — Panthéon de Malheur","Entrave Nécrodermique imposée par ce détachement : à votre tour, quand cette unité fait un mouvement d'arrivée ou d'avance en utilisant son aptitude Déplacement Transdimensionnel, elle peut finir ce mouvement à plus de 6\" à l'horizontale des unités ennemies (et non à plus de 8\"). Quand elle finit ce mouvement à 8\" ou moins d'une unité ennemie, jusqu'à la fin du tour, elle n'est pas éligible pour déclarer une charge. Si votre armée inclut plus d'un C'tan Transcendant, chacun doit prendre cette aptitude."]
+  ["Écharde C'tan","Cette figurine ne peut pas recevoir d'Optimisations."]
  ],
  "Overlord with Translocation Shroud" : [
   ["Ma Volonté Sera Faite","Une fois par round de bataille, une unité de votre armée ayant cette aptitude peut l'utiliser quand son unité est ciblée par un stratagème : le coût de cette utilisation est réduit de 1 PC."],

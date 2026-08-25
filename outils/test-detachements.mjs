@@ -62,11 +62,13 @@ t('les quatre noms du Munitorum sont retires des optimisations',
   D.O.join(', '));
 t('le Munitorum et le pack se recoupent',
   Object.values(D.T).map(v => v[3]).sort().join(',') === D.O.slice().sort().join(','));
-/* Et la fiche de chaque monstre porte la meme aptitude : le joueur la
-   trouve la ou il la cherche, pas seulement dans la liste. */
-t('la fiche du monstre porte l\'aptitude',
-  Object.entries(D.T).every(([u, v]) =>
-    (D.A[u] || []).some(a => a[0].indexOf(v[0]) === 0)));
+/* L'entrave n'est PAS ecrite sur la fiche : elle n'existe que sous le
+   Pantheon de Malheur, et l'y ecrire en dur ferait mentir la fiche des
+   quatre Echardes dans les six autres detachements. Elle s'y greffe a
+   l'affichage — la suite le verifie sur l'ecran. */
+t('la fiche n\'écrit pas l\'entrave en dur',
+  Object.keys(D.T).every(u =>
+    !(D.A[u] || []).some(a => /Panthéon de Malheur/.test(a[0]))));
 
 console.log('\n== 3. sur une vraie liste ==');
 const b = await chromium();
@@ -126,6 +128,69 @@ const vieille = await p.evaluate(() => window.ROSTER.liste());
 eq('l\'ancienne optimisation est otee', vieille.unites[0].enh, '');
 eq('et l\'entrave la remplace', vieille.unites[0].entrave, 'Matrice de Singularité');
 eq('le Mystificateur paie 45 pts de plus', vieille.unites[0].pts, 330 + 45);
+console.log('\n== 4. dans le deroulement de la partie ==');
+/* Une entrave qu'on oublie ne sert a rien. L'ecran En partie doit la
+   rappeler AU MOMENT ou elle se joue, et nulle part ailleurs. */
+const quand = async (detach, ph, moi) => {
+  await p.evaluate(d => {
+    localStorage.setItem('mathhammer.lists.v1', JSON.stringify({v:1, actif:'l', listes:[{
+      id:'l', nom:'P', cap:3000, detach:[d], fd:'', nextId:9, units:[
+        {id:1, name:"C'tan Shard of the Nightbringer", size:1, lo:[], chars:[], sel:true, grp:'', enh:null},
+        {id:2, name:"C'tan Shard of the Deceiver", size:1, lo:[], chars:[], sel:true, grp:'', enh:null},
+        {id:3, name:"C'tan Shard of the Void Dragon", size:1, lo:[], chars:[], sel:true, grp:'', enh:null},
+        {id:4, name:"Transcendent C'tan", size:1, lo:[], chars:[], sel:true, grp:'', enh:null}]}]}));
+  }, detach);
+  await p.reload(); await p.waitForTimeout(1000);
+  return (await p.evaluate(([a, b2]) => window.ROSTER.maintenant(a, b2), [ph, moi]))
+    .map(x => x.nom);
+};
+const PW = 'Pantheon of Woe', AD = 'Awakened Dynasty';
+const ya = (l, mot) => l.some(x => x.indexOf(mot) === 0);
+/* L'Aiguillon se rappelle deux fois : au mouvement, ou l'on decide
+   d'avancer, et a la charge, ou l'on oublie qu'on y a droit quand meme. */
+eq('l\'Aiguillon Quantique est rappelé au mouvement',
+  ya(await quand(PW, 'mvt', true), 'Aiguillon Quantique'), true);
+eq('... et a la charge', ya(await quand(PW, 'chg', true), 'Aiguillon Quantique'), true);
+eq('... mais pas au tir', ya(await quand(PW, 'tir', true), 'Aiguillon Quantique'), false);
+/* Le Dragon du Neant : au debut de la phase de Tir ADVERSE, une fois par tour. */
+const tirAdv = await quand(PW, 'tir', false);
+eq('la Sourdine Spirituelle est rappelée au tir adverse',
+  ya(tirAdv, 'Sourdine Spirituelle'), true);
+eq('... et pas a mon tir', ya(await quand(PW, 'tir', true), 'Sourdine Spirituelle'), false);
+eq('la Longe Relativiste est rappelée au mouvement',
+  ya(await quand(PW, 'mvt', true), 'Longe Relativiste'), true);
+/* La regle du detachement elle-meme est une decision de debut de phase :
+   trois blessures mortelles pour pousser l'aura a 9 pouces. */
+const toutes = [];
+for(const ph of ['cmd', 'mvt', 'tir', 'chg', 'cbt'])
+  toutes.push(ya(await quand(PW, ph, true), 'Champs de Distorsion'));
+eq('les Champs de Distorsion sont rappelés à chacune des cinq phases',
+  toutes.filter(Boolean).length, 5);
+/* Et la fiche d'unite la porte aussi : c'est la qu'on la cherche quand on
+   ouvre l'unite en pleine partie. */
+const fiche = async detach => {
+  await quand(detach, 'mvt', true);
+  await p.click('#tabs button[data-s="scPlay"]'); await p.waitForTimeout(600);
+  await p.evaluate(() => {
+    const n = [...document.querySelectorAll('#scPlay *')]
+      .find(x => x.children.length === 0 && /Nightbringer/.test(x.textContent));
+    if(n) n.click();
+  });
+  await p.waitForTimeout(600);
+  const t2 = await p.evaluate(() => document.body.innerText);
+  await p.evaluate(() => history.back && 0);
+  return t2;
+};
+eq('la fiche du Nyctophore montre son entrave',
+  /Aiguillon Quantique/.test(await fiche(PW)), true);
+eq('... et ne la montre pas sous un autre détachement',
+  /Aiguillon Quantique/.test(await fiche(AD)), false);
+
+/* Et rien de tout cela sous un autre detachement. */
+const autre = (await quand(AD, 'mvt', true)).concat(await quand(AD, 'chg', true));
+eq('sous un autre détachement, aucune entrave ne se rappelle',
+  autre.some(x => /Panthéon de Malheur|Champs de Distorsion/.test(x)), false);
+
 await b.close();
 
 console.log([...ok, ...ko].join('\n'));
