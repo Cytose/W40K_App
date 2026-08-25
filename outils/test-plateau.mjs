@@ -122,6 +122,44 @@ const deb = await p.evaluate(()=>[document.documentElement.scrollWidth, document
 dit('pas de débordement horizontal', deb[0] <= deb[1]+1, true);
 
 /* les trois axes d'avant basculent toujours */
+/* ---- la ligne de vue ---- */
+const ombres = () => p.evaluate(() => document.querySelectorAll('#mapSvg path[fill-rule]').length);
+await p.locator('[data-unite]').first().click({force:true}); await p.waitForTimeout(300);
+dit('sans le réglage, pas d\'ombre', await ombres(), 0);
+await p.locator('[data-portee="vue"]').scrollIntoViewIfNeeded();
+await p.locator('[data-portee="vue"]').click(); await p.waitForTimeout(200);
+await p.locator('[data-unite]').first().click({force:true}); await p.waitForTimeout(400);
+dit('la lampe projette son ombre', await ombres(), 1);
+/* On interroge l\'ombre elle-même, point par point, plutôt que de relire
+   le code : isPointInFill dit si un point du plateau est dans l\'ombre.
+   Deux choses en découlent. La lampe s\'éclaire elle-même — sinon le
+   décor où se tient la figurine l\'occulterait, alors que la règle exclut
+   les zones où l\'une des deux figurines se trouve. Et l\'ombre couvre une
+   part du plateau, ni rien ni tout. */
+const sonde = await p.evaluate(() => {
+  const svg = document.querySelector('#mapSvg');
+  const ch = svg.querySelector('path[fill-rule]');
+  const l = svg.querySelector('#mapLampe');
+  const pt = (x, y) => { const q = svg.createSVGPoint(); q.x = x; q.y = y; return q; };
+  const lampe = ch.isPointInFill(pt(+l.getAttribute('cx'), +l.getAttribute('cy')));
+  let noir = 0, tout = 0;
+  for(let x = 0.5; x < 60; x += 1) for(let y = 0.5; y < 44; y += 1){
+    tout++; if(ch.isPointInFill(pt(x, y))) noir++;
+  }
+  return { lampe: lampe, part: noir / tout };
+});
+dit('la lampe s\'éclaire elle-même', sonde.lampe, false);
+dit('l\'ombre couvre une part du plateau, ni rien ni tout',
+    Math.round(sonde.part * 100) / 100, v => v > 0.05 && v < 0.95);
+await p.reload(); await p.waitForTimeout(1000);
+await p.click('#tabs button[data-s="scMap"]'); await p.waitForTimeout(500);
+await p.locator('[data-unite]').first().click({force:true}); await p.waitForTimeout(400);
+dit('le réglage survit au rechargement', await ombres(), 1);
+await p.locator('[data-portee="vue"]').scrollIntoViewIfNeeded();
+await p.locator('[data-portee="vue"]').click(); await p.waitForTimeout(200);
+await p.locator('[data-unite]').first().click({force:true}); await p.waitForTimeout(300);
+dit('on peut la rééteindre', await ombres(), 0);
+
 for(const s of ['scList','scSim','scPlay']){
   await p.click(`#tabs button[data-s="${s}"]`); await p.waitForTimeout(350);
   dit('axe ' + s, await p.evaluate(id => document.getElementById(id).classList.contains('on'), s), true);
