@@ -488,10 +488,17 @@ function poserGabarit(d, out, prof){
     if(d.m === 1) x = -x; else if(d.m === 2) y = -y;
     return [d.p[0] + x*co - y*si, d.p[1] + x*si + y*co];
   };
-  out.push({ k: g.k, n: g.n, poly: g.p.map(loc) });
+  out.push({ k: g.k, n: g.n, dense: !!d.d, poly: g.p.map(loc) });
   (g.f || []).forEach(f => poserGabarit(
-    { g:f.g, p:loc(f.p), r:(d.r || 0) + (f.r || 0) * (d.m ? -1 : 1), m:d.m },
+    { g:f.g, p:loc(f.p), r:(d.r || 0) + (f.r || 0) * (d.m ? -1 : 1), m:d.m, d:f.d },
     out, (prof || 0) + 1));
+}
+
+/* les elements de decor d'une carte, une fois poses */
+function elementsPoses(bd){
+  const out = [];
+  ((bd && bd.decors) || []).forEach(d => poserGabarit(d, out));
+  return out.filter(q => q.k === "f");
 }
 
 const chemin = poly => poly.map(q => DX(q[0],q[1]) + "," + DY(q[0],q[1])).join(" ");
@@ -564,15 +571,20 @@ function dessine(L, p, bd){
 
   /* L'emprise d'abord, les elements qu'elle porte par-dessus : c'est
      l'ordre du document, et il compte -- un mur pose sur son emprise
-     doit rester lisible. */
+     doit rester lisible.
+
+     Vert et or sont ceux du document, et ils disent une regle : le vert
+     est du terrain DENSE, qui porte la regle Plein -- on ne tire pas de
+     ligne de vue au travers, au ras du sol ; l'or est du terrain LEGER,
+     qui donne du couvert mais laisse voir. */
   const poses = [];
   (bd.decors || []).forEach(d => poserGabarit(d, poses));
   poses.filter(q => q.k === "a").forEach(q => trace.appendChild(svgEl("polygon",
     {points:chemin(q.poly), fill:"var(--s3)", "fill-opacity":0.92,
      stroke:"var(--line-hi)", "stroke-width":0.12})));
   poses.filter(q => q.k === "f").forEach(q => trace.appendChild(svgEl("polygon",
-    {points:chemin(q.poly), fill:"var(--line)", "fill-opacity":0.95,
-     stroke:"var(--line-hi)", "stroke-width":0.08})));
+    {points:chemin(q.poly), fill: q.dense ? "var(--green)" : "var(--warn)",
+     "fill-opacity": q.dense ? 0.85 : 0.8})));
 
   (p.decors || []).forEach(d => {
     const spec = DECORS.find(s => s.t === d.t); if(!spec) return;
@@ -750,11 +762,12 @@ function renderMap(){
         '<span><i style="background:var(--glow);border-radius:50%"></i>Objectif central</span>' +
         '<span><i style="background:var(--green)"></i>No man\'s land</span>' +
         /* Le document dessine chaque decor en deux temps : l'emprise de
-           terrain, gris a liset fin, puis les elements poses dessus. On
-           l'imite. Le vert et l'orange des elements -- terrain dense ou
-           leger -- viendront au temps suivant. */
+           terrain, gris a liset fin, puis les elements poses dessus, en
+           vert s'ils sont denses et en or s'ils sont legers. On l'imite,
+           et on nomme la regle : le dense bloque la vue au ras du sol. */
         '<span><i style="background:var(--s3);border:1px solid var(--line-hi)"></i>Emprise de terrain</span>' +
-        '<span><i style="background:var(--line)"></i>Élément de décor</span>' +
+        '<span><i style="background:var(--green)"></i>Dense — bloque la vue</span>' +
+        '<span><i style="background:var(--warn)"></i>Léger — laisse voir</span>' +
       '</div>' +
       '<p class="hint" id="mapHud">Touche une unité pour la poser, glisse-la pour l\'ajuster.</p>' +
     '</div>' +
@@ -1144,6 +1157,10 @@ window.PLATEAU = {
              variante: p.variante, mission: bd && bd.maMission, mode: p.mode,
              posees: Object.keys(p.unites).length, figurines: figs,
              decorsOfficiels: bd ? bd.decors.length : 0,
+             /* denses et legers : ce que la carte compte de terrain qui
+                bloque la vue, et de terrain qui la laisse passer */
+             denses: elementsPoses(bd).filter(q => q.dense).length,
+             legers: elementsPoses(bd).filter(q => !q.dense).length,
              objectifs: bd ? bd.objectifs.length : 0 };
   },
   /* les mesures d'une unité posée */

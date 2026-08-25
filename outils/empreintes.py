@@ -35,6 +35,8 @@ USAGE
     pip install Pillow numpy
     python3 outils/empreintes.py <dossier>
     python3 outils/empreintes.py <dossier> --planches <dir>   + calques
+    python3 outils/empreintes.py <dossier> --densite          relève le
+        vert et l'or de chaque élément, et l'écrit dans outils/densite.json
 
 Le dossier contient une image par page, nommée pNN.png. Ces images ne
 sont pas versionnées : ce sont les pages d'un document de Games Workshop,
@@ -152,9 +154,16 @@ def layouts():
                                      capture_output=True, text=True).stdout)
 
 
-def poser(gab, d, out, prof=0):
+MIROIRS = [(1, 1, 0), (-1, 1, 0), (1, -1, 180), (-1, -1, 180)]
+
+
+def poser(gab, d, out, prof=0, provenance=None, essai=None):
     """Le meme geste que plateau.js : contour local, miroir, rotation
-       horaire, translation ; puis les elements portes."""
+       horaire, translation ; puis les elements portes.
+
+       `provenance` sert au relevé de densité : chaque element retenu
+       garde le nom de l'emprise qui le porte et son rang dans sa liste,
+       ce qui l'identifie d'une carte a l'autre."""
     g = gab.get(d['g'])
     if not g or prof > 3:
         return
@@ -169,11 +178,14 @@ def poser(gab, d, out, prof=0):
             y = -y
         return (d['p'][0] + x*co - y*si, d['p'][1] + x*si + y*co)
 
-    out.append((g.get('k', 'a'), [loc(q) for q in g['p']]))
-    for f in g.get('f', []):
-        poser(gab, {'g': f['g'], 'p': loc(f['p']),
-                    'r': d.get('r', 0) + f.get('r', 0) * (-1 if d.get('m') else 1),
-                    'm': d.get('m')}, out, prof + 1)
+    out.append((g.get('k', 'a'), [loc(q) for q in g['p']], provenance))
+    sx, sy, dr = MIROIRS[(essai or {}).get(d['g'], 0)]
+    for i, f in enumerate(g.get('f', [])):
+        fx, fy = sx * f['p'][0], sy * f['p'][1]
+        fr = (-f.get('r', 0) if sx * sy < 0 else f.get('r', 0)) + dr
+        poser(gab, {'g': f['g'], 'p': loc((fx, fy)),
+                    'r': d.get('r', 0) + fr * (-1 if d.get('m') else 1),
+                    'm': d.get('m')}, out, prof + 1, (d['g'], i), essai)
 
 
 def rasterise(poly, nx, ny, pas):
@@ -196,10 +208,195 @@ def emprise(gab, v, pas=PAS, quoi='a'):
     poses = []
     for d in v.get('t', []):
         poser(gab, d, poses)
-    for k, poly in poses:
+    for k, poly, _ in poses:
         if quoi == 'tout' or k == quoi:
             u |= rasterise(poly, nx, ny, pas)
     return u
+
+
+
+# ------------------------------------------------- dense ou leger ?
+VERT = lambda R, G, B: (G - R > 40) & (G - B > 5)
+OR_ = lambda R, G, B: (R - B > 55) & (R - G > 20) & (G - B > 20)
+
+
+def dans(poly, a, t, b, u):
+    """Masque d'un polygone donne en pixels, sur la boite [a,b) x [t,u)."""
+    X, Y = np.meshgrid(np.arange(a, b) + .5, np.arange(t, u) + .5)
+    m = np.zeros(X.shape, bool)
+    n = len(poly)
+    for i in range(n):
+        ax, ay = poly[i]
+        bx, by = poly[(i + 1) % n]
+        coupe = (ay > Y) != (by > Y)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            xi = (bx - ax) * (Y - ay) / (by - ay) + ax
+        m ^= coupe & (X < xi)
+    return m
+
+
+def densites(pages, L, carnet):
+    """Le document peint chaque element de decor en vert s'il est du
+       terrain DENSE — regle Plein, on ne voit pas au travers au ras du
+       sol — et en or s'il est du terrain LEGER. Rien dans la source ne
+       porte cette distinction ; elle se lit sur les pages.
+
+       On la releve par element ET par emprise porteuse, pas par gabarit
+       d'element : le petit coin de 1,5 pouce est vert sur un trapeze et
+       or sur les deux autres. Un verdict par gabarit l'aurait moyenne en
+       bouillie.
+
+       Au passage on essaie les quatre retournements de chaque emprise.
+       La source exporte certains gabarits deja retournes et n'a retourne
+       que le contour, pas ce qu'il porte : l'element tombe alors sur du
+       gravat nu, ni vert ni or."""
+    gab = L['gab']
+    compte = {}
+    for chemin in pages:
+        cle = os.path.basename(chemin)[1:3]
+        c = carnet.get(cle)
+        if not c:
+            continue
+        mu = next((m for m in L['matchups'].values()
+                   if {m['p1'], m['p2']} == {c['p1'], c['p2']}), None)
+        if not mu:
+            continue
+        im = np.array(Image.open(chemin).convert('RGB')).astype(int)
+        x0, y0, x1, y1 = jeu(im)
+        sub = im[y0:y1+1, x0:x1+1]
+        H, W = sub.shape[:2]
+        SX, SY = W / W_PO, H / H_PO
+        R, G, B = sub[:, :, 0], sub[:, :, 1], sub[:, :, 2]
+        vert, ore = VERT(R, G, B), OR_(R, G, B)
+        for e in range(4):
+            liste = []
+            for d in mu['v'][c['agencement']]['t']:
+                poser(gab, d, liste, essai={d['g']: e})
+            for k, poly, prov in liste:
+                if k != 'f' or prov is None:
+                    continue
+                xs = [q[0] * SX for q in poly]
+                ys = [q[1] * SY for q in poly]
+                a, b = max(int(min(xs)), 0), min(int(max(xs)) + 1, W)
+                t, u = max(int(min(ys)), 0), min(int(max(ys)) + 1, H)
+                if b <= a or u <= t:
+                    continue
+                m = dans(list(zip(xs, ys)), a, t, b, u)
+                z = compte.setdefault((prov[0], prov[1], e), [0, 0, 0])
+                z[0] += int((vert[t:u, a:b] & m).sum())
+                z[1] += int((ore[t:u, a:b] & m).sum())
+                z[2] += int(m.sum())
+    return compte
+
+
+def releve_densite(pages, L, carnet, sortie):
+    compte = densites(pages, L, carnet)
+    ancien = {}
+    if os.path.exists(sortie):
+        ancien = json.load(open(sortie)).get('table', {})
+
+    emprises = sorted({k[0] for k in compte})
+    discordants = []
+
+    """Choisir le retournement en cherchant simplement le plus de couleur
+       ne marche pas : un petit L de 1,5 pouce gagne toujours a tomber au
+       milieu d'une grande ruine verte, ou il ramasse 80 % de vert au lieu
+       des 25 % d'or de sa vraie place. Il faut donc dire QUELLE couleur
+       on attend.
+
+       On ne la decrete pas : on la lit. Chaque piece du set Battlemaster
+       revient sur plusieurs emprises differentes ; on demande a chacune
+       de ces emprises SA voix, et la majorite tranche.
+
+       Une voix par emprise, et non un vote a la surface : le petit coin
+       de 1,5 pouce est or sur deux trapezes et faussement vert sur le
+       troisieme -- justement celui qui est mal pose, ou il tombe en
+       plein dans la grande ruine voisine. Au poids des pixels ce seul
+       ratage l'emportait et rendait le coin partage, ce qui laissait
+       ensuite le mauvais retournement gagner. A la voix, il est or a
+       deux contre un."""
+    vote = {}
+    for (parent, i, e), (v, o, n) in compte.items():
+        if e or max(v, o) < 0.05 * max(n, 1) or abs(v - o) < 0.5 * max(v + o, 1):
+            continue
+        z = vote.setdefault(L['gab'][parent]['f'][i]['g'], [0, 0])
+        z[0 if v > o else 1] += 1
+    attendu = {k: ('v' if v > o else ('o' if o > v else None))
+               for k, (v, o) in vote.items()}
+    print('  couleur attendue par piece, une voix par emprise :')
+    for k in sorted(attendu):
+        v, o = vote[k]
+        print('    %-16s %-8s (%d emprise(s) verte(s), %d or)' %
+              (k, {'v': 'vert', 'o': 'or'}.get(attendu[k], 'partagé'), v, o))
+    print()
+    table, douteux, retournes = {}, [], []
+    print('%-8s %-16s %6s %6s %6s   %s' %
+          ('emprise', 'element', 'vert', 'or', 'peint', 'verdict'))
+    print('─' * 62)
+    for parent in emprises:
+        rangs = sorted({k[1] for k in compte if k[0] == parent})
+
+        def peint(e):
+            s = 0.0
+            for i in rangs:
+                v, o, n = compte[(parent, i, e)]
+                a = attendu.get(L['gab'][parent]['f'][i]['g'])
+                s += (v if a == 'v' else o if a == 'o' else max(v, o)) / max(n, 1)
+            return s / max(len(rangs), 1)
+
+        delta = max(range(4), key=peint)
+        avant = (ancien.get(parent) or {}).get('retourne', 0)
+        absolu = avant ^ delta            # les retournements forment un groupe
+        elements = {}
+        for i in rangs:
+            v, o, n = compte[(parent, i, delta)]
+            nom = L['gab'][parent]['f'][i]['g']
+            elements[str(i)] = 1 if v > o else 0
+            marge = abs(v - o) / max(v + o, 1)
+            couleur = 100 * max(v, o) / max(n, 1)
+            pale = marge < 0.5 or couleur < 5
+            a = attendu.get(nom)
+            contre = (not pale) and a and (('v' if v > o else 'o') != a)
+            if pale:
+                douteux.append('%s nº%d (%s)' % (parent, i, nom))
+            if contre:
+                discordants.append('%s nº%d (%s)' % (parent, i, nom))
+            print('%-8s %-16s %5.1f%% %5.1f%% %5.1f%%   %s%s' %
+                  (parent if i == rangs[0] else '', nom,
+                   100*v/max(n, 1), 100*o/max(n, 1), couleur,
+                   'DENSE' if v > o else 'léger',
+                   '   ← contredit sa piece' if contre else
+                   ('   ← peu net' if pale else '')))
+        if delta:
+            retournes.append('%s (%d)' % (parent, absolu))
+        table[parent] = {'retourne': absolu, 'elements': elements}
+
+    json.dump({'_': ("Terrain dense (peint en vert par le document) ou leger "
+                     "(peint en or), et retournement des elements portes : "
+                     "releve sur les 45 pages officielles par "
+                     "outils/empreintes.py --densite, lu par "
+                     "outils/dispositions.js. Cle : gabarit d'emprise -> "
+                     "retourne 0..3 (bit 1 = axe x, bit 2 = axe y), elements "
+                     "-> rang -> 1 dense, 0 leger."),
+               'table': table},
+              open(sortie, 'w'), indent=0, ensure_ascii=False, sort_keys=True)
+    print('─' * 62)
+    print('  %d elements releves sur %d emprises'
+          % (sum(len(v['elements']) for v in table.values()), len(table)))
+    if douteux:
+        print('  %d pose(s) sur du gravat nu, sans couleur a lire — verdict pris'
+              ' du type de la piece :' % len(douteux))
+        print('    ' + ', '.join(douteux))
+    if discordants:
+        print('  %d pose(s) dont la couleur CONTREDIT le type de la piece :'
+              % len(discordants))
+        print('    ' + ', '.join(discordants))
+    if retournes:
+        print('  %d emprise(s) dont les elements changent de retournement :' % len(retournes))
+        print('    ' + ', '.join(retournes))
+        print('    relancer  npm run dispositions  puis cet outil pour confirmer')
+    print('  ecrit dans %s' % os.path.relpath(sortie, RACINE))
+    return not discordants and not retournes
 
 
 # ------------------------------------------------------------------ sortie
@@ -207,11 +404,16 @@ def main():
     if len(sys.argv) < 2:
         print(__doc__)
         return 1
-    dossier = sys.argv[1]
     planches = None
     if '--planches' in sys.argv:
         planches = sys.argv[sys.argv.index('--planches') + 1]
         os.makedirs(planches, exist_ok=True)
+    libres = [a for i, a in enumerate(sys.argv[1:], 1)
+              if not a.startswith('--') and a != planches]
+    if not libres:
+        print(__doc__)
+        return 1
+    dossier = libres[0]
     pages = sorted(glob.glob(os.path.join(dossier, 'p*.png')))
     if not pages:
         print('aucune page pNN.png dans', dossier)
@@ -219,6 +421,11 @@ def main():
     L = layouts()
     gab = L.get('gab', {})
     carnet = json.load(open(os.path.join(RACINE, 'outils', 'cartes.json')))
+
+    if '--densite' in sys.argv:
+        bon = releve_densite(pages, L, carnet,
+                             os.path.join(RACINE, 'outils', 'densite.json'))
+        return 0 if bon else 1
 
     variantes = []
     for mid, mu in L['matchups'].items():
@@ -277,7 +484,7 @@ def main():
             liste = []
             for d in mu['v'][c['agencement']]['t']:
                 poser(gab, d, liste)
-            for k, poly in liste:
+            for k, poly, _ in liste:
                 dr.polygon([(q[0]*SX, q[1]*SY) for q in poly],
                            outline=(255, 0, 255, 255) if k == 'a' else (0, 170, 255, 255),
                            width=3)

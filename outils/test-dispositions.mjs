@@ -103,9 +103,9 @@ function poser(d, out, prof){
     if(d.m === 1) x = -x; else if(d.m === 2) y = -y;
     return [d.p[0] + x*co - y*si, d.p[1] + x*si + y*co];
   };
-  out.push({ k: g.k, poly: g.p.map(loc) });
+  out.push({ k: g.k, dense: !!d.d, poly: g.p.map(loc) });
   (g.f || []).forEach(f => poser(
-    { g:f.g, p:loc(f.p), r:(d.r || 0) + (f.r || 0) * (d.m ? -1 : 1), m:d.m },
+    { g:f.g, p:loc(f.p), r:(d.r || 0) + (f.r || 0) * (d.m ? -1 : 1), m:d.m, d:f.d },
     out, (prof || 0) + 1));
 }
 const dec = vars().flatMap(x => x.va.t || []);
@@ -126,6 +126,33 @@ const horsPlateau = poses.filter(q => q.poly.some(c =>
 t('aucun decor ne deborde du plateau', horsPlateau === 0, horsPlateau + ' debordement(s)');
 const retournees = dec.filter(d => d.m).length;
 t('le miroir de la source est conserve', retournees > 0, retournees + ' emprises retournees');
+
+console.log('\n== 7. terrain dense ou leger ==');
+/* Le document peint le terrain dense en vert et le terrain leger en or.
+   La distinction n'est pas decorative : le dense porte la regle Plein,
+   on ne tire pas de ligne de vue au travers au ras du sol. Elle a ete
+   relevee sur les 45 pages ; on verifie ici que layouts.js dit la meme
+   chose que le releve, et que le releve dit la meme chose que le type de
+   la piece -- une ruine est dense, un muret est leger. */
+const releve = JSON.parse(fs.readFileSync(path.join(RACINE, 'outils', 'densite.json'), 'utf8')).table;
+const emprises = Object.entries(L.gab).filter(([, g]) => g.k === 'a' && (g.f || []).length);
+t('chaque emprise portante a ete relevee',
+  emprises.every(([k]) => releve[k]), emprises.length + ' emprises');
+t('layouts.js et le releve disent la meme chose',
+  emprises.every(([k, g]) => g.f.every((f, i) => !!f.d === (releve[k].elements[i] === 1))));
+const DENSE = { ab:1, co:1, ef:1, gh:1, generator:1, pipes:1, tower:1 };
+const contredits = emprises.flatMap(([k, g]) =>
+  g.f.filter(f => !!f.d !== !!DENSE[f.g]).map(f => k + '/' + f.g));
+t('le releve s\'accorde au type de la piece', contredits.length === 0,
+  contredits.length ? contredits.join(', ') : '0 ecart sur ' +
+    emprises.reduce((n, [, g]) => n + g.f.length, 0) + ' elements');
+const posesTous = [];
+dec.forEach(x => poser(x, posesTous));
+const elems = posesTous.filter(q => q.k === 'f');
+t('les deux familles sont sur la table',
+  elems.some(q => q.dense) && elems.some(q => !q.dense),
+  elems.filter(q => q.dense).length + ' denses, ' +
+  elems.filter(q => !q.dense).length + ' legers');
 
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
 if(ko.length) console.log('KO : ' + ko.join(' ; '));
