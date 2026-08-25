@@ -176,6 +176,41 @@ dit('l\'emprise mordue cesse d\'ombrer',
 dit('les murs pleins ombrent toujours autant',
     mord.avec.pleins === mord.sans.pleins && mord.sans.pleins > 0, true);
 dit('au milieu de l\'emprise, ses murs ombrent encore', mord.milieu.pleins, v => v > 0);
+
+/* Deux emprises collees n'en font qu'une : mordre l'une ecarte les deux.
+   On le lit sans rien supposer -- on pose un socle au centre de chaque
+   emprise et on compte celles que ce socle ecarte. */
+const colle = await p.evaluate(() => {
+  const b = window.PLATEAU.lampe([22, 30], 0);
+  const C = e => [e.reduce((s, q) => s + q[0], 0) / e.length,
+                  e.reduce((s, q) => s + q[1], 0) / e.length];
+  const n = b.emprises.map(e => window.PLATEAU.lampe(C(e), 0).mordues);
+  return { liees: b.liees, seules: n.filter(v => v === 1).length,
+           doubles: n.filter(v => v >= 2).length };
+});
+dit('des emprises sont collees deux a deux', colle.liees, v => v >= 2);
+dit('mordre l\'une des deux, c\'est ecarter les deux', colle.doubles, v => v >= 2);
+dit('les autres restent seules', colle.seules, v => v > 0);
+
+/* Et c'est le SOCLE qui mord, pas son centre : le meme point, avec le
+   meme socle ovale, mord ou ne mord pas selon qu'on le pose en travers
+   ou en long. Un point, ou un disque, ne saurait pas faire la
+   difference. */
+const ovale = await p.evaluate(() => {
+  const b = window.PLATEAU.lampe([22, 30], 0);
+  const e = b.emprises[0];
+  const cx = e.reduce((s, q) => s + q[0], 0) / e.length;
+  const cy = e.reduce((s, q) => s + q[1], 0) / e.length;
+  const v = e[0], dx = v[0] - cx, dy = v[1] - cy, n = Math.hypot(dx, dy) || 1;
+  const p2 = [v[0] + dx/n*1.2, v[1] + dy/n*1.2];
+  const a = Math.atan2(dy, dx) * 180 / Math.PI;
+  return { point: window.PLATEAU.lampe(p2, 0).mordues,
+           long: window.PLATEAU.lampe(p2, 1.6, 0.3, a + 180).mordues,
+           travers: window.PLATEAU.lampe(p2, 1.6, 0.3, a + 90).mordues };
+});
+dit('le centre seul ne mord pas', ovale.point, 0);
+dit('le socle pose en long mord', ovale.long, v => v >= 1);
+dit('le meme socle mis en travers ne mord pas', ovale.travers, 0);
 await p.reload(); await p.waitForTimeout(1000);
 await p.click('#tabs button[data-s="scMap"]'); await p.waitForTimeout(500);
 await p.locator('[data-unite]').first().click({force:true}); await p.waitForTimeout(400);

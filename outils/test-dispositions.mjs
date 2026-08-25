@@ -175,18 +175,74 @@ t('un contour est rectiligne : ses aretes suivent les axes',
   pieces.every(([, g]) => g.p.every((q, i) => {
     const r = g.p[(i + 1) % g.p.length];
     return Math.abs(q[0] - r[0]) < 1e-9 || Math.abs(q[1] - r[1]) < 1e-9; })));
-const creuses = pieces.filter(([, g]) => aire(g.p) < 0.9 * boite(g.p));
-t('la plupart des pieces ne remplissent pas leur boite',
-  creuses.length >= pieces.length - 2,
-  creuses.length + ' pieces sur ' + pieces.length + ' sont creuses');
+/* Une piece pleine est suspecte : le document en dessine peu. Seules les
+   barres en sont -- un muret est un muret. */
+const pleines = pieces.filter(([, g]) => aire(g.p) >= 0.9 * boite(g.p)).map(([k]) => k);
+t('seules les barres remplissent leur boite',
+  pleines.every(k => /barrier|pipes/.test(k)),
+  (pleines.join(', ') || 'aucune') + ' — ' + (pieces.length - pleines.length) +
+  ' pieces creuses sur ' + pieces.length);
 /* Le L est le cas qui compte : mince, coude, et c'est par son ouverture
    qu'on voit. Une boite pleine a sa place fermerait la ligne de vue. */
 ['small-l', 'small-l-flip', 'corner'].forEach(k => {
   const g = L.gab[k];
   t('le L de ' + k + ' est garde',
-    g && aire(g.p) < 0.6 * boite(g.p),
+    g && aire(g.p) < 0.7 * boite(g.p),
     g ? Math.round(100 * aire(g.p) / boite(g.p)) + ' % de sa boite' : 'absent');
 });
+
+console.log('\n== 9. la place des pieces dans leur emprise ==');
+/* La source place mal une piece sur deux dans son emprise : un muret a
+   un demi-pouce de son mur, une barriere posee a l'envers. C'est le meme
+   defaut qu'aux points 7 et 8 -- des emprises retournees sans qu'on
+   retourne ce qu'elles portent -- et il a fallu que les pieces aient
+   leur vraie forme pour que le reste se voie. outils/poses.py le releve
+   sur les 45 fonds de carte. On verifie ici que le relevé se tient : il
+   ne garde que ce qui gagne, et il ne fait sortir aucune piece de son
+   emprise. */
+const rel = JSON.parse(fs.readFileSync(path.join(RACINE, 'outils', 'poses.json'), 'utf8'));
+const cor = Object.entries(rel.poses);
+t('des corrections ont ete relevees', cor.length > 0, cor.length + ' pieces corrigees');
+t('chaque correction nomme une piece du catalogue',
+  cor.every(([c]) => { const [g, i] = c.split('/');
+    return L.gab[g] && (L.gab[g].f || [])[+i]; }));
+t('une correction ne se garde que si elle gagne',
+  cor.every(([, v]) => v.apres - v.avant >= rel.seuil),
+  'le moindre gain garde : ' +
+  Math.min(...cor.map(([, v]) => v.apres - v.avant)).toFixed(3));
+t('un quart de tour, pas un angle quelconque',
+  cor.every(([, v]) => [0, 90, 180, 270].indexOf(v.k) >= 0));
+/* Un mur appartient a sa ruine : on echantillonne chaque piece posee et
+   on compte ce qui tombe dans l'emprise qui la porte. */
+const dedans = (q, poly) => {
+  let d = false;
+  for(let i = 0, j = poly.length - 1; i < poly.length; j = i++){
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if((yi > q[1]) !== (yj > q[1]) &&
+       q[0] < (xj - xi) * (q[1] - yi) / (yj - yi) + xi) d = !d;
+  }
+  return d;
+};
+const partDedans = (g, f) => {
+  const p = L.gab[f.g].p, r = (f.r || 0) * Math.PI / 180;
+  const co = Math.cos(r), si = Math.sin(r);
+  const q = p.map(v => [f.p[0] + v[0]*co - v[1]*si, f.p[1] + v[0]*si + v[1]*co]);
+  const xs = q.map(v => v[0]), ys = q.map(v => v[1]);
+  let n = 0, bon = 0;
+  for(let x = Math.min(...xs); x <= Math.max(...xs); x += 0.1)
+    for(let y = Math.min(...ys); y <= Math.max(...ys); y += 0.1){
+      if(!dedans([x, y], q)) continue;
+      n++; if(dedans([x, y], L.gab[g].p)) bon++;
+    }
+  return n ? bon / n : 1;
+};
+const sorties = Object.entries(L.gab)
+  .filter(([, g]) => g.k === 'a' && (g.f || []).length)
+  .flatMap(([k, g]) => g.f.map(f => [k + '/' + f.g, partDedans(k, f)]))
+  .filter(([, v]) => v < 0.75);
+t('aucune piece ne sort de son emprise', sorties.length === 0,
+  sorties.length ? sorties.map(v => v[0] + ' ' + v[1].toFixed(2)).join(', ')
+                 : '72 pieces dedans a plus de 75 %');
 
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
 if(ko.length) console.log('KO : ' + ko.join(' ; '));

@@ -514,7 +514,17 @@ function poserGabarit(d, out, prof){
      chevauche la zone suffit : la figurine y est. L'emprise cesse alors
      d'exister pour cette unite — toute l'emprise, pas la part mordue —
      et ce qui est derriere se voit. Une unite, ce sont dix figurines :
-     il suffit que L'UNE morde pour que l'unite voie.
+     il suffit que L'UNE morde pour que l'unite voie. Et c'est bien le
+     SOCLE qui mord, ellipse posee de travers, pas le point du centre.
+
+     ET DEUX EMPRISES COLLEES N'EN FONT QU'UNE. Le document pose souvent
+     deux zones bord a bord et marque leur jointure d'une pastille ; sur
+     la table cela fait un seul grand terrain. Mordre l'une, c'est donc
+     voir a travers les deux. Sur les 5400 paires d'emprises des 45
+     cartes, 219 sont a moins d'un vingtieme de pouce l'une de l'autre --
+     et 131 a distance exactement nulle. Le seuil est la parce que la
+     donnee est arrondie au centieme, pas parce qu'un cas douteux le
+     demande : au-dessus, les paires s'espacent tout de suite.
 
      Le terrain dense, lui, ne cede pas : mordre l'emprise ne fait pas
      voir a travers les murs qu'elle porte. Les deux regles sont
@@ -573,37 +583,73 @@ function distSeg(q, a, b){
   t = t < 0 ? 0 : t > 1 ? 1 : t;
   return Math.hypot(q[0] - a[0] - t*vx, q[1] - a[1] - t*vy);
 }
-/* une figurine MORD un polygone si son socle le chevauche -- dedans, ou
-   assez pres d'un bord pour le toucher */
-function mordPoly(q, r, poly){
-  if(dedansPoly(q, poly)) return true;
-  for(let i = 0, j = poly.length - 1; i < poly.length; j = i++)
-    if(distSeg(q, poly[j], poly[i]) <= r) return true;
+/* Une figurine MORD un polygone si SON SOCLE le chevauche -- pas son
+   centre. Le socle est une ellipse posee de travers ; on ramene donc le
+   polygone dans son repere et on l'y aplatit, ce qui fait de l'ellipse un
+   cercle de rayon 1. Reste a savoir si ce cercle touche le polygone. */
+function mordSocle(f, poly){
+  const rx = Math.max(f.rx || 0, 1e-6), ry = Math.max(f.ry || 0, 1e-6);
+  const a = -(f.a || 0) * Math.PI / 180, co = Math.cos(a), si = Math.sin(a);
+  const q = poly.map(p => {
+    const x = p[0] - f.x, y = p[1] - f.y;
+    return [(x*co - y*si) / rx, (x*si + y*co) / ry];
+  });
+  if(dedansPoly([0, 0], q)) return true;
+  for(let i = 0, j = q.length - 1; i < q.length; j = i++)
+    if(distSeg([0, 0], q[j], q[i]) <= 1) return true;
   return false;
 }
+/* distance entre deux polygones : nulle des qu'ils se touchent */
+function distPolys(A, B){
+  if(A.some(q => dedansPoly(q, B)) || B.some(q => dedansPoly(q, A))) return 0;
+  let m = Infinity;
+  for(let i = 0; i < A.length; i++)
+    for(let j = 0; j < B.length; j++)
+      m = Math.min(m, distSeg(A[i], B[j], B[(j+1) % B.length]),
+                      distSeg(B[j], A[i], A[(i+1) % A.length]));
+  return m;
+}
+/* Deux emprises qui se touchent n'en font qu'une : voir plus haut. */
+const JOINT = 0.05;
+function groupesEmprises(emp){
+  const par = emp.map((_, i) => i);
+  const rac = i => par[i] === i ? i : (par[i] = rac(par[i]));
+  for(let i = 0; i < emp.length; i++)
+    for(let j = i + 1; j < emp.length; j++)
+      if(distPolys(emp[i], emp[j]) <= JOINT) par[rac(i)] = rac(j);
+  return emp.map((_, i) => rac(i));
+}
 /* toutes les ombres portees par une carte, vues d'un point.
-   `unite` est la liste des socles poses -- {p, r} -- de l'unite qui
-   regarde ; a defaut, le point seul. */
+   `unite` est la liste des socles poses de l'unite qui regarde --
+   {x, y, a, rx, ry} ; a defaut, le point seul. */
 function ombresVues(src, poses, unite){
-  const socles = (unite && unite.length) ? unite : [{ p:src, r:0 }];
+  const socles = (unite && unite.length) ? unite
+                                         : [{ x:src[0], y:src[1], a:0, rx:0, ry:0 }];
+  const emp = poses.filter(q => q.k === "a");
+  const grp = groupesEmprises(emp.map(q => q.poly));
+  const mordu = {};
+  emp.forEach((q, i) => {
+    if(socles.some(f => mordSocle(f, q.poly))) mordu[grp[i]] = 1;
+  });
   const out = [];
+  emp.forEach((q, i) => {
+    if(mordu[grp[i]]) return;
+    out.push(...ombreDe(src, q.poly, false));
+  });
   poses.forEach(q => {
-    if(q.k === "f"){
-      if(!q.dense) return;                       /* le leger laisse voir */
-      if(dedansPoly(src, q.poly)) return;        /* on ne tient pas dans un mur */
-      out.push(...ombreDe(src, q.poly, true));
-    } else {
-      if(socles.some(f => mordPoly(f.p, f.r, q.poly))) return;
-      out.push(...ombreDe(src, q.poly, false));
-    }
+    if(q.k !== "f" || !q.dense) return;          /* le leger laisse voir */
+    if(dedansPoly(src, q.poly)) return;          /* on ne tient pas dans un mur */
+    out.push(...ombreDe(src, q.poly, true));
   });
   return out;
 }
 /* les socles poses d'une unite, tels que la lampe les compte */
 function soclesDe(ru, pos){
   const figs = figurinesDe(ru);
-  return pos.map((q, i) => ({ p:[q.x, q.y],
-    r: rayonMoyen(socle((figs[i] || figs[0] || {}).nom)) }));
+  return pos.map((q, i) => {
+    const s = socle((figs[i] || figs[figs.length - 1] || {}).nom);
+    return { x:q.x, y:q.y, a:q.a || 0, rx:s.w / 2, ry:s.h / 2 };
+  });
 }
 
 /* les elements de decor d'une carte, une fois poses */
@@ -1309,18 +1355,27 @@ window.PLATEAU = {
   },
   /* Ce que la lampe voit d'un point, socle compris : combien d'emprises
      ce socle mord, combien d'ombres restent en tout, et combien viennent
-     des seuls murs pleins. Deux appels au meme point, l'un sans socle l'autre
+     des seuls murs pleins. Le socle se donne rond (un rayon) ou ovale
+     (deux demi-axes et un angle), comme celui d'une vraie figurine. Deux appels au meme point, l'un sans socle l'autre
      avec, isolent la regle : rien d'autre n'a bouge. */
-  lampe: function(pt, rayon){
+  lampe: function(pt, rayon, ry, a){
     const L = listeEnService(); if(!L) return null;
     const p = etatDe(L), bd = plateauDe(L, p);
     if(!bd) return null;
     const poses = [];
     (bd.decors || []).forEach(d => poserGabarit(d, poses));
-    const unite = [{ p:pt, r:rayon || 0 }];
+    const emp = poses.filter(q => q.k === "a");
+    const grp = groupesEmprises(emp.map(q => q.poly));
+    const unite = [{ x:pt[0], y:pt[1], a:a || 0,
+                     rx:rayon || 0, ry:(ry == null ? rayon : ry) || 0 }];
+    const mordu = {};
+    emp.forEach((q, i) => { if(mordSocle(unite[0], q.poly)) mordu[grp[i]] = 1; });
     return {
-      emprises: poses.filter(q => q.k === "a").map(q => q.poly),
-      mordues: poses.filter(q => q.k === "a" && mordPoly(pt, rayon || 0, q.poly)).length,
+      emprises: emp.map(q => q.poly),
+      /* combien d'emprises sont liees a une autre, et combien le socle
+         en ecarte -- celles qu'il touche et celles qui leur tiennent */
+      liees: grp.filter((g, i) => grp.filter(h => h === g).length > 1).length,
+      mordues: emp.filter((q, i) => mordu[grp[i]]).length,
       ombres: ombresVues(pt, poses, unite).length,
       pleins: ombresVues(pt, poses.filter(q => q.k === "f"), unite).length
     };

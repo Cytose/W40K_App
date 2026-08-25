@@ -166,18 +166,39 @@ def couleurs(L):
     return {k: ('vert' if v[1] >= v[0] else 'or') for k, v in dit.items()}
 
 
+def boites(L):
+    """La boite de chaque piece — celle de la SOURCE, pas celle du dernier
+       relevé. Une fois le contour ecrit dans layouts.js, le relire y
+       prendrait la boite du contour mesure, plus petite : le relevé
+       retrecirait a chaque tour. On la garde donc dans formes.json, et
+       on ne la mesure qu'une fois."""
+    f = os.path.join(RACINE, 'outils', 'formes.json')
+    dit = {}
+    if os.path.exists(f):
+        dit = json.load(open(f, encoding='utf-8')).get('boites') or {}
+    out = {}
+    for k, g in L['gab'].items():
+        if g.get('k') != 'f':
+            continue
+        if k in dit:
+            out[k] = tuple(dit[k])
+        else:
+            p = g['p']
+            out[k] = (max(q[0] for q in p) - min(q[0] for q in p),
+                      max(q[1] for q in p) - min(q[1] for q in p))
+    return out
+
+
 def releve(L):
     vues, coul, tout = cartes(L), couleurs(L), poses(L)
-    gab = L['gab']
+    gab = L['gab']; boite = boites(L)
     par = {}
     for cle, g, p, r, m in tout:
         par.setdefault(g, []).append((cle, p, r, m))
 
     formes = {}
     for g, liste in sorted(par.items()):
-        boite = gab[g]['p']
-        w = max(q[0] for q in boite) - min(q[0] for q in boite)
-        h = max(q[1] for q in boite) - min(q[1] for q in boite)
+        w, h = boite[g]
         """La grille se cale sur la BOÎTE, pas sur la fenêtre : ses bords
            tombent sur des bords de case. Une pièce de 3,75 pouces centrée
            sur une grille du quart de pouce couperait sinon une case en
@@ -357,6 +378,8 @@ def main():
         print('layouts.js illisible'); return 2
     formes = releve(L)
     polys, lignes = {}, []
+    bt = {g: [round(f['boite'][0], 3), round(f['boite'][1], 3)]
+          for g, f in formes.items()}
     for g, f in sorted(formes.items()):
         m = retenue(f)
         if not m.any():
@@ -377,6 +400,7 @@ def main():
                         "Repere local de la piece, en pouces, origine au centre "
                         "de la boite de la source. NE PAS MODIFIER A LA MAIN.",
                    'pas': PAS, 'seuil': SEUIL,
+                   'boites': {k: bt[k] for k in sorted(bt)},
                    'formes': {k: polys[k] for k in sorted(polys)}},
                   fh, ensure_ascii=False, indent=1)
     print('\n'.join(lignes))

@@ -799,6 +799,48 @@ versionnée, le dépôt ne garde pas d'images de travail. `npm run dispositions-
 point pour point, que leurs arêtes suivent les axes, et que le L reste un L :
 `small-l`, `small-l-flip` et `corner` occupent 47, 48 et 46 % de leur boîte.
 
+### La place des pièces
+
+Le contour juste ne sert à rien s'il est posé à côté. La source donne, pour
+chaque emprise, la liste des pièces qu'elle porte et la place de chacune ;
+confrontée aux cartes, cette place est fausse une fois sur deux — un muret à
+un demi-pouce de son mur, un petit L à deux pouces de son coin, une barrière
+posée à l'envers. Superposé au fond de carte, le décalage se voit à l'œil nu.
+
+C'est le **même défaut, une troisième fois** : la source exporte des emprises
+retournées sans retourner ce qu'elles portent. Le relevé de densité l'avait
+corrigé là où des rectangles suffisaient à le voir ; des rectangles ne
+montrent ni un quart de tour ni un demi-tour, et il a fallu que les pièces
+aient leur vraie forme pour que le reste apparaisse.
+
+`npm run poses` essaie, pour chaque emprise et chacune de ses pièces, les
+quatre quarts de tour et toutes les translations du quart de pouce, et garde
+celle qui met le plus de la pièce sur **sa** couleur. La moyenne se fait sur
+toutes les poses de l'emprise, sur les 45 cartes : un voisin ne peut pas
+tromper le compte, il change de place à chaque pose.
+
+Trois garde-fous, et une convergence :
+
+- **Une pièce reste dans son emprise.** Un mur appartient à sa ruine. Sans
+  cette borne, un petit L d'or va se coller sur l'or du voisin, à deux pouces
+  de chez lui.
+- **On ne corrige que ce qui gagne vraiment** — cinq centièmes au moins. En
+  deçà on ne mesure plus que la maille du relevé de forme et le crénelage du
+  fond de carte.
+- **Le miroir n'est pas dans la famille.** Retourner une pièce sur elle-même
+  gagnerait deux centièmes de plus, et voudrait dire qu'une ruine de plastique
+  existe en deux exemplaires symétriques. Ce n'est pas assez pour l'affirmer.
+- Le relevé **se compose** : `dispositions.js` applique `poses.json` à la
+  source, et relancer l'outil mesure ce qu'il reste à corriger. Le premier
+  tour corrige 44 pièces sur 72, le deuxième 5, le troisième 1 — 49 en tout,
+  et le gain du dernier tour est d'un millième.
+
+Part de chaque pièce qui tombe sur sa couleur, en moyenne sur les 1260 poses :
+**0,53 → 0,62**. Le reste de l'écart n'est pas un décalage — c'est que le
+contour relevé est un seuil de moyenne, un peu plus généreux que le dessin :
+les pièces bien posées plafonnent vers 0,85, les treillis de tuyaux et les
+murets minces vers 0,45.
+
 ### La ligne de vue
 
 Une unité sélectionnée éclaire le plateau comme une lampe : elle rayonne dans
@@ -809,7 +851,8 @@ la gouvernent, et elles n'ombrent pas de la même façon.
 |---|---|
 | **Plein** 13.11 | Le terrain dense est opaque : le mur est dans sa propre ombre. On part des arêtes tournées **vers** la lampe. |
 | **Occultant** 13.10 | Une zone de terrain occulte, mais la zone reste **éclairée** — c'est ce qui est derrière elle qui s'éteint. On part des arêtes tournées **à l'opposé**. |
-| **Mordre** 13.10 | La règle écarte la zone qui contient l'une des figurines, et un socle qui chevauche la zone suffit. L'emprise cesse alors d'exister pour cette unité — **toute** l'emprise, pas la part mordue. Il suffit qu'**une** figurine morde. |
+| **Mordre** 13.10 | La règle écarte la zone qui contient l'une des figurines, et un socle qui chevauche la zone suffit. L'emprise cesse alors d'exister pour cette unité — **toute** l'emprise, pas la part mordue. Il suffit qu'**une** figurine morde, et c'est le **socle** qui mord, ellipse posée de travers, pas le point du centre. |
+| **Deux emprises collées n'en font qu'une** | Le document pose souvent deux zones bord à bord et marque leur jointure d'une pastille ; sur la table cela fait un seul grand terrain. Mordre l'une, c'est voir à travers les deux. |
 
 Le terrain léger n'ombre pas : il donne du couvert, pas de l'obscurité. Et le
 terrain dense ne cède pas — mordre l'emprise ne fait pas voir à travers les
@@ -817,11 +860,18 @@ murs qu'elle porte. C'est là que les deux premières règles se séparent, et l
 contrôle le mesure : au milieu même d'une emprise mordue, ses murs ombrent
 encore.
 
+Sur les 5400 paires d'emprises des 45 cartes, **219 sont à moins d'un
+vingtième de pouce** l'une de l'autre, dont 131 à distance exactement nulle.
+Le seuil est là parce que la donnée est arrondie au centième, pas parce qu'un
+cas douteux le demande : au-dessus, les paires s'espacent tout de suite.
+
 Le contrôle n'inspecte pas le code, il interroge l'ombre : `isPointInFill`,
 point par point sur tout le plateau. Il établit que la lampe s'éclaire
 elle-même, que l'ombre couvre une part du plateau et ni rien ni tout, et — en
 appelant deux fois le même point, sans socle puis avec — que l'emprise mordue
-cesse d'ombrer pendant que les murs pleins ombrent toujours autant.
+cesse d'ombrer pendant que les murs pleins ombrent toujours autant. Le même
+point, avec le même socle ovale, mord ou ne mord pas selon qu'on le pose en
+long ou en travers : un disque ne saurait pas faire la différence.
 
 **Ce que ça ne fait pas.** La lampe part d'une figurine, pas de l'unité
 entière ; la règle, elle, parle de toutes les lignes tirées entre deux
