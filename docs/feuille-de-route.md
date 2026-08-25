@@ -3014,3 +3014,97 @@ La carte officielle en fond d'écran, que tu proposais, demande les images de GW
 Elles ne sont pas accessibles d'ici, et les embarquer redistribuerait leur
 travail. Si tu me les fournis, elles serviront à vérifier la géométrie plutôt
 qu'à être livrées avec l'application.
+
+## 11. Le socle multi-faction — 25/08/2026
+
+La note `docs/note-multi-faction.md` chiffrait trois options. Décision : **B**,
+et on commence par la seule partie qui ne se divise pas — le refactor. Il ne
+dépend pas de l'export Wahapedia, qui reste à récupérer sur une machine ayant
+accès au site.
+
+### Ce qui a changé
+
+`data.js` déclarait 39 tables globales, toutes nécrones. Il en garde
+**onze**, celles qui ne dépendent d'aucune faction : le barème de points,
+les mots-clés de cible, les archétypes de menace, les catégories, les rôles
+tactiques, les Dispositions de Force, le glossaire des règles de base. Il
+porte en plus le registre des factions et l'adaptateur.
+
+Les **28 autres** sont parties dans `data-necrons.js`, qui s'enregistre au
+chargement. À l'ouverture d'une liste, `activeFaction()` rebranche les noms
+globaux sur les tables voulues.
+
+**Les 142 lectures existantes n'ont pas bougé d'une ligne.** C'était tout
+l'intérêt du procédé, et il tient.
+
+| | avant | après |
+|---|---:|---:|
+| `data.js` | 1 810 lignes | 364 |
+| `data-necrons.js` | — | 1 598 |
+
+### Le prix, sans le cacher
+
+- **`const` → `let`** sur les 28 tables : on perd le filet du `const` sur des
+  tables qu'on ne veut pourtant pas voir bouger ailleurs.
+- **Les index dérivés** — `BASES`, `KWSET`, `CATMAP` — se construisaient une
+  fois au chargement, deux d'entre eux depuis `roster.js`. Ils sont réunis
+  dans `reconstruitIndex()`, seule fonction qui les touche, rappelée à chaque
+  bascule. C'est la partie du procédé où l'on oublie quelque chose.
+- **Une table oubliée** par une faction arrête le chargement en la nommant.
+  Sans ce contrôle elle vaudrait `undefined`, et la faute se lirait vingt
+  écrans plus loin sur un symptôme sans rapport.
+
+### La liste appartient à une faction
+
+`{id, nom, faction, cap, detach, fd, units, nextId}`. Les listes enregistrées
+avant ce champ sont nécrones — il n'y avait pas d'autre choix — et sont
+migrées à la relecture, puis réécrites tout de suite.
+
+Le champ voyage : lien de partage compressé, sauvegarde fichier, export JSON.
+Un lien d'avant le champ arrive en nécron ; un lien d'une faction que cette
+copie ne connaît pas est refusé **en le disant**, au lieu de rendre une liste
+vide.
+
+`normaliseListe()` bascule sur la faction de la liste avant de la relire.
+C'est le piège du procédé : cette fonction retire ce qu'elle ne reconnaît
+pas, et appliquée à une liste custodes avec la table nécrone en place, elle
+effacerait l'armée entière en la croyant périmée.
+
+Le sélecteur de faction reste **caché tant qu'il n'y a qu'une faction** : un
+menu à un seul choix n'apporte rien. Changer la faction d'une liste peuplée
+prévient d'abord — une armée ne se convertit pas, elle se refait.
+
+### Éprouvé
+
+`npm run factions` — 37 contrôles. La suite se donne une seconde faction en
+interceptant `data-necrons.js` : c'est le seul moyen d'éprouver une bascule
+tant qu'une seule faction est livrée, et c'est le vrai chemin, puisque le
+fichier s'enregistre au chargement et survit aux rechargements.
+
+Elle a trouvé un défaut réel, introduit par le refactor lui-même : `GRPN`
+étant devenu propre à la faction, `nomGroupe()` lisait `GRPN.forme.length`
+sans regarder. Une faction livrée sans noms de groupe — un agrément, pas une
+donnée de règle — emportait le chargement de la liste, donc l'application,
+sans message. Corrigé : la fonction rend une chaîne vide.
+
+Le découpage lui-même a été vérifié table par table avant d'être commité :
+**39 tables et 210 prix identiques** au fichier d'origine, index dérivés
+compris. Aucune donnée n'a été réécrite à la main — les segments sont
+recopiés verbatim.
+
+Les cinq suites existantes — Plateau, PC, orientation, gabarits,
+dispositions — passent sans changement.
+
+### Ce qui reste
+
+- **L'export Wahapedia**, toujours pas récupérable depuis mes machines :
+  `wahapedia.ru` répond 403 au tunnel. La commande `curl` est au bas de
+  `docs/note-multi-faction.md`, dix-neuf fichiers, deux minutes.
+- **Une liste dont le fichier de faction manque** retombe sur la faction par
+  défaut, et ses unités sont signalées comme retirées. Le cas ne peut pas se
+  produire aujourd'hui — une seule faction est livrée, et c'est la
+  faction par défaut. Il méritera mieux le jour où une faction peut
+  disparaître d'une copie de l'application.
+- **`plateau.js` n'a pas eu à changer** : il lit la liste en service dans le
+  stockage et `SOCLES` dans les globales, que `roster.js` tient à jour. Les
+  deux restent d'accord parce qu'ils parlent de la même liste.

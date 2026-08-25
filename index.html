@@ -1633,6 +1633,13 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <label for="listName">Nom</label>
         <div class="ctl"><input type="text" id="listName" maxlength="42"></div>
       </div>
+      <!-- La ligne reste cachee tant qu'il n'y a qu'une faction : un menu
+           a un seul choix ne demande rien, il encombre. Elle apparait le
+           jour ou un second data-<faction>.js s'enregistre. -->
+      <div class="row" id="rowFaction" hidden>
+        <label for="listFaction">Faction</label>
+        <div class="ctl"><select id="listFaction"></select></div>
+      </div>
       <div class="row">
         <label for="listCap">Plafond de points</label>
         <div class="ctl"><input type="number" id="listCap" min="100" max="10000" step="50"></div>
@@ -1831,6 +1838,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="sheet-list" id="dList"></div>
 </div>
 <script src="data.js"></script>
+<script src="data-necrons.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
 <script src="roster.js"></script>

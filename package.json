@@ -12,7 +12,8 @@
     "orientation": "node outils/test-orientation.mjs",
     "cartes": "python3 outils/cartes-officielles.py",
     "decors": "python3 outils/cartes-officielles.py --decors",
-    "fond": "node outils/test-fond.mjs"
+    "fond": "node outils/test-fond.mjs",
+    "factions": "node outils/test-factions.mjs"
   },
   "devDependencies": {
     "terser": "^5.36.0"
