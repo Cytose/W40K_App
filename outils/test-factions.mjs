@@ -117,7 +117,7 @@ const manquante = await p.evaluate(() => {
 T('une faction incomplète est refusée en nommant ce qui manque',
   manquante, v => v !== 'acceptée' && /WEAPONS/.test(v) && /APTITUDES/.test(v));
 T("et elle n'entre pas au registre",
-  await p.evaluate(() => listeFactions().map(f => f.cle)), ['necrons']);
+  await p.evaluate(() => listeFactions().map(f => f.cle)), v => !v.includes('boiteuse'));
 
 /* ============================================================
    3 à 6. AVEC UNE SECONDE FACTION
@@ -125,8 +125,10 @@ T("et elle n'entre pas au registre",
 injecte = true;
 await p.reload(); await p.waitForTimeout(1200);
 
-T('la seconde faction est au registre',
-  await p.evaluate(() => listeFactions().map(f => f.cle)), ['necrons', 'essai']);
+/* les factions livrées, plus celle qu'on vient d'injecter */
+const registre = await p.evaluate(() => listeFactions().map(f => f.cle));
+T('la faction injectée rejoint celles qui sont livrées', registre,
+  v => v.includes('necrons') && v.includes('custodes') && v.includes('essai'));
 T('la première enregistrée reste en service au démarrage',
   await p.evaluate(() => FACTION_ACTIVE), 'necrons');
 
@@ -186,8 +188,10 @@ const sel = await p.evaluate(() => {
            libelles: [...s.options].map(o => o.textContent), valeur: s.value };
 });
 T("le sélecteur sort de sa cachette dès qu'il y a un choix", sel.cache, false);
-T('il propose les deux factions', sel.choix, ['necrons', 'essai']);
-T('sous leur nom', sel.libelles, ['Nécrons', "Faction d'essai"]);
+T('il propose exactement les factions du registre', sel.choix, registre);
+T('chacune sous son nom', sel.libelles,
+  v => v.length === registre.length && v.every(Boolean) &&
+       v.includes('Nécrons') && v.includes('Adeptus Custodes'));
 T("et montre celle de la liste ouverte", sel.valeur, 'necrons');
 
 /* changer la faction d'une liste peuplée : la question est posée

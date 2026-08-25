@@ -3108,3 +3108,114 @@ dispositions — passent sans changement.
 - **`plateau.js` n'a pas eu à changer** : il lit la liste en service dans le
   stockage et `SOCLES` dans les globales, que `roster.js` tient à jour. Les
   deux restent d'accord parce qu'ils parlent de la même liste.
+
+## 12. Les Custodes, générés — 25/08/2026
+
+Guillaume a signalé que `BSData/wh40k-11e` porte les 29 factions. Vérifié :
+le dépôt se clone d'ici, et son voisin `wh40k-11e-mfm` aussi. Deux choses
+que la note §3 tenait pour hors de portée sont donc à portée, et **la moitié
+du travail qu'elle attribuait à Wahapedia tombe**.
+
+### Ce que la note disait de faux
+
+Elle a été écrite sur l'ancien format `.cat` (XML). BSData est passé au JSON
+depuis, et trois de ses affirmations ne tiennent plus :
+
+| La note dit | En fait |
+|---|---|
+| « L'invulnérable et le FNP ne sont pas dans le profil. » | Le profil `Unit` porte **`InSv`**, à côté de M, T, Sv, W, OC, LD. La passe de relecture par faction qu'elle annonçait disparaît. Le FNP, lui, reste dans le texte. |
+| « Le catalogue s'est révélé périmé sur les points. » | Les prix de l'effectif de base sont justes : **49 sur 49** contre notre table. Ce sont les **paliers** qui manquent, et le Munitorum les a. |
+| « Les optimisations restent en anglais, sans coût. » | Le Munitorum donne nom + coût, BSData le texte complet. |
+
+Une piste que j'avais avancée était fausse, et je peux maintenant la
+chiffrer : je pensais les règles de détachement présentes dans BSData. Elles
+n'y sont **que pour les Nécrons** — 9 détachements sur 13 liés à leur règle,
+contre 0 sur 10 pour les Custodes, 1 sur 9 pour les World Eaters, 0 sur 1
+pour l'Astra Militarum.
+
+### L'extracteur
+
+`outils/extraction.py` lit les deux sources et écrit un `data-<faction>.js`
+au format du registre. `npm run sources` récupère les dépôts sous `build/`,
+qui n'est pas suivi : **c'est le fichier généré qu'on versionne**, pas ses
+sources — la chaîne se rejoue quand on veut, elle ne devient pas une
+dépendance dure à deux projets de fans.
+
+### Ce qu'il vaut, mesuré
+
+On ne juge pas un extracteur sur une faction dont personne ne connaît les
+chiffres. `npm run etalonnage` le lâche sur les Nécrons — la seule table
+relue à la main sur le pack officiel — et compte les écarts.
+
+| | d'accord | en écart |
+|---|---:|---:|
+| M, E, Svg, PV, CO, Cd | **300** | 0 |
+| Invulnérable | 49 | 1 |
+| Effectifs et paliers de points | **100** | 0 |
+| Profils d'arme (genre, A, CT, F, PA, D, portée, drapeaux) | **959** | 1 |
+| Catégories | **50** | 0 |
+| Rattachements | **13** | 0 |
+| Détachements : PD et Disposition de Force | **24** | 0 |
+
+Sur 138 armes de référence, 120 se retrouvent par leur nom et 10 de plus par
+leurs chiffres — la table traduit et désambiguïse (« Heat ray — focalisé »)
+là où BSData garde son nom de catalogue (« ➤ Heat ray - focused »). Restent
+8 vraies absences, dont 5 sur le seul Roi Silencieux, que BSData nomme
+« The Silent King ».
+
+Les deux écarts de fond sont explicables et ne sont pas des fautes de
+l'extracteur : l'invulnérable du Lychguard vient de son bouclier de
+dispersion, pas de son profil ; le CT de l'arme d'Imotekh est « N/A » chez
+BSData parce qu'elle est Torrent — et `engine.js` court-circuite le jet de
+touche pour les Torrent, donc 0 est plus honnête que le 4 de notre table.
+
+### Adeptus Custodes
+
+`data-custodes.js` — **31 fiches, 111 profils d'armes, 31 jeux d'aptitudes,
+9 détachements avec leurs PD et leur Disposition de Force, 30 optimisations
+chiffrées dont 27 avec leur texte, 8 rattachements.** Pas une ligne relue à
+la main.
+
+Ce que le fichier ne porte pas est écrit dans son en-tête plutôt que deviné
+à l'usage : les **socles** (Base Size Guide, un PDF), les **stratagèmes**
+(absents des deux sources), les **règles de détachement** (BSData ne les a
+pas pour cette faction), le **panachage d'armes**, et toutes les tables qui
+traduisent une règle en code — `APTIS_COND`, `AURAS_*`, `OCTROIS_DETACH`,
+`STRAT_SIMU`, `MOMENTS`. Le simulateur tourne donc sur les caractéristiques
+nues, ce qui est exactement l'option B de la note.
+
+### Éprouvé
+
+`npm run custodes` — 27 contrôles sur la faction réelle : la liste se relit,
+le total s'affiche (595 pts pour trois unités), le seuil de réquisition monte
+au 4ᵉ exemplaire, le moteur rend ses espérances sur une lance gardienne, la
+fiche montre ses aptitudes sans balisage, et le Plateau pose les onze
+figurines **malgré un `SOCLES` vide** — le trou se traverse sans casser.
+
+`npm run factions` passe toujours (37 contrôles), et les cinq suites
+existantes aussi.
+
+### Trois défauts trouvés en éprouvant
+
+- Trois fiches nécrones du mode **Crucible**, absentes du Munitorum, ouvraient
+  l'armurerie entière à un personnage : trente-trois armes chacune qui ne sont
+  l'armement de personne. Une fiche sans prix ne se joue pas — elles sont
+  écartées, et nommées.
+- Les armes partagées — « Close combat weapon », « Armoured bulk », les
+  pouvoirs de C'tan — sont liées par `entryLink`, pas recopiées. Sans suivre
+  ces liens il manquait **54 armes sur 138**, et pas au hasard : toutes les
+  armes de corps à corps ordinaires.
+- BSData balise ses textes (`**`, `^^`) ; l'application les affichait en clair.
+  550 occurrences nettoyées.
+
+### Ce qui reste
+
+- **Les stratagèmes** — le seul poste qui exige encore Wahapedia, toujours en
+  403 depuis mes machines.
+- **Les socles** — le Base Size Guide couvre les 29 factions, mais c'est un
+  PDF qu'il faut fournir. Sans lui, le Plateau pose sur un socle par défaut.
+- **Le câblage du simulateur** — inchangé, et toujours le seul vrai poste
+  manuel : lire chaque règle et décider ce qu'elle fait au calcul.
+- **Astra Militarum et World Eaters** — l'extracteur les connaît déjà
+  (`python3 outils/extraction.py astra`, `worldeaters`). Rien ne les bloque
+  sinon la décision de les livrer.

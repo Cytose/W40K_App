@@ -13,7 +13,11 @@
     "cartes": "python3 outils/cartes-officielles.py",
     "decors": "python3 outils/cartes-officielles.py --decors",
     "fond": "node outils/test-fond.mjs",
-    "factions": "node outils/test-factions.mjs"
+    "factions": "node outils/test-factions.mjs",
+    "sources": "git clone --depth 1 https://github.com/BSData/wh40k-11e.git build/bsdata && git clone --depth 1 https://github.com/BSData/wh40k-11e-mfm.git build/mfm",
+    "extraction": "python3 outils/extraction.py",
+    "etalonnage": "python3 outils/extraction.py necrons --sortie build/etalon-necrons.js && node outils/etalonnage.js build/etalon-necrons.js",
+    "custodes": "node outils/test-custodes.mjs"
   },
   "devDependencies": {
     "terser": "^5.36.0"

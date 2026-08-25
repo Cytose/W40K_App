@@ -12,7 +12,7 @@ const fs=require('fs'), zlib=require('zlib'), crypto=require('crypto'), terser=r
    data-<faction>.js s'y enregistre, et tout le reste lit les tables que
    l'adaptateur a mises en service. Une faction de plus, c'est une ligne
    de plus ici, une dans sw.js et une balise dans index.html. */
-const SOURCES=['index.html','data.js','data-necrons.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
+const SOURCES=['index.html','data.js','data-necrons.js','data-custodes.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
 /* les memes, moins la page : c'est ce qui part chez terser, dans cet
    ordre. Derive de SOURCES pour que les deux listes ne divergent pas. */
 const JS=SOURCES.filter(f=>f.endsWith('.js'));

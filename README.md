@@ -70,6 +70,7 @@ pas est une branche sur laquelle on ne peut pas travailler.
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
 | `data.js` | le socle commun : registre des factions et adaptateur, barème de points, mots-clés de cible, archétypes de menace, catégories, rôles tactiques, Dispositions de Force, glossaire des règles de base |
+| `data-custodes.js` | les Adeptus Custodes : **fichier généré** par `outils/extraction.py`, 31 fiches, 111 profils d'armes, 9 détachements, 30 optimisations. Ni socles, ni stratagèmes, ni tables de simulateur — voir son en-tête |
 | `data-necrons.js` | les Nécrons : 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
@@ -91,6 +92,10 @@ d'une liste rebranche les tables globales sur les siennes.
    dans une fonction, puis un appel à `enregistreFaction({cle, nom, tables})`.
    Les **28 tables** de `TABLES_FACTION` sont obligatoires — une table oubliée
    arrête le chargement en la nommant plutôt que de valoir `undefined`.
+   Le plus souvent, il suffit de la **générer** : `npm run sources` récupère
+   BSData et le Munitorum, puis `python3 outils/extraction.py <faction>` écrit
+   le fichier. `npm run etalonnage` mesure ce que vaut l'extraction en la
+   confrontant à la table nécrone relue à la main.
 2. L'ajouter à `SOURCES` dans `build.js`, à `ASSETS` dans `sw.js`, et poser sa
    balise dans `index.html`, après `data.js`.
 3. `npm run factions` éprouve le registre, la bascule, la reconstruction des
@@ -102,9 +107,9 @@ Le sélecteur de faction, caché tant qu'il n'y en a qu'une, apparaît tout seul
 
 `node build.js` remplit `dist/` avec deux choses distinctes :
 
-- **le site** — `index.html`, `data.js`, `data-necrons.js`, `engine.js`,
-  `app.js`, `roster.js`, `layouts.js`, `plateau.js`, `sw.js`, `manifest.json`,
-  `icon.svg`, les sources telles quelles, un fichier par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
+- **le site** — `index.html`, `data.js`, `data-necrons.js`, `data-custodes.js`,
+  `engine.js`, `app.js`, `roster.js`, `layouts.js`, `plateau.js`, `sw.js`,
+  `manifest.json`, `icon.svg`, les sources telles quelles, un fichier par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
 - **le fichier autonome** — `dist/W40K_App.html`, l'application repliée
   en un seul fichier, recopiée à la racine du dépôt et téléchargeable depuis le
   site. `dist/hors-ligne.html` en est la variante compressée, qui se déplie au
