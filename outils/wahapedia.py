@@ -232,7 +232,7 @@ def titre(nom):
     """Wahapedia crie les noms de stratagème : « INSANITY'S IRE ». Le
        fichier nécron les écrit comme la carte les imprime — et le « s »
        d'un possessif ne prend pas de capitale, lui."""
-    n = (nom or '').strip()
+    n = (nom or '').strip().replace('‑', '-')   # trait d'union insécable
     if not n or n != n.upper(): return n
     petits = ('of', 'the', 'and', 'a', 'to', 'in', 'for', 'from', 'on', 'at', 'by')
     mots = n.split(' ')

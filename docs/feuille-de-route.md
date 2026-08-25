@@ -3691,3 +3691,110 @@ Hôte et les onze de base.
 les trois factions générées. Comme les aptitudes, cela ne se déduit
 d'aucune source : il faut lire chaque carte et décider. Les stratagèmes
 s'affichent, ils ne se cochent pas encore dans le simulateur.
+
+---
+
+## 18. Les stratagèmes dans le simulateur — 25/08/2026
+
+Les stratagèmes s'affichaient. Ils ne se cochaient pas : `STRAT_SIMU`,
+la table qui dit ce qu'une carte fait au **calcul**, était vide partout
+sauf chez les Nécrons, et n'y portait que six lignes.
+
+### Ce qui manquait au moteur : la Force
+
+Avant de câbler quoi que ce soit, un trou est apparu. « Minute
+Mordiane » donne +1 en Force, « Feu Nourri » +1, « Tir Combiné » +2,
+« Protocol of the Hungry Void » +1. Le moteur savait retoucher la
+touche, la blessure, la pénétration, les dégâts, les attaques — pas la
+Force.
+
+Et ce n'est pas un modificateur de jet : la Force change **avant** la
+comparaison avec l'Endurance, si bien qu'un palier franchi vaut
+beaucoup plus qu'un +1 au dé. F5 contre E5 blesse à 4+ ; F6 contre E5, à
+3+ — un tiers de blessures en plus, pas un sixième. `strMod` traverse
+donc maintenant toute la chaîne, comme `atkMod` avant lui : le moteur,
+le profil d'unité, la carte des retouches, la remise à neuf.
+
+### Ce qui est câblé, et ce qui ne l'est pas
+
+| | stratagèmes | câblés | détachements couverts |
+|---|---:|---:|---:|
+| Nécrons | 73 | **17** | 7 / 12 |
+| Astra Militarum | 68 | **16** | 8 / 11 |
+| World Eaters | 50 | **10** | 6 / 8 |
+
+**Ce qui reste dehors n'est pas un oubli.** Trois familles, et une
+raison chaque fois :
+
+**La défense.** « Formes Inflexibles », « Résistance Démoniaque »,
+« Plaquage Additionnel », les insensibilités, les sauvegardes
+invulnérables accordées : le moteur les lit sur la **cible**, pas sur
+l'attaquant. `STRAT_SIMU` ne touche que le côté qui frappe. Elles se
+règlent dans la carte Cible, à la main.
+
+**Les mots-clés que le moteur ne connaît pas.** [PRÉCISION] choisit à
+quelle figurine la blessure va ; [ASSAUT] et [MOBILE] parlent de
+mouvement ; [HASARDEUX] fait perdre des figurines à l'attaquant. Aucun
+n'entre dans l'espérance d'une séquence d'attaque.
+
+**Ce qui ne vaut que pour une figurine.** « Aspire to Infamy » donne +1
+attaque et +2 en Force aux seules figurines de PERSONNAGE de l'unité.
+Le simulateur mesure l'unité entière : l'appliquer partout la
+surestimerait franchement. Mieux vaut ne rien dire.
+
+### Deux forces valent deux pastilles
+
+Beaucoup de stratagèmes ont une version de base et une meilleure sous
+condition. « Fail Not the Blood God » relance les 1 pour toucher, et
+relance **tout** si l'unité est à 6" d'un Monstre ami. « Protocol of
+the Conquering Tyrant » pareil, si un Personnage la mène.
+
+Faire une moyenne serait faux dans les deux cas. On pose donc deux
+pastilles, la seconde suffixée par sa condition. Le joueur sait laquelle
+est vraie ce tour-ci ; l'application, non.
+
+### Les cinq détachements nécrons qui n'avaient rien
+
+Impossible de câbler « Curse of the Cryptek » quand la Cour Canoptek
+n'a aucun stratagème à afficher : la pastille se serait montrée dans le
+simulateur pour une carte illisible partout ailleurs.
+
+Les cinq détachements du codex — Dynastie Éveillée, Cour Canoptek,
+Légion d'Annihilation, Phalange d'Obéissance, Légion d'Hypercrypte —
+reçoivent donc leurs **trente stratagèmes**, repris de Wahapedia, en
+anglais. Rien de français n'a été remplacé : ces cinq-là n'avaient
+absolument rien, et les avoir en anglais vaut mieux que ne pas les
+avoir. Les sept détachements du pack de faction gardent leur texte
+français relu, intact.
+
+`npm run etalonnage` mesure maintenant **12 détachements sur 12
+d'accord**, 63 stratagèmes, familles et coûts identiques. Le seul écart
+qui subsiste reste celui des stratagèmes de base, 10e contre 11e
+édition, décrit à la section précédente et toujours ouvert.
+
+### Quatre façons de se tromper, toutes silencieuses
+
+Un câblage faux ne casse rien : il ne s'applique jamais, ou pire, il
+s'applique et ne s'enlève plus. `npm run livrees` passe de 119 à **165
+contrôles**, dont huit neufs par faction :
+
+- un **détachement** mal orthographié → la pastille ne paraît jamais,
+  `roster.js` filtrant sur les détachements retenus ;
+- une **unité** inconnue dans `unites` → même silence ;
+- un **mot-clé** absent de `KW` dans `sauf` → `porteMot()` retombe sur
+  une comparaison de noms, et l'exclusion cesse de jouer ;
+- un **champ d'effet** absent de `DEFAUT_STRAT` → la pastille pose le
+  bonus et ne peut plus le retirer. Le joueur décoche, et garde le
+  bonus. C'est le pire des quatre, et c'est pourquoi `DEFAUT_STRAT` est
+  sortie de sa fonction et exportée : la table du simulateur et le
+  câblage des factions se confrontent maintenant l'un à l'autre.
+
+S'y ajoutent : tout stratagème câblé doit faire quelque chose, coûter
+des PC, se jouer dans une phase connue, et **être lisible dans
+l'onglet** — sans quoi il apparaîtrait dans le simulateur sans exister
+nulle part.
+
+Enfin la suite ouvre, pour chaque faction, une liste dont le détachement
+retenu porte un stratagème câblé **sans restriction de fiche**, et
+vérifie que `ROSTER.stratsSimu` le lui rend. Vérifier la table ne prouve
+rien : c'est le trajet jusqu'à l'écran qui casse.

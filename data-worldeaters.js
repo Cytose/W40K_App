@@ -1118,10 +1118,145 @@ const AURAS_ARMEE = [
   "texte": "While a friendly Blood Legions unit is within 6\" of this model, each time a model in that unit makes a melee attack, add 1 to the Hit roll."
  }
 ];
+const STRAT_SIMU = [
+ {
+  "nom": "Hack and Slash",
+  "detach": "Berzerker Warband",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA au corps à corps — l'unité doit avoir chargé ce tour",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Apoplectic Clarity",
+  "detach": "Brazen Engines",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "ignore les malus de CT/CC et de jets de touche et de blessure",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "A Trophy for the Throne",
+  "detach": "Butchers Of Khorne",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour blesser — contre MONSTRE ou VÉHICULE seulement",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Focused Ferocity",
+  "detach": "Butchers Of Khorne",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 attaque à chaque arme de corps à corps",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Bloody Vengeance",
+  "detach": "Cult Of Blood",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Jakhals",
+   "Goremongers"
+  ],
+  "sauf": [],
+  "aide": "relance des touches ratées contre l'unité qui a détruit ton Monstre ou ton Titanesque",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Fail Not the Blood God",
+  "detach": "Cult Of Blood",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Jakhals",
+   "Goremongers"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher",
+  "effet": {
+   "rrH": "ones"
+  }
+ },
+ {
+  "nom": "Fail Not the Blood God — près d'un Monstre",
+  "detach": "Cult Of Blood",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Jakhals",
+   "Goremongers"
+  ],
+  "sauf": [],
+  "aide": "relance TOTALE des touches — l'unité est à 6\" d'un MONSTRE ami, ou à 9\" d'un TITANESQUE",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Daemonic Fury",
+  "detach": "Khorne Daemonkin",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Daemonic Fury — Rage Démoniaque active",
+  "detach": "Khorne Daemonkin",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] et [JUMELÉE] : +1 pour blesser après une charge, et relance des blessures ratées",
+  "effet": {
+   "wndMod": 1,
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Daemonic Strength",
+  "detach": "Possessed Slaughterband",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Eightbound",
+   "Exalted Eightbound",
+   "Slaughterbound"
+  ],
+  "sauf": [],
+  "aide": "+1 dégât — les ENCHAÎNÉS contre tout sauf MONSTRE/VÉHICULE, les ENCHAÎNÉS EXALTÉS contre eux seuls",
+  "effet": {
+   "dmgMod": 1
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

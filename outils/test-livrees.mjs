@@ -179,6 +179,41 @@ for (const F of registre) {
         return out;
       })(),
 
+      /* LES STRATAGÈMES CÂBLÉS DANS LE SIMULATEUR.
+         STRAT_SIMU dit ce qu'une carte fait au CALCUL. Quatre façons de
+         se tromper, toutes silencieuses :
+
+         · un détachement mal orthographié — la pastille ne paraît
+           jamais, parce que roster.js filtre sur R.detach ;
+         · une unité qui n'existe pas dans `unites` — même effet ;
+         · un mot-clé absent de KW dans `sauf` — porteMot() retombe
+           alors sur une comparaison de NOMS, et l'exclusion ne joue
+           plus ;
+         · un champ d'effet absent de DEFAUT_STRAT — la pastille pose
+           le bonus et ne peut plus le retirer. Le joueur décoche, et
+           garde le bonus. C'est le pire des quatre. */
+      simuStrats: STRAT_SIMU.length,
+      simuDetachOrphelins: [...new Set(STRAT_SIMU.filter(x => !detach.has(x.detach))
+        .map(x => x.nom + ' → ' + x.detach))],
+      simuUnitesOrphelines: [...new Set(STRAT_SIMU.flatMap(x =>
+        (x.unites || []).filter(u => !noms.has(u)).map(u => x.nom + ' → ' + u)))],
+      simuMotsOrphelins: [...new Set(STRAT_SIMU.flatMap(x =>
+        (x.sauf || []).filter(k => !KW[k]).map(k => x.nom + ' → ' + k)))],
+      simuChampsInconnus: [...new Set(STRAT_SIMU.flatMap(x =>
+        Object.keys(x.effet || {}).filter(k => !(k in SIM.DEFAUT_STRAT))
+          .map(k => x.nom + ' → ' + k)))],
+      simuSansEffet: STRAT_SIMU.filter(x => !x.effet || !Object.keys(x.effet).length)
+        .map(x => x.nom),
+      simuPhases: [...new Set(STRAT_SIMU.map(x => x.ph))].filter(p => !['T', 'C', 'TC'].includes(p)),
+      /* Un stratagème câblé qui ne figure pas dans STRATS s'affiche dans
+         le simulateur sans être lisible nulle part. Les variantes portent
+         un suffixe « — … » : on compare sur ce qui précède. */
+      simuHorsTable: [...new Set(STRAT_SIMU
+        .map(x => x.nom.split(' — ')[0])
+        .filter(n => !STRATS.some(y => y[0] === n)))],
+      /* Un coût en PC de zéro, ou négatif, n'existe pas. */
+      simuSansCout: STRAT_SIMU.filter(x => !(x.pc > 0)).map(x => x.nom),
+
       /* le balisage du catalogue ne doit pas atteindre l'écran */
       balisees: textes.filter(balise).length,
       regle: FACTION.length ? FACTION[0][0] : ''
@@ -188,8 +223,8 @@ for (const F of registre) {
   const dit = (quoi, v, att) => T(F.nom + ' — ' + quoi, v, att);
   console.log('── ' + F.nom + ' : ' + R.unites + ' fiches (' + R.jouables + ' jouables), ' +
     R.armes + ' armes, ' + R.detachements + ' détachements, ' + R.optimisations +
-    ' optimisations, ' + R.strats + ' stratagèmes, ' + R.socles + ' socles, ' +
-    R.cablees + ' règles câblées');
+    ' optimisations, ' + R.strats + ' stratagèmes (' + R.simuStrats + ' câblés), ' +
+    R.socles + ' socles, ' + R.cablees + ' règles câblées');
 
   dit('la table est peuplée', R.unites, v => v > 0);
   dit('toute fiche a un nom', R.sansNom, 0);
@@ -229,6 +264,14 @@ dit('presque toutes les fiches portent une arme',
   dit('aucune optimisation déguisée en aptitude', R.aptisQuiSontDesOptims, []);
   dit('aucune règle câblée sur une unité qui n\'existe pas', R.cablageOrphelin, []);
   dit('aucune règle câblée sur une arme que l\'unité n\'a pas', R.armeCablageOrpheline, []);
+  dit('tout stratagème du simulateur cite un détachement réel', R.simuDetachOrphelins, []);
+  dit('et des unités réelles', R.simuUnitesOrphelines, []);
+  dit('et des mots-clés que KW connaît', R.simuMotsOrphelins, []);
+  dit('tout effet câblé se laisse décocher', R.simuChampsInconnus, []);
+  dit('tout stratagème câblé fait quelque chose', R.simuSansEffet, []);
+  dit('et coûte des PC', R.simuSansCout, []);
+  dit('et se joue dans une phase connue', R.simuPhases, []);
+  dit('tout stratagème câblé est lisible dans l\'onglet', R.simuHorsTable, []);
   dit('toute unité jouable a son socle', R.jouablesSansSocle, []);
 /* Un socle qui ne désigne aucune fiche n'est pas un mensonge : il ne
    sert à rien, voilà tout. Il y en a deux dans la table nécrone relue à
@@ -256,7 +299,17 @@ const listes = await p.evaluate(cles => {
     const trois = UNITS.filter(u => !u[10]).slice(0, 3);
     out.listes.push({
       id: 'l' + i, nom: 'Essai ' + c, faction: c, cap: 2000, nextId: trois.length + 1,
-      detach: DETACHMENTS.length ? [DETACHMENTS[0][0]] : [], fd: '',
+      /* On retient de préférence un détachement dont un stratagème câblé
+         vaut pour N'IMPORTE QUELLE unité — ni liste de fiches, ni mot-clé
+         exclu. C'est la seule façon de voir le câblage traverser
+         l'application avec trois unités prises au hasard : un stratagème
+         réservé à l'Obélisque ne se montrerait pas, et l'absence ne
+         prouverait rien. */
+      detach: (() => {
+        const libre = DETACHMENTS.find(d => STRAT_SIMU.some(x =>
+          x.detach === d[0] && !(x.unites || []).length && !(x.sauf || []).length));
+        return libre ? [libre[0]] : (DETACHMENTS.length ? [DETACHMENTS[0][0]] : []);
+      })(), fd: '',
       units: trois.map((u, k) => ({ id: k + 1, name: u[0], size: u[6][0], lo: [],
         chars: [], sel: true, grp: '', enh: null }))
     });
@@ -277,6 +330,29 @@ T('chaque liste garde ses unités après relecture',
 T('aucune liste n\'a été relue dans la faction d\'une autre',
   apres.map(x => x.f), registre.map(f => f.cle));
 
+/* ---- LA FORCE, RETOUCHE DE PARTIE ----
+   Plusieurs stratagèmes des trois factions câblées donnent « +1 en
+   Force » ou « +2 ». Ce n'est pas un modificateur de jet : la Force
+   change AVANT la comparaison avec l'Endurance, et un palier franchi
+   vaut bien plus qu'un +1 au dé — F5 contre E5 blesse à 4+, F6 à 3+.
+   Le moteur, l'écran et la remise à neuf doivent donc le connaître
+   tous les trois. */
+const st = await p.evaluate(() => {
+  const base = { attacks: '10', kind: 'T', bs: 3, str: 5, ap: 0, dmg: '1',
+    tough: 5, sv: 3, inv: 0, wounds: 2, models: 5, fnp: 0, dmgRed: 0, cover: false,
+    critH: 6, critW: 6, hitMod: 0, wndMod: 0, atkMod: 0, rrH: 'none', rrW: 'none',
+    apMod: 0, dmgMod: 0, sustainedN: '1' };
+  const w = m => ENG.analytic(Object.assign({}, base, { strMod: m })).wounds;
+  return { nu: w(0), plus: w(1), moins: w(-1),
+           seg: !!document.getElementById('segStrMod'),
+           neutre: SIM.DEFAUT_STRAT.strMod };
+});
+T('F5 contre E5 blesse à 4+', st.nu, v => Math.abs(v - 10 / 3) < 0.01);
+T('un +1 en Force fait franchir le palier : 3+', st.plus, v => Math.abs(v - 40 / 9) < 0.01);
+T('un −1 le fait perdre : 5+', st.moins, v => Math.abs(v - 20 / 9) < 0.01);
+T('l\'écran a son réglage de Force', st.seg, true);
+T('et sait le remettre à neuf', st.neutre, 0);
+
 /* on ouvre chaque liste et on regarde ce que l'écran calcule */
 for (let i = 0; i < registre.length; i++) {
   const F = registre[i];
@@ -294,6 +370,32 @@ for (let i = 0; i < registre.length; i++) {
              total: b ? b.textContent.trim() : '' };
   });
   T(F.nom + ' — ouvrir sa liste met sa table en service', etat.faction, F.cle);
+
+  /* LE CÂBLAGE, VU DEPUIS L'APPLICATION.
+     ROSTER.stratsSimu est ce que l'écran Attaque interroge. Une pastille
+     s'y montre si son détachement est retenu, si la phase correspond et
+     si l'unité chargée n'est pas exclue. Le vérifier depuis la table ne
+     prouve rien : c'est ce trajet-là qui casse. */
+  const simu = await p.evaluate(() => {
+    if (!STRAT_SIMU.length) return { cable: 0, vus: 0, champs: [], aides: [] };
+    const o = JSON.parse(localStorage.getItem('mathhammer.lists.v1'));
+    const L = o.listes.find(x => x.id === o.actif);
+    const det = (L.detach || [])[0];
+    const attendus = STRAT_SIMU.filter(x => x.detach === det);
+    /* la première unité de la liste, dans les deux phases */
+    const u = ROSTER.simListe().unites[0];
+    const vus = ['T', 'C'].flatMap(ph => ROSTER.stratsSimu(u.unite, u.persos, ph));
+    return { cable: attendus.length, vus: new Set(vus.map(x => x.nom)).size,
+             champs: [...new Set(vus.flatMap(x => Object.keys(x.effet)))]
+               .filter(k => !(k in SIM.DEFAUT_STRAT)),
+             aides: vus.filter(x => !x.aide).map(x => x.nom) };
+  });
+  if (simu.cable) {
+    T(F.nom + ' — le détachement retenu offre ses stratagèmes au simulateur',
+      [simu.vus, simu.cable], v => v[0] > 0 && v[0] <= v[1]);
+    T(F.nom + ' — et chacun dit ce qu\'il fait', simu.aides, []);
+    T(F.nom + ' — sur des champs que l\'écran sait remettre à neuf', simu.champs, []);
+  }
   T(F.nom + ' — le pavé dessine ses trois unités', etat.tuiles, v => v >= 3);
   T(F.nom + ' — le total est un nombre de points', etat.total, v => /^\d+ \/ \d+/.test(v));
 }

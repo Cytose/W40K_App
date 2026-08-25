@@ -3058,7 +3058,7 @@ const STRATS = [
   ["Supporting Ordnance","Armoured Infantry","Tactique de Bataille",1,"Your Shooting phase.","One Armoured Skirmisher unit from your army that has not been selected to shoot this phase.","Until the end of the phase, each time a model in your unit makes an attack that targets a visible MONSTER or VEHICLE unit, you can re-roll the Hit roll.",""],
   ["Firing Hot","Bridgehead Strike","",2,"Your Shooting phase, when a friendly MILITARUM TEMPESTUS/KASRKIN unit is selected to shoot.","That MILITARUM TEMPESTUS/KASRKIN unit.","Your unit’s Hot-shot Lascarbines, Hot-shot Lasguns, Hot-shot Laspistols, Hot-shot Marksman Rifles, Hot-shot Volley Guns and Sentry Hot-shot Volley Guns weapons that targeted an enemy unit within 12\" have +1 S and AP.",""],
   ["On My Position","Bridgehead Strike","",1,"End of your opponent’s Charge phase.","One friendly engaged REGIMENT unit.","Roll one D6 for each enemy unit engaged with your unit: ▪ On a 2+ that enemy unit suffers D6 mortal wounds. Then, your unit suffers 3D3 mortal wounds.",""],
-  ["Servo‑designators","Bridgehead Strike","",1,"Your Shooting phase, when a friendly MILITARUM TEMPESTUS unit has shot.","That MILITARUM TEMPESTUS unit.","Select one enemy unit hit by those ranged attacks. Friendly MILITARUM TEMPESTUS units’ ranged attacks that target that enemy unit have [IGNORES COVER].",""],
+  ["Servo-Designators","Bridgehead Strike","",1,"Your Shooting phase, when a friendly MILITARUM TEMPESTUS unit has shot.","That MILITARUM TEMPESTUS unit.","Select one enemy unit hit by those ranged attacks. Friendly MILITARUM TEMPESTUS units’ ranged attacks that target that enemy unit have [IGNORES COVER].",""],
   ["Coordinated Action","Combined Arms","Tactique de Bataille",1,"Start of any phase.","One Regiment unit from your army and one Squadron unit from your army within 6\" of and visible to that REGIMENT unit.","Until the end of the phase, Orders affecting one of your units affect the other, and vice versa.",""],
   ["Fields of Fire","Combined Arms","Tactique de Bataille",1,"Your Shooting phase.","One Regiment unit and one Squadron unit from your army that have not been selected to shoot this phase.","Select one enemy unit. Until the end of the phase, each time your selected REGIMENT and SQUADRON units make an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1.",""],
   ["Flexible Command","Combined Arms","Ruse Stratégique",2,"Your Command phase.","Any number of Astra Militarum Officer units from your army.","Until the end of the phase, your Officers can issue Orders to Regiment units and Squadron units.",""],
@@ -3685,10 +3685,214 @@ const AURAS_ARMEE = [
   "texte": "At the start of your Shooting phase, select one enemy unit within 18\" of and visible to this unit. Until the end of the phase, each time a friendly Astra Militarum model makes an attack that targets that unit, re-roll a Hit roll of 1."
  }
 ];
+const STRAT_SIMU = [
+ {
+  "nom": "Combined Fire",
+  "detach": "Armoured Infantry",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "+2 en Force et la cible perd son couvert — les unités de TIRAILLEURS BLINDÉS seulement, contre l'unité désignée",
+  "effet": {
+   "strMod": 2,
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Opening Salvo",
+  "detach": "Armoured Infantry",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour blesser",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Supporting Ordnance",
+  "detach": "Armoured Infantry",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées — contre un MONSTRE ou un VÉHICULE visible",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Firing Hot",
+  "detach": "Bridgehead Strike",
+  "pc": 2,
+  "ph": "T",
+  "unites": [
+   "Gaunt’s Ghosts",
+   "Kasrkin",
+   "Militarum Tempestus Command Squad",
+   "Taurox Prime",
+   "Tempestus Aquilons",
+   "Tempestus Scions"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force et +1 en PA — les armes hot-shot seulement, cible à 12\" ou moins",
+  "effet": {
+   "strMod": 1,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Servo-Designators",
+  "detach": "Bridgehead Strike",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] pour les tirs MILITARUM TEMPESTUS contre l'unité désignée",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Fields of Fire",
+  "detach": "Combined Arms",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA contre l'unité désignée — RÉGIMENT et ESCADRON choisis",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Mordian Minute",
+  "detach": "Grizzled Company",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en Force à chaque attaque",
+  "effet": {
+   "strMod": 1
+  }
+ },
+ {
+  "nom": "Purging Fire",
+  "detach": "Grizzled Company",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LÉTHAL] sur les armes de tir — l'unité doit être à portée d'un objectif",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Veteran Sharpshooters",
+  "detach": "Grizzled Company",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] sur les armes de tir",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Final Hour",
+  "detach": "Hammer Of The Emperor",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "ignore les malus de CT et de jet de touche — au prix de [HASARDEUX] sur les armes",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Furious Cannonade",
+  "detach": "Hammer Of The Emperor",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA — cible à 12\" ou moins",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Clear and Secure",
+  "detach": "Mechanised Assault",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ET des blessures ratées — cible à portée d'un objectif",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Flare Burst",
+  "detach": "Siege Regiment",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées — cible visible à 12\" ou moins",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Furious Fusillade",
+  "detach": "Siege Regiment",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 attaque aux armes de tir — à mi-portée seulement",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Accuracy Under Pressure",
+  "detach": "Steel Hammer",
+  "pc": 2,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Engine of Wrath",
+  "detach": "Steel Hammer",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+6 attaques et +2 en PA au corps à corps — contre l'unité désignée, et elle seule",
+  "effet": {
+   "atkMod": 6,
+   "apMod": 2
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

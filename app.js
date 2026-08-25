@@ -11,7 +11,7 @@ const S = {
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
   critH:6, critW:6, hitMod:0, wndMod:0, atkMod:0, rrH:"none", rrW:"none",
-  apMod:0, dmgMod:0, ignoresCover:false, indirect:false, ignoreMalus:false,
+  apMod:0, dmgMod:0, strMod:0, ignoresCover:false, indirect:false, ignoreMalus:false,
   /* ce que la cible EST — plusieurs règles ne valent que contre un
      certain genre d'unité, et le moteur ne connaissait d'elle que des
      chiffres */
@@ -103,9 +103,27 @@ const SEGS = [
      modificateur de jet mais un ajout a la caracteristique. Skarbrand en
      donne 1, le Slaughterbound 3 sur ses propres armes. */
   ["segAtkMod","atkMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"],[3,"+3"]]],
+  /* La Force non plus : elle change la caracteristique, pas le jet, et
+     un palier franchi vaut plus qu'un +1 au de. « Feu Nourri » de
+     l'Astra en donne 2, « Minute Mordiane » 1. */
+  ["segStrMod","strMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"]]],
   ["segRrH","rrH",[["none","—"],["ones","1"],["failed","Ratés"]]],
   ["segRrW","rrW",[["none","—"],["ones","1"],["failed","Ratés"]]]
 ];
+/* Ce a quoi un stratageme decoche remet le champ qu'il touche. Ce sont
+   les valeurs NEUTRES du mode unite : videCaps() les pose en entrant
+   dans ce mode, et les pastilles de stratageme n'existent que la.
+
+   Un champ absent d'ici ne peut PAS etre cable dans STRAT_SIMU : la
+   pastille le poserait sans jamais pouvoir le retirer, et le joueur
+   garderait un bonus qu'il croit avoir decoche. La table est donc
+   exportee, et outils/test-livrees.mjs verifie que chaque effet cable,
+   dans chaque faction, ne touche que des champs qui figurent ici. */
+const DEFAUT_STRAT = { apMod:0, wndMod:0, hitMod:0, atkMod:0, strMod:0, dmgMod:0,
+                       rrH:"none", rrW:"none", lethal:false, dev:false,
+                       critH:6, critW:6, ignoresCover:false, torrent:false,
+                       sustainedOn:false, sustainedN:"1", ignoreMalus:false };
+
 const TEXTF = ["wName","attacks","dmg"];
 const NUMF  = ["str","tough","wounds","models"];
 /* les mots-cles d'arme ne sont plus des cases a cocher empilees mais des
@@ -652,6 +670,7 @@ function profilPourMoteur(p){
     apMod: (p.apMod || 0) + S.apMod,
     dmgMod: (p.dmgMod || 0) + S.dmgMod,
     atkMod: (p.atkMod || 0) + S.atkMod,
+    strMod: (p.strMod || 0) + S.strMod,
     rrH: plusFort(p.rrH || "none", S.rrH),
     rrW: plusFort(p.rrW || "none", S.rrW),
     /* Quand une unite entiere est chargee, la carte des capacites ne
@@ -783,6 +802,7 @@ function pastilles(q, brut){
     out.push({t:"F " + (q.str > brut.str ? "+" : "−") + Math.abs(q.str - brut.str), cl:"m", d:""});
   if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:""});
   if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:""});
+  if(q.strMod) out.push({t:"Force " + (q.strMod > 0 ? "+" : "−") + Math.abs(q.strMod), cl:"m", d:""});
   if(q.atkMod) out.push({t:"A " + (q.atkMod > 0 ? "+" : "−") + Math.abs(q.atkMod), cl:"m", d:""});
   return out;
 }
@@ -979,8 +999,6 @@ function renderPresets(){
   /* atkMod y figure meme si aucun stratageme ne le pose encore : c'est
      la table qui REND l'ecran a son etat neutre quand on decoche, et un
      champ absent d'ici resterait accroche apres coup. */
-  const DEFAUT_STRAT = { apMod:0, wndMod:0, hitMod:0, atkMod:0, rrH:"none", rrW:"none",
-                         sustainedOn:false, sustainedN:"1", ignoreMalus:false };
   const st = (atkMode === "unite" && atkUnit && window.ROSTER && window.ROSTER.stratsSimu)
     ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase) : [];
   if(st.length){
@@ -1047,7 +1065,7 @@ function majVite(){
   const nSit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
     ? window.ROSTER.situations().filter(x => x.on).length : 0;
   const n = nSit + (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
-            (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
+            (S.dmgMod ? 1 : 0) + (S.strMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
             (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) + caps +
             Object.keys(condOn).filter(k => condOn[k]).length;
   const c = el("viteCount");
@@ -1510,7 +1528,7 @@ if("serviceWorker" in navigator){
 chargeCibles();
 if(el("btnSaveCible")) el("btnSaveCible").addEventListener("click", gardeCible);
 
-global.SIM = {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti, GENERIC_TARGETS,
+global.SIM = {S, DEFAUT_STRAT, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti, GENERIC_TARGETS,
   applyGenericTarget, applyNecronTarget, drawBars, binned, pct, num, rendSeuils,
   get tgtName(){ return tgtName; }, get tgtUnit(){ return tgtUnit; },
   /* crochets de verification : dans quel mode on est, ce qui est charge,

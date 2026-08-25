@@ -339,11 +339,22 @@ const KW = {
 
 /* ============================================================
    LES STRATAGÈMES QUI CHANGENT UN JET
-   Sur quarante-trois fiches, six seulement touchent la séquence
-   d'attaque. Les autres déplacent, réaniment, protègent, marquent un
-   objectif ou réagissent au tir adverse : ils n'ont rien à faire dans
-   une zone de retouches, et restent lisibles dans l'écran En partie
-   qui les donne tous, filtrés par phase et par camp.
+   Sur soixante-treize fiches, dix-sept touchent la séquence d'attaque.
+   Les autres déplacent, réaniment, protègent, marquent un objectif ou
+   réagissent au tir adverse : ils n'ont rien à faire dans une zone de
+   retouches, et restent lisibles dans l'écran En partie qui les donne
+   tous, filtrés par phase et par camp.
+
+   Ce qui reste dehors, et ce n'est pas un oubli : tout ce qui joue sur
+   la CIBLE. « Formes Inflexibles », « Image de la Mort », « Nuée de
+   Microscarabées », « Déflexion Quantique », « Protocoles de
+   Nanoassemblage » protègent l'unité au lieu de l'aider à frapper. Le
+   moteur les lirait sur la cible, pas sur l'attaquant : ils se règlent
+   dans la carte Cible, à la main.
+
+   Quand un stratagème a deux forces — une de base, une meilleure sous
+   condition — il fait deux pastilles plutôt qu'une moyenne. Le joueur
+   sait laquelle est vraie ce tour-ci ; l'application, non.
 
    [ph]     "T", "C", ou "TC" pour les deux
    [unites] restreint à ces fiches — vide, toute unité nécron
@@ -374,7 +385,55 @@ const STRAT_SIMU = [
  { nom:"Ciblage d'Aura Entrophasique", detach:"Pantheon of Woe", pc:1, ph:"TC",
    unites:[], sauf:["monster"],
    aide:"relance des 1 pour toucher — et pour blesser si la cible est effritée",
-   effet:{ rrH:"ones" } }
+   effet:{ rrH:"ones" } },
+ { nom:"Ciblage d'Aura Entrophasique — cible effritée", detach:"Pantheon of Woe", pc:1, ph:"TC",
+   unites:[], sauf:["monster"],
+   aide:"relance des 1 pour toucher ET pour blesser — la cible est effritée",
+   effet:{ rrH:"ones", rrW:"ones" } },
+
+ /* ---- les cinq détachements du codex ----
+    Leurs stratagèmes sont en anglais dans STRATS, faute de traduction
+    officielle relue ici ; les noms se répondent donc. */
+ { nom:"Protocol of the Conquering Tyrant", detach:"Awakened Dynasty", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"relance des 1 pour toucher — cible à mi-portée",
+   effet:{ rrH:"ones" } },
+ { nom:"Protocol of the Conquering Tyrant — mené par un Personnage", detach:"Awakened Dynasty", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"relance TOTALE des touches — cible à mi-portée, PERSONNAGE NÉCRON à la tête",
+   effet:{ rrH:"failed" } },
+ { nom:"Protocol of the Hungry Void", detach:"Awakened Dynasty", pc:1, ph:"C",
+   unites:[], sauf:[],
+   aide:"+1 en Force au corps à corps",
+   effet:{ strMod:1 } },
+ { nom:"Protocol of the Hungry Void — mené par un Personnage", detach:"Awakened Dynasty", pc:1, ph:"C",
+   unites:[], sauf:[],
+   aide:"+1 en Force et +1 en PA au corps à corps — PERSONNAGE NÉCRON à la tête",
+   effet:{ strMod:1, apMod:1 } },
+ { nom:"Curse of the Cryptek", detach:"Canoptek Court", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"+1 pour toucher et +1 pour blesser — les figurines CANOPTEK contre l'unité qui a frappé ton Cryptek",
+   effet:{ hitMod:1, wndMod:1 } },
+ { nom:"Cynosure of Eradication", detach:"Canoptek Court", pc:2, ph:"TC",
+   unites:[], sauf:[],
+   aide:"[BLESSURES DÉVASTATRICES] — les figurines CRYPTEK ou CANOPTEK de l'unité",
+   effet:{ dev:true } },
+ { nom:"Solar Pulse", detach:"Canoptek Court", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"[IGNORE LE COUVERT] — contre les unités à portée de l'objectif désigné",
+   effet:{ ignoresCover:true } },
+ { nom:"The Spoor of Frailty", detach:"Annihilation Legion", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"+1 pour toucher — cible sous son Effectif de Départ",
+   effet:{ hitMod:1 } },
+ { nom:"The Spoor of Frailty — cible sous la moitié", detach:"Annihilation Legion", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"+1 pour toucher et +1 pour blesser — cible En Dessous de son Demi-effectif",
+   effet:{ hitMod:1, wndMod:1 } },
+ { nom:"Enslaved Artifice", detach:"Obeisance Phalanx", pc:1, ph:"TC",
+   unites:[], sauf:[],
+   aide:"touche critique sur 5+ au lieu de 6",
+   effet:{ critH:5 } }
 ];
 
 /* ============================================================
@@ -743,8 +802,12 @@ origine: ["de Mandragora","de Thanatos","de Solemnace","de Gidrim","de Nihilakh"
        stratagemes de base.
    Les cinq detachements du codex (Dynastie Eveillee, Cour
    Canoptek, Legion d'Annihilation, Phalange d'Obeissance,
-   Legion d'Hypercrypte) ne figurent pas dans ces documents :
-   leurs stratagemes restent a saisir dans l'application.
+   Legion d'Hypercrypte) ne figurent dans aucun des deux : ils
+   sont repris de l'export Wahapedia, EN ANGLAIS, et se
+   reconnaissent a cela. Rien de francais n'a ete remplace —
+   ces cinq detachements n'avaient aucun stratageme, et les
+   avoir en anglais vaut mieux que de ne pas les avoir.
+   Donnees de stratagemes fournies par Wahapedia (wahapedia.ru).
    [nom, detachement, type, cout, quand, cible, effet, restrictions]
    ============================================================ */
 const STRATS = [
@@ -941,7 +1004,145 @@ const STRATS = [
 ["Contre-Offensive","Core","Core",2,
  "À l'étape Combattre de la phase de Combat adverse, juste après qu'une unité ennemie a résolu ses attaques.",
  "1 unité amie qui est éligible pour combattre.",
- "Jusqu'à la fin de la phase, votre unité a l'aptitude Combat en Premier et elle doit être la prochaine unité que vous choisissez pour combattre.",""]
+ "Jusqu'à la fin de la phase, votre unité a l'aptitude Combat en Premier et elle doit être la prochaine unité que vous choisissez pour combattre.",""],
+
+/* ============================================================
+   LES CINQ DETACHEMENTS DU CODEX, EN ANGLAIS
+   Ils n'ont pas de traduction officielle relue ici : leur texte
+   vient de l'export Wahapedia, tel quel. Le nom du detachement,
+   lui, est celui du Munitorum — c'est par lui que l'onglet
+   apparie les stratagemes a la liste.
+   ============================================================ */
+
+/* --- Awakened Dynasty                             --- */
+["Protocol of the Conquering Tyrant","Awakened Dynasty","Tactique de Bataille",1,
+ "Your Shooting phase.",
+ "One NECRONS unit from your army that has not been selected to shoot this phase.",
+ "Until the end of the phase, each time a model in your unit makes an attack that targets a unit within half range, re-roll a Hit roll of 1. If a NECRONS CHARACTER is leading your unit, until the end of the phase, you can re-roll the Hit roll for that attack instead.",""],
+["Protocol of the Eternal Revenant","Awakened Dynasty","Fait Épique",1,
+ "Any phase.",
+ "One NECRONS INFANTRY CHARACTER model from your army that was just destroyed. You can use this Stratagem on that model even though it was just destroyed.",
+ "At the end of the phase, set up the destroyed model on the battlefield, unengaged and as close as possible to where it was destroyed. That model is not part of an attached unit and its unit has a starting strength of 1. That model has half of its starting number of wounds remaining.","Each model can only be targeted with this Stratagem once per battle."],
+["Protocol of the Hungry Void","Awakened Dynasty","Tactique de Bataille",1,
+ "Fight phase.",
+ "One NECRONS unit from your army that has not been selected to fight this phase.",
+ "Until the end of the phase, add 1 to the Strength characteristic of melee weapons equipped by models in your unit. In addition, If a Necrons Character is leading your unit, until the end of the phase, improve the Armour Penetration characteristic of melee weapons equipped by models in your unit by 1. (this is not cumulative with any other modifiers that improve Armour Penetration].",""],
+["Protocol of the Sudden Storm","Awakened Dynasty","Ruse Stratégique",1,
+ "Your Movement phase.",
+ "One NECRONS unit from your army.",
+ "Until the end of the turn, ranged weapons equipped by models in your unit have the [ASSAULT] ability. In addition, if a Necrons Character is leading your unit, until the end of the phase, you can re-roll Advance rolls made for your unit.",""],
+["Protocol of the Undying Legions","Awakened Dynasty","Ruse Stratégique",1,
+ "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has resolved its attacks.",
+ "One NECRONS unit from your army that had one or more of its models destroyed as a result of the attacking unit’s attacks.",
+ "Your unit activates its Reanimation Protocols and reanimates D3 wounds (or D3+1 wounds if a NECRONS CHARACTER is leading your unit].",""],
+["Protocol of the Vengeful Stars","Awakened Dynasty","Ruse Stratégique",2,
+ "Your opponent’s Shooting phase, just after an enemy unit destroys a NECRONS unit from your army.",
+ "One NECRONS CHARACTER unit from your army that was within 6\" of that NECRONS unit when it was destroyed.",
+ "After the attacking unit has resolved its attacks, your unit can shoot as if it were your Shooting phase, but it must target only that enemy unit when doing so, and can only do so if that enemy unit is an eligible target.",""],
+
+/* --- Canoptek Court                               --- */
+["Countertemporal Shift","Canoptek Court","Ruse Stratégique",1,
+ "Your opponent’s Shooting phase, just after an enemy unit has selected its targets.",
+ "One CANOPTEK unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+ "Until the end of the phase, your unit can only be selected as the target of a ranged attack if the attacking model is within 18\".",""],
+["Curse of the Cryptek","Canoptek Court","Tactique de Bataille",1,
+ "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has shot or fought.",
+ "One CRYPTEK model from your army that was destroyed by one of the attacking unit’s attacks. You can use this Stratagem on that model even though it was just destroyed.",
+ "Until the end of the battle, each time a friendly CANOPTEK model makes an attack that targets the attacking unit, add 1 to the Hit roll and add 1 to the Wound roll.",""],
+["Cynosure of Eradication","Canoptek Court","Tactique de Bataille",2,
+ "The start of your Shooting phase or the start of the Fight phase.",
+ "One CRYPTEK or CANOPTEK unit from your army that is wholly within your army’s Power Matrix.",
+ "Until the end of the phase, weapons equipped by CRYPTEK or CANOPTEK models in your unit have the [DEVASTATING WOUNDS] ability.",""],
+["Reactive Subroutines","Canoptek Court","Ruse Stratégique",1,
+ "Your opponent’s Movement phase, just after an enemy unit ends a Normal, Advance or Fall Back move.",
+ "One CANOPTEK unit from your army that is within 8\" of that enemy unit.",
+ "Your unit can make a Normal move of up to 6\".",""],
+["Solar Pulse","Canoptek Court","Ruse Stratégique",1,
+ "Start of your Shooting phase.",
+ "One CRYPTEK model from your army.",
+ "Select one objective marker within 18\" of your CRYPTEK model. Until the end of the phase, weapons equipped by friendly NECRONS models have the [IGNORES COVER] ability while targeting units within range of that objective marker.",""],
+["Suboptimal Facade","Canoptek Court","Ruse Stratégique",1,
+ "Your opponent’s Charge phase, just after an enemy unit has declared a charge.",
+ "One CANOPTEK unit from your army that was selected as a target of that charge and is wholly within your army’s Power Matrix.",
+ "Your unit’s Reanimation Protocols activate.",""],
+
+/* --- Annihilation Legion                          --- */
+["Blood-Fuelled Cruelty","Annihilation Legion","Tactique de Bataille",1,
+ "Your opponent’s Movement phase, just after an enemy unit ends a Fall Back move.",
+ "One DESTROYER CULT or FLAYED ONES unit from your army that started the phase within Engagement Range of that enemy unit.",
+ "Roll one D6: on a 2-5, that enemy unit suffers D3 mortal wounds; on a 6, that enemy unit suffers 3 mortal wounds. Your unit can then make a Normal move, but must end that move as close as possible to that enemy unit.",""],
+["Insanity’s Ire","Annihilation Legion","Ruse Stratégique",1,
+ "Your opponent’s Shooting phase, when an enemy unit that targeted a friendly unengaged DESTROYER CULT/FLAYED ONES unit this phase has shot.",
+ "That DESTROYER CULT/FLAYED ONES unit.",
+ "Your unit can make a surge move of up to D6\".",""],
+["Masks of Death","Annihilation Legion","Ruse Stratégique",1,
+ "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+ "One DESTROYER CULT or FLAYED ONES unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+ "Until the end of the phase, each time an attack targets your unit, subtract 1 from the Hit roll.",""],
+["Murderous Reanimation","Annihilation Legion","Tactique de Bataille",1,
+ "Fight phase.",
+ "One DESTROYER CULT or FLAYED ONES unit from your army that has just destroyed an enemy unit, or just caused an enemy unit that was not Below Half-strength to become Below Half-strength.",
+ "Your unit’s Reanimation Protocols activate.",""],
+["Pitiless Hunters","Annihilation Legion","Tactique de Bataille",1,
+ "Fight phase.",
+ "One DESTROYER CULT or FLAYED ONES unit from your army that has not been selected to fight this phase.",
+ "Until the end of the phase, each time a model in your unit makes a Pile-in or Consolidation move, it can move up to 6\" instead of up to 3\".",""],
+["The Spoor of Frailty","Annihilation Legion","Tactique de Bataille",1,
+ "Your Shooting phase or the Fight phase.",
+ "One DESTROYER CULT or FLAYED ONES unit from your army that has not been selected to shoot or fight this phase.",
+ "Until the end of the phase, each time a model from your unit makes an attack that targets a unit below Starting Strength, add 1 to the Hit roll. If the target is Below Half-strength, add 1 to the Wound roll as well.",""],
+
+/* --- Obeisance Phalanx                            --- */
+["Enslaved Artifice","Obeisance Phalanx","Tactique de Bataille",1,
+ "Your Shooting phase or the Fight phase.",
+ "One NECRONS unit from your army (excluding TITANIC units) that has not been selected to shoot or fight this phase.",
+ "Until the end of the phase, each time a model in your unit makes an attack, an unmodified Hit roll of 5+ scores a Critical Hit.",""],
+["Nanoassembly Protocols","Obeisance Phalanx","Tactique de Bataille",1,
+ "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+ "One NECRONS VEHICLE unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+ "Until the end of the phase, each time an attack is allocated to a model in your unit, subtract 1 from the Damage characteristic of that attack.",""],
+["Sentinels of Eternity","Obeisance Phalanx","Fait Épique",1,
+ "Fight phase, just after an enemy unit has selected its targets.",
+ "One LYCHGUARD or TRIARCH PRAETORIANS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+ "Until the end of the phase, each time a model in your unit is destroyed, if that model has not fought this phase, roll one D6: on a 4+, do not remove it from play. The destroyed model can fight after the attacking model’s unit has finished making attacks, and is then removed from play.",""],
+["Suffer No Rival","Obeisance Phalanx","Tactique de Bataille",1,
+ "Fight phase.",
+ "One LYCHGUARD or TRIARCH unit from your army that has not been selected to fight this phase.",
+ "Until the end of the phase, melee weapons equipped by models in your unit have the [PRECISION] ability.",""],
+["Territorial Obsession","Obeisance Phalanx","Ruse Stratégique",1,
+ "Your Command phase.",
+ "One Lychguard or Triarch unit from your army.",
+ "Until the start of your next Command phase, add 1 to the Objective Control characteristic of models in your unit. If your unit has the VEHICLE keyword, add 3 to the Objective Control characteristic instead.",""],
+["Your Time Is Nigh","Obeisance Phalanx","Fait Épique",1,
+ "Any phase, just after your opponent’s WARLORD is destroyed.",
+ "Your NECRONS WARLORD.",
+ "Until the end of the battle, each time an enemy unit takes a Battle-shock or Leadership test, subtract 1 from the result.",""],
+
+/* --- Hypercrypt Legion                            --- */
+["Cosmic Precision","Hypercrypt Legion","Ruse Stratégique",1,
+ "Your Movement phase.",
+ "One NECRONS unit from your army (excluding Monster units) that is arriving using the Deep Strike or Hyperphasing abilities this phase.",
+ "Your unit can be set up anywhere on the battlefield that is more than 6\" horizontally away from all enemy models.","A unit targeted with this Stratagem is not eligible to declare a charge in the same turn."],
+["Dimensional Corridor","Hypercrypt Legion","Ruse Stratégique",2,
+ "Your Charge phase.",
+ "One NECRONS unit from your army that was set up on the battlefield this turn using the Eternity Gate ability of a MONOLITH model that started the turn on the battlefield.",
+ "Your unit is eligible to charge this phase.",""],
+["Entropic Damping","Hypercrypt Legion","Équipement",1,
+ "Your opponent’s Shooting phase, just after an enemy unit has selected its targets.",
+ "One TITANIC model from your army that was selected as the target of one or more of the attacking unit’s attacks and is within 18\" of the attacking unit.",
+ "Until the end of the phase, weapons equipped by models in the attacking unit have the [HAZARDOUS] ability.",""],
+["Hyperphasic Recall","Hypercrypt Legion","Ruse Stratégique",2,
+ "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has shot or fought.",
+ "One NECRONS INFANTRY unit from your army that had one or more of its models destroyed as a result of the attacking unit’s attacks and one friendly MONOLITH model.",
+ "Remove your INFANTRY unit from the battlefield and then set it back up anywhere on the battlefield that is wholly within 6\" of your MONOLITH model and not within Engagement Range of one or more enemy units.",""],
+["Quantum Deflection","Hypercrypt Legion","Équipement",1,
+ "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+ "One NECRONS VEHICLE unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+ "Until the end of the phase, models in your unit have a 4+ invulnerable save.",""],
+["Reanimation Crypts","Hypercrypt Legion","Ruse Stratégique",1,
+ "Your Command phase.",
+ "Your NECRONS WARLORD.",
+ "For each of your NECRONS units in Reserves, that Reserves unit’s Reanimation Protocols activate.",""]
 ];
 
 /* ============================================================

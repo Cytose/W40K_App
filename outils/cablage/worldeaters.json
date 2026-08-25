@@ -1,24 +1,43 @@
 {
   "_": [
-    "CÂBLAGE DU SIMULATEUR — WORLD EATERS",
-    "",
-    "Écrit à la main, et il n'y a pas d'autre façon : aucune source ne dit",
-    "ce qu'une règle fait au CALCUL. BSData donne le texte, le Munitorum",
-    "les chiffres ; décider que « re-roll the Hit roll » est un rrH failed",
-    "en corps à corps, et qu'il faut le déclarer parce qu'il dépend de la",
-    "cible, ça se lit et ça se tranche.",
-    "",
-    "extraction.py fusionne ce fichier dans data-worldeaters.js. Le fichier",
-    "généré est écrasé à chaque extraction ; celui-ci ne l'est jamais.",
-    "",
-    "Les textes sont en anglais, comme le reste de la faction : c'est la",
-    "convention du dépôt, une règle mal traduite se paie en partie. Les",
-    "libellés `nom` et `quand`, eux, sont en français — ils s'affichent.",
-    "",
-    "CE QUI N'EST PAS CÂBLÉ : le Collier de Khorne des Chiens de Chair",
-    "(insensibilité 3+ contre les attaques PSYCHIQUES seulement — le moteur",
-    "ne connaît pas ce genre d'attaque) et les relances de DÉGÂTS de",
-    "l'Annihilateur, qu'il n'a pas non plus. Tout le reste est là."
+      "CÂBLAGE DU SIMULATEUR — WORLD EATERS",
+      "",
+      "Écrit à la main, et il n'y a pas d'autre façon : aucune source ne dit",
+      "ce qu'une règle fait au CALCUL. BSData donne le texte, le Munitorum",
+      "les chiffres ; décider que « re-roll the Hit roll » est un rrH failed",
+      "en corps à corps, et qu'il faut le déclarer parce qu'il dépend de la",
+      "cible, ça se lit et ça se tranche.",
+      "",
+      "extraction.py fusionne ce fichier dans data-worldeaters.js. Le fichier",
+      "généré est écrasé à chaque extraction ; celui-ci ne l'est jamais.",
+      "",
+      "Les textes sont en anglais, comme le reste de la faction : c'est la",
+      "convention du dépôt, une règle mal traduite se paie en partie. Les",
+      "libellés `nom` et `quand`, eux, sont en français — ils s'affichent.",
+      "",
+      "CE QUI N'EST PAS CÂBLÉ : le Collier de Khorne des Chiens de Chair",
+      "(insensibilité 3+ contre les attaques PSYCHIQUES seulement — le moteur",
+      "ne connaît pas ce genre d'attaque) et les relances de DÉGÂTS de",
+      "l'Annihilateur, qu'il n'a pas non plus. Tout le reste est là.",
+      "",
+      "──────────────────────────────────────────────────────────────",
+      "STRAT_SIMU : LES STRATAGÈMES QUI CHANGENT UN JET",
+      "",
+      "Dix sur trente-neuf, dans six détachements sur huit. Le reste",
+      "déplace, embarque, réanime, ou protège — et protéger se lit sur la",
+      "CIBLE, pas sur l'attaquant : le simulateur le règle dans sa carte",
+      "Cible, à la main. « Résistance Démoniaque », « Résilience",
+      "Frénétique », « Dédain du Sorcier » sont de celles-là.",
+      "",
+      "« Aspire to Infamy » reste dehors pour une autre raison : ses +1",
+      "attaque et +2 en Force ne valent que pour les figurines de",
+      "PERSONNAGE de l'unité. Le simulateur mesure l'unité entière ;",
+      "l'appliquer partout la surestimerait franchement.",
+      "",
+      "Deux stratagèmes ont une version meilleure sous condition — « Fail",
+      "Not the Blood God » près d'un Monstre, « Daemonic Fury » sous Rage",
+      "Démoniaque. Chacun fait DEUX pastilles : une moyenne serait fausse",
+      "dans les deux cas, et le joueur sait laquelle est vraie ce tour-ci."
   ],
   "AURAS_PERSO": {
     "Khârn the Betrayer": [
@@ -222,5 +241,57 @@
       "quand": "L'unité est à 6\" du Bloodthirster, et elle est BLOOD LEGIONS",
       "texte": "While a friendly Blood Legions unit is within 6\" of this model, each time a model in that unit makes a melee attack, add 1 to the Hit roll."
     }
+  ],
+
+  "STRAT_SIMU": [
+    { "nom": "Hack and Slash", "detach": "Berzerker Warband", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "+1 en PA au corps à corps — l'unité doit avoir chargé ce tour",
+      "effet": { "apMod": 1 } },
+
+    { "nom": "Apoplectic Clarity", "detach": "Brazen Engines", "pc": 1, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "ignore les malus de CT/CC et de jets de touche et de blessure",
+      "effet": { "ignoreMalus": true } },
+
+    { "nom": "A Trophy for the Throne", "detach": "Butchers Of Khorne", "pc": 1, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "+1 pour blesser — contre MONSTRE ou VÉHICULE seulement",
+      "effet": { "wndMod": 1 } },
+
+    { "nom": "Focused Ferocity", "detach": "Butchers Of Khorne", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "+1 attaque à chaque arme de corps à corps",
+      "effet": { "atkMod": 1 } },
+
+    { "nom": "Bloody Vengeance", "detach": "Cult Of Blood", "pc": 1, "ph": "TC",
+      "unites": ["Jakhals", "Goremongers"], "sauf": [],
+      "aide": "relance des touches ratées contre l'unité qui a détruit ton Monstre ou ton Titanesque",
+      "effet": { "rrH": "failed" } },
+
+    { "nom": "Fail Not the Blood God", "detach": "Cult Of Blood", "pc": 1, "ph": "C",
+      "unites": ["Jakhals", "Goremongers"], "sauf": [],
+      "aide": "relance des 1 pour toucher",
+      "effet": { "rrH": "ones" } },
+
+    { "nom": "Fail Not the Blood God — près d'un Monstre", "detach": "Cult Of Blood", "pc": 1, "ph": "C",
+      "unites": ["Jakhals", "Goremongers"], "sauf": [],
+      "aide": "relance TOTALE des touches — l'unité est à 6\" d'un MONSTRE ami, ou à 9\" d'un TITANESQUE",
+      "effet": { "rrH": "failed" } },
+
+    { "nom": "Daemonic Fury", "detach": "Khorne Daemonkin", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+      "effet": { "wndMod": 1 } },
+
+    { "nom": "Daemonic Fury — Rage Démoniaque active", "detach": "Khorne Daemonkin", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "[LANCE] et [JUMELÉE] : +1 pour blesser après une charge, et relance des blessures ratées",
+      "effet": { "wndMod": 1, "rrW": "failed" } },
+
+    { "nom": "Daemonic Strength", "detach": "Possessed Slaughterband", "pc": 1, "ph": "C",
+      "unites": ["Eightbound", "Exalted Eightbound", "Slaughterbound"], "sauf": [],
+      "aide": "+1 dégât — les ENCHAÎNÉS contre tout sauf MONSTRE/VÉHICULE, les ENCHAÎNÉS EXALTÉS contre eux seuls",
+      "effet": { "dmgMod": 1 } }
   ]
 }
