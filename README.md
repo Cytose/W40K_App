@@ -1,7 +1,8 @@
 # Nécron — aide de jeu
 
 Simulateur de séquence d'attaque, constructeur de liste et comparateur d'unités
-pour **Warhammer 40 000, 11e édition**, orienté armée **Nécrons**.
+pour **Warhammer 40 000, 11e édition**. Quatre factions : **Nécrons**,
+**Adeptus Custodes**, **Astra Militarum**, **World Eaters**.
 
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
@@ -70,7 +71,9 @@ pas est une branche sur laquelle on ne peut pas travailler.
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
 | `data.js` | le socle commun : registre des factions et adaptateur, barème de points, mots-clés de cible, archétypes de menace, catégories, rôles tactiques, Dispositions de Force, glossaire des règles de base |
+| `data-astra.js` | l'Astra Militarum : **fichier généré**, 134 fiches (72 jouables), 854 profils d'armes, 11 détachements, 38 optimisations |
 | `data-custodes.js` | les Adeptus Custodes : **fichier généré** par `outils/extraction.py`, 31 fiches, 111 profils d'armes, 9 détachements, 30 optimisations. Ni socles, ni stratagèmes, ni tables de simulateur — voir son en-tête |
+| `data-worldeaters.js` | les World Eaters : **fichier généré**, 30 fiches, 127 profils d'armes, 8 détachements, 26 optimisations |
 | `data-necrons.js` | les Nécrons : 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
@@ -100,6 +103,9 @@ d'une liste rebranche les tables globales sur les siennes.
    balise dans `index.html`, après `data.js`.
 3. `npm run factions` éprouve le registre, la bascule, la reconstruction des
    index dérivés et le voyage de la faction dans le lien de partage.
+   `npm run livrees` passe sur **toutes** les factions du registre et vérifie
+   leur intégrité référentielle — une arme rattachée à une unité qui n'existe
+   pas ne fait pas tomber l'application, elle produit un écran qui ment.
 
 Le sélecteur de faction, caché tant qu'il n'y en a qu'une, apparaît tout seul.
 
@@ -107,7 +113,7 @@ Le sélecteur de faction, caché tant qu'il n'y en a qu'une, apparaît tout seul
 
 `node build.js` remplit `dist/` avec deux choses distinctes :
 
-- **le site** — `index.html`, `data.js`, `data-necrons.js`, `data-custodes.js`,
+- **le site** — `index.html`, `data.js`, les quatre `data-<faction>.js`,
   `engine.js`, `app.js`, `roster.js`, `layouts.js`, `plateau.js`, `sw.js`,
   `manifest.json`, `icon.svg`, les sources telles quelles, un fichier par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
 - **le fichier autonome** — `dist/W40K_App.html`, l'application repliée

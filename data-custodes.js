@@ -277,6 +277,14 @@ const APTITUDES = {
   [
    "Leader",
    "This model can be attached to the following units:\n■ Prosecutors\n■ Vigilators\n■ Witchseekers"
+  ],
+  [
+   "Daughter of the Abyss",
+   "This model has the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds."
+  ],
+  [
+   "Ceaseless Vigilance",
+   "In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is nulled: \n- While a unit is nulled, that unit has +3\" detection range."
   ]
  ],
  "Allarus Custodians": [
@@ -289,6 +297,10 @@ const APTITUDES = {
    "Once per battle, at the end of your opponent's turn, if this unit is not within Engagement Range of one or more enemy units, you can remove it from the battlefield and place it into Strategic Reserves."
   ],
   [
+   "Vexilla",
+   "Add 1 to the Objective Control characteristic of models in the bearer's unit."
+  ],
+  [
    "Martial Ka'tah",
    "Each time a unit with this ability is selected to fight, select one of the Ka'tah stances below. Until that unit has finished making its attacks, the selected Stance is active for it and it gains the relevant ability.\n\n■ DACATARAI STANCE\nMelee weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability.\n■ RENDAX STANCE\nMelee weapons equipped by models in this unit have the [LETHAL HITS] ability."
   ]
@@ -297,6 +309,14 @@ const APTITUDES = {
   [
    "Self Repair",
    "At the start of your Command phase, this model regains 1 lost wound."
+  ],
+  [
+   "Daughter of the Abyss",
+   "This model has the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds."
+  ],
+  [
+   "Ceaseless Vigilance",
+   "In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is nulled: \n- While a unit is nulled, that unit has +3\" detection range."
   ],
   [
    "Psyk-out Grenades",
@@ -443,6 +463,14 @@ const APTITUDES = {
    "Once per battle, in your Shooting phase, after the unit has shot, it can shoot again."
   ],
   [
+   "Praesidium Shield",
+   "Add 1 to the bearer's Wounds characteristic."
+  ],
+  [
+   "Vexilla",
+   "Add 1 to the Objective Control characteristic of models in the bearer's unit."
+  ],
+  [
    "Martial Ka'tah",
    "Each time a unit with this ability is selected to fight, select one of the Ka'tah stances below. Until that unit has finished making its attacks, the selected Stance is active for it and it gains the relevant ability.\n\n■ DACATARAI STANCE\nMelee weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability.\n■ RENDAX STANCE\nMelee weapons equipped by models in this unit have the [LETHAL HITS] ability."
   ]
@@ -477,6 +505,14 @@ const APTITUDES = {
   [
    "Corner the Quarry",
    "Each time an enemy unit (excluding MONSTERS and VEHICLES) that is within Engagement Range of this model’s unit Falls Back, all models in that enemy unit must take a Desperate Escape test. When doing so, if that enemy unit is Battle-shocked, subtract 1 from each of those tests."
+  ],
+  [
+   "Daughter of the Abyss",
+   "This model has the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds."
+  ],
+  [
+   "Ceaseless Vigilance",
+   "In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is nulled: \n- While a unit is nulled, that unit has +3\" detection range."
   ],
   [
    "Raptor Blade",
@@ -597,6 +633,14 @@ const APTITUDES = {
    "Each time a model in this unit makes a ranged attack that targets a Psyker unit, that attack has the [PRECISION] and [DEVASTATING WOUNDS] abilities."
   ],
   [
+   "Daughters of the Abyss",
+   "Models in this unit have the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds."
+  ],
+  [
+   "Ceaseless Vigilance",
+   "In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is nulled: \n- While a unit is nulled, that unit has +3\" detection range."
+  ],
+  [
    "Psyk-out Grenades",
    "- This unit has EXPLOSIVES. \n- When you target this unit with the Explosives stratagem, if you select an enemy PSYKER unit, you can re-roll rolls to determine whether that enemy unit suffers a mortal wound."
   ]
@@ -609,6 +653,14 @@ const APTITUDES = {
   [
    "Leader",
    "This model can be attached to the following units:\n- Custodian Guard\n- Custodian Guard with Adrasite and Pyrithite Spears\n- Custodian Wardens\n- Sagittarum Custodians"
+  ],
+  [
+   "Strategic Mastery",
+   "Once per battle round, one unit from your army with this ability can use it when its unit is targeted with a Stratagem. If it does, reduce the CP cost of that use of that Stratagem by 1CP."
+  ],
+  [
+   "Praesidium Shield",
+   "Add 1 to the bearer's Wounds characteristic."
   ],
   [
    "Raptor Blade",
@@ -737,6 +789,10 @@ const APTITUDES = {
    "Once per battle, at the start of any phase, this model can use this ability. If it does, until the end of the phase, each time an attack is allocated to this model, change the Damage characteristic of that attack to 1."
   ],
   [
+   "Strategic Mastery",
+   "Once per battle round, one unit from your army with this ability can use it when its unit is targeted with a Stratagem. If it does, reduce the CP cost of that use of that Stratagem by 1CP."
+  ],
+  [
    "Raptor Blade",
    "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. While the bearer is within Engagement Range of one or more enemy Psyker units that are Battle-shocked, add 2 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons instead."
   ],
@@ -861,6 +917,10 @@ const APTITUDES = {
   [
    "Sweeping Advance",
    "Once per battle, at the end of the Fight phase, if this model's unit fought this phase, if it is within Engagement Range of one or more enemy units, it can make a Fall Back move or, if it is not within Engagement Range of one or more enemy units, it can make a Normal move."
+  ],
+  [
+   "Strategic Mastery",
+   "Once per battle round, one unit from your army with this ability can use it when its unit is targeted with a Stratagem. If it does, reduce the CP cost of that use of that Stratagem by 1CP."
   ],
   [
    "Raptor Blade",
@@ -1183,6 +1243,14 @@ const APTITUDES = {
    "Each time a melee attack targets this unit, subtract 1 from the Hit roll."
   ],
   [
+   "Daughters of the Abyss",
+   "Models in this unit have the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds."
+  ],
+  [
+   "Ceaseless Vigilance",
+   "In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is nulled: \n- While a unit is nulled, that unit has +3\" detection range."
+  ],
+  [
    "Psyk-out Grenades",
    "- This unit has EXPLOSIVES. \n- When you target this unit with the Explosives stratagem, if you select an enemy PSYKER unit, you can re-roll rolls to determine whether that enemy unit suffers a mortal wound."
   ]
@@ -1191,6 +1259,14 @@ const APTITUDES = {
   [
    "Sanctified Flames",
    "In your Shooting phase, after this unit has shot, select one enemy unit that was hit by one or more of those attacks. That unit must take a Battle-shock test."
+  ],
+  [
+   "Daughters of the Abyss",
+   "Models in this unit have the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds."
+  ],
+  [
+   "Ceaseless Vigilance",
+   "In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is nulled: \n- While a unit is nulled, that unit has +3\" detection range."
   ],
   [
    "Psyk-out Grenades",

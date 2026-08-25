@@ -207,21 +207,33 @@ HORS_FICHE = {'crusade', 'warlord', 'detachment', 'detachments',
               'experience points', 'legendary veterans', 'weapon modifications',
               'battle traits', 'battle scars', 'crusade relics'}
 
-def sousArbre(fiche, idx, vus=None, prof=0):
-    """La fiche et tout ce qu'elle lie, à plat."""
+def sousArbre(fiche, idx, interdits, vus=None, prof=0):
+    """La fiche et tout ce qu'elle lie, à plat.
+
+       `interdits` porte les identifiants des AUTRES fiches : on ne
+       descend jamais dedans, sinon une fiche avalerait l'armement de sa
+       voisine. Tout le reste se suit — y compris les entrées de figurine
+       que l'Astra Militarum range à part et que ses fiches lient."""
     if vus is None: vus = set()
     out = [fiche]
     if prof > 6: return out
+    # Les profils partagés. La bibliothèque de l'Astra Militarum ne pose
+    # pas le profil sur la figurine : elle le range dans sharedProfiles
+    # et le lie. Un « Shock Trooper » ne porte donc aucune
+    # caractéristique en propre, et la fiche qui le compte n'en portait
+    # pas non plus — d'où vingt-trois fiches jouables invisibles.
+    for l in cueille(fiche, lambda x: x.get('targetId') and x.get('type') == 'profile'):
+        p = idx.get(l['targetId'])
+        if p is not None and 'characteristics' in p: out.append(p)
     for l in cueille(fiche, lambda x: x.get('targetId') and
                      x.get('type') in ('selectionEntry', 'selectionEntryGroup')):
         tid = l['targetId']
-        if tid in vus: continue
+        if tid in vus or tid in interdits: continue
         vus.add(tid)
         c = idx.get(tid)
         if not c: continue
         if cle(c.get('name')) in HORS_FICHE or cle(l.get('name')) in HORS_FICHE: continue
-        if porteUnProfilUnit(c): continue
-        out.extend(sousArbre(c, idx, vus, prof + 1))
+        out.extend(sousArbre(c, idx, interdits, vus, prof + 1))
     return out
 
 def chargeBS(faction):
@@ -257,11 +269,52 @@ def texteRegle(n):
     if n.get('description'): return propre(n['description'])
     return propre(car(n, 'Description'))
 
-def fiches(cats):
+def fiches(cats, idx):
+    """Les fiches d'unité, et rien d'autre.
+
+       Les catalogues ne se ressemblent pas. Les Nécrons et les Custodes
+       posent chaque fiche entière dans sharedSelectionEntries, figurines
+       comprises. L'Astra Militarum range ses FIGURINES à part — « Shock
+       Trooper », « Shock Trooper Sergeant » sont des entrées racines de
+       type `model` — et la fiche « Cadian Shock Troops », de type `unit`,
+       les lie. Chercher un profil Unit dans le seul sous-arbre brut
+       ratait donc 23 fiches jouables sur 72, dont les Cadiens et tous
+       les Leman Russ : le fond de l'armée.
+
+       On sépare donc en deux temps. Une racine de type `unit` est
+       toujours une fiche. Une racine de type `model` en est une aussi —
+       c'est ainsi que sont écrits les personnages — SAUF si une fiche
+       la lie, auquel cas c'est une de ses figurines. """
+    racines = [r for c in cats for r in c.get('sharedSelectionEntries', []) or []]
+    parId = {r['id']: r for r in racines if isinstance(r.get('id'), str)}
+
+    # Les figurines qu'une fiche lie ne sont pas des fiches. On les
+    # recense en descendant depuis chaque fiche de type `unit`, en
+    # traversant les entrées intermédiaires — l'Astra emboîte
+    # selectionEntryGroups / selectionEntries / entryLinks, et s'arrêter
+    # au premier niveau n'en trouvait que quatre sur la faction entière.
+    composants = set()
+    def descend(n, prof=0):
+        if prof > 5: return
+        for l in cueille(n, lambda x: x.get('targetId') and x.get('type') == 'selectionEntry'):
+            t = parId.get(l['targetId'])
+            if t is None or l['targetId'] in composants: continue
+            if t.get('type') == 'model':
+                composants.add(l['targetId'])
+                descend(t, prof + 1)
+    for r in racines:
+        if r.get('type') == 'unit': descend(r)
+
+    candidates = [r for r in racines
+                  if r.get('type') == 'unit'
+                  or (r.get('type') == 'model' and r.get('id') not in composants)]
+    interdits = {r['id'] for r in candidates if isinstance(r.get('id'), str)}
+
     out = []
-    for c in cats:
-        for r in c.get('sharedSelectionEntries', []):
-            if porteUnProfilUnit(r): out.append(r)
+    for r in candidates:
+        arbre = sousArbre(r, idx, interdits - {r.get('id')})
+        if any(porteUnProfilUnit(n) for n in arbre):
+            out.append((r, arbre))
     return out
 
 def aptitudesDe(noeuds, idx):
@@ -314,7 +367,7 @@ def armesDe(noeuds, inconnus):
                     portee(car(p, 'Range'))])
     return out
 
-def profilUnit(fiche):
+def profilUnit(arbre):
     """Le profil de la fiche, et s'il en existe un AUTRE, différent.
 
        Une fiche porte un profil par variante de figurine. Le plus
@@ -324,7 +377,9 @@ def profilUnit(fiche):
        et ses deux Menhirs n'ont ni les mêmes PV ni la même Endurance, et
        c'est ce que COMPO encode à la main. Compter les profils au lieu
        de les comparer noyait ce cas-là sous cinq faux positifs."""
-    ps = cueille(fiche, lambda x: x.get('typeName') == 'Unit' and 'characteristics' in x)
+    ps = []
+    for n in arbre: ps.extend(cueille(n, lambda x: x.get('typeName') == 'Unit'
+                                      and 'characteristics' in x))
     if not ps: return None, False
     signature = lambda p: tuple(car(p, c) for c in ('M', 'T', 'Sv', 'InSv', 'W', 'OC', 'LD'))
     return ps[0], len({signature(p) for p in ps}) > 1
@@ -494,16 +549,18 @@ def extrait(faction):
     UNITS, WEAPONS, CAT, APTITUDES, ATTACH, TRANSPORTS = [], [], [], {}, {}, {}
     sansPrix, multiProfil, horsMFM = [], [], []
 
-    for f in fiches(cats):
+    LF = fiches(cats, idx)
+    for f, arbre in LF:
         nom = sansLegends(f.get('name'))
-        p, profilsDifferents = profilUnit(f)
+        p, profilsDifferents = profilUnit(arbre)
         if not p: continue
         if profilsDifferents: multiProfil.append(nom)
-        arbre = sousArbre(f, idx)
 
-        mots = [c.get('name') for c in cueille(f, lambda x: 'targetId' in x and 'name' in x
-                                               and x.get('type') is None)]
-        mots += [c.get('name') for c in f.get('categoryLinks', []) or []]
+        mots = []
+        for n in arbre:
+            mots += [c.get('name') for c in cueille(n, lambda x: 'targetId' in x
+                                                    and 'name' in x and x.get('type') is None)]
+            mots += [c.get('name') for c in n.get('categoryLinks', []) or []]
         mots = [m for m in mots if m]
 
         # Une fiche absente du Munitorum ne se joue pas : elle n'a pas de
@@ -539,9 +596,10 @@ def extrait(faction):
             WEAPONS.append([nom] + a)
         ap = aptitudesDe(arbre, idx)
         if ap: APTITUDES[nom] = ap
-        for t in cueille(f, lambda x: x.get('typeName') == 'Transport'):
-            c = car(t, 'Capacity')
-            if c: TRANSPORTS[nom] = c
+        for n in arbre:
+            for t in cueille(n, lambda x: x.get('typeName') == 'Transport'):
+                c = car(t, 'Capacity')
+                if c: TRANSPORTS[nom] = c
 
     # qui rejoint qui — le Munitorum le dit, la règle Leader n'a pas à être relue
     for u in mfm.get('units', []) or []:
@@ -609,16 +667,32 @@ def extrait(faction):
                       ('infantry', 'Infanterie'), ('character', 'Personnage')]:
         KW[genre] = sorted(n for n, c in CAT if c == fr)
 
+    # ------------------------------------------------------------------
+    # LA RÈGLE D'ARMÉE
+    # Elle s'annonce : son texte commence par « If your Army Faction
+    # is… ». C'est la formule que GW emploie pour ce qui vaut à l'armée
+    # entière, et elle est plus sûre que de compter les liens — la
+    # « Voix du Commandement » de l'Astra Militarum n'est liée que par
+    # ses officiers, et le comptage la manquait.
+    # ------------------------------------------------------------------
     faction_regle = []
     for c in cats:
         for r in (c.get('sharedRules') or []):
-            pass
-    # la règle d'armée : la première règle partagée que TOUTES les fiches lient
+            t = texteRegle(r)
+            if re.match(r'if your army faction is', t, re.I):
+                faction_regle = [[r.get('name') or '', t]]
+                break
+        if faction_regle: break
+
+    # à défaut : la règle partagée que la moitié des fiches lient
     liees = {}
-    for f in fiches(cats):
-        for l in cueille(f, lambda x: x.get('type') == 'rule' and x.get('targetId')):
-            liees[l['targetId']] = liees.get(l['targetId'], 0) + 1
-    if liees and UNITS:
+    for f, arbre in LF:
+        vus = set()
+        for n in arbre:
+            for l in cueille(n, lambda x: x.get('type') == 'rule' and x.get('targetId')):
+                vus.add(l['targetId'])
+        for t in vus: liees[t] = liees.get(t, 0) + 1
+    if not faction_regle and liees and UNITS:
         tid, n = max(liees.items(), key=lambda kv: kv[1])
         if n >= max(3, len(UNITS) // 2):
             r = idx.get(tid)

@@ -3219,3 +3219,87 @@ existantes aussi.
 - **Astra Militarum et World Eaters** — l'extracteur les connaît déjà
   (`python3 outils/extraction.py astra`, `worldeaters`). Rien ne les bloque
   sinon la décision de les livrer.
+
+## 13. Astra Militarum et World Eaters — 25/08/2026
+
+L'extracteur les connaissait déjà. Les sortir a demandé trois correctifs,
+tous trouvés parce que le compte ne tombait pas juste — et l'un d'eux
+aurait livré une faction amputée sans que rien ne le signale.
+
+### L'Astra Militarum n'était pas écrite comme les autres
+
+Première extraction : **49 unités jouables sur les 72 que le Munitorum
+annonce**. Vingt-trois manquantes, et pas n'importe lesquelles — les
+Cadiens, les Kasrkin, les Ogryns, tous les Leman Russ. Le fond de l'armée.
+
+Deux raisons, toutes deux des différences d'écriture entre catalogues :
+
+1. **Les figurines sont rangées à part.** Les Nécrons et les Custodes posent
+   chaque fiche entière, figurines comprises. L'Astra fait de « Shock
+   Trooper » une entrée racine à elle seule, que la fiche « Cadian Shock
+   Troops » lie. Mon garde-fou anti-collision — ne jamais descendre dans une
+   entrée qui porte un profil — bloquait exactement ce qu'il fallait suivre.
+   Il distingue maintenant une fiche d'une figurine : une figurine est ce
+   qu'une fiche lie.
+2. **Les profils sont partagés.** « Shock Trooper » ne porte aucune
+   caractéristique en propre : son profil vit dans `sharedProfiles` et il le
+   lie. La fiche qui le compte n'en portait donc pas non plus, et
+   disparaissait du recensement.
+
+Après correction : **134 fiches, 72 jouables** — le compte exact du
+Munitorum — et 20 rattachements au lieu de 8.
+
+### La règle d'armée se reconnaît à sa formule
+
+Je la cherchais en comptant les liens : la règle partagée que la moitié des
+fiches lient. Ça marche pour les Nécrons, dont toutes les fiches portent les
+Protocoles de Réanimation. Ça échoue pour l'Astra Militarum, dont la **Voix
+du Commandement** n'est liée que par ses officiers.
+
+Les règles d'armée s'annoncent : leur texte commence par *« If your Army
+Faction is… »*. C'est la formule que GW emploie pour ce qui vaut à l'armée
+entière, et elle trouve les quatre du premier coup — Protocoles de
+Réanimation, Martial Ka'tah, Bénédictions de Khorne, Voix du Commandement.
+
+### Ce qui est livré
+
+| | fiches | jouables | armes | détachements | optimisations |
+|---|---:|---:|---:|---:|---:|
+| Nécrons *(relu à la main)* | 51 | 51 | 138 | 12 | 42 |
+| Adeptus Custodes | 31 | 31 | 111 | 9 | 30 |
+| Astra Militarum | 134 | 72 | 854 | 11 | 38 |
+| World Eaters | 30 | 30 | 127 | 8 | 26 |
+
+`data.js` reste à 364 lignes : le socle ne connaît toujours aucune faction.
+Le fichier autonome passe de 4,8 à 5,4 Mo.
+
+### `npm run livrees`
+
+Une suite qui passe sur **toutes** les factions du registre, celles d'hier
+comme celles qu'on ajoutera — 75 contrôles. Elle ne mesure pas si les
+chiffres sont beaux, elle mesure l'**intégrité référentielle** : une arme
+rattachée à une unité qui n'existe pas, un rattachement vers un nom mal
+orthographié, une optimisation qui cite un détachement absent. Rien de tout
+cela ne fait tomber l'application — ça produit un écran qui ment, et c'est
+précisément ce qu'un extracteur risque de fabriquer.
+
+Elle vérifie aussi le chemin complet, faction par faction : une liste posée
+dans le stockage, relue, ouverte, son pavé dessiné et son total calculé.
+
+Elle a trouvé deux fiches de l'Astra sans aucune arme — la **Ligne de
+Défense Aegis** et le **Véhicule de Démolition Cyclope**. Vérifié dans
+BSData : elles n'en ont réellement pas, l'une est une fortification, l'autre
+explose par une aptitude. C'est l'invariant qui était faux, pas les données.
+Il mesure maintenant une proportion : une faction où beaucoup de fiches
+seraient muettes serait le symptôme d'un défaut, et c'est exactement la
+forme qu'avait celui des liens non suivis.
+
+### Ce qui reste, inchangé
+
+- **Les stratagèmes** — absents des deux sources pour les quatre factions.
+- **Les règles de détachement** — BSData ne les porte que pour les Nécrons :
+  9 sur 12, contre 0 sur 9 pour les Custodes, 0 sur 11 pour l'Astra, 1 sur 8
+  pour les World Eaters.
+- **Les socles** — Base Size Guide, un PDF. Le Plateau pose sur un socle par
+  défaut pour les trois factions ajoutées.
+- **Le câblage du simulateur** — toujours le seul vrai poste manuel.
