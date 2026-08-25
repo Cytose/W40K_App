@@ -12,6 +12,9 @@ const S = {
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
   critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none",
   apMod:0, dmgMod:0, ignoresCover:false, indirect:false, ignoreMalus:false,
+  /* une situation, pas un modificateur : l'unite n'a pas bouge ce tour,
+     et ses armes LOURDES gagnent leur +1 pour toucher toutes seules */
+  immobile:false,
   /* ce que la cible EST — plusieurs règles ne valent que contre un
      certain genre d'unité, et le moteur ne connaissait d'elle que des
      chiffres */
@@ -640,7 +643,11 @@ function profilPourMoteur(p){
   const q = Object.assign({}, p, {
     tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
     fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover,
-    hitMod: borne1((p.hitMod || 0) + S.hitMod),
+    /* Lourd ne donne son +1 que si l'unite n'a pas bouge : c'est une
+       situation, pas un mot-cle qui joue tout seul. Le joueur la declare
+       une fois pour l'unite, et seules les armes LOURDES en profitent. */
+    hitMod: borne1((p.hitMod || 0) + S.hitMod +
+                   ((S.immobile && p.heavy) ? 1 : 0)),
     wndMod: borne1((p.wndMod || 0) + S.wndMod),
     /* la PA et les degats octroyes par une aura — le +1 en penetration
        d'Illuminor Szeras — etaient jusqu'ici ecrases par la valeur de
@@ -897,30 +904,31 @@ function renderRosterUnitList(){
    immobile avec une arme lourde, on tire sur un objectif tenu. Chacune
    se pose et se retire d'une touche.
    ========================================================== */
-/* Quatre situations, pas sept raccourcis : les valeurs brutes sont deja
-   sous la main dans les segments juste dessous. Ce qui merite un bouton,
-   c'est ce qui porte un nom a la table — « je suis dans un couvert »,
-   « je n'ai pas bouge », « je tire sur un objectif ». */
+/* CE QUI SE PASSE SUR LA TABLE, et rien d'autre.
+
+   Ces boutons portaient jusqu'ici deux choses de nature differente :
+   des situations — « je suis dans un couvert », « je n'ai pas bouge » —
+   et des raccourcis vers des valeurs brutes — « +1 pour toucher »,
+   « relance des 1 », « touche critique 5+ ». Les seconds ne decrivent
+   rien de ce que le joueur possede : ils sont maintenant dans
+   « Capacites et modifications », avec tout ce que le jeu permet.
+
+   Ne restent ici que les etats qu'on peut declarer a la table et qui
+   se lisent sur l'unite chargee : la distance, le mouvement, le
+   couvert. Le reste de cet encadre — conditions de detachement,
+   strategemes, aptitudes de fiche — vient de la liste ouverte. */
 const PRESETS = [
   {id:"cover", nom:"Cible à couvert", aide:"−1 pour toucher",
    lis:()=> S.cover,            met:v=>{ S.cover = v; }},
-  {id:"heavy", nom:"+1 pour toucher", aide:"Lourd immobile, Protocoles…",
-   lis:()=> S.hitMod === 1,     met:v=>{ S.hitMod = v ? 1 : 0; }},
-  {id:"rr1",   nom:"Relance des 1",   aide:"aux jets de touche",
-   lis:()=> S.rrH === "ones",   met:v=>{ S.rrH = v ? "ones" : "none"; }},
-  {id:"rrw",   nom:"Cible sur objectif", aide:"relance les blessures ratées",
-   lis:()=> S.rrW === "failed", met:v=>{ S.rrW = v ? "failed" : "none"; }}
+  {id:"immo",  nom:"Resté immobile", aide:"+1 pour toucher aux armes LOURDES",
+   lis:()=> S.immobile,         met:v=>{ S.immobile = v; }}
 ];
-/* Ce qui ne vaut que pour une unite entiere : trois choses qu'on
-   change plusieurs fois par partie et qui, sans ces boutons, obligeaient
-   a descendre dans la carte des capacites arme par arme. */
+/* Ce qui ne vaut que pour une unite entiere : la distance vaut pour
+   toutes ses armes a la fois, et sans ce bouton il fallait descendre
+   arme par arme. */
 const PRESETS_UNITE = [
   {id:"mi",    nom:"À mi-portée",     aide:"Tir Rapide et Fonte comptent",
-   lis:()=> S.rapidOn && S.meltaOn, met:v=>{ S.rapidOn = v; S.meltaOn = v; }},
-  {id:"leth",  nom:"Léthal pour tous", aide:"stratagème, protocole…",
-   lis:()=> S.lethal,               met:v=>{ S.lethal = v; }},
-  {id:"crit5", nom:"Touche crit. 5+",  aide:"sur toutes les armes",
-   lis:()=> S.critH <= 5,           met:v=>{ S.critH = v ? 5 : 6; }}
+   lis:()=> S.rapidOn && S.meltaOn, met:v=>{ S.rapidOn = v; S.meltaOn = v; }}
 ];
 function renderPresets(){
   const host = el("vitePresets"); if(!host) return;
@@ -952,6 +960,47 @@ function renderPresets(){
   if(sit.length){
     sep("Conditions du détachement");
     sit.forEach(x=>{
+      /* Une condition ordinaire se declare d'un oui ou d'un non. Le
+         Conclave de Crypteks, lui, ne demande pas SI la regle joue mais
+         LAQUELLE : cinq aptitudes, une seule a la fois. Un interrupteur
+         n'en montrait qu'une ; il faut un choix. */
+      if(x.choix){
+        const t = document.createElement("div");
+        t.className = "vchoix";
+        t.innerHTML = '<b>' + x.nom + '</b><i>' + x.source + '</i>';
+        const r = document.createElement("div");
+        r.className = "vchoixrow";
+        const max = x.choix.max || 1, pris = x.val || [];
+        (x.choix.opts || []).forEach(c=>{
+          const on = pris.indexOf(c.v) >= 0;
+          /* au plafond, ce qui n'est pas pris s'eteint : le joueur voit
+             qu'il doit en lacher une avant d'en prendre une autre */
+          const plein = !on && pris.length >= max;
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "vpre vcond" + (on ? " on" : "") + (plein ? " opt-off" : "");
+          b.title = c.aide || "";
+          b.innerHTML = c.nom + (c.aide ? '<small>' + c.aide + '</small>' : '');
+          b.addEventListener("click", ()=>{
+            if(plein) return;
+            const v = on ? pris.filter(k => k !== c.v) : pris.concat([c.v]);
+            window.ROSTER.poseSituation(x.cle, v);
+            /* la condition change les profils eux-memes : il faut les
+               reconstruire, pas seulement les redessiner */
+            rechargeUnite(); majVite();
+          });
+          r.appendChild(b);
+        });
+        t.appendChild(r);
+        if(x.choix.note){
+          const n = document.createElement("small");
+          n.className = "vchoixnote";
+          n.textContent = x.choix.note;
+          t.appendChild(n);
+        }
+        host.appendChild(t);
+        return;
+      }
       const b = document.createElement("button");
       b.type = "button";
       b.className = "vpre vcond" + (x.on ? " on" : "");
@@ -983,7 +1032,8 @@ function renderPresets(){
       b.className = "vpre vstrat" + (on ? " on" : "");
       b.title = x.detach;
       b.innerHTML = '<span class="pc">' + x.pc + ' PC</span>' + x.nom +
-        '<small>' + x.aide + '</small>';
+        '<small>' + x.aide + '</small>' +
+        (x.enAttente ? '<small class="vattente">en attente : ' + x.enAttente + '</small>' : '');
       b.addEventListener("click", ()=>{
         cles.forEach(k => { S[k] = on ? DEFAUT_STRAT[k] : x.effet[k]; });
         pushState(); renderAtkUnite(); majVite(); render();
@@ -1029,21 +1079,34 @@ function renderPresets(){
    deplier, parce qu'un +1 oublie fausse toute une soiree de calculs */
 function majVite(){
   renderPresets();
-  const caps = atkMode !== "unite" ? 0 :
-    (S.torrent ? 1 : 0) + (S.lethal ? 1 : 0) + (S.dev ? 1 : 0) +
-    (S.sustainedOn ? 1 : 0) + (S.blast ? 1 : 0) + (S.rapidOn ? 1 : 0) +
-    (S.meltaOn ? 1 : 0) + (S.critH < 6 ? 1 : 0) + (S.critW < 6 ? 1 : 0) +
-    (S.ignoresCover ? 1 : 0) + (S.indirect ? 1 : 0) + (S.ignoreMalus ? 1 : 0);
+  /* Deux encadres, deux comptes. Celui du haut ne compte que ce qui
+     vient de la table et de la liste ; celui du bas, les reglages bruts
+     et les mots-cles pretes. Un seul chiffre pour les deux ne disait
+     plus lequel des deux etait charge -- et un +1 oublie fausse toute
+     une soiree de calculs. */
   const nSit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
-    ? window.ROSTER.situations().filter(x => x.on).length : 0;
-  const n = nSit + (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
-            (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
-            (S.rrW !== "none" ? 1 : 0) + (S.cover ? 1 : 0) + caps +
-            Object.keys(condOn).filter(k => condOn[k]).length;
-  const c = el("viteCount");
-  if(c){ c.textContent = n ? n + " active" + (n > 1 ? "s" : "") : "aucune"; c.className = n ? "on" : ""; }
+    ? window.ROSTER.situations().reduce((a, x) =>
+        a + (x.choix ? (x.val || []).length : (x.on ? 1 : 0)), 0) : 0;
+  const haut = nSit + (S.cover ? 1 : 0) + (S.immobile ? 1 : 0) +
+               ((atkMode === "unite" && S.rapidOn && S.meltaOn) ? 1 : 0) +
+               Object.keys(condOn).filter(k => condOn[k]).length;
+  const bas = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
+              (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
+              (S.rrW !== "none" ? 1 : 0) + (S.critH < 6 ? 1 : 0) +
+              (S.critW < 6 ? 1 : 0) +
+              (atkMode !== "unite" ? 0 :
+                (S.torrent ? 1 : 0) + (S.lethal ? 1 : 0) + (S.dev ? 1 : 0) +
+                (S.sustainedOn ? 1 : 0) + (S.blast ? 1 : 0) +
+                (S.ignoresCover ? 1 : 0) + (S.indirect ? 1 : 0) +
+                (S.ignoreMalus ? 1 : 0));
+  const dit = (id, n) => {
+    const c = el(id); if(!c) return;
+    c.textContent = n ? n + " active" + (n > 1 ? "s" : "") : "aucune";
+    c.className = n ? "on" : "";
+  };
+  dit("viteCount", haut); dit("capCount", bas);
   const box = el("viteBox");
-  if(box) box.classList.toggle("actif", n > 0);
+  if(box) box.classList.toggle("actif", haut > 0);
 }
 
 /* ==========================================================
@@ -1292,10 +1355,10 @@ function videCaps(){
   S.critH = 6; S.critW = 6;
 }
 function majLibelleCaps(){
-  const u = atkMode === "unite";
-  const t = el("cardAbilTitre");
-  if(t) t.textContent = u ? "Ce que la partie ajoute" : "Capacités de l'arme";
-  const n = el("abilNote"); if(n) n.hidden = !u;
+  /* Le titre ne bouge plus : cet encadre dit toujours la meme chose --
+     tout ce que le jeu permet de changer, possede ou non. Seule la note
+     sur le cumul ne vaut qu'en mode unite. */
+  const n = el("abilNote"); if(n) n.hidden = atkMode !== "unite";
   renderCaps();
 }
 
@@ -1326,7 +1389,7 @@ const CAPS = [
    quand meme, en pointille, plutot que de laisser croire a un oubli. */
 const CAPS_INFO = [
   ["assault",   "Assaut",              "peut tirer après avoir avancé"],
-  ["heavy",     "Lourd",               "+1 pour toucher si l'unité n'a pas bougé — à poser dans les retouches"],
+  ["heavy",     "Lourd",               "+1 pour toucher si l'unité n'a pas bougé — coche « Resté immobile » plus haut"],
   ["pistol",    "Pistolet",            "peut tirer même engagée au corps à corps"],
   ["precision", "Précision",           "les blessures critiques peuvent viser un personnage rattaché"],
   ["oneshot",   "Tir unique",          "une seule fois par partie"],
@@ -1515,8 +1578,19 @@ global.SIM = {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti, 
         const q = ENG.normalise(profilPourMoteur(p));
         return { label: p.label, attacks: q.attacks, bs: q.bs, str: q.str,
                  ap: q.ap, apEff: ENG.apEffectif(q), dmg: q.dmg, dmgMod: q.dmgMod,
-                 hitMod: q.hitMod, wndMod: q.wndMod, rrH: q.rrH, rrW: q.rrW };
+                 hitMod: q.hitMod, wndMod: q.wndMod, rrH: q.rrH, rrW: q.rrW,
+                 critH: q.critH, critW: q.critW, heavy: !!p.heavy,
+                 ignoresCover: !!q.ignoresCover };
       }) };
+  },
+  /* poser une retouche comme le ferait un doigt sur l'ecran */
+  pose: function(k, v){ S[k] = v;
+    if(atkMode === "unite") renderAtkUnite();
+    majVite(); render(); },
+  /* les strategemes que l'ecran propose pour ce qui est charge */
+  strats: function(){
+    return (atkUnit && window.ROSTER && window.ROSTER.stratsSimu)
+      ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase) : [];
   },
   charge: function(id, ph){ atkMode = "unite"; if(ph) atkPhase = ph; atkOff = {};
     majAtkMode(); capsPourMode(); chargeUnite(id); majVite(); }};

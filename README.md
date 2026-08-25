@@ -160,12 +160,47 @@ Technomancien lui donne. Un profil saisi à la main se **garde** sous un nom et 
 rappelle d'une touche : l'application ne connaissant que les Nécrons, c'est la
 seule façon d'avoir un profil exact d'une autre faction.
 
-Sous l'attaquant, les **retouches de partie** restent visibles avec le compte
-de celles qui sont actives : modificateurs de touche, de blessure, de
-**pénétration d'armure** et de **dégâts**, relances, et quatre raccourcis pour
-les situations qui reviennent — cible à couvert, +1 pour toucher, relance des
-1, cible sur objectif. Sur une unité chargée, elles s'appliquent à tous les
-profils d'un coup.
+Sous l'attaquant, **deux encadrés, et la frontière entre eux est tout
+l'intérêt** — chacun avec le compte de ce qui y est actif.
+
+**Retouches de partie** ne montre que ce que **ton unité et ton détachement
+permettent vraiment** : la situation sur la table (cible à couvert, resté
+immobile, à mi-portée), les conditions du détachement, les stratagèmes que tu
+peux payer avec leur coût en PC, les aptitudes de fiche qui attendent une
+déclaration. Rien qui ne soit à toi.
+
+**Capacités et modifications** prend tout le reste : modificateurs de touche,
+de blessure, de pénétration d'armure et de dégâts, relances, seuils critiques,
+et les mots-clés d'arme. **Que tu les possèdes ou non** — de quoi essayer une
+combinaison avant d'aller la chercher dans une liste.
+
+Les deux étaient mélangés : « +1 pour toucher » et « relance des 1 » siégeaient
+parmi les situations, où ils ne décrivaient rien de ce que le joueur possède.
+Ils sont descendus ; **Resté immobile** les remplace, et donne son +1 aux
+seules armes **LOURDES** — la règle joue toute seule au lieu d'être posée à la
+main.
+
+Sur une unité chargée, tout cela s'applique à tous les profils d'un coup.
+
+#### Ce que le détachement permet, en entier
+
+Une règle de détachement conditionnelle ne demande pas toujours *si* elle joue.
+Le **Conclave de Crypteks** demande *laquelle* : à chaque tir d'une unité de
+CRYPTEK, une aptitude au choix parmi cinq — Anti-Infanterie 3+, Anti-Monté 4+,
+Assaut, Lourd, Ignore le couvert. L'application n'en proposait qu'une, en
+interrupteur, et les quatre autres n'existaient pas dans le simulateur. Elles y
+sont, avec leur plafond : une par tir, deux avec le stratagème *Pouvoir
+Inexploité*.
+
+Un stratagème peut aussi faire **une chose de plus quand la table s'y prête**.
+Le *Ciblage d'Aura Entrophasique* du Panthéon de Malheur relance les 1 pour
+toucher — et les 1 pour blesser **si la cible est effritée**. La condition
+existait déjà dans les retouches ; les deux sont branchées l'une sur l'autre,
+et le bouton dit ce qui lui manque tant qu'elle n'est pas déclarée.
+
+Les sept détachements du pack de faction ont ainsi tous leurs leviers réels.
+Les cinq détachements du codex n'ont **aucun stratagème** dans l'application :
+le codex n'a jamais été fourni, et rien ne s'invente ici.
 
 **En partie** — le suivi d'une partie, enregistré en continu. Un round y est ce
 qu'il est : **dix phases, cinq à toi, cinq à lui**. Un bouton fait avancer le
