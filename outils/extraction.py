@@ -233,7 +233,14 @@ def porteUnProfilUnit(n):
 # ------------------------------------------------------------------
 HORS_FICHE = {'crusade', 'warlord', 'detachment', 'detachments',
               'experience points', 'legendary veterans', 'weapon modifications',
-              'battle traits', 'battle scars', 'crusade relics'}
+              'battle traits', 'battle scars', 'crusade relics',
+              # Les optimisations. BSData accroche a chaque personnage
+              # TOUTES celles qu'il pourrait prendre, par ce lien. Sans
+              # le refuser, la fiche d'un officier de l'Astra affichait
+              # trente optimisations comme si c'etaient ses aptitudes —
+              # trente regles qu'il n'a pas. Elles ont leur table a
+              # elles, ENHANCEMENTS, et leur mecanique dans l'editeur.
+              'enhancements', 'enhancements - upgrades', 'upgrades'}
 
 def sousArbre(fiche, idx, interdits, vus=None, prof=0):
     """La fiche et tout ce qu'elle lie, à plat.
@@ -546,6 +553,10 @@ def ecrit(faction, T, stats):
     A('   modèle qui n\'a pas de socle à annoncer. */')
     A('const SOCLES = ' + json.dumps(T['SOCLES'], ensure_ascii=False, indent=1) + ';')
     A('')
+    A('/* ABIMEES : au-dessous de ce nombre de PV, le profil est dégradé.')
+    A('   Déduit des aptitudes « Damaged: 1-N Wounds Remaining ». */')
+    A('const ABIMEES = ' + json.dumps(T['ABIMEES'], ensure_ascii=False, indent=1) + ';')
+    A('')
     A('const TRANSPORTS = ' + json.dumps(T['TRANSPORTS'], ensure_ascii=False, indent=1) + ';')
     A('const FACTION = ' + json.dumps(T['FACTION'], ensure_ascii=False, indent=1) + ';')
     A('')
@@ -553,7 +564,7 @@ def ecrit(faction, T, stats):
     for nom in ['ARMEMENT', 'STRAT_SIMU', 'APTIS_CIBLE', 'RETINUE', 'ENH_ANCIENS',
                 'GRPN', 'STRATS', 'MOMENTS', 'MOMENTS_ARMEE', 'COMPO',
                 'ROLES_UNITE', 'OCTROIS_DETACH', 'APTIS_UNITE', 'APTIS_COND',
-                'AURAS_ARMEE', 'ABIMEES', 'AURAS_PERSO']:
+                'AURAS_ARMEE', 'AURAS_PERSO']:
         vide = '[]' if nom in ('STRAT_SIMU', 'STRATS', 'MOMENTS_ARMEE', 'AURAS_ARMEE') else '{}'
         A('const %s = %s;' % (nom, vide))
     A('')
@@ -738,6 +749,22 @@ def extrait(faction):
             if r: faction_regle = [[r.get('name') or '', texteRegle(r)]]
 
     # ------------------------------------------------------------------
+    # LES PROFILS DÉGRADÉS
+    # Un véhicule blessé frappe moins bien. La 11e écrit ce palier comme
+    # une aptitude nommée « Damaged: 1-4 Wounds Remaining », et ABIMEES
+    # n'en retient que le seuil : au-dessous, le profil est dégradé.
+    # C'est la seule table du simulateur qui se déduise — les autres
+    # demandent de lire la règle et de décider ce qu'elle fait au calcul.
+    # ------------------------------------------------------------------
+    ABIMEES = {}
+    for nom, liste in APTITUDES.items():
+        for titre, _ in liste:
+            m = re.match(r'\s*Damaged:\s*\d+\s*-\s*(\d+)\s*Wounds?\s+Remaining', titre, re.I)
+            if m:
+                ABIMEES[nom] = int(m.group(1))
+                break
+
+    # ------------------------------------------------------------------
     # LES SOCLES
     # Le guide nomme des figurines, l'application nomme des unités, et
     # les deux ne s'écrivent pas pareil — « Tomb Blade » contre « Tomb
@@ -760,7 +787,7 @@ def extrait(faction):
     T = dict(UNITS=UNITS, WEAPONS=WEAPONS, CAT=CAT, ATTACH=ATTACH,
              APTITUDES=APTITUDES, DETACHMENTS=DETACHMENTS,
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
-             FACTION=faction_regle, SOCLES=SOCLES)
+             FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES)
     stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM,
                  multiProfil=multiProfil, sansSocle=sansSocle,
                  guide=len(guide))
@@ -785,6 +812,7 @@ def main():
           (len(T['WEAPONS']), len(T['APTITUDES']), len(T['ATTACH'])))
     print('  %d détachements, %d optimisations, %d transports' %
           (len(T['DETACHMENTS']), len(T['ENHANCEMENTS']), len(T['TRANSPORTS'])))
+    print('  %d profils dégradés' % len(T['ABIMEES']))
     print('  %d socles sur %d fiches%s'
           % (len(T['SOCLES']), len(T['UNITS']),
              '' if not stats['guide'] else

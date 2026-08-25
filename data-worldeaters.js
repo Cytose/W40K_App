@@ -329,94 +329,6 @@ const APTITUDES = {
    "Once per battle round, one model from your army with this ability can use it when a friendly World Eaters unit within 12\" of this model is targeted with a Stratagem. If it does, reduce the CP cost of that Stratagem by 1CP."
   ],
   [
-   "Berzerker Glaive",
-   "Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer."
-  ],
-  [
-   "Battle-lust",
-   "You can re-roll Charge rolls made for the bearer's unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer's unit."
-  ],
-  [
-   "Helm of Brazen Ire",
-   "Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Favoured of Khorne",
-   "Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to 2 of the D6 rolled."
-  ],
-  [
-   "Archslaughterer",
-   "(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn."
-  ],
-  [
-   "Gateways to Glory",
-   "This model has: \n- MOBILE. \n- +1 to charge rolls."
-  ],
-  [
-   "Brazen Form",
-   "Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability."
-  ],
-  [
-   "Butcher Lord",
-   "The bearer has the Infiltrators ability."
-  ],
-  [
-   "Chosen of the Blood God",
-   "Add 3\" to the range of the bearer's Aura abilities."
-  ],
-  [
-   "Strategic Slaughter",
-   "After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves."
-  ],
-  [
-   "Disciple of Khorne",
-   "The bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword."
-  ],
-  [
-   "Blood-forged Armour",
-   "The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point."
-  ],
-  [
-   "Icon of War",
-   "While a friendly Blood Legions unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly Blood Legions unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit."
-  ],
-  [
-   "Blade of Endless Bloodshed",
-   "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. Each time the bearer's unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead."
-  ],
-  [
-   "Frenzied Focus",
-   "Each time a model in the bearer's unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6."
-  ],
-  [
-   "Killing Clarity",
-   "Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP."
-  ],
-  [
-   "Violent Demise",
-   "The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability."
-  ],
-  [
-   "Malicious Vigour",
-   "Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved."
-  ],
-  [
-   "Aggressive Deployment",
-   "In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability."
-  ],
-  [
-   "Unleash Hell",
-   "At the start of your Shooting phase, you can select one Vehicle model within 6\" of the bearer or, if the bearer is embarked within a Transport, you can select that Transport model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Infernal Infusion",
-   "Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability."
-  ],
-  [
-   "Murderous Onslaught",
-   "If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -429,94 +341,6 @@ const APTITUDES = {
   [
    "Swooping Predator",
    "Each time this model ends a Normal or Advance move, you can select one enemy unit that it moved over during that move and roll 6 D6: for each 4+, that enemy unit suffers 1 mortal wound."
-  ],
-  [
-   "Berzerker Glaive",
-   "Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer."
-  ],
-  [
-   "Battle-lust",
-   "You can re-roll Charge rolls made for the bearer's unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer's unit."
-  ],
-  [
-   "Helm of Brazen Ire",
-   "Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Favoured of Khorne",
-   "Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to 2 of the D6 rolled."
-  ],
-  [
-   "Archslaughterer",
-   "(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn."
-  ],
-  [
-   "Gateways to Glory",
-   "This model has: \n- MOBILE. \n- +1 to charge rolls."
-  ],
-  [
-   "Brazen Form",
-   "Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability."
-  ],
-  [
-   "Butcher Lord",
-   "The bearer has the Infiltrators ability."
-  ],
-  [
-   "Chosen of the Blood God",
-   "Add 3\" to the range of the bearer's Aura abilities."
-  ],
-  [
-   "Strategic Slaughter",
-   "After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves."
-  ],
-  [
-   "Disciple of Khorne",
-   "The bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword."
-  ],
-  [
-   "Blood-forged Armour",
-   "The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point."
-  ],
-  [
-   "Icon of War",
-   "While a friendly Blood Legions unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly Blood Legions unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit."
-  ],
-  [
-   "Blade of Endless Bloodshed",
-   "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. Each time the bearer's unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead."
-  ],
-  [
-   "Frenzied Focus",
-   "Each time a model in the bearer's unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6."
-  ],
-  [
-   "Killing Clarity",
-   "Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP."
-  ],
-  [
-   "Violent Demise",
-   "The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability."
-  ],
-  [
-   "Malicious Vigour",
-   "Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved."
-  ],
-  [
-   "Aggressive Deployment",
-   "In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability."
-  ],
-  [
-   "Unleash Hell",
-   "At the start of your Shooting phase, you can select one Vehicle model within 6\" of the bearer or, if the bearer is embarked within a Transport, you can select that Transport model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Infernal Infusion",
-   "Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability."
-  ],
-  [
-   "Murderous Onslaught",
-   "If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit."
   ],
   [
    "Blessings of Khorne",
@@ -537,94 +361,6 @@ const APTITUDES = {
    "This model can be attached to the following units: Eightbound, Exalted Eightbound, Khorne Berzerkers"
   ],
   [
-   "Berzerker Glaive",
-   "Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer."
-  ],
-  [
-   "Battle-lust",
-   "You can re-roll Charge rolls made for the bearer's unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer's unit."
-  ],
-  [
-   "Helm of Brazen Ire",
-   "Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Favoured of Khorne",
-   "Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to 2 of the D6 rolled."
-  ],
-  [
-   "Archslaughterer",
-   "(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn."
-  ],
-  [
-   "Gateways to Glory",
-   "This model has: \n- MOBILE. \n- +1 to charge rolls."
-  ],
-  [
-   "Brazen Form",
-   "Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability."
-  ],
-  [
-   "Butcher Lord",
-   "The bearer has the Infiltrators ability."
-  ],
-  [
-   "Chosen of the Blood God",
-   "Add 3\" to the range of the bearer's Aura abilities."
-  ],
-  [
-   "Strategic Slaughter",
-   "After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves."
-  ],
-  [
-   "Disciple of Khorne",
-   "The bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword."
-  ],
-  [
-   "Blood-forged Armour",
-   "The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point."
-  ],
-  [
-   "Icon of War",
-   "While a friendly Blood Legions unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly Blood Legions unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit."
-  ],
-  [
-   "Blade of Endless Bloodshed",
-   "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. Each time the bearer's unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead."
-  ],
-  [
-   "Frenzied Focus",
-   "Each time a model in the bearer's unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6."
-  ],
-  [
-   "Killing Clarity",
-   "Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP."
-  ],
-  [
-   "Violent Demise",
-   "The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability."
-  ],
-  [
-   "Malicious Vigour",
-   "Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved."
-  ],
-  [
-   "Aggressive Deployment",
-   "In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability."
-  ],
-  [
-   "Unleash Hell",
-   "At the start of your Shooting phase, you can select one Vehicle model within 6\" of the bearer or, if the bearer is embarked within a Transport, you can select that Transport model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Infernal Infusion",
-   "Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability."
-  ],
-  [
-   "Murderous Onslaught",
-   "If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -641,94 +377,6 @@ const APTITUDES = {
   [
    "Forwards, For Blood!",
    "While this model is leading a unit, you can re-roll Advance rolls made for that unit and each time that unit makes a Blood Surge move, you can re-roll the D6 used to determine how far models in that unit move."
-  ],
-  [
-   "Berzerker Glaive",
-   "Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer."
-  ],
-  [
-   "Battle-lust",
-   "You can re-roll Charge rolls made for the bearer's unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer's unit."
-  ],
-  [
-   "Helm of Brazen Ire",
-   "Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Favoured of Khorne",
-   "Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to 2 of the D6 rolled."
-  ],
-  [
-   "Archslaughterer",
-   "(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn."
-  ],
-  [
-   "Gateways to Glory",
-   "This model has: \n- MOBILE. \n- +1 to charge rolls."
-  ],
-  [
-   "Brazen Form",
-   "Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability."
-  ],
-  [
-   "Butcher Lord",
-   "The bearer has the Infiltrators ability."
-  ],
-  [
-   "Chosen of the Blood God",
-   "Add 3\" to the range of the bearer's Aura abilities."
-  ],
-  [
-   "Strategic Slaughter",
-   "After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves."
-  ],
-  [
-   "Disciple of Khorne",
-   "The bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword."
-  ],
-  [
-   "Blood-forged Armour",
-   "The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point."
-  ],
-  [
-   "Icon of War",
-   "While a friendly Blood Legions unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly Blood Legions unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit."
-  ],
-  [
-   "Blade of Endless Bloodshed",
-   "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. Each time the bearer's unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead."
-  ],
-  [
-   "Frenzied Focus",
-   "Each time a model in the bearer's unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6."
-  ],
-  [
-   "Killing Clarity",
-   "Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP."
-  ],
-  [
-   "Violent Demise",
-   "The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability."
-  ],
-  [
-   "Malicious Vigour",
-   "Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved."
-  ],
-  [
-   "Aggressive Deployment",
-   "In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability."
-  ],
-  [
-   "Unleash Hell",
-   "At the start of your Shooting phase, you can select one Vehicle model within 6\" of the bearer or, if the bearer is embarked within a Transport, you can select that Transport model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Infernal Infusion",
-   "Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability."
-  ],
-  [
-   "Murderous Onslaught",
-   "If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit."
   ],
   [
    "Blessings of Khorne",
@@ -819,18 +467,6 @@ const APTITUDES = {
    "While this model has 1-5 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."
   ],
   [
-   "Talons of Butchery",
-   "This unit’s Maulerfiend Fists have [CLEAVE 2]."
-  ],
-  [
-   "Murder-forged Entity",
-   "This unit has DAEMON."
-  ],
-  [
-   "Terror of Khorne",
-   "At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -841,18 +477,6 @@ const APTITUDES = {
    "Each time this model makes a ranged attack that targets the closest eligible Monster or Vehicle target within 18\", you can re-roll the Wound roll and you can re-roll the Damage roll."
   ],
   [
-   "Talons of Butchery",
-   "This unit’s Maulerfiend Fists have [CLEAVE 2]."
-  ],
-  [
-   "Murder-forged Entity",
-   "This unit has DAEMON."
-  ],
-  [
-   "Terror of Khorne",
-   "At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -861,18 +485,6 @@ const APTITUDES = {
   [
    "Punishing Suppression",
    "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks (excluding Monsters and Vehicles*). Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Talons of Butchery",
-   "This unit’s Maulerfiend Fists have [CLEAVE 2]."
-  ],
-  [
-   "Murder-forged Entity",
-   "This unit has DAEMON."
-  ],
-  [
-   "Terror of Khorne",
-   "At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase."
   ],
   [
    "Blessings of Khorne",
@@ -921,18 +533,6 @@ const APTITUDES = {
    "If this model is equipped with 2 melee weapons in addition to its close combat weapon, add 2 to the Attacks characteristic of those two weapons."
   ],
   [
-   "Talons of Butchery",
-   "This unit’s Maulerfiend Fists have [CLEAVE 2]."
-  ],
-  [
-   "Murder-forged Entity",
-   "This unit has DAEMON."
-  ],
-  [
-   "Terror of Khorne",
-   "At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -965,14 +565,6 @@ const APTITUDES = {
    "At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase."
   ],
   [
-   "Talons of Butchery",
-   "This unit’s Maulerfiend Fists have [CLEAVE 2]."
-  ],
-  [
-   "Murder-forged Entity",
-   "This unit has DAEMON."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -981,18 +573,6 @@ const APTITUDES = {
   [
    "Meet Any Challenge",
    "In your opponent's Movement phase, each time an enemy unit is set up or ends a Normal, Advance or Fall Back move within 8\" of this model, any units embarked within it can disembark."
-  ],
-  [
-   "Talons of Butchery",
-   "This unit’s Maulerfiend Fists have [CLEAVE 2]."
-  ],
-  [
-   "Murder-forged Entity",
-   "This unit has DAEMON."
-  ],
-  [
-   "Terror of Khorne",
-   "At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase."
   ],
   [
    "Blessings of Khorne",
@@ -1055,94 +635,6 @@ const APTITUDES = {
    "If this model is attached to a World Eaters Possessed unit during the Declare Battle Formations step, this model has the Deep Strike and Scouts 6\" abilities."
   ],
   [
-   "Berzerker Glaive",
-   "Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer."
-  ],
-  [
-   "Battle-lust",
-   "You can re-roll Charge rolls made for the bearer's unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer's unit."
-  ],
-  [
-   "Helm of Brazen Ire",
-   "Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Favoured of Khorne",
-   "Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to 2 of the D6 rolled."
-  ],
-  [
-   "Archslaughterer",
-   "(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn."
-  ],
-  [
-   "Gateways to Glory",
-   "This model has: \n- MOBILE. \n- +1 to charge rolls."
-  ],
-  [
-   "Brazen Form",
-   "Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability."
-  ],
-  [
-   "Butcher Lord",
-   "The bearer has the Infiltrators ability."
-  ],
-  [
-   "Chosen of the Blood God",
-   "Add 3\" to the range of the bearer's Aura abilities."
-  ],
-  [
-   "Strategic Slaughter",
-   "After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves."
-  ],
-  [
-   "Disciple of Khorne",
-   "The bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword."
-  ],
-  [
-   "Blood-forged Armour",
-   "The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point."
-  ],
-  [
-   "Icon of War",
-   "While a friendly Blood Legions unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly Blood Legions unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit."
-  ],
-  [
-   "Blade of Endless Bloodshed",
-   "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. Each time the bearer's unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead."
-  ],
-  [
-   "Frenzied Focus",
-   "Each time a model in the bearer's unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6."
-  ],
-  [
-   "Killing Clarity",
-   "Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP."
-  ],
-  [
-   "Violent Demise",
-   "The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability."
-  ],
-  [
-   "Malicious Vigour",
-   "Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved."
-  ],
-  [
-   "Aggressive Deployment",
-   "In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability."
-  ],
-  [
-   "Unleash Hell",
-   "At the start of your Shooting phase, you can select one Vehicle model within 6\" of the bearer or, if the bearer is embarked within a Transport, you can select that Transport model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Infernal Infusion",
-   "Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability."
-  ],
-  [
-   "Murderous Onslaught",
-   "If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit."
-  ],
-  [
    "Blessings of Khorne",
    "If your Army Faction is World Eaters, at the start of the battle round, you can make a Blessings of Khorne roll. To do so, roll eight D6. You can then use those dice to activate up to two Blessings of Khorne. Each Blessing of Khorne specifies the dice results it requires (where a number is specified, a double or triple of that value or higher is required). You can only activate each Blessing of Khorne once per battle round. Any unused dice from the Blessings of Khorne roll are then discarded. Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round.\n\nExample: Ash makes their Blessings of Khorne roll and gets the following dice: 1, 2, 2, 2, 3, 4, 6, 6. First they use the two 6s to activate Warp Blades (which requires a double 5+), leaving the following dice: 1, 2, 2, 2, 3, 4.\nThey then use the two 2s to activate Wrathful Devotion (which requires any double), leaving the following dice: 1, 2, 3, 4.\nHowever, now that they have activated two Blessings of Khorne, they cannot activate any more and the remaining dice are discarded."
   ]
@@ -1173,94 +665,6 @@ const APTITUDES = {
   [
    "Damaged: 1-6 wounds remaining",
    "While this model has 1-6 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Berzerker Glaive",
-   "Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer."
-  ],
-  [
-   "Battle-lust",
-   "You can re-roll Charge rolls made for the bearer's unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer's unit."
-  ],
-  [
-   "Helm of Brazen Ire",
-   "Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Favoured of Khorne",
-   "Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to 2 of the D6 rolled."
-  ],
-  [
-   "Archslaughterer",
-   "(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn."
-  ],
-  [
-   "Gateways to Glory",
-   "This model has: \n- MOBILE. \n- +1 to charge rolls."
-  ],
-  [
-   "Brazen Form",
-   "Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability."
-  ],
-  [
-   "Butcher Lord",
-   "The bearer has the Infiltrators ability."
-  ],
-  [
-   "Chosen of the Blood God",
-   "Add 3\" to the range of the bearer's Aura abilities."
-  ],
-  [
-   "Strategic Slaughter",
-   "After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves."
-  ],
-  [
-   "Disciple of Khorne",
-   "The bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword."
-  ],
-  [
-   "Blood-forged Armour",
-   "The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point."
-  ],
-  [
-   "Icon of War",
-   "While a friendly Blood Legions unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly Blood Legions unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit."
-  ],
-  [
-   "Blade of Endless Bloodshed",
-   "Add 1 to the Attacks, Strength and Damage characteristics of the bearer's melee weapons. Each time the bearer's unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead."
-  ],
-  [
-   "Frenzied Focus",
-   "Each time a model in the bearer's unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6."
-  ],
-  [
-   "Killing Clarity",
-   "Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP."
-  ],
-  [
-   "Violent Demise",
-   "The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability."
-  ],
-  [
-   "Malicious Vigour",
-   "Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved."
-  ],
-  [
-   "Aggressive Deployment",
-   "In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability."
-  ],
-  [
-   "Unleash Hell",
-   "At the start of your Shooting phase, you can select one Vehicle model within 6\" of the bearer or, if the bearer is embarked within a Transport, you can select that Transport model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Infernal Infusion",
-   "Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability."
-  ],
-  [
-   "Murderous Onslaught",
-   "If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit."
   ]
  ],
  "Bloodletters": [
@@ -1426,6 +830,16 @@ const SOCLES = {
  "Flesh Hounds": "60x35.5"
 };
 
+/* ABIMEES : au-dessous de ce nombre de PV, le profil est dégradé.
+   Déduit des aptitudes « Damaged: 1-N Wounds Remaining ». */
+const ABIMEES = {
+ "Angron": 6,
+ "Chaos Land Raider": 5,
+ "Khorne Lord of Skulls": 8,
+ "Skarbrand": 7,
+ "Bloodthirster": 6
+};
+
 const TRANSPORTS = {
  "Chaos Land Raider": "This model has a transport capacity of 14 ^^**World Eaters Infantry^^** models. Each ^^**Possessed^^** and ^^**Terminator^^** model takes up the space of 2 models.",
  "Chaos Rhino": "This model has a transport capacity of 12 ^^**World Eaters Infantry**^^ models. It cannot transport ^^**Possessed^^** or ^^**Terminator^^** models."
@@ -1453,7 +867,6 @@ const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
 const APTIS_COND = {};
 const AURAS_ARMEE = [];
-const ABIMEES = {};
 const AURAS_PERSO = {};
 
 enregistreFaction({

@@ -95,6 +95,22 @@ for (const F of registre) {
       jouablesSansSocle: UNITS.filter(u => !u[10] && !SOCLES[u[0]]).map(u => u[0]),
       soclesOrphelins: Object.keys(SOCLES).filter(n => !noms.has(n)),
 
+      /* Une aptitude qui porte le nom d'une OPTIMISATION, sur plusieurs
+         fiches à la fois, n'est pas une aptitude : c'est BSData qui
+         accroche à chaque personnage tout ce qu'il pourrait prendre. La
+         fiche affiche alors des règles que l'unité n'a pas — un écran
+         qui ment, et rien d'autre ne le signale. Sur une seule fiche
+         c'est plausible : un équipement peut porter le même nom. */
+      aptisQuiSontDesOptims: (() => {
+        const opt = new Set(ENHANCEMENTS.map(e => e[0].toLowerCase()));
+        const combien = {};
+        Object.values(APTITUDES).forEach(l => l.forEach(([n]) => {
+          const k = String(n).toLowerCase();
+          if (opt.has(k)) combien[n] = (combien[n] || 0) + 1;
+        }));
+        return Object.entries(combien).filter(([, n]) => n > 1).map(([n, c]) => n + ' ×' + c);
+      })(),
+
       /* le balisage du catalogue ne doit pas atteindre l'écran */
       balisees: textes.filter(balise).length,
       regle: FACTION.length ? FACTION[0][0] : ''
@@ -128,6 +144,7 @@ if (R.unitesSansArme.length)
     R.unitesSansArme.join(', ') + ')');
 dit('presque toutes les fiches portent une arme',
   R.unitesSansArme.length / R.unites, v => v <= 0.05);
+  dit('aucune optimisation déguisée en aptitude', R.aptisQuiSontDesOptims, []);
   dit('toute unité jouable a son socle', R.jouablesSansSocle, []);
 /* Un socle qui ne désigne aucune fiche n'est pas un mensonge : il ne
    sert à rien, voilà tout. Il y en a deux dans la table nécrone relue à
