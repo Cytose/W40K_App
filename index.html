@@ -136,6 +136,16 @@ header{
   background:linear-gradient(135deg,var(--green) 45%,transparent 45%);
 }
 .card > h2 .chev{margin-left:auto;color:var(--tx3);font-size:11px;transition:transform .18s}
+/* Un reglage d'affichage loge dans l'en-tete d'une carte : la, il ne
+   repousse rien de ce qui suit. */
+.card > h2 .minibtn{
+  margin-left:auto;font:inherit;font-size:10.5px;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line-hi);background:var(--s1);color:var(--tx2);
+}
+.card > h2 .minibtn[aria-pressed="true"]{
+  border-color:var(--acc-bd);background:var(--glow-soft);color:var(--glow);
+}
 .card.collapsed > h2{border-bottom-color:transparent}
 .card.collapsed > h2 .chev{transform:rotate(-90deg)}
 .card.collapsed > .body{display:none}
@@ -1226,6 +1236,23 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   background:linear-gradient(90deg,var(--green),var(--glow))}
 .top .tr.mien .tn b::after{content:"\00a0\25c6";color:var(--glow);font-size:9px}
 
+
+/* ---------- axe Plateau ----------
+   Le plateau est un dessin a l'echelle : il n'a pas de taille propre,
+   il prend la largeur disponible et garde son rapport 60 x 44. */
+#mapSvg{
+  display:block;width:100%;height:auto;aspect-ratio:63/47;overflow:hidden;
+  touch-action:none;user-select:none;-webkit-user-select:none;
+  background:var(--s2);border:1px solid var(--line);border-radius:8px;
+}
+#mapSvg text{font-family:inherit;font-weight:700}
+.maplg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:9px;font-size:10.5px;color:var(--tx3)}
+.maplg i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px;
+  border-radius:2px}
+.pastille{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px}
+#scMap .opt.sel{border-color:var(--glow);background:var(--glow-soft)}
+#scMap .chips{padding-left:0;padding-right:0;margin-left:0;margin-right:0}
+#scMap .seg{gap:6px}
 </style>
 </head>
 <body>
@@ -1751,12 +1778,17 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
 </div>
+
+<div class="screen" id="scMap">
+  <div id="mapBody"></div>
+</div>
 </main>
 
 <nav class="tabs" id="tabs">
   <button type="button" class="on" data-s="scList"><span class="ti">☷</span>Listes</button>
   <button type="button" data-s="scSim"><span class="ti">◈</span>Simulateur</button>
   <button type="button" data-s="scPlay"><span class="ti">⚔</span>En partie</button>
+  <button type="button" data-s="scMap"><span class="ti">▦</span>Plateau</button>
 </nav>
 
 <div class="tip" id="tip"></div>
@@ -1802,5 +1834,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <script src="engine.js"></script>
 <script src="app.js"></script>
 <script src="roster.js"></script>
+<script src="layouts.js"></script>
+<script src="plateau.js"></script>
 </body>
 </html>

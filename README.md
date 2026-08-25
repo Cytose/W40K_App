@@ -34,6 +34,36 @@ autonome produit est `dist/W40K_App.html`, à recopier à la racine.
 Le **lien de partage** n'est proposé que sur une version servie en HTTP ;
 depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 
+## Travailler à plusieurs
+
+Le dépôt porte quatre branches, et une règle simple : **une branche appartient
+à une personne, et personne d'autre ne la réécrit.**
+
+| Branche | À qui | Qui la réécrit |
+|---|---|---|
+| `main` | tout le monde | personne directement — on y arrive par fusion d'une PR |
+| `dev/kevin` | Kevin | Kevin seul |
+| `dev/Guillaume` | Guillaume | Guillaume seul |
+| `claude/...` | l'assistant | l'assistant seul |
+
+Cette règle est née d'une panne. Après chaque fusion, les branches `dev/*`
+étaient réalignées sur `main` par un `push --force`. Vu du dépôt, c'était
+propre : tout le monde repartait de la dernière version. Vu de celui qui
+travaillait dessus, sa branche changeait sous ses pieds, et son `push` suivant
+était refusé — *non-fast-forward*. Le symptôme ressemble à un problème de
+droits ; ce n'en est pas un.
+
+**Pour récupérer les derniers changements, c'est à toi de tirer, quand tu
+veux :**
+
+```
+git fetch origin
+git merge origin/main        # ou : git rebase origin/main
+```
+
+Personne ne pousse dans la branche d'un autre. Une branche qu'on ne contrôle
+pas est une branche sur laquelle on ne peut pas travailler.
+
 ## Contenu
 
 | Fichier | Rôle |
@@ -43,6 +73,8 @@ depuis un fichier local, il faut passer par « Exporter / importer la liste ».
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | axes Listes et En partie, vue Comparer, fiche d'unité, partage, encodeur QR |
+| `layouts.js` | les 45 dispositions de champ de bataille : zones de déploiement, objectifs, décors, missions primaires |
+| `plateau.js` | axe Plateau |
 | `sw.js` | service worker (mode hors-ligne) |
 | `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
 | `vercel.json` | pointe le déploiement sur `dist/` |
@@ -68,11 +100,11 @@ Sans `vercel.json`, Vercel exécute `npm run build` puis cherche un dossier
 `public` : il n'en trouve pas, le déploiement échoue, et le site reste figé sur
 la dernière version publiée avant l'ajout de `package.json`.
 
-## Les trois axes
+## Les quatre axes
 
-L'application est organisée en trois axes, qui correspondent aux trois moments
+L'application est organisée en quatre axes, qui correspondent aux quatre moments
 d'une partie. Elle s'ouvre sur le premier : on construit sa liste avant de la
-mesurer, et on la mesure avant de la jouer.
+mesurer, on la mesure avant de la poser, et on la pose avant de la jouer.
 
 **Listes** — s'ouvre sur l'index de ce qu'on a construit. C'est là que vit le
 cycle de vie d'une liste : créer, et par le bouton `⋯` de chaque carte ouvrir,
@@ -151,6 +183,43 @@ S'y ajoutent points de commandement, unités encore debout, points de vie
 restants par unité et par personnage rattaché, réanimation D3 sur toute l'armée,
 score primaire et secondaire, et journal du tour. La liste ouverte reste
 consultable en dessous, en lecture seule.
+
+**Plateau** — la table telle qu'elle sera. Le croisement de ta Disposition de
+Force et de celle d'en face désigne une des quinze cartes officielles, chacune
+en trois variantes : l'écran affiche celle-là, avec les deux zones de
+déploiement, les objectifs et le décor, à l'échelle sur 44 × 60 pouces et sur
+une grille de six.
+
+La Disposition vient du détachement retenu ; quand plusieurs détachements en
+ouvrent plusieurs, on choisit. Les deux missions primaires que le croisement
+génère sont nommées, la tienne et la sienne.
+
+En dessous, les unités de la liste en service. Toucher une unité la pose dans
+ta zone, **figurine par figurine** : dix Guerriers sont dix socles de 32 mm à
+l'échelle du plateau, posés en quinconce, resserrés jusqu'à ce que l'unité
+tienne dans ses 9 pouces de prise au sol. Les socles viennent du **Base Size
+Guide** de l'Event Companion, ovales compris — une Arche du Jugement occupe ses
+120 × 92 mm, pas un rond de convenance.
+
+On déplace **l'unité entière ou une seule figurine**, au choix, et la
+**distance parcourue s'affiche en pouces sur le plateau pendant le geste**, avec
+ce qu'il reste du mouvement de l'unité. La **cohésion** se vérifie en même
+temps : une figurine à plus de 2 pouces bord à bord de sa voisine — de ses deux
+voisines dès sept figurines — se cerne de rouge, et la prise au sol de l'unité
+est annoncée, signalée au-delà de 9 pouces. « Reformer en quinconce » remet
+l'escouade d'aplomb autour de son centre.
+
+Chaque socle porte la **couleur de la famille de son métier**, et un personnage
+rattaché se distingue par un point clair. L'unité sélectionnée montre ses
+**portées de menace** — mouvement, mouvement + charge (7 pouces, la moyenne de
+2D6, pas une garantie), mouvement + portée de son arme la plus longue, mesurées
+depuis le bord de sa prise au sol — et l'écran dit si elle est toute dans ta
+zone, à cheval, ou dehors.
+
+Le décor officiel est déjà en place. Les cinq empreintes du pack de terrain
+restent disponibles pour le corriger ou éprouver une autre table ; positions et
+décor ajouté sont enregistrés par liste.
+
 
 ## Fonctions
 
@@ -463,6 +532,231 @@ et prend un M de 14″, exactement la refonte que BSData avait déjà relevée s
 le Night Scythe. Ce rattachement est signalé comme déduction sur les deux
 fiches.
 
+## Compagnon de Rencontre, 22/08/2026
+
+Un troisième document officiel s'est ajouté : le **Compagnon de Rencontre
+Warhammer version 1.1**, celui qui porte les 45 agencements de terrain.
+
+Il a d'abord servi à trancher une règle que l'application appliquait de
+travers. Les Règles de Base, section 08.02, disent qu'à l'étape des PC de
+Base « chaque joueur gagne 1 Point de Commandement », et l'encadré de la page
+30 précise « à chaque tour ». Il y a deux phases de Commandement par round de
+bataille : chaque joueur en gagne donc **deux par round**, un au sien, un à
+celui d'en face. L'application n'en accordait qu'un, au tour de son seul
+propriétaire. Le Compagnon confirme la lecture en plafonnant l'autre moitié :
+« à l'exclusion des PC de Base, chaque joueur gagne un maximum de 1 PC par
+round de bataille ».
+
+Le même document fixe les plafonds de score, que l'axe En partie ignorait :
+45 PdV pour la mission principale, 45 pour les missions secondaires, 10 pour
+une armée peinte au standard Paré au Combat, et « tout PdV marqué au-delà de
+ces maximums est ignoré ». Les compteurs s'arrêtent maintenant à leur plafond,
+l'affichent, et la ligne de l'armée peinte a été ajoutée : le total va de 0 à
+100.
+
+Enfin, il donne la liste des gabarits de zones de terrain employés par les
+agencements recommandés, avec leur quantité — 7″ × 11,5″ ×4, 8″ × 11,5″
+polygonal ×2, 10″ × 2,5″ ×2, 6″ × 4″ ×4, 6″ × 2″ ×4, soit seize zones par
+agencement. C'est une source entièrement indépendante de 40kdc-data, d'où
+`layouts.js` est produit. `npm run gabarits` mesure les 720 zones des 45
+cartes et retrouve **les cinq gabarits au compte officiel exact**, ce qui
+vérifie la géométrie générée au lieu de la supposer.
+
+Mesurer demandait une précaution : une boîte englobante alignée sur les axes
+gonfle dès qu'une pièce est posée de biais, et englobe les petites
+excroissances par lesquelles l'ombre d'une ruine déborde de sa zone. Le
+gabarit de 10″ × 2,5″ se lisait ainsi 10,2 × 3,4. On mesure donc l'écartement
+des deux longs côtés porteurs. Le gabarit polygonal, lui, n'est pas un
+rectangle — le document le dit — et se reconnaît par élimination.
+
+Une lacune du glossaire a été comblée au passage : **Mouvement d'Éclaireur**
+(24.32), qui manquait alors que les 35 autres aptitudes de la section 24 y
+étaient. Et le rappel de la phase de Charge parlait encore de
+« Surveillance », nom que la 11e a remplacé par **Tir en État d'Alerte**.
+
+Trois vérifications sont rejouables : `npm run gabarits` (les gabarits
+officiels), `npm run dispositions-test` (les invariants de géométrie) et
+`node outils/test-pc.mjs` (le gain de PC, navigateur, site servi sur `:8099`
+ou `$SITE`).
+
+## Le plateau, couché ou debout
+
+Le plateau est **stocké en portrait**, comme la carte officielle : 44″ de large
+sur 60″ de long, origine en haut à gauche. Il s'affichait toujours **couché**,
+parce qu'un plateau debout ne laisse presque rien voir sur un téléphone —
+`X = y`, `Y = 44 − x`, et les angles perdent 90°.
+
+Le problème n'est apparu qu'en comparant l'écran au document : couchée, la
+diagonale d'une zone de déploiement penche dans l'autre sens que sur la carte
+imprimée. Rien n'est faux, mais on ne peut plus rien vérifier — impossible de
+dire si c'est la donnée qui se trompe ou l'affichage.
+
+Un bouton **Redresser** a donc été posé dans l'en-tête de la carte. Debout,
+l'écran reprend exactement l'orientation de la carte officielle, et les deux se
+superposent. La donnée ne bouge pas : seule la projection change.
+
+`node outils/test-orientation.mjs` l'établit dans les deux sens, sur la carte
+Sabotage variante B — deux triangles, le cas où une erreur d'orientation se
+verrait le plus. Couché, les sommets dessinés sont l'image exacte de
+`X = y, Y = 44 − x` appliquée à `layouts.js` ; debout, ce sont les sommets de
+`layouts.js`, sans transformation. Huit contrôles.
+
+Le bouton est dans l'en-tête et non sous le plateau, et ce n'est pas un détail :
+posé dans le corps de la carte, il repoussait tout ce qui suit de quarante
+pixels, et `test-plateau.mjs` — qui clique à des coordonnées absolues — touchait
+un autre bouton. Deux de ses contrôles tombaient. Dans l'en-tête, rien ne bouge.
+
+## Le fond de carte
+
+L'axe Plateau pose **la page officielle d'un agencement sous la géométrie**.
+Les 45 sont livrées avec l'application : carte « Fond de carte », curseur
+d'opacité, et « Masquer » si on veut le tracé seul.
+
+Elles viennent du **Compagnon de Rencontre Warhammer v1.1**, publié
+gratuitement par Games Workshop, et sont produites par
+`python3 outils/cartes-images.py <dossier-des-pages>` : le plateau seul,
+découpé de sa page et réduit à 620 pixels de large — quatorze pixels au pouce,
+ce qu'il faut sous un calque à demi opacité. 66 Ko pièce, 2,9 Mo pour les 45.
+Voir `cartes/LISEZ-MOI.md` pour la provenance et les droits : ces images
+appartiennent à Games Workshop, et cette application ne lui est pas affiliée.
+
+Sur le site elles sont un fichier chacune, demandé seulement quand on le
+regarde. Dans le fichier autonome la construction les replie en `data:` — il
+n'y a plus de réseau pour aller les chercher — ce qui le fait passer de 677 Ko
+à **4,6 Mo**. C'est le prix du hors-ligne.
+
+**Deux calques, deux curseurs.** L'un règle l'opacité de la page officielle,
+l'autre celle du tracé généré — zones, décors et objectifs, réunis dans un seul
+groupe SVG. On fait varier l'un puis l'autre et on voit, à l'œil, si les deux
+coïncident : c'est la vérification que les chiffres de `npm run cartes` donnent
+en colonnes. Les figurines posées restent hors du calque et donc toujours
+visibles : ce sont les pièces du joueur, pas le modèle à vérifier.
+
+« Charger la mienne… » remplace l'image livrée par un meilleur tirage ; elle
+reste dans le navigateur, rangée dans IndexedDB, et « Reprendre celle
+d'origine » revient à celle du dépôt.
+
+Le calage est automatique. Sur ces pages, le plateau est un rectangle bordé
+d'un trait noir : on le retrouve en cherchant, ligne par ligne et colonne par
+colonne, une plage **continue** de pixels sombres assez longue. Compter les
+pixels sombres ne suffirait pas — un filet de mise en page en aligne autant —
+mais seul le cadre porte une plage d'un seul tenant sur presque toute la
+largeur. C'est la règle de `outils/cartes-officielles.py`, portée en
+JavaScript, et elle écarte au passage les repères de bord attaquant et
+défenseur, qu'ils soient horizontaux ou verticaux. Si aucun cadre n'est
+reconnu, l'image est posée telle quelle et l'application le dit, plutôt que de
+caler de travers en silence.
+
+Le fond suit l'orientation : couché, il pivote d'un quart de tour comme la
+géométrie. Il est rangé dans IndexedDB — une image recadrée pèse quelques
+centaines de kilo-octets, trop pour `localStorage` dès la deuxième — et
+survit donc au rechargement.
+
+`node outils/test-fond.mjs <page.png>` éprouve les douze points qui peuvent
+casser sans bruit. Deux ont déjà lâché.
+
+La relecture appelait une variable absente de `plateau.js` : la promesse levait
+une `ReferenceError` avalée en silence, et le fond ne revenait jamais après
+rechargement. Rien à la console, un écran d'apparence normale.
+
+Et la carte ne s'ouvrait pas du tout. `plateau.js` porte déjà un gestionnaire
+**délégué** sur `#scMap .card > h2` — les cartes de cet axe sont créées après
+coup, donc rebranchées ainsi. Le mien basculait la classe une seconde fois :
+elle s'enlevait puis se remettait. L'état d'ouverture se retient maintenant
+dans ce gestionnaire, comme celui de la carte des décors.
+
+Cette seconde faute avait échappé à la suite parce que la suite trichait :
+elle retirait la classe `collapsed` à la main au lieu de cliquer l'en-tête.
+Elle passait donc au vert sur une carte qui ne s'ouvrait pas. Elle clique
+désormais, comme un doigt — et remise dans son état d'avant, elle tombe bien
+sur le bug.
+
+## Les zones confrontées aux pages officielles
+
+`layouts.js` vient de 40kdc-data ; le Compagnon de Rencontre imprime les
+45 agencements. Deux sources indépendantes : si la géométrie générée redonne
+les aplats du document, c'est une vérification et non une coïncidence.
+
+`npm run cartes -- <dossier>` prend un dossier d'images de pages (`pNN.png`),
+repère le plateau, convertit les deux aplats de déploiement en masques
+exprimés en pouces sur le plateau 44 × 60, et les confronte à nos polygones.
+Les images ne sont pas versionnées : ce sont les pages d'un document de Games
+Workshop, à fournir soi-même.
+
+**Résultat sur les 45 cartes : 45 conformes, aucun écart.** Notre zone couvre
+de 98,0 % à 99,8 % de l'aplat officiel, rien ne tombe dans la mauvaise zone,
+et à chaque fois la lettre d'agencement imprimée sur la page ressort comme la
+meilleure des trois. L'écart résiduel — de 2,00″ à 3,75″ — est l'épaisseur
+d'un décor posé sur la zone.
+
+Les **90 noms de mission** sont confrontés au passage, eux aussi sans écart.
+Chaque joueur a la sienne selon sa Disposition des Forces, et la table les
+porte séparément : *Locate and Deny* pour le joueur Perturbation face à Atouts
+Prioritaires, *Extract Relic* pour son adversaire.
+
+`outils/cartes.json` porte ce que dit le bandeau de chaque page — les deux
+Dispositions, les deux missions, la lettre. Les 45 pages ont été lues une par
+une. L'ordre est régulier (trois agencements par appariement, les appariements
+dans l'ordre des Dispositions) mais il a été vérifié, pas supposé.
+
+Trois précautions, chacune apprise d'une mesure fausse :
+
+- Le cadre ne se trouve pas en comptant les pixels sombres d'une ligne : un
+  filet de mise en page en aligne autant. On exige une plage **continue**
+  assez longue — 800 px en largeur, 1100 en hauteur. Cela écarte au passage
+  les repères de bord attaquant et défenseur, rouges et bleus eux aussi, sans
+  avoir à les reconnaître : ils sont horizontaux ou verticaux selon
+  l'agencement, et deux pages sur six y résistaient.
+- Les décors sont dessinés **par-dessus** les aplats. Comparer les aires donne
+  71 % là où la géométrie est juste au dixième de pouce. On ne compare donc
+  que là où le document se prononce : un décor masque la couleur, jamais
+  l'inverse.
+- Qui est rouge et qui est bleu dépend de l'attaquant et du défenseur, et rien
+  ne dit laquelle de nos deux zones tient ce rôle. On essaie les deux
+  appariements : compter l'échange comme une erreur faisait passer
+  *Disruption vs Disruption* pour fausse à 0,000 alors qu'elle est à 0,994.
+
+### Le décor
+
+Les zones se lisent d'un coup : deux aplats francs. Le décor, non — c'est du
+gris sur du gris, et trois couches se ressemblent. Le fond du no man's land
+est un gris **chaud** clair, quadrillé, de somme RVB ≈ 625 ; le gabarit posé
+dessus est un gris **neutre** de gravats, entre 250 et 600 ; les ruines qui le
+garnissent portent des teintes franches.
+
+`npm run decors -- <dossier>` classe au pixel, puis vote à la maille de 0,25″
+— une ligne de quadrillage large d'un ou deux pixels est minoritaire dans une
+maille de cinq, elle disparaît sans qu'on ait à l'éroder — et retire enfin les
+taches de moins de dix mailles, un gabarit en faisant des dizaines.
+
+Ce masque suit les **gravats**, pas le contour du gabarit : il en couvre les
+deux tiers. On ne peut donc pas en tirer une cote au dixième de pouce comme
+pour les zones. Deux choses sont établies, toutes deux falsifiables :
+
+- **Chaque page reconnaît sa propre carte parmi les 45.** 41 la reconnaissent
+  seule, avec une avance médiane de 0,22 sur la deuxième ; les 4 autres sont à
+  égalité — au millième — avec une carte que le document lui-même dessine à
+  l'identique. Vérifié en confrontant les pages officielles entre elles :
+  *Perturbation vs Perturbation* et *Reconnaissance vs Reconnaissance*
+  réemploient le même agencement de décor, lettres permutées, avec un
+  recouvrement mutuel de 0,85 à 0,97. Nos données font de même. Rien ne peut
+  départager deux images identiques, et c'est le document qui se répète.
+- **Aucun décalage d'ensemble ne rattrape mieux nos décors.** On essaie les
+  289 translations de ±2″ par quart de pouce : sur 42 cartes le zéro est déjà
+  l'optimum, et les trois autres gagneraient 0,1 % pour un quart de pouce —
+  une maille, soit du bruit.
+
+Couverture médiane 0,85. Les 18 pièces qui tombent sous 0,30 sont toutes du
+gabarit 6″ × 2″ — la barricade, dont l'illustration est une clôture qui remplit
+mal son emprise — et se répartissent sur treize pages ; les trois autres
+familles de gabarit n'en comptent aucune. C'est une limite de la mesure, pas
+une carte fautive.
+
+Ce qui reste hors de portée : la **cote exacte** d'un décor. `npm run gabarits`
+confirme le nombre et les dimensions des gabarits sur une source indépendante,
+`npm run decors` leur agencement ; leurs coordonnées au dixième de pouce
+viennent toujours de 40kdc-data.
+
 ## Unités Legends
 
 Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :
@@ -475,6 +769,10 @@ Une liste enregistrée qui contenait une de ces unités — ou un personnage
 rattaché supprimé — la perd au chargement, avec un message qui la nomme.
 Auparavant une unité inconnue disparaissait du pavé sans un mot tout en
 restant dans les données.
-Les empreintes de socle ne viennent d'aucune de ces deux sources : seules
-Immortals 32, Canoptek Tomb Crawlers 50 et Lokhust Heavy Destroyers 60 sont
-confirmées, le reste suit les socles habituels et reste à vérifier.
+Les empreintes de socle viennent désormais du **Base Size Guide** de
+l'Event Companion v1.1 (Games Workshop, mis à jour juin 2026) : les 46 fiches
+nécrones de sa section NECRONS, reprises telles qu'il les écrit, ovales
+compris. `SOCLES` porte la source, `BASES` n'en est plus qu'une lecture pour la
+fiche d'unité. Deux entrées du guide ne portent pas de dimension mais un nom de
+produit — Large et Small Flying Base : les valeurs retenues, 120 × 92 et
+60 × 35,5, sont une déduction signalée comme telle dans `data.js`.
