@@ -151,6 +151,31 @@ const sonde = await p.evaluate(() => {
 dit('la lampe s\'éclaire elle-même', sonde.lampe, false);
 dit('l\'ombre couvre une part du plateau, ni rien ni tout',
     Math.round(sonde.part * 100) / 100, v => v > 0.05 && v < 0.95);
+
+/* Mordre une emprise, c'est voir a travers TOUTE l'emprise. On interroge
+   le meme point deux fois, sans socle puis avec un socle qui touche
+   l'emprise : rien d'autre n'a bouge, la regle est donc seule en cause.
+   Et le terrain dense, lui, ne cede pas -- au milieu meme de l'emprise,
+   les murs qu'elle porte ombrent encore. */
+const mord = await p.evaluate(() => {
+  const b = window.PLATEAU.lampe([22, 30], 0);
+  const e = b.emprises[0];
+  const cx = e.reduce((s, q) => s + q[0], 0) / e.length;
+  const cy = e.reduce((s, q) => s + q[1], 0) / e.length;
+  const v = e[0], dx = v[0] - cx, dy = v[1] - cy, n = Math.hypot(dx, dy) || 1;
+  const dehors = [v[0] + dx/n*0.3, v[1] + dy/n*0.3];
+  const oter = o => { delete o.emprises; return o; };
+  return { sans: oter(window.PLATEAU.lampe(dehors, 0)),
+           avec: oter(window.PLATEAU.lampe(dehors, 0.6)),
+           milieu: oter(window.PLATEAU.lampe([cx, cy], 0.6)) };
+});
+dit('un socle qui ne touche rien ne mord aucune emprise', mord.sans.mordues, 0);
+dit('un socle qui chevauche l\'emprise la mord', mord.avec.mordues, v => v >= 1);
+dit('l\'emprise mordue cesse d\'ombrer',
+    mord.avec.ombres < mord.sans.ombres, true);
+dit('les murs pleins ombrent toujours autant',
+    mord.avec.pleins === mord.sans.pleins && mord.sans.pleins > 0, true);
+dit('au milieu de l\'emprise, ses murs ombrent encore', mord.milieu.pleins, v => v > 0);
 await p.reload(); await p.waitForTimeout(1000);
 await p.click('#tabs button[data-s="scMap"]'); await p.waitForTimeout(500);
 await p.locator('[data-unite]').first().click({force:true}); await p.waitForTimeout(400);

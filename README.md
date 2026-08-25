@@ -799,6 +799,36 @@ versionnée, le dépôt ne garde pas d'images de travail. `npm run dispositions-
 point pour point, que leurs arêtes suivent les axes, et que le L reste un L :
 `small-l`, `small-l-flip` et `corner` occupent 47, 48 et 46 % de leur boîte.
 
+### La ligne de vue
+
+Une unité sélectionnée éclaire le plateau comme une lampe : elle rayonne dans
+toutes les directions, et le décor qu'elle rencontre porte ombre. Trois règles
+la gouvernent, et elles n'ombrent pas de la même façon.
+
+| Règle | Ce qu'elle fait de l'ombre |
+|---|---|
+| **Plein** 13.11 | Le terrain dense est opaque : le mur est dans sa propre ombre. On part des arêtes tournées **vers** la lampe. |
+| **Occultant** 13.10 | Une zone de terrain occulte, mais la zone reste **éclairée** — c'est ce qui est derrière elle qui s'éteint. On part des arêtes tournées **à l'opposé**. |
+| **Mordre** 13.10 | La règle écarte la zone qui contient l'une des figurines, et un socle qui chevauche la zone suffit. L'emprise cesse alors d'exister pour cette unité — **toute** l'emprise, pas la part mordue. Il suffit qu'**une** figurine morde. |
+
+Le terrain léger n'ombre pas : il donne du couvert, pas de l'obscurité. Et le
+terrain dense ne cède pas — mordre l'emprise ne fait pas voir à travers les
+murs qu'elle porte. C'est là que les deux premières règles se séparent, et le
+contrôle le mesure : au milieu même d'une emprise mordue, ses murs ombrent
+encore.
+
+Le contrôle n'inspecte pas le code, il interroge l'ombre : `isPointInFill`,
+point par point sur tout le plateau. Il établit que la lampe s'éclaire
+elle-même, que l'ombre couvre une part du plateau et ni rien ni tout, et — en
+appelant deux fois le même point, sans socle puis avec — que l'emprise mordue
+cesse d'ombrer pendant que les murs pleins ombrent toujours autant.
+
+**Ce que ça ne fait pas.** La lampe part d'une figurine, pas de l'unité
+entière ; la règle, elle, parle de toutes les lignes tirées entre deux
+figurines. L'app est donc plus sévère que la table. Et elle ignore l'emprise
+où se tiendrait la **cible**, que 13.10 écarte aussi : faute de cible, on ne
+peut pas l'écarter.
+
 ## Unités Legends
 
 Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :
