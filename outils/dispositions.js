@@ -92,9 +92,31 @@ function zonesDe(p){
 }
 
 /* ------------------------------------------------------------ decors
-   board = position + R_cw(rotation) . (v - centroide), y vers le bas.
-   Un gabarit « area » porte ses features -- murs, conteneurs -- dans son
-   propre repere centre sur le centroide. */
+   Une carte ne pose que des gabarits : seize emprises prises dans un jeu
+   de trente-huit, chacune portant ses elements de decor. On ecrit donc le
+   catalogue une fois, et la carte ne garde que le gabarit, son centre,
+   son angle et son miroir.
+
+   Trois corrections par rapport a la version precedente, toutes visibles
+   sur les pages officielles :
+
+     - Le MIROIR de la source etait ignore. Cent trente-deux emprises sur
+       sept cent vingt sont posees retournees ; les dessiner a l'endroit
+       les mettait de travers.
+
+     - L'emprise etait reduite a sa BOITE ENGLOBANTE, angle remis a zero.
+       Un trapeze pose a 307 degres devenait un grand rectangle droit. On
+       garde maintenant le contour, et l'angle.
+
+     - Le contour de l'emprise etait peint en vert, couleur que le
+       document reserve au terrain DENSE. Le vert revient aux elements ;
+       l'emprise se dessine comme sur la page, en gris a liset fin.
+
+   board = position + R_horaire(angle) . miroir(v - centroide), y vers le
+   bas. Le miroir agit dans le repere local, avant la rotation. */
+const cleGab = id => id.replace('bm-bm-terrain-11e-1-', '')
+                       .replace(/^composite-(\d+)-m\d-p\d$/, 'c$1')
+                       .replace(/^part-/, '');
 function centroide(v){
   let a = 0, cx = 0, cy = 0;
   for(let i = 0, j = v.length - 1; i < v.length; j = i++){
@@ -116,46 +138,45 @@ function pts(t){
   }
   return f.points.map(p => [p.x, p.y]);
 }
-function tourne([x, y], deg){
-  const r = deg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
-  return [x*c - y*s, x*s + y*c];              /* horaire en repere y-bas */
-}
-/* place un gabarit : rend son contour en pouces sur la table de la source */
-function placer(idGab, pos, rot, prof){
+
+/* le catalogue, rempli au fur et a mesure des gabarits rencontres */
+const catalogue = {};
+function inscrire(idGab, prof){
   const t = gabarits[idGab];
   if(!t || (prof || 0) > 3) return null;
+  const k = cleGab(idGab);
+  if(catalogue[k]) return k;
   const v = pts(t), c = centroide(v);
-  const contour = v.map(p => {
-    const q = tourne([p[0] - c[0], p[1] - c[1]], rot || 0);
-    return [pos.x + q[0], pos.y + q[1]];
-  });
-  const enfants = [];
-  for(const f of t.features || []){
-    const q = tourne([f.position.x, f.position.y], rot || 0);
-    const sous = placer(f.template, {x: pos.x + q[0], y: pos.y + q[1]},
-                        (rot || 0) + (f.rotation_degrees || 0), (prof || 0) + 1);
-    if(sous) enfants.push(sous);
+  const g = { n: t.name.replace(/^Battlemaster /, ''), k: t.kind === 'feature' ? 'f' : 'a',
+              p: v.map(q => [dec2(q[0] - c[0]), dec2(q[1] - c[1])]) };
+  catalogue[k] = g;                       /* avant la recursion : coupe les cycles */
+  const f = [];
+  for(const e of t.features || []){
+    const sk = inscrire(e.template, (prof || 0) + 1);
+    if(!sk) continue;
+    const q = { g: sk, p: [dec2(e.position.x), dec2(e.position.y)] };
+    if(e.rotation_degrees) q.r = e.rotation_degrees;
+    f.push(q);
   }
-  return { contour, enfants, kind: t.kind };
+  if(f.length) g.f = f;
+  return k;
 }
-/* boite englobante orientee, au format que le rendu attend : cx, cy, l, h, angle */
-function boite(poly){
-  const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]);
-  const x0 = Math.min(...xs), x1 = Math.max(...xs);
-  const y0 = Math.min(...ys), y1 = Math.max(...ys);
-  return [dec((x0+x1)/2), dec((y0+y1)/2), dec(x1-x0), dec(y1-y0), 0];
-}
+const dec2 = n => +n.toFixed(2);
+
+/* La table de la source est en 60 x 44 ; la notre en 44 x 60. Le quart de
+   tour qui passe de l'une a l'autre deplace le centre ET tourne le
+   gabarit : on ajoute donc 90 degres a l'angle pose. */
 function decorsDe(carte){
   const out = [];
   for(const p of carte.pieces){
-    const r = placer(p.template, p.position, p.rotation_degrees || 0);
-    if(!r) continue;
-    const aire = r.contour.map(R90).map(q => q.map(dec));
-    /* les enfants d'un gabarit sont ses murs et ses obstacles ; la source
-       ne les distingue pas par un type, on les rend tous comme obstacles
-       et l'emprise de jeu comme le contour de la zone */
-    const enf = r.enfants.map(e => e.contour.map(R90).map(q => q.map(dec)));
-    out.push({ b: boite(aire), w: [aire], o: enf });
+    const k = inscrire(p.template, 0);
+    if(!k) continue;
+    const c = R90([p.position.x, p.position.y]);
+    const o = { g: k, p: [dec2(c[0]), dec2(c[1])] };
+    const r = (((p.rotation_degrees || 0) + 90) % 360 + 360) % 360;
+    if(r) o.r = +r.toFixed(2);
+    if(p.mirror && p.mirror !== 'none') o.m = p.mirror === 'vertical' ? 2 : 1;
+    out.push(o);
   }
   return out;
 }
@@ -241,7 +262,7 @@ const permutations = a => a.length <= 1 ? [a] :
 
 /* ==================================================================== */
 const rapport = { zones:0, decors:0, objectifs:0, ecartsSym:[] };
-const sortie = { table: NOUS.table, missions: {}, matchups: {} };
+const sortie = { table: NOUS.table, missions: {}, gab: catalogue, matchups: {} };
 
 /* missions : on garde les notres, corrigees par la source */
 let misOK = 0, misFix = [];
@@ -305,7 +326,9 @@ const ENTETE = `/* ============================================================
    Zones et decors viennent de 40kdc-data (github.com/wn-mitch/40kdc-data,
    CC BY 4.0), qui tient les decors 11e de Battlemaster et les missions du
    Chapter Approved 2026-2027. Les zones sont exactes, en pouces entiers ;
-   les decors sont des gabarits nommes, poses par position et rotation.
+   les decors sont des gabarits nommes, poses par centre, angle et miroir.
+   Les seize emprises d'une carte sortent d'un jeu de trente-huit : on les
+   ecrit une fois dans gab, et chaque carte n'en garde que la pose.
 
    Les objectifs, eux, viennent toujours de l'analyse des cartes
    officielles : ceux de la source sont marques « provisoires » et n'en
@@ -322,8 +345,16 @@ const ENTETE = `/* ============================================================
      o       objectifs contestes [x,y]
      h1, h2  objectifs de depart de chaque joueur
      pat     nom du patron de deploiement officiel
-     t       decors : { b:[cx,cy,larg,haut,angle], w:[emprise de jeu],
-                        o:[murs et obstacles] }
+     t       decors poses : { g:cle de gabarit, p:[cx,cy], r:angle,
+                              m:1 miroir gauche-droite / 2 haut-bas }
+
+   Et, une fois pour toutes :
+     gab     catalogue des gabarits, cle -> { n:nom, k:'a' emprise ou 'f'
+             element, p:[[x,y]…] contour local centre sur le centroide,
+             f:[{ g, p:[x,y], r }] elements portes }
+
+   Poser un gabarit : point = p + rotation horaire de r appliquee au
+   contour local, miroir compris, l'axe y vers le bas.
 
    Non affilie a Games Workshop.
    ============================================================ */
@@ -346,4 +377,5 @@ console.log('    median ' + med(rapport.ecartsSym).toFixed(2) + '"   pire ' +
 console.log('    apres correction la symetrie est exacte, par construction');
 console.log('  objectifs sans miroir credible, laisses tels quels : ' + orphelins);
 console.log();
+console.log('  gabarits ecrits une fois : ' + Object.keys(catalogue).length);
 console.log('  taille du fichier : ' + (json.length/1024).toFixed(0) + ' Ko');

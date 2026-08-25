@@ -33,6 +33,9 @@ Trois précautions, chacune apprise d'une mesure fausse :
     les deux appariements ; compter l'échange comme une erreur ferait
     passer une carte juste pour fausse.
 
+Les décors ont quitté cet outil : ils ont leur propre masque, plus fin,
+dans outils/empreintes.py. Ici on ne juge que les zones.
+
 USAGE
     pip install Pillow numpy
     python3 outils/cartes-officielles.py <dossier>
@@ -179,66 +182,6 @@ def note(m, v):
 # décalage d'ensemble ne rattrape mieux nos décors sur le document.
 # ────────────────────────────────────────────────────────────────────────
 
-def masque_decor(im, cad, pas=PAS):
-    x0, y0, x1, y1 = cad
-    b = im[y0:y1, x0:x1]
-    lum = b.sum(axis=2); sat = b.max(axis=2) - b.min(axis=2)
-    rouge = np.abs(b - np.array(ROUGE)).sum(axis=2) < 110
-    bleu  = np.abs(b - np.array(BLEU )).sum(axis=2) < 110
-    ruine  = (sat > 25) & ~rouge & ~bleu
-    gravat = (lum > 240) & (lum < 600) & (sat <= 25) & ~rouge & ~bleu
-    m = (gravat | ruine).astype(np.float32)
-    nx, ny = int(W_PO / pas), int(H_PO / pas)
-    bx = np.linspace(0, m.shape[1], nx + 1).astype(int)
-    by = np.linspace(0, m.shape[0], ny + 1).astype(int)
-    cs = np.zeros((m.shape[0] + 1, m.shape[1] + 1), np.float64)
-    cs[1:, 1:] = m.cumsum(0).cumsum(1)
-    som = (cs[np.ix_(by[1:], bx[1:])] - cs[np.ix_(by[:-1], bx[1:])]
-           - cs[np.ix_(by[1:], bx[:-1])] + cs[np.ix_(by[:-1], bx[:-1])])
-    return (som / np.outer(np.diff(by), np.diff(bx))) > 0.5
-
-
-def sans_miettes(g, mini=10):
-    """Retire les taches de moins de `mini` mailles."""
-    vu = np.zeros(g.shape, bool); out = np.zeros(g.shape, bool)
-    H, Wd = g.shape
-    for j in range(H):
-        for i in range(Wd):
-            if not g[j, i] or vu[j, i]:
-                continue
-            pile, amas = [(j, i)], []
-            vu[j, i] = True
-            while pile:
-                y, x = pile.pop(); amas.append((y, x))
-                for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                    b, a = y + dy, x + dx
-                    if 0 <= b < H and 0 <= a < Wd and g[b, a] and not vu[b, a]:
-                        vu[b, a] = True; pile.append((b, a))
-            if len(amas) >= mini:
-                for y, x in amas:
-                    out[y, x] = True
-    return out
-
-
-def emprise(v, pas=PAS):
-    """L'union de nos emprises de décor, à la maille."""
-    nx, ny = int(W_PO / pas), int(H_PO / pas)
-    u = np.zeros((ny, nx), bool)
-    for d in v.get('t', []):
-        for poly in (d.get('w') or []):
-            u |= rasterise(poly, nx, ny, pas)
-    return u
-
-
-def decale(m, dy, dx):
-    o = np.zeros_like(m)
-    ny, nx = m.shape
-    ys = slice(max(0, dy), ny + min(0, dy)); yd = slice(max(0, -dy), ny + min(0, -dy))
-    xs = slice(max(0, dx), nx + min(0, dx)); xd = slice(max(0, -dx), nx + min(0, -dx))
-    o[ys, xs] = m[yd, xd]
-    return o
-
-
 def layouts():
     js = ('const fs=require("fs");'
           'const s=fs.readFileSync(%r,"utf8");'
@@ -246,82 +189,6 @@ def layouts():
           'console.log(JSON.stringify(L));' % os.path.join(RACINE, 'layouts.js'))
     return json.loads(subprocess.run(['node', '-e', js], capture_output=True, text=True).stdout)
 
-
-
-def decors(pages, carnet, L):
-    """Chaque page reconnaît-elle SA carte à partir du seul décor ?
-
-       On ne cherche pas une cote : le masque suit les gravats, pas le
-       contour du gabarit. On demande deux choses, toutes deux
-       falsifiables — que la carte de la page batte les 44 autres, et
-       qu'aucun décalage d'ensemble ne rattrape mieux nos décors."""
-    if not carnet:
-        print('\nDécors : il faut outils/cartes.json pour savoir quelle page est quelle carte.')
-        return False
-
-    variantes = []
-    for mu in L['matchups'].values():
-        for x in 'abc':
-            variantes.append((mu['p1'], mu['p2'], x, emprise(mu['v'][x])))
-
-    print('\n\n%-6s %-46s %8s %8s %9s' %
-          ('page', 'carte', 'remplit', '2e carte', 'décalage'))
-    print('─' * 88)
-    seuls = ties = 0
-    remplis, glissants = [], []
-    for chemin in pages:
-        page = ''.join(filter(str.isdigit, os.path.basename(chemin)))
-        fiche = carnet.get(page)
-        if not fiche:
-            continue
-        im = np.array(Image.open(chemin).convert('RGB')).astype(int)
-        off = sans_miettes(masque_decor(im, cadre(im)))
-        if not off.any():
-            continue
-        notes = []
-        for p1, p2, x, u in variantes:
-            notes.append((off[u].sum() / off.sum(), p1, p2, x))
-        notes.sort(reverse=True)
-        sienne = [t for t in notes
-                  if {t[1], t[2]} == {fiche['p1'], fiche['p2']} and t[3] == fiche['agencement']][0]
-        autre = max(t[0] for t in notes if t[1:] != sienne[1:])
-        remplis.append(sienne[0])
-
-        cand = [v for v in L['matchups'].values() if {v['p1'], v['p2']} == {fiche['p1'], fiche['p2']}][0]
-        nous = emprise(cand['v'][fiche['agencement']])
-        base = (off & nous).sum()
-        meilleur = max(((off & decale(nous, dy, dx)).sum(), -(abs(dy) + abs(dx)), dy, dx)
-                       for dy in range(-8, 9) for dx in range(-8, 9))
-        nul = (meilleur[2], meilleur[3]) == (0, 0)
-        if not nul:
-            glissants.append((page, meilleur[3] * PAS, meilleur[2] * PAS,
-                              meilleur[0] / max(1, base) - 1))
-
-        if sienne[0] > autre: seuls += 1
-        elif sienne[0] >= autre - 0.002: ties += 1
-        print('%-6s %-46s %8.3f %8.3f %9s  %s' % (
-            page, '%s vs %s — %s' % (fiche['p1'].title(), fiche['p2'].title(),
-                                     fiche['agencement'].upper()),
-            sienne[0], autre, 'nul' if nul else 'non nul',
-            '✓' if sienne[0] > autre else ('=' if sienne[0] >= autre - 0.002 else '✗')))
-
-    n = len(remplis)
-    print('\n%d pages sur %d reconnaissent leur propre carte ; %d sont à égalité avec une'
-          % (seuls, n, ties))
-    print('carte que le document lui-même dessine à l’identique — lettres permutées entre')
-    print('Perturbation vs Perturbation et Reconnaissance vs Reconnaissance.')
-    print('Couverture médiane %.2f : la part de l’encre de décor du document qui tombe'
-          % float(np.median(remplis)))
-    print('dans nos emprises. Elle ne vaut pas 1 parce que le masque suit les gravats et')
-    print('non le contour du gabarit — ce chiffre mesure le dessin autant que notre écart.')
-    if glissants:
-        print('\n%d cartes sur %d gagneraient à un décalage d’ensemble :' % (len(glissants), n))
-        for pg, dx, dy, gain in glissants:
-            print('   page %-4s  %+.2f″ en x, %+.2f″ en y, pour %+.1f %% de recouvrement'
-                  % (pg, dx, dy, 100 * gain))
-    else:
-        print('\nAucune carte ne gagne à un décalage d’ensemble : le zéro est déjà l’optimum.')
-    return seuls + ties == n
 
 
 def main():
@@ -392,9 +259,6 @@ def main():
         print('ce qui tomberait dans l’autre ; l’écart, la distance dont notre zone')
         print('s’éloigne au plus de la couleur — l’épaisseur d’un décor posé dessus.')
 
-    if '--decors' in sys.argv:
-        bons_d = decors(pages, carnet, L)
-        return 0 if (bons == vus and bons_d) else 1
     return 0 if bons == vus else 1
 
 
