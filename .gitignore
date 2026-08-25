@@ -5,3 +5,4 @@ dist/
 t*.js
 enginetest.js
 build/
+__pycache__/
