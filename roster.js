@@ -40,6 +40,13 @@ function saveR(){
 function migreEnh(nom){
   if(!nom) return nom;
   if(typeof ENH_ANCIENS !== "undefined" && ENH_ANCIENS[nom]) return ENH_ANCIENS[nom];
+  /* Les quatre lignes du Panthéon de Malheur n'étaient pas des
+     optimisations : ce sont des Entraves Nécrodermiques, que le
+     détachement pose lui-même sur ses MONSTRES. Une liste qui en portait
+     une la perd — et l'entrave lui revient d'office. */
+  if(typeof ENH_OTEES !== "undefined" && ENH_OTEES.indexOf(nom) >= 0){
+    RETIREES.push("optimisation " + nom); MIGRE = true; return null;
+  }
   return nom;
 }
 
@@ -260,6 +267,22 @@ function profilsPhase(ru, ph){
 }
 
 window.ROSTER = {
+  /* crochet de verification : le bilan de la liste ouverte, tel que
+     l'ecran le rend */
+  bilan: function(){ return R ? bilanListe().map(x => x.t) : null; },
+  /* crochet de verification : ce que la liste ouverte compte vraiment,
+     unite par unite, entrave comprise */
+  liste: function(){
+    if(!R) return null;
+    return { nom:R.nom, cap:R.cap, detach:R.detach.slice(),
+             total: totalPoints(),
+             unites: R.units.map(ru => {
+               const t = entraveDe(ru);
+               return { nom:ru.name, pts:pointsUnite(ru),
+                        enh:ru.enh || "", entrave: t ? t[0] : "",
+                        entravePts: t ? t[1] : 0 };
+             }) };
+  },
   /* ---- ce que le simulateur charge : une unite entiere, tous profils ----
      Les armes de l'escouade et celles des personnages rattaches, avec les
      octrois du detachement deja appliques. C'est la meme construction que
@@ -690,6 +713,18 @@ function libelleOption(nom, opt, sl, oi){
 
 /* ameliorations ouvertes par les detachements retenus */
 const enhDispo = () => ENHANCEMENTS.filter(e => R.detach.indexOf(e[2]) >= 0);
+
+/* L'ENTRAVE NECRODERMIQUE d'une unite.
+   Le Pantheon de Malheur ne donne aucune optimisation : il impose a
+   chaque unite de MONSTRE NECRON l'entrave qui lui correspond, et en
+   fait payer le cout sur l'unite. Rien a choisir, donc rien a ranger
+   dans la liste enregistree : l'entrave se deduit du detachement et du
+   nom de l'unite, a chaque affichage. */
+function entraveDe(ru, L){
+  const d = (L || R || {}).detach || [];
+  if(d.indexOf("Pantheon of Woe") < 0) return null;
+  return (typeof ENTRAVES !== "undefined" && ENTRAVES[ru.name]) || null;
+}
 const enhRow = nom => ENHANCEMENTS.find(e => e[0] === nom);
 
 /* la phrase de restriction, telle qu'elle est ecrite sur la fiche */
@@ -730,9 +765,15 @@ function porteurRetenu(ru){
   return ok.indexOf(ru.enhP || "") >= 0 ? (ru.enhP || "") : ok[0];
 }
 const nomPorteur = (ru, p) => (p === "" || p === undefined || p === null) ? ru.name : p;
-function enhPts(ru){
+/* Ce qu'une unite paie EN PLUS de sa fiche : l'optimisation qu'elle porte
+   et, sous le Pantheon de Malheur, l'Entrave Necrodermique que le
+   detachement lui impose. Un seul endroit pour les deux — trois calculs
+   de points cohabitent dans ce fichier, et l'un d'eux finirait par en
+   oublier une. */
+function supplementPts(ru, L){
   const e = ru.enh && enhRow(ru.enh);
-  return e && typeof e[1] === "number" ? e[1] : 0;
+  const t = entraveDe(ru, L);
+  return (e && typeof e[1] === "number" ? e[1] : 0) + (t ? t[1] : 0);
 }
 
 const KWSET = {};
@@ -856,7 +897,7 @@ function unitPoints(ru){
     const cu = unitRow(c.name);
     if(cu) p += ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]);
   });
-  return p + enhPts(ru);
+  return p + supplementPts(ru);
 }
 const totalPoints = () => R.units.reduce((a,ru) => a + unitPoints(ru), 0);
 const totalDP = () => R.detach.reduce((a,n) => { const d = detachRow(n); return a + (d ? d[1] : 0); }, 0);
@@ -1215,8 +1256,7 @@ function pointsDe(L){
       const cu = unitRow(c.name);
       if(cu) n += ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]);
     });
-    const e = ru.enh && enhRow(ru.enh);
-    return a + n + (e && typeof e[1] === "number" ? e[1] : 0);
+    return a + n + supplementPts(ru, L);
   }, 0);
 }
 
@@ -1471,8 +1511,7 @@ function pointsUnite(ru){
     const cu = unitRow(c.name);
     if(cu) p += ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]);
   });
-  const e = ru.enh && enhRow(ru.enh);
-  return p + (e && typeof e[1] === "number" ? e[1] : 0);
+  return p + supplementPts(ru);
 }
 
 /* une unite dont le rattachement ou l'amelioration cloche merite d'etre
@@ -1658,6 +1697,8 @@ function detailCase(ru){
   const out = [];
   ru.chars.forEach(c => out.push({ cl: "dp", t: c.name }));
   if(ru.enh) out.push({ cl: "de", t: nomEnh(ru.enh) });
+  const tv = entraveDe(ru);
+  if(tv) out.push({ cl: "dt", t: tv[0] });
   const i = armePrincipale(ru), wl = unitWeps(ru.name);
   if(wl && wl[i]){
     const g = groupeDe(ru.name, i);
@@ -2649,6 +2690,10 @@ function renderPlay(){
         (p === null ? '' : ' · portée par ' + nomPorteur(ru, p)) + '</i>' +
         (e && e[3] ? '<p class="fiche-note" style="margin:4px 0 0">' + e[3] + '</p>' : '') + '</div>';
     }
+    const tv = entraveDe(ru);
+    if(tv) html += '<div class="pu"><b style="color:var(--warn)">' + tv[0] + '</b><i>' +
+      tv[1] + ' pts · Entrave Nécrodermique imposée par le Panthéon de Malheur</i>' +
+      '<p class="fiche-note" style="margin:4px 0 0">' + tv[2] + '</p></div>';
     const kws = motsClesGroupe(ru);
     if(kws.length) html += '<div class="pu"><div class="kwline" style="margin:0">' +
       kws.map(k => '<span class="gkw' + (k.source ? ' gkwadd' : '') + '">' + k.kw.toUpperCase() + '</span>').join("") +
@@ -3397,6 +3442,17 @@ function renderRoster(){
       div.appendChild(row);
     }
 
+    /* L'entrave, elle, ne se choisit pas : ni bouton de porteur ni croix
+       pour l'oter. Le detachement la pose, on la lit. */
+    const tvr = entraveDe(ru);
+    if(tvr){
+      const row = document.createElement("div");
+      row.className = "lo";
+      row.innerHTML = '<span class="ln" style="color:var(--warn)">' + tvr[0] +
+        ' <em>' + tvr[1] + ' pts · imposée à ce MONSTRE par le Panthéon de Malheur</em></span>';
+      div.appendChild(row);
+    }
+
     /* Ce que le groupe gagne en jeu, quel que soit le membre affiche : un
        Plasmancien rattache abaisse le seuil de touche critique de toute
        l'unite, et cela ne se lit sur aucune ligne d'arme. */
@@ -4004,6 +4060,26 @@ function bilanListe(){
                   " disponible" + (posables.length > 1 ? "s" : "") + (prises ? " en plus" : ""),
                 d:prises ? prises + " déjà prise" + (prises > 1 ? "s" : "") + " dans la liste."
                          : "Tes détachements en ouvrent, aucune n'est prise."});
+  }
+
+  /* Le Pantheon de Malheur n'ouvre aucune optimisation : il fait payer
+     une Entrave Necrodermique sur chaque MONSTRE. Deux choses valent
+     d'etre dites — ce que ces entraves coutent, et le fait qu'un
+     Pantheon sans MONSTRE n'a ni entrave ni regle de detachement. */
+  if(R.detach.indexOf("Pantheon of Woe") >= 0){
+    const mons = R.units.filter(ru => entraveDe(ru));
+    if(mons.length){
+      const coutE = mons.reduce((a, ru) => a + entraveDe(ru)[1], 0);
+      out.push({cl:"tdo-enh", t:coutE + " pts d'Entraves Nécrodermiques",
+                d:"Le Panthéon de Malheur n'ouvre aucune optimisation : il impose " +
+                  "une entrave à chacun de tes " + mons.length + " MONSTRE" +
+                  (mons.length > 1 ? "S" : "") + ", et son coût est déjà dans le total."});
+    } else {
+      out.push({cl:"tdo-enh", t:"Panthéon de Malheur sans MONSTRE",
+                d:"Ce détachement ne donne rien à une armée sans Écharde C'tan : " +
+                  "ni Champs de Distorsion, ni entrave, et aucune optimisation " +
+                  "pour compenser."});
+    }
   }
 
   /* un personnage seul dans son coin qui pouvait mener une escouade */
@@ -4991,6 +5067,8 @@ function listeEnTexte(L){
         lignes.push("  ★ " + ru.enh + " (" + (e && typeof e[1] === "number" ? e[1] + " pts" : "coût inconnu") + ")" +
           (pe === null ? "" : " — " + nomPorteur(ru, pe)));
       }
+      const tvx = entraveDe(ru, L);
+      if(tvx) lignes.push("  ‡ " + tvx[0] + " (" + tvx[1] + " pts) — Entrave Nécrodermique");
       lignes.push("");
     });
   });

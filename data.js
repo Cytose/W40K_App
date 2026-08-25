@@ -556,8 +556,10 @@ const RETINUE = {
    donne pas les points, qui vivent dans l'Inventaire du
    Munitorum. L'application affiche alors « cout inconnu » et
    ne compte rien dans le total.
-   Les vingt optimisations des sept detachements du pack sont au
-   texte officiel francais. Les seize autres viennent du codex,
+   Les DIX-HUIT optimisations du pack sont au texte officiel
+   francais. Six detachements en donnent deux ou quatre ; le
+   septieme, le Pantheon de Malheur, n'en donne aucune -- il impose
+   des Entraves Necrodermiques a la place, voir plus bas. Les seize autres viennent du codex,
    que ce pack ne reprend pas : elles restent en anglais, sauf
    le Voile de Tenebres dont le pack donne le nouveau texte.
    ============================================================ */
@@ -675,16 +677,7 @@ const ENHANCEMENTS = [
  {c:"f", k:["Overlord"]}],
 ["Eternal Conqueror",25,"Obeisance Phalanx",
  "OVERLORD model only. Each time a model in the bearer's unit makes an attack that targets an enemy unit within range of an objective marker, you can re-roll the Hit roll.",
- {c:"f", k:["Overlord"]}],
-/* Pantheon de Malheur. Le Munitorum Field Manual en donne les quatre noms
-   et les quatre couts ; il ne donne jamais les effets. Le pack de faction
-   ne couvre pas ce detachement et le codex n'a pas ete fourni : l'effet
-   reste donc vide, et l'application le dit plutot que de l'inventer.
-   La restriction de porteur est inconnue au meme titre. */
-["Animus Damper",35,"Pantheon of Woe","Effet non repris : le Munitorum Field Manual donne le nom et le coût, jamais la règle, et le pack de faction ne couvre pas ce détachement. À vérifier au codex — la règle du Panthéon de Malheur parle d'Entraves Nécrodermiques payantes sur les MONSTRES, et il n'est pas établi que ces quatre lignes soient des optimisations ordinaires.", {c:"f", k:[]}],
-["Quantum Goad",45,"Pantheon of Woe","Effet non repris : le Munitorum Field Manual donne le nom et le coût, jamais la règle, et le pack de faction ne couvre pas ce détachement. À vérifier au codex — la règle du Panthéon de Malheur parle d'Entraves Nécrodermiques payantes sur les MONSTRES, et il n'est pas établi que ces quatre lignes soient des optimisations ordinaires.", {c:"f", k:[]}],
-["Reletavistic Tether",40,"Pantheon of Woe","Effet non repris : le Munitorum Field Manual donne le nom et le coût, jamais la règle, et le pack de faction ne couvre pas ce détachement. À vérifier au codex — la règle du Panthéon de Malheur parle d'Entraves Nécrodermiques payantes sur les MONSTRES, et il n'est pas établi que ces quatre lignes soient des optimisations ordinaires.", {c:"f", k:[]}],
-["Singularity Matrix",45,"Pantheon of Woe","Effet non repris : le Munitorum Field Manual donne le nom et le coût, jamais la règle, et le pack de faction ne couvre pas ce détachement. À vérifier au codex — la règle du Panthéon de Malheur parle d'Entraves Nécrodermiques payantes sur les MONSTRES, et il n'est pas établi que ces quatre lignes soient des optimisations ordinaires.", {c:"f", k:[]}]
+ {c:"f", k:["Overlord"]}]
 ];
 /* Anciens noms anglais des optimisations que le pack de faction
    nomme desormais en francais : les listes deja enregistrees
@@ -705,6 +698,48 @@ const ENH_ANCIENS = {
  "Mark of the Nekrosor" : "Marque du Nékrosor",
  "Cursed Circlet" : "Diadème Maudit",
  "Veil of Darkness" : "Voile de Ténèbres"
+};
+
+/* Quatre noms que le Munitorum Field Manual range avec les
+   optimisations et qui n'en sont pas : ce sont les Entraves
+   Necrodermiques ci-dessous. Une liste enregistree qui en portait une
+   la perd au chargement, avec un message qui la nomme. */
+const ENH_OTEES = ["Animus Damper", "Quantum Goad",
+                   "Reletavistic Tether", "Singularity Matrix"];
+
+/* ============================================================
+   ENTRAVES NECRODERMIQUES — Pantheon de Malheur
+   Source : Pack de Faction Necrons v1.1 (22 juillet 2026), page du
+   detachement ; couts de l'Inventaire du Munitorum, ou ces quatre
+   lignes portent encore leur nom anglais.
+
+   CE NE SONT PAS DES OPTIMISATIONS, et l'application ne les traite
+   plus comme telles. Le detachement n'en donne aucune : il IMPOSE a
+   chaque unite de MONSTRE NECRON de l'armee l'entrave qui lui
+   correspond, et en fait payer le cout SUR L'UNITE, pas sur un
+   personnage. On ne la choisit pas, on ne peut pas la refuser, et
+   deux unites peuvent porter la meme. La regle ajoute qu'une armee
+   qui depasse alors sa limite en points ne peut pas inclure l'unite.
+
+   [nom francais, cout, texte officiel, nom au Munitorum]
+   ============================================================ */
+const ENTRAVES = {
+"C'tan Shard of the Nightbringer":
+ ["Aiguillon Quantique", 45,
+  "Figurine d'ÉCHARDE C'TAN DU NYCTOPHORE seulement. Cette figurine est éligible pour déclarer une charge à un tour où elle a Avancé.",
+  "Quantum Goad"],
+"C'tan Shard of the Deceiver":
+ ["Matrice de Singularité", 45,
+  "Figurine d'ÉCHARDE C'TAN DU MYSTIFICATEUR seulement. Cette figurine a l'aptitude suivante — Seigneur de la Duperie (Aura) : chaque fois que votre adversaire cible une unité de son armée avec un Stratagème, si l'unité est à 12\" de cette figurine, augmentez de 1PC le coût de cette utilisation de ce Stratagème.",
+  "Singularity Matrix"],
+"C'tan Shard of the Void Dragon":
+ ["Sourdine Spirituelle", 35,
+  "Figurine d'ÉCHARDE C'TAN DU DRAGON DU NÉANT seulement. Une fois par tour, au début de la phase de Tir adverse, choisissez 1 unité de VÉHICULE ennemie visible du porteur. L'unité doit faire un test de Commandement. Jusqu'à la fin de la phase, à chaque attaque d'une figurine de l'unité, soustrayez 1 au jet de Touche et, si le test de Commandement avait été raté, soustrayez 1 au jet de Blessure également.",
+  "Animus Damper"],
+"Transcendent C'tan":
+ ["Longe Relativiste", 40,
+  "Figurine de C'TAN TRANSCENDANT seulement. À votre tour, quand cette unité fait un mouvement d'arrivée/avance en utilisant son aptitude Déplacement Transdimensionnel, cette unité peut finir ce mouvement à plus de 6\" à l'horizontale des unités ennemies (et non à plus de 8\" d'elles). Quand cette unité finit ce mouvement à 8\" ou moins d'une unité ennemie, jusqu'à la fin du tour, elle n'est pas éligible pour déclarer une charge. Note de Conception : si votre armée inclut plus d'une unité de C'TAN TRANSCENDANT, chacune doit prendre cette aptitude.",
+  "Reletavistic Tether"]
 };
 
 /* ============================================================
