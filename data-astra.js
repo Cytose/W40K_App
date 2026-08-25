@@ -3337,10 +3337,280 @@ const FACTION = [
  ]
 ];
 
-/* Vides, et pour de bonnes raisons : voir l'en-tête. */
+/* Le câblage tenu à la main, repris de outils/cablage/astra.json —
+   ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
+   vide : le simulateur tourne alors sur les caractéristiques nues,
+   ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Leman Russ Battle Tank": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Fer de Lance Blindé",
+   "texte": "Each time this model makes an attack that targets an enemy unit, re-roll a Hit roll of 1."
+  }
+ ],
+ "Tempestus Scions": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Storm Troopers",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Wound roll of 1."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Leman Russ Battle Tank": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Fer de Lance Blindé — objectif adverse",
+   "quand": "La cible est à portée d'un objectif que tu ne contrôles pas",
+   "texte": "If that unit is within range of an objective marker you do not control, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Tempestus Scions": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Storm Troopers — sur objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Field Ordnance Battery": [
+  {
+   "mot": "sust:1",
+   "port": "T",
+   "nom": "Réarmez, Rechargez, Feu",
+   "quand": "L'unité reçoit un Ordre et est restée Stationnaire — armes Lourdes seulement",
+   "texte": "While this unit is being affected by an Order, provided it Remained Stationary this turn, all Heavy weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Catachan Jungle Fighters": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Combattants de la Jungle",
+   "quand": "L'unité a chargé ou a été chargée ce tour",
+   "texte": "Each time a model in this unit makes a melee attack, if this unit made a Charge move or was charged this turn, add 1 to the Wound roll."
+  }
+ ],
+ "Death Korps of Krieg": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Mine Sombre",
+   "quand": "L'unité est sous son Effectif de Départ",
+   "texte": "Each time a model in this unit makes an attack, add 1 to the Hit roll if this unit is below its Starting Strength."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Mine Sombre — sous la moitié",
+   "quand": "L'unité est sous la moitié de son effectif",
+   "texte": "Add 1 to the Wound roll as well if this unit is Below Half-strength."
+  }
+ ],
+ "Leman Russ Executioner": [
+  {
+   "arme": "➤ Executioner plasma cannon - standard",
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Exécuteurs Téméraires",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack with its executioner plasma cannon that targets a unit that is Below Half-strength, add 1 to the Hit roll."
+  },
+  {
+   "arme": "➤ Executioner plasma cannon - supercharge",
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Exécuteurs Téméraires",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack with its executioner plasma cannon that targets a unit that is Below Half-strength, add 1 to the Hit roll."
+  }
+ ],
+ "Militarum Tempestus Command Squad": [
+  {
+   "mot": "sust:1",
+   "port": "T",
+   "nom": "Tempestor Prime",
+   "quand": "L'unité contient un Tempestor Prime",
+   "texte": "While this unit contains a Tempestor Prime, ranged weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Catachan Command Squad": [
+  {
+   "mot": "assault",
+   "port": "T",
+   "nom": "Commandement Téméraire",
+   "quand": "L'unité contient un Officier",
+   "texte": "While this unit contains an Officer, ranged weapons equipped by models in this unit have the [ASSAULT] ability."
+  }
+ ],
+ "Ratlings": [
+  {
+   "mot": "lethal",
+   "port": "T",
+   "nom": "Molosse Ratling",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "Once per battle, when this unit is selected to shoot: until the end of the phase, ranged weapons equipped by models in this unit have the [LETHAL HITS] ability."
+  }
+ ],
+ "Lord Marshal Dreir": [
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "En Tête de la Charge",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time this model's unit makes a Charge move, until the end of the turn, melee weapons equipped by models in that unit have the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Ministorum Priest": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Sainte Piété",
+   "quand": "L'unité n'est pas sous le choc",
+   "texte": "Each time this model makes a melee attack, unless this model's unit is Battle-shocked, you can re-roll the Hit roll."
+  }
+ ],
+ "Taurox Prime": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Appui de Transport",
+   "quand": "L'unité a débarqué de ce Taurox ce tour, et vise l'unité qu'il a touchée",
+   "texte": "In your Shooting phase, after this model has shot, select one enemy unit that was hit. Each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Hit roll."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Hydra": [
+  {
+   "vs": [
+    "vol"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Batterie Antiaérienne",
+   "texte": "Each time this model makes an attack that targets a unit that can Fly, you can re-roll the Hit roll."
+  }
+ ],
+ "Armoured Sentinels": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Chasseurs de Chars Mobiles",
+   "texte": "Each time a model in this unit makes an attack that targets a Monster or Vehicle unit, you can re-roll the Wound roll."
+  }
+ ],
+ "Catachan Heavy Weapons Squad": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Abattez-le !",
+   "texte": "Each time a model in this unit makes a ranged attack that targets a Monster or Vehicle unit, re-roll a Hit roll of 1."
+  },
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrW",
+   "val": "ones",
+   "port": "T",
+   "nom": "Abattez-le !",
+   "texte": "Each time a model in this unit makes a ranged attack that targets a Monster or Vehicle unit, re-roll a Wound roll of 1."
+  }
+ ],
+ "Leman Russ Vanquisher": [
+  {
+   "arme": "Vanquisher battle cannon",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "port": "T",
+   "nom": "Tueur de Chars",
+   "texte": "Each time this model makes a ranged attack with its vanquisher battle cannon that targets a Monster or Vehicle unit, you can re-roll the Wound roll."
+  }
+ ],
+ "Shadowsword": [
+  {
+   "arme": "Volcano cannon",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "mot": "dev",
+   "port": "T",
+   "nom": "Tueur de Titans",
+   "texte": "Each time this model makes a ranged attack with its volcano cannon that targets a Monster or Vehicle unit, that attack has the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Leman Russ Punisher": [
+  {
+   "arme": "Punisher gatling cannon",
+   "sauf": [
+    "mon",
+    "veh"
+   ],
+   "mot": "dev",
+   "port": "T",
+   "nom": "Fauchez-les",
+   "texte": "Each time this model makes an attack with its punisher gatling cannon that targets an enemy unit (excluding Monsters and Vehicles), that attack has the [DEVASTATING WOUNDS] ability."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Cadian Castellan": [
+  {
+   "mot": "sust:1",
+   "port": "T",
+   "nom": "Officier Supérieur",
+   "texte": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Ministorum Priest": [
+  {
+   "mot": "sust:1",
+   "port": "C",
+   "nom": "Hymnes de Guerre",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Scout Sentinels",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Reconnaissance Audacieuse",
+  "quand": "La cible est l'unité désignée par les Sentinelles ce tour",
+  "texte": "At the start of your Shooting phase, select one enemy unit within 18\" of and visible to this unit. Until the end of the phase, each time a friendly Astra Militarum model makes an attack that targets that unit, re-roll a Hit roll of 1."
+ }
+];
+
+/* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
 const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -3350,10 +3620,6 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "astra",

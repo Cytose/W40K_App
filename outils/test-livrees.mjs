@@ -132,6 +132,23 @@ for (const F of registre) {
         return out;
       })(),
 
+      /* Une règle câblée peut viser UNE arme — « avec son canon
+         vanquisher ». Si le nom ne correspond à aucune arme de l'unité,
+         elle ne s'applique jamais : même silence qu'un nom d'unité mort,
+         et c'est le nom d'arme qui bouge le plus souvent, parce que le
+         catalogue préfixe les sous-profils d'un ➤. */
+      armeCablageOrpheline: (() => {
+        const out = [];
+        [['APTIS_CIBLE', APTIS_CIBLE], ['APTIS_COND', APTIS_COND],
+         ['APTIS_UNITE', APTIS_UNITE]].forEach(([k, t]) =>
+          Object.entries(t || {}).forEach(([u, l]) => l.forEach(a => {
+            if (!a.arme) return;
+            if (!WEAPONS.some(w => w[0] === u && w[1] === a.arme))
+              out.push(k + ' · ' + u + ' → ' + a.arme);
+          })));
+        return out;
+      })(),
+
       /* le balisage du catalogue ne doit pas atteindre l'écran */
       balisees: textes.filter(balise).length,
       regle: FACTION.length ? FACTION[0][0] : ''
@@ -167,6 +184,7 @@ dit('presque toutes les fiches portent une arme',
   R.unitesSansArme.length / R.unites, v => v <= 0.05);
   dit('aucune optimisation déguisée en aptitude', R.aptisQuiSontDesOptims, []);
   dit('aucune règle câblée sur une unité qui n\'existe pas', R.cablageOrphelin, []);
+  dit('aucune règle câblée sur une arme que l\'unité n\'a pas', R.armeCablageOrpheline, []);
   dit('toute unité jouable a son socle', R.jouablesSansSocle, []);
 /* Un socle qui ne désigne aucune fiche n'est pas un mensonge : il ne
    sert à rien, voilà tout. Il y en a deux dans la table nécrone relue à

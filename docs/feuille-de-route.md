@@ -3480,3 +3480,59 @@ l'Annihilateur, qu'il n'a pas non plus.
 L'Astra Militarum : 76 règles, dont les 19 qui attendaient `atkMod` sont
 maintenant écrivables. Et les stratagèmes, toujours hors de portée sans
 Wahapedia.
+
+## 16. Le câblage de l'Astra Militarum — 25/08/2026
+
+76 lignes au compte par fiche, mais la même règle revient sur plusieurs
+fiches : **29 décisions distinctes** sur les jouables. Vingt-six sont
+câblées.
+
+Automatiques, parce que l'application connaît les mots-clés de la cible :
+la **Hydra** contre les VOLANTS, les **Sentinelles Blindées** et le
+**Vanquisher** contre MONSTRES et VÉHICULES, le **Shadowsword** qui leur
+inflige des Blessures Dévastatrices, le **Punisher** qui les inflige à
+tout le reste, les **Armes Lourdes Catachanes** qui relancent leurs 1.
+
+Déclarées, parce que la règle dépend d'un fait de table : le **Leman Russ**
+qui relance mieux sur un objectif adverse, les **Combattants de la
+Jungle** après une charge, la **Mine Sombre** du Korps de Krieg quand
+l'unité est entamée, l'**Exécuteur** contre une cible à demi effacée, les
+**Scions**, les **Ratlings**, le **Prêtre**, le **Taurox**, la
+**Reconnaissance** des Sentinelles.
+
+### Trois familles restent dehors, et ce ne sont pas des oublis
+
+**L'insensibilité.** Quatre règles en donnent une. Ce n'est pas un champ
+de l'attaquant : le moteur la lit sur la CIBLE, dans `UNITS[8]`. Une
+aptitude ne peut pas l'accorder depuis le côté offensif. L'extraire du
+texte vers `UNITS[8]` est le chantier suivant — et le seul qui reste
+avant que la défense soit juste.
+
+**Les Ordres.** « Voice Of Command » porte quinze fiches, mais ce n'est
+pas un modificateur : c'est une mécanique où l'officier choisit un Ordre
+dans une liste. Ce sont les Ordres qu'il faudrait câbler, et ils ne sont
+pas dans les aptitudes de fiche.
+
+**Les relances uniques.** « Called Shots » donne UNE relance de touche,
+UNE de blessure, UNE de dégâts. Le moteur ne connaît que « les 1 » et
+« les ratés » ; écrire une relance unique en « ratés » la surestimerait
+beaucoup. Mieux vaut ne rien dire que mentir en faveur du joueur.
+
+### Le compte, et ce qui le garde
+
+| | règles câblées |
+|---|---:|
+| Nécrons *(relu à la main)* | 25 |
+| Astra Militarum | **26** |
+| World Eaters | **20** |
+| Adeptus Custodes | 0 |
+
+`npm run livrees` en compte **91** maintenant. Deux contrôles neufs y
+sont entrés avec le câblage, parce qu'une règle mal adressée ne casse
+rien — elle ne s'applique jamais, en silence :
+
+- aucune règle ne doit désigner une **unité** qui n'existe pas ;
+- aucune ne doit désigner une **arme** que l'unité n'a pas. C'est le nom
+  d'arme qui bouge le plus, parce que le catalogue préfixe les
+  sous-profils d'un `➤` — « ➤ Executioner plasma cannon - standard » et
+  non « executioner plasma cannon ».
