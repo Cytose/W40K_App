@@ -71,9 +71,9 @@ pas est une branche sur laquelle on ne peut pas travailler.
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
 | `data.js` | le socle commun : registre des factions et adaptateur, barème de points, mots-clés de cible, archétypes de menace, catégories, rôles tactiques, Dispositions de Force, glossaire des règles de base |
-| `data-astra.js` | l'Astra Militarum : **fichier généré**, 134 fiches (72 jouables), 854 profils d'armes, 11 détachements, 38 optimisations |
-| `data-custodes.js` | les Adeptus Custodes : **fichier généré** par `outils/extraction.py`, 31 fiches, 111 profils d'armes, 9 détachements, 30 optimisations. Ni socles, ni stratagèmes, ni tables de simulateur — voir son en-tête |
-| `data-worldeaters.js` | les World Eaters : **fichier généré**, 30 fiches, 127 profils d'armes, 8 détachements, 26 optimisations |
+| `data-astra.js` | l'Astra Militarum : **fichier généré**, 134 fiches (72 jouables), 854 profils d'armes, 11 détachements, 38 optimisations, 72 socles |
+| `data-custodes.js` | les Adeptus Custodes : **fichier généré** par `outils/extraction.py`, 31 fiches, 111 profils d'armes, 9 détachements, 30 optimisations, 31 socles. Ni stratagèmes ni tables de simulateur — voir son en-tête |
+| `data-worldeaters.js` | les World Eaters : **fichier généré**, 30 fiches, 127 profils d'armes, 8 détachements, 26 optimisations, 30 socles |
 | `data-necrons.js` | les Nécrons : 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
@@ -84,6 +84,7 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
 | `vercel.json` | pointe le déploiement sur `dist/` |
 | `mkloader.js` | fabrique un chargeur compressé, hors chaîne de build |
+| `outils/socles.json` | le relevé du Base Size Guide : 29 factions, 1 097 socles. Produit par `outils/socles.py` depuis le PDF, qui n'entre pas dans le dépôt |
 
 ### Ajouter une faction
 
@@ -97,8 +98,11 @@ d'une liste rebranche les tables globales sur les siennes.
    arrête le chargement en la nommant plutôt que de valoir `undefined`.
    Le plus souvent, il suffit de la **générer** : `npm run sources` récupère
    BSData et le Munitorum, puis `python3 outils/extraction.py <faction>` écrit
-   le fichier. `npm run etalonnage` mesure ce que vaut l'extraction en la
-   confrontant à la table nécrone relue à la main.
+   le fichier. Les socles viennent d'ailleurs — du Base Size Guide, relevé une
+   fois pour les 29 factions dans `outils/socles.json` ; il suffit de nommer
+   l'en-tête du guide dans la table `FACTIONS` de l'extracteur.
+   `npm run etalonnage` mesure ce que vaut l'extraction en la confrontant à la
+   table nécrone, la seule relue à la main sur les documents officiels.
 2. L'ajouter à `SOURCES` dans `build.js`, à `ASSETS` dans `sw.js`, et poser sa
    balise dans `index.html`, après `data.js`.
 3. `npm run factions` éprouve le registre, la bascule, la reconstruction des

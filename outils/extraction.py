@@ -43,17 +43,45 @@ MFM    = os.environ.get('MFM',    os.path.join(RACINE, 'build', 'mfm', 'data'))
 # cle : celle du registre de data.js. bs : le ou les catalogues BSData.
 # mfm : le fichier du Munitorum. nom : ce que le sélecteur affiche.
 # ------------------------------------------------------------------
+# `guide` est l'en-tête de la faction dans le Base Size Guide, tel que
+# outils/socles.py le relève. None quand le relevé ne la couvre pas : la
+# faction sort alors sans socles, et le dit — le Plateau posera sur un
+# socle par défaut plutôt que de mentir sur la place qu'elle prend.
 FACTIONS = {
     'necrons':  dict(nom='Nécrons',          bs=['Necrons.json'],
-                     mfm='necrons.yaml'),
+                     mfm='necrons.yaml',     guide='NECRONS'),
     'custodes': dict(nom='Adeptus Custodes', bs=['Imperium - Adeptus Custodes.json'],
-                     mfm='adeptus-custodes.yaml'),
+                     mfm='adeptus-custodes.yaml', guide='ADEPTUS CUSTODES'),
     'astra':    dict(nom='Astra Militarum',  bs=['Imperium - Astra Militarum.json',
                                                  'Imperium - Astra Militarum - Library.json'],
-                     mfm='astra-militarum.yaml'),
+                     mfm='astra-militarum.yaml', guide='ASTRA MILITARUM'),
     'worldeaters': dict(nom='World Eaters',  bs=['Chaos - World Eaters.json'],
-                        mfm='world-eaters.yaml'),
+                        mfm='world-eaters.yaml', guide='WORLD EATERS'),
 }
+
+SOCLES_JSON = os.path.join(RACINE, 'outils', 'socles.json')
+
+# ------------------------------------------------------------------
+# LES NOMS QUE LE GUIDE N'ÉCRIT PAS COMME LES AUTRES SOURCES
+# Le Base Size Guide nomme la boîte, BSData et le Munitorum nomment la
+# fiche. Le plus souvent c'est le même nom ; quand ça ne l'est pas, il
+# faut le dire ici, parce qu'aucune règle ne le devine — « Terminator
+# Squad » et « Chaos Terminators » n'ont pas un mot en commun.
+#
+# Une entrée de cette table est un fait relevé à la main, pas une
+# approximation : on ne l'ajoute qu'après avoir lu les deux sources.
+# ------------------------------------------------------------------
+ALIAS_SOCLE = {
+    'worldeaters': {'Chaos Terminators': 'Terminator Squad'},
+}
+
+def chargeSocles(faction):
+    """Le relevé du Base Size Guide pour cette faction, {figurine: socle}.
+       Vide si le guide ne la couvre pas ou si le relevé manque : SOCLES
+       sortira vide, et le Plateau posera sur un socle par défaut."""
+    entete = FACTIONS[faction].get('guide')
+    if not entete or not os.path.exists(SOCLES_JSON): return {}
+    return json.load(open(SOCLES_JSON, encoding='utf-8')).get(entete, {})
 
 # ==================================================================
 # PARCOURS
@@ -448,9 +476,15 @@ def ecrit(faction, T, stats):
     A('')
     A('   Ce que ce fichier NE porte PAS, et qu\'il faut savoir avant de')
     A('   s\'y fier :')
-    A('   · SOCLES est vide — les socles viennent du Base Size Guide, un')
-    A('     PDF qu\'aucune des deux sources ne reprend. Le Plateau posera')
-    A('     ces figurines sur un socle par défaut.')
+    if T['SOCLES']:
+        A('   · SOCLES vient du Base Size Guide, relevé par outils/socles.py :')
+        A('     %d fiches sur %d en ont un. Les autres — des Legends, que le'
+          % (len(T['SOCLES']), len(T['UNITS'])))
+        A('     guide ne liste pas — sont posées sur un socle par défaut.')
+    else:
+        A('   · SOCLES est vide — le relevé du Base Size Guide ne couvre pas')
+        A('     cette faction. Le Plateau posera ses figurines sur un socle')
+        A('     par défaut.')
     A('   · STRATS est vide — ni BSData ni le Munitorum ne portent les')
     A('     stratagèmes. Ils se saisissent à la main dans l\'application.')
     A('   · Les tables du simulateur — APTIS_COND, AURAS_ARMEE,')
@@ -507,12 +541,17 @@ def ecrit(faction, T, stats):
     A('   déduits des catégories du catalogue */')
     A('const KW = ' + json.dumps(T['KW'], ensure_ascii=False, indent=1) + ';')
     A('')
+    A('/* SOCLES : le relevé du Base Size Guide, rapproché des noms de fiche.')
+    A('   « 32 » pour un rond, « 120x92 » pour un ovale, « coque » pour un')
+    A('   modèle qui n\'a pas de socle à annoncer. */')
+    A('const SOCLES = ' + json.dumps(T['SOCLES'], ensure_ascii=False, indent=1) + ';')
+    A('')
     A('const TRANSPORTS = ' + json.dumps(T['TRANSPORTS'], ensure_ascii=False, indent=1) + ';')
     A('const FACTION = ' + json.dumps(T['FACTION'], ensure_ascii=False, indent=1) + ';')
     A('')
     A('/* Vides, et pour de bonnes raisons : voir l\'en-tête. */')
     for nom in ['ARMEMENT', 'STRAT_SIMU', 'APTIS_CIBLE', 'RETINUE', 'ENH_ANCIENS',
-                'SOCLES', 'GRPN', 'STRATS', 'MOMENTS', 'MOMENTS_ARMEE', 'COMPO',
+                'GRPN', 'STRATS', 'MOMENTS', 'MOMENTS_ARMEE', 'COMPO',
                 'ROLES_UNITE', 'OCTROIS_DETACH', 'APTIS_UNITE', 'APTIS_COND',
                 'AURAS_ARMEE', 'ABIMEES', 'AURAS_PERSO']:
         vide = '[]' if nom in ('STRAT_SIMU', 'STRATS', 'MOMENTS_ARMEE', 'AURAS_ARMEE') else '{}'
@@ -698,6 +737,22 @@ def extrait(faction):
             r = idx.get(tid)
             if r: faction_regle = [[r.get('name') or '', texteRegle(r)]]
 
+    # ------------------------------------------------------------------
+    # LES SOCLES
+    # Le guide nomme des figurines, l'application nomme des unités, et
+    # les deux ne s'écrivent pas pareil — « Tomb Blade » contre « Tomb
+    # Blades ». On rapproche sur la clé normalisée, et on compte ce qui
+    # ne tombe pas : un socle manquant ne casse rien, il fait poser sur
+    # un socle par défaut, donc il doit se voir ici plutôt qu'à l'écran.
+    guide = chargeSocles(faction)
+    parCle = {cle(k): v for k, v in guide.items()}
+    alias = ALIAS_SOCLE.get(faction, {})
+    SOCLES, sansSocle = {}, []
+    for u in UNITS:
+        t = parCle.get(cle(alias.get(u[0], u[0])))
+        if t: SOCLES[u[0]] = t
+        else: sansSocle.append(u[0])
+
     UNITS.sort(key=lambda x: x[0])
     WEAPONS.sort(key=lambda x: (x[0], x[2] != 'T', x[1]))
     CAT.sort(key=lambda x: x[0])
@@ -705,9 +760,10 @@ def extrait(faction):
     T = dict(UNITS=UNITS, WEAPONS=WEAPONS, CAT=CAT, ATTACH=ATTACH,
              APTITUDES=APTITUDES, DETACHMENTS=DETACHMENTS,
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
-             FACTION=faction_regle)
+             FACTION=faction_regle, SOCLES=SOCLES)
     stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM,
-                 multiProfil=multiProfil)
+                 multiProfil=multiProfil, sansSocle=sansSocle,
+                 guide=len(guide))
     return T, stats
 
 def main():
@@ -729,6 +785,10 @@ def main():
           (len(T['WEAPONS']), len(T['APTITUDES']), len(T['ATTACH'])))
     print('  %d détachements, %d optimisations, %d transports' %
           (len(T['DETACHMENTS']), len(T['ENHANCEMENTS']), len(T['TRANSPORTS'])))
+    print('  %d socles sur %d fiches%s'
+          % (len(T['SOCLES']), len(T['UNITS']),
+             '' if not stats['guide'] else
+             '   (relevé du guide : %d figurines)' % stats['guide']))
     if T['FACTION']: print('  règle d\'armée : %s' % T['FACTION'][0][0])
     else: print('  règle d\'armée : NON TROUVÉE')
     avecRegle = sum(1 for d in T['DETACHMENTS'] if d[4])

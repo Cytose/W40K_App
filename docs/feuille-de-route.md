@@ -3303,3 +3303,73 @@ forme qu'avait celui des liens non suivis.
 - **Les socles** — Base Size Guide, un PDF. Le Plateau pose sur un socle par
   défaut pour les trois factions ajoutées.
 - **Le câblage du simulateur** — toujours le seul vrai poste manuel.
+
+## 14. Les socles des quatre factions — 25/08/2026
+
+Guillaume a fourni le Base Size Guide, en deux morceaux — un extrait A→N,
+puis la suite. C'était le dernier poste que ni BSData ni le Munitorum ne
+couvraient et qui pouvait se régler sans réfléchir.
+
+`outils/socles.py` lit le PDF et écrit `outils/socles.json` : **29 factions,
+1 097 socles**. Le PDF n'entre pas dans le dépôt — c'est le relevé qu'on
+versionne, comme pour les cartes. `npm run socles` le rejoue.
+
+### Étalonné là encore sur les Nécrons
+
+La table nécrone avait été relevée à la main sur ce même guide, et c'est
+elle qui juge : **52 entrées sur 52 identiques, zéro écart**. La seule qui
+ne se rapproche pas est le Roi Silencieux, que le guide nomme « The Silent
+King » et l'application « Szarekh, The Silent King ».
+
+### Ce que le guide n'écrit pas comme l'application l'attend
+
+- **Il nomme des figurines, l'application nomme des unités.** « Repentia
+  Squad: Sister Repentia » est une ligne pour la moitié d'une unité. On
+  garde les deux et on ajoute l'unité elle-même, au socle **le plus grand**
+  de ses figurines : c'est lui qui décide de la place qu'elle prend, et le
+  Plateau ne mesure rien d'autre. Quatorze noms d'unité ainsi reconstitués.
+- **Deux entrées portent un nom de produit Citadel** — « Large Flying Base »
+  et « Small Flying Base » — que le guide ne chiffre nulle part. Les valeurs
+  retenues, 120x92 et 60x35.5, sont celles qu'il donne par ailleurs aux
+  modèles volés qu'il chiffre : c'est une **déduction**, elle est comptée et
+  annoncée à chaque exécution, et elle confirme celle que la table nécrone
+  portait déjà.
+- **« Unique »** est une vraie valeur, pour les quatre aéronefs qui viennent
+  avec leur socle propre. Elle vaut « coque », comme « Hull ».
+- **Deux noms débordent de leur colonne** et se poursuivent sur la ligne
+  suivante, alors que la taille est restée sur la première. On recolle avant
+  d'analyser : sans ça le nom sortait tronqué sur une virgule.
+
+### Le résultat
+
+| | socles | sur | |
+|---|---:|---:|---|
+| Nécrons | 53 | 51 | relevés à la main, inchangés |
+| Adeptus Custodes | **31** | 31 | toutes |
+| Astra Militarum | **72** | 134 | **toutes les jouables** — les 62 sans socle sont des Legends, que le guide ne liste pas |
+| World Eaters | **30** | 30 | toutes |
+
+Une seule divergence de nommage sur les trois factions : le guide écrit
+« Terminator Squad » là où BSData et le Munitorum écrivent « Chaos
+Terminators ». Aucune règle ne devine ça — les deux noms n'ont pas un mot
+en commun. Une table d'alias le porte, avec sa raison.
+
+### Un défaut que la suite a attrapé, et qui aurait été invisible
+
+L'extracteur **annonçait 31 socles et n'en écrivait aucun**. `SOCLES` était
+resté dans sa liste de tables émises vides : le compte affiché venait de la
+table en mémoire, le fichier généré portait `const SOCLES = {}`. Le journal
+d'extraction disait donc la vérité sur ce qu'il avait trouvé, et le fichier
+mentait sur ce qu'il contenait.
+
+Rien ne l'aurait signalé — le Plateau serait simplement resté sur son socle
+par défaut, et une unité aurait pris une place qui n'est pas la sienne. Il a
+fallu compter dans le fichier produit, pas dans le journal. `npm run livrees`
+le fait maintenant à chaque exécution : **toute unité jouable doit avoir son
+socle**, faction par faction.
+
+### Ce qui reste
+
+Les **stratagèmes** — seul poste encore hors de portée, et le seul qui exige
+Wahapedia — et le **câblage du simulateur**, qui n'a jamais été automatisable
+et ne le sera pas.

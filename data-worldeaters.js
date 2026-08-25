@@ -10,9 +10,9 @@
 
    Ce que ce fichier NE porte PAS, et qu'il faut savoir avant de
    s'y fier :
-   · SOCLES est vide — les socles viennent du Base Size Guide, un
-     PDF qu'aucune des deux sources ne reprend. Le Plateau posera
-     ces figurines sur un socle par défaut.
+   · SOCLES vient du Base Size Guide, relevé par outils/socles.py :
+     30 fiches sur 30 en ont un. Les autres — des Legends, que le
+     guide ne liste pas — sont posées sur un socle par défaut.
    · STRATS est vide — ni BSData ni le Munitorum ne portent les
      stratagèmes. Ils se saisissent à la main dans l'application.
    · Les tables du simulateur — APTIS_COND, AURAS_ARMEE,
@@ -1390,6 +1390,42 @@ const KW = {
  ]
 };
 
+/* SOCLES : le relevé du Base Size Guide, rapproché des noms de fiche.
+   « 32 » pour un rond, « 120x92 » pour un ovale, « coque » pour un
+   modèle qui n'a pas de socle à annoncer. */
+const SOCLES = {
+ "Angron": "100",
+ "Khârn the Betrayer": "40",
+ "Lord Invocatus": "90x52.5",
+ "Daemon Prince of Khorne": "60",
+ "Daemon Prince of Khorne with wings": "60",
+ "Lord on Juggernaut": "90x52.5",
+ "Master of Executions": "40",
+ "Khorne Berzerkers": "32",
+ "Chaos Terminators": "40",
+ "Jakhals": "28.5",
+ "Eightbound": "40",
+ "Exalted Eightbound": "40",
+ "Chaos Land Raider": "coque",
+ "Chaos Predator Annihilator": "coque",
+ "Chaos Predator Destructor": "coque",
+ "Defiler": "160",
+ "Forgefiend": "120x92",
+ "Helbrute": "60",
+ "Heldrake": "120x92",
+ "Maulerfiend": "120x92",
+ "Chaos Rhino": "coque",
+ "Chaos Spawn": "50",
+ "Khorne Lord of Skulls": "coque",
+ "Goremongers": "32",
+ "Slaughterbound": "50",
+ "Skarbrand": "100",
+ "Bloodthirster": "120x92",
+ "Bloodletters": "32",
+ "Bloodcrushers": "90x52.5",
+ "Flesh Hounds": "60x35.5"
+};
+
 const TRANSPORTS = {
  "Chaos Land Raider": "This model has a transport capacity of 14 ^^**World Eaters Infantry^^** models. Each ^^**Possessed^^** and ^^**Terminator^^** model takes up the space of 2 models.",
  "Chaos Rhino": "This model has a transport capacity of 12 ^^**World Eaters Infantry**^^ models. It cannot transport ^^**Possessed^^** or ^^**Terminator^^** models."
@@ -1407,7 +1443,6 @@ const STRAT_SIMU = [];
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
-const SOCLES = {};
 const GRPN = {};
 const STRATS = [];
 const MOMENTS = {};

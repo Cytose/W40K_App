@@ -10,9 +10,9 @@
 
    Ce que ce fichier NE porte PAS, et qu'il faut savoir avant de
    s'y fier :
-   · SOCLES est vide — les socles viennent du Base Size Guide, un
-     PDF qu'aucune des deux sources ne reprend. Le Plateau posera
-     ces figurines sur un socle par défaut.
+   · SOCLES vient du Base Size Guide, relevé par outils/socles.py :
+     72 fiches sur 134 en ont un. Les autres — des Legends, que le
+     guide ne liste pas — sont posées sur un socle par défaut.
    · STRATS est vide — ni BSData ni le Munitorum ne portent les
      stratagèmes. Ils se saisissent à la main dans l'application.
    · Les tables du simulateur — APTIS_COND, AURAS_ARMEE,
@@ -7915,6 +7915,84 @@ const KW = {
  ]
 };
 
+/* SOCLES : le relevé du Base Size Guide, rapproché des noms de fiche.
+   « 32 » pour un rond, « 120x92 » pour un ovale, « coque » pour un
+   modèle qui n'a pas de socle à annoncer. */
+const SOCLES = {
+ "Aegis Defence Line": "coque",
+ "Armoured Sentinels": "80",
+ "Attilan Rough Riders": "60x35.5",
+ "Baneblade": "coque",
+ "Banehammer": "coque",
+ "Banesword": "coque",
+ "Basilisk": "coque",
+ "Bullgryn Squad": "40",
+ "Cadian Castellan": "28.5",
+ "Cadian Command Squad": "28.5",
+ "Cadian Shock Troops": "25",
+ "Catachan Jungle Fighters": "25",
+ "Chimera": "coque",
+ "Commissar": "28.5",
+ "Death Korps of Krieg": "25",
+ "Deathstrike": "coque",
+ "Doomhammer": "coque",
+ "Field Ordnance Battery": "100",
+ "Gaunt’s Ghosts": "28.5",
+ "Cadian Heavy Weapons Squad": "50",
+ "Hellhammer": "coque",
+ "Hellhound": "coque",
+ "Hydra": "coque",
+ "Kasrkin": "28.5",
+ "Leman Russ Battle Tank": "coque",
+ "Leman Russ Demolisher": "coque",
+ "Leman Russ Eradicator": "coque",
+ "Leman Russ Executioner": "coque",
+ "Leman Russ Exterminator": "coque",
+ "Leman Russ Punisher": "coque",
+ "Leman Russ Vanquisher": "coque",
+ "Lord Solar Leontus": "80",
+ "Manticore": "coque",
+ "Militarum Tempestus Command Squad": "25",
+ "Nork Deddog": "40",
+ "Ogryn Bodyguard": "40",
+ "Ogryn Squad": "40",
+ "Primaris Psyker": "32",
+ "Tech-Priest Enginseer": "32",
+ "Rogal Dorn Battle Tank": "coque",
+ "Scout Sentinels": "80",
+ "Shadowsword": "coque",
+ "Sly Marbo": "32",
+ "Stormlord": "coque",
+ "Stormsword": "coque",
+ "Leman Russ Commander": "coque",
+ "Taurox": "coque",
+ "Taurox Prime": "coque",
+ "Tempestus Scions": "25",
+ "Ursula Creed": "32",
+ "Valkyrie": "120x92",
+ "Wyvern": "coque",
+ "Death Riders": "60x35.5",
+ "Cyclops Demolition Vehicle": "coque",
+ "Avenger Strike Fighter": "120x92",
+ "Tempestus Aquilons": "28.5",
+ "Ratlings": "25",
+ "Krieg Command Squad": "25",
+ "Lord Marshal Dreir": "75x42",
+ "Catachan Command Squad": "25",
+ "Rogal Dorn Commander": "coque",
+ "Ministorum Priest": "32",
+ "Krieg Combat Engineers": "25",
+ "Catachan Heavy Weapons Squad": "60",
+ "Krieg Heavy Weapons Squad": "50",
+ "Artillery Team": "130",
+ "Commissar Yarrick": "32",
+ "Commissar Graves": "coque",
+ "Commissar Graves on Foot": "32",
+ "Hippogriff AFV": "coque",
+ "Centaur RSV": "coque",
+ "Cadian Recon Squad": "28.5"
+};
+
 const TRANSPORTS = {
  "Chimera": "This model has a transport capacity of 12 **^^Astra Militarum Infantry^^** models. Each **^^Ogryn^^** model takes up the space of 3 models. It cannot transport **^^Artillery^^** models.",
  "Doomhammer": "This model has a transport capacity of 26 **^^Astra Militarum Infantry^^** models. Each **^^Ogryn^^** model takes up the space of 3 models. It cannot transport **^^Artillery^^** models.",
@@ -7944,7 +8022,6 @@ const STRAT_SIMU = [];
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
-const SOCLES = {};
 const GRPN = {};
 const STRATS = [];
 const MOMENTS = {};

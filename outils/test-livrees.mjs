@@ -86,6 +86,15 @@ for (const F of registre) {
       /* les index dérivés répondent pour chaque unité */
       catManquantes: UNITS.filter(u => !CATMAP[u[0]]).map(u => u[0]),
 
+      /* Les socles. Le guide ne liste pas les Legends, donc on ne mesure
+         que les unités jouables — mais celles-la, toutes. Un socle
+         manquant ne casse rien : le Plateau pose sur un socle par
+         defaut, et l'unite prend une place qui n'est pas la sienne. Ca
+         ne se voit qu'en comptant. */
+      socles: Object.keys(SOCLES).length,
+      jouablesSansSocle: UNITS.filter(u => !u[10] && !SOCLES[u[0]]).map(u => u[0]),
+      soclesOrphelins: Object.keys(SOCLES).filter(n => !noms.has(n)),
+
       /* le balisage du catalogue ne doit pas atteindre l'écran */
       balisees: textes.filter(balise).length,
       regle: FACTION.length ? FACTION[0][0] : ''
@@ -94,7 +103,8 @@ for (const F of registre) {
 
   const dit = (quoi, v, att) => T(F.nom + ' — ' + quoi, v, att);
   console.log('── ' + F.nom + ' : ' + R.unites + ' fiches (' + R.jouables + ' jouables), ' +
-    R.armes + ' armes, ' + R.detachements + ' détachements, ' + R.optimisations + ' optimisations');
+    R.armes + ' armes, ' + R.detachements + ' détachements, ' + R.optimisations +
+    ' optimisations, ' + R.socles + ' socles');
 
   dit('la table est peuplée', R.unites, v => v > 0);
   dit('toute fiche a un nom', R.sansNom, 0);
@@ -118,6 +128,16 @@ if (R.unitesSansArme.length)
     R.unitesSansArme.join(', ') + ')');
 dit('presque toutes les fiches portent une arme',
   R.unitesSansArme.length / R.unites, v => v <= 0.05);
+  dit('toute unité jouable a son socle', R.jouablesSansSocle, []);
+/* Un socle qui ne désigne aucune fiche n'est pas un mensonge : il ne
+   sert à rien, voilà tout. Il y en a deux dans la table nécrone relue à
+   la main — le Seraptek, resté derrière quand les Legends ont été
+   retirées, et le Menhir Triarcal, qui est une FIGURINE que COMPO
+   nomme, pas une unité. On le dit sans faire échouer : l'invariant qui
+   compte est l'autre, celui qui exige un socle pour chaque unité. */
+if (R.soclesOrphelins.length)
+  console.log('     (socles ne désignant aucune fiche : ' +
+    R.soclesOrphelins.join(', ') + ')');
   dit('CATMAP répond pour chaque fiche', R.catManquantes, []);
   dit('aucun balisage de catalogue dans les textes', R.balisees, 0);
   dit('la règle d\'armée est nommée', R.regle, v => v.length > 0);

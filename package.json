@@ -18,7 +18,8 @@
     "extraction": "python3 outils/extraction.py",
     "etalonnage": "python3 outils/extraction.py necrons --sortie build/etalon-necrons.js && node outils/etalonnage.js build/etalon-necrons.js",
     "custodes": "node outils/test-custodes.mjs",
-    "livrees": "node outils/test-livrees.mjs"
+    "livrees": "node outils/test-livrees.mjs",
+    "socles": "python3 outils/socles.py build/base-size.pdf build/base-size-2.pdf"
   },
   "devDependencies": {
     "terser": "^5.36.0"

@@ -125,20 +125,28 @@ T('nommées', fiche.noms, v => v.includes("Martial Ka'tah"));
 T('avec un texte, en anglais, et sans balisage BSData',
   fiche.texte, v => v.length > 10 && !/\*\*|\^\^/.test(v));
 
-/* ---- les trous assumés se traversent sans casser ---- */
-T('SOCLES est vide, comme annoncé', await p.evaluate(() => Object.keys(SOCLES).length), 0);
-T('STRATS aussi', await p.evaluate(() => STRATS.length), 0);
-T('BASES est donc vide, sans faire tomber la reconstruction',
-  await p.evaluate(() => Object.keys(BASES).length), 0);
+/* ---- les socles, depuis le Base Size Guide ---- */
+T('les 31 fiches ont leur socle', await p.evaluate(() => Object.keys(SOCLES).length), 31);
+T('le Garde Custodien est sur un 40 mm', await p.evaluate(() => SOCLES['Custodian Guard']), '40');
+T('le Prétorien Vertus sur un ovale 75x42',
+  await p.evaluate(() => SOCLES['Vertus Praetors']), '75x42');
+T('BASES est reconstruit depuis eux, ovale compris',
+  await p.evaluate(() => [Object.keys(BASES).length, BASES['Vertus Praetors']]), [31, '75×42']);
 
-/* le Plateau lit SOCLES : sans socle, il doit poser quand même */
+/* ---- les trous qui restent se traversent sans casser ---- */
+T('STRATS est vide, comme annoncé', await p.evaluate(() => STRATS.length), 0);
+T('et les tables du simulateur aussi', await p.evaluate(() =>
+  [Object.keys(APTIS_COND).length, AURAS_ARMEE.length, Object.keys(OCTROIS_DETACH).length]),
+  [0, 0, 0]);
+
+/* le Plateau lit SOCLES : il pose maintenant sur les vrais socles */
 await p.evaluate(() => document.querySelector('[data-s="scMap"]')?.click());
 await p.waitForTimeout(1000);
 const n = await p.locator('[data-pose]').count();
 for (let i = 0; i < n; i++) { await p.locator('[data-pose]').nth(i).click({ force: true }); await p.waitForTimeout(250); }
 const plateau = await p.evaluate(() => window.PLATEAU && window.PLATEAU.etat());
 T('le Plateau propose de poser les trois unités', n, 3);
-T('et pose leurs 11 figurines malgré l\'absence de socles',
+T('et pose leurs 11 figurines, chacune sur son socle',
   plateau && plateau.figurines, 5 + 3 + 3);
 T('dessinées à l\'écran', await p.locator('#mapSvg [data-unite]').count(), 11);
 

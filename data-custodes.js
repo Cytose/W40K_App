@@ -10,9 +10,9 @@
 
    Ce que ce fichier NE porte PAS, et qu'il faut savoir avant de
    s'y fier :
-   · SOCLES est vide — les socles viennent du Base Size Guide, un
-     PDF qu'aucune des deux sources ne reprend. Le Plateau posera
-     ces figurines sur un socle par défaut.
+   · SOCLES vient du Base Size Guide, relevé par outils/socles.py :
+     31 fiches sur 31 en ont un. Les autres — des Legends, que le
+     guide ne liste pas — sont posées sur un socle par défaut.
    · STRATS est vide — ni BSData ni le Munitorum ne portent les
      stratagèmes. Ils se saisissent à la main dans l'application.
    · Les tables du simulateur — APTIS_COND, AURAS_ARMEE,
@@ -1902,6 +1902,43 @@ const KW = {
  ]
 };
 
+/* SOCLES : le relevé du Base Size Guide, rapproché des noms de fiche.
+   « 32 » pour un rond, « 120x92 » pour un ovale, « coque » pour un
+   modèle qui n'a pas de socle à annoncer. */
+const SOCLES = {
+ "Aleya": "32",
+ "Allarus Custodians": "40",
+ "Anathema Psykana Rhino": "coque",
+ "Blade Champion": "40",
+ "Custodian Guard": "40",
+ "Custodian Wardens": "40",
+ "Knight-Centura": "32",
+ "Prosecutors": "32",
+ "Shield-Captain": "40",
+ "Shield-Captain in Allarus Terminator Armour": "40",
+ "Shield-Captain on Dawneagle Jetbike": "75x42",
+ "Trajann Valoris": "40",
+ "Valerian": "40",
+ "Venerable Contemptor Dreadnought": "60",
+ "Venerable Land Raider": "coque",
+ "Vertus Praetors": "75x42",
+ "Vigilators": "32",
+ "Witchseekers": "32",
+ "Custodian Guard with Adrasite and Pyrithite spears": "40",
+ "Sagittarum Custodians": "40",
+ "Aquilon Custodians": "50",
+ "Agamatus Custodians": "75x42",
+ "Venatari Custodians": "40",
+ "Contemptor-Galatus Dreadnought": "60",
+ "Contemptor-Achillus Dreadnought": "60",
+ "Pallas Grav-attack": "105x70",
+ "Caladius Grav-tank": "170x109",
+ "Telemon Heavy Dreadnought": "100",
+ "Coronus Grav-carrier": "170x109",
+ "Orion Assault Dropship": "160",
+ "Ares Gunship": "160"
+};
+
 const TRANSPORTS = {
  "Anathema Psykana Rhino": "This model has a transport capacity of 12 ANATHEMA PSYKANA INFANTRY models.",
  "Venerable Land Raider": "This model has a transport capacity of 6 ADEPTUS CUSTODES INFANTRY models.",
@@ -1921,7 +1958,6 @@ const STRAT_SIMU = [];
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
-const SOCLES = {};
 const GRPN = {};
 const STRATS = [];
 const MOMENTS = {};
