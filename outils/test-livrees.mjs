@@ -111,6 +111,27 @@ for (const F of registre) {
         return Object.entries(combien).filter(([, n]) => n > 1).map(([n, c]) => n + ' ×' + c);
       })(),
 
+      /* Le câblage du simulateur. Il est écrit à la main, donc il peut
+         nommer une unité qui n'existe pas — une faute de frappe, ou une
+         fiche renommée par la source depuis. Une règle câblée sur un nom
+         mort ne s'applique jamais et ne dit rien : elle se compte ici. */
+      cablees: (() => {
+        let n = 0;
+        [APTIS_UNITE, APTIS_COND, APTIS_CIBLE, AURAS_PERSO].forEach(t =>
+          Object.values(t || {}).forEach(l => n += l.length));
+        return n + (AURAS_ARMEE || []).length;
+      })(),
+      cablageOrphelin: (() => {
+        const out = [];
+        [['APTIS_UNITE', APTIS_UNITE], ['APTIS_COND', APTIS_COND],
+         ['APTIS_CIBLE', APTIS_CIBLE], ['AURAS_PERSO', AURAS_PERSO]].forEach(([k, t]) =>
+          Object.keys(t || {}).forEach(u => { if (!noms.has(u)) out.push(k + ' → ' + u); }));
+        (AURAS_ARMEE || []).forEach(a => {
+          if (!noms.has(a.source)) out.push('AURAS_ARMEE → ' + a.source);
+        });
+        return out;
+      })(),
+
       /* le balisage du catalogue ne doit pas atteindre l'écran */
       balisees: textes.filter(balise).length,
       regle: FACTION.length ? FACTION[0][0] : ''
@@ -120,7 +141,7 @@ for (const F of registre) {
   const dit = (quoi, v, att) => T(F.nom + ' — ' + quoi, v, att);
   console.log('── ' + F.nom + ' : ' + R.unites + ' fiches (' + R.jouables + ' jouables), ' +
     R.armes + ' armes, ' + R.detachements + ' détachements, ' + R.optimisations +
-    ' optimisations, ' + R.socles + ' socles');
+    ' optimisations, ' + R.socles + ' socles, ' + R.cablees + ' règles câblées');
 
   dit('la table est peuplée', R.unites, v => v > 0);
   dit('toute fiche a un nom', R.sansNom, 0);
@@ -145,6 +166,7 @@ if (R.unitesSansArme.length)
 dit('presque toutes les fiches portent une arme',
   R.unitesSansArme.length / R.unites, v => v <= 0.05);
   dit('aucune optimisation déguisée en aptitude', R.aptisQuiSontDesOptims, []);
+  dit('aucune règle câblée sur une unité qui n\'existe pas', R.cablageOrphelin, []);
   dit('toute unité jouable a son socle', R.jouablesSansSocle, []);
 /* Un socle qui ne désigne aucune fiche n'est pas un mensonge : il ne
    sert à rien, voilà tout. Il y en a deux dans la table nécrone relue à

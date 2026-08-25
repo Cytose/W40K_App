@@ -84,6 +84,7 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
 | `vercel.json` | pointe le déploiement sur `dist/` |
 | `mkloader.js` | fabrique un chargeur compressé, hors chaîne de build |
+| `outils/cablage/*.json` | le câblage du simulateur, tenu à la main : ce que chaque règle fait au calcul. Fusionné par l'extracteur, jamais écrasé par lui |
 | `outils/socles.json` | le relevé du Base Size Guide : 29 factions, 1 097 socles. Produit par `outils/socles.py` depuis le PDF, qui n'entre pas dans le dépôt |
 
 ### Ajouter une faction

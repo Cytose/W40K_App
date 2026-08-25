@@ -69,10 +69,16 @@ const MOTIFS = [
   [/(\d)\+[^.]{0,40}?critical wound/i,  'critW', m => +m[1]],
 
   // les relances
-  [/re-?roll(?:s|ing)?[^.]{0,60}?Hit roll/i,   'rrH',
-    t => /\bof\s*1\b|\ba\s*1\b/i.test(t) ? 'ones' : 'failed'],
-  [/re-?roll(?:s|ing)?[^.]{0,60}?Wound roll/i, 'rrW',
-    t => /\bof\s*1\b|\ba\s*1\b/i.test(t) ? 'ones' : 'failed'],
+  /* « relancez les 1 » et « relancez les ratés » ne valent pas la même
+     chose, et un cran d'écart se voit sur le résultat. La distinction
+     tient au « of 1 » qui suit le jet : on le cherche donc dans la
+     PHRASE, pas dans le tableau de correspondance — la première version
+     passait `m` au lieu du texte et rendait « ratés » pour tout, ce qui
+     surestimait Khârn et sa relance des 1. */
+  [/re-?roll(?:s|ing)?[^.]{0,60}?Hit rolls? of (?:a )?1/i, 'rrH', () => 'ones'],
+  [/re-?roll(?:s|ing)?[^.]{0,60}?Wound rolls? of (?:a )?1/i, 'rrW', () => 'ones'],
+  [/re-?roll(?:s|ing)?[^.]{0,60}?Hit roll/i,   'rrH', () => 'failed'],
+  [/re-?roll(?:s|ing)?[^.]{0,60}?Wound roll/i, 'rrW', () => 'failed'],
 
   // les modificateurs
   [/(?:add|subtract) (\d) to the Hit roll/i,   'hitMod', m => +m[1]],

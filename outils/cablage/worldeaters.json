@@ -1,0 +1,101 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — WORLD EATERS",
+    "",
+    "Écrit à la main, et il n'y a pas d'autre façon : aucune source ne dit",
+    "ce qu'une règle fait au CALCUL. BSData donne le texte, le Munitorum",
+    "les chiffres ; décider que « re-roll the Hit roll » est un rrH failed",
+    "en corps à corps, et qu'il faut le déclarer parce qu'il dépend de la",
+    "cible, ça se lit et ça se tranche.",
+    "",
+    "extraction.py fusionne ce fichier dans data-worldeaters.js. Le fichier",
+    "généré est écrasé à chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "Les textes sont en anglais, comme le reste de la faction : c'est la",
+    "convention du dépôt, une règle mal traduite se paie en partie. Les",
+    "libellés `nom` et `quand`, eux, sont en français — ils s'affichent.",
+    "",
+    "CE QUI N'EST PAS CÂBLÉ, ET POURQUOI — voir le §15 de la feuille de",
+    "route. En un mot : le simulateur n'a pas de champ pour « +N attaques »",
+    "ni « +N Force ». Skarbrand, le Bloodthirster, le Helbrute et une",
+    "moitié du Slaughterbound attendent que le moteur en ait un."
+  ],
+
+  "AURAS_PERSO": {
+    "Khârn the Betrayer": [
+      { "champ": "rrH", "val": "ones", "port": "C", "nom": "Tueur Légendaire",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, re-roll a Hit roll of 1." },
+      { "champ": "rrW", "val": "ones", "port": "C", "nom": "Tueur Légendaire",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, re-roll a Wound roll of 1." }
+    ]
+  },
+
+  "APTIS_CIBLE": {
+    "Master of Executions": [
+      { "vs": ["perso"], "champ": "rrH", "val": "failed", "port": "C", "nom": "Un Crâne Digne de ce Nom",
+        "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Hit roll." },
+      { "vs": ["perso"], "champ": "rrW", "val": "failed", "port": "C", "nom": "Un Crâne Digne de ce Nom",
+        "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Wound roll." }
+    ],
+    "Exalted Eightbound": [
+      { "vs": ["mon", "veh"], "champ": "dmgMod", "val": 1, "port": "C", "nom": "Déchirer et Lacérer",
+        "texte": "Each time a model in this unit makes a melee attack that targets a Monster or Vehicle unit, improve the Damage characteristic of that attack by 1." }
+    ],
+    "Heldrake": [
+      { "vs": ["vol"], "champ": "hitMod", "val": 1, "nom": "Prédateur Aérien",
+        "texte": "Each time this model makes an attack that targets a unit that can Fly, add 1 to the Hit roll." }
+    ]
+  },
+
+  "APTIS_COND": {
+    "Daemon Prince of Khorne": [
+      { "mot": "dev", "port": "C", "nom": "Assaut Dévastateur",
+        "quand": "Ce modèle a chargé ce tour",
+        "texte": "Each time this model makes a Charge move, until the end of the turn, its hellforged weapons have the [DEVASTATING WOUNDS] ability." }
+    ],
+    "Daemon Prince of Khorne with wings": [
+      { "mot": "dev", "port": "C", "nom": "Assaut Dévastateur",
+        "quand": "Ce modèle a chargé ce tour",
+        "texte": "Each time this model makes a Charge move, until the end of the turn, its hellforged weapons have the [DEVASTATING WOUNDS] ability." }
+    ],
+    "Chaos Terminators": [
+      { "champ": "rrH", "val": "failed", "port": "T", "nom": "Fureur Sanglante",
+        "quand": "La cible est l'unité ennemie éligible la plus proche",
+        "texte": "This unit's ranged attacks that target the closest eligible target can re-roll hit rolls." }
+    ],
+    "Chaos Predator Annihilator": [
+      { "champ": "rrW", "val": "failed", "port": "T", "nom": "Annihilateur Assoiffé de Sang",
+        "quand": "La cible est le MONSTRE ou VÉHICULE éligible le plus proche, à 18\" ou moins",
+        "texte": "Each time this model makes a ranged attack that targets the closest eligible Monster or Vehicle target within 18\", you can re-roll the Wound roll and you can re-roll the Damage roll. (La relance des dégâts n'est pas simulée.)" }
+    ],
+    "Forgefiend": [
+      { "champ": "rrH", "val": "failed", "port": "T", "nom": "Assaut Furieux",
+        "quand": "La cible est l'unité éligible la plus proche, à 18\" ou moins",
+        "texte": "Each time this model makes a ranged attack that targets the closest eligible target within 18\", you can re-roll the Hit roll." }
+    ],
+    "Maulerfiend": [
+      { "champ": "hitMod", "val": 1, "port": "C", "nom": "Exaltation Sauvage",
+        "quand": "La cible est sous son Effectif de Départ",
+        "texte": "Each time this model makes a melee attack that targets an enemy unit that is below its Starting Strength, add 1 to the Hit roll." },
+      { "champ": "wndMod", "val": 1, "port": "C", "nom": "Exaltation Sauvage — sous la moitié",
+        "quand": "La cible est sous la moitié de son effectif",
+        "texte": "If that attack targets an enemy unit that is Below Half-Strength, add 1 to the Wound roll as well." }
+    ],
+    "Slaughterbound": [
+      { "mot": "dev", "port": "C", "nom": "Seigneur Possédé",
+        "quand": "L'aptitude est déclenchée — une fois par bataille",
+        "texte": "Once per battle, at the start of the Fight phase: until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and those weapons have the [DEVASTATING WOUNDS] ability. (Le +3 attaques n'est pas simulé : le moteur n'a pas ce champ.)" }
+    ]
+  },
+
+  "AURAS_ARMEE": [
+    { "source": "Eightbound", "kw": [], "champ": "hitMod", "val": 1, "port": "C",
+      "nom": "Balises de Rage (Aura)",
+      "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible n'est ni MONSTRE ni VÉHICULE",
+      "texte": "While a friendly World Eaters unit is within 6\" of this unit, each time a model in that unit makes a melee attack that targets a unit (excluding Monsters and Vehicles), add 1 to the Hit roll." },
+    { "source": "Eightbound", "kw": [], "champ": "wndMod", "val": 1, "port": "C",
+      "nom": "Balises de Rage (Aura) — cible entamée",
+      "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible est sous la moitié de son effectif",
+      "texte": "If that attack targets a unit that is Below Half-strength, add 1 to the Wound roll as well." }
+  ]
+}

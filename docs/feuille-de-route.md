@@ -3373,3 +3373,80 @@ socle**, faction par faction.
 Les **stratagèmes** — seul poste encore hors de portée, et le seul qui exige
 Wahapedia — et le **câblage du simulateur**, qui n'a jamais été automatisable
 et ne le sera pas.
+
+## 15. Le câblage du simulateur, World Eaters — 25/08/2026
+
+Kévin joue **Astra Militarum** et **World Eaters** : le câblage commence
+donc là. Avant d'en taper une ligne, on mesure — et la mesure a trouvé
+autre chose.
+
+### Ce que la mesure a trouvé avant le câblage
+
+`outils/triage.js` lit les textes d'aptitude et les range par ce qu'ils
+**font au calcul**. Il ne câble rien ; il dit par où commencer.
+
+| | aptitudes | touchent le calcul | générables | **à écrire** |
+|---|---:|---:|---:|---:|
+| World Eaters | 97 | 20 | 5 | **15** |
+| Astra Militarum | 358 | 128 | 52 | **76** |
+
+**91 lignes, pas les six cents** que la note annonçait. Une bonne part de
+son estimation portait sur du travail qui s'est révélé automatisable, et
+le compte lui-même était gonflé par les optimisations (voir §14).
+
+### Où vit le câblage
+
+Le fichier de faction est **réécrit à chaque extraction** : le câblage ne
+peut pas y vivre. Il vit dans `outils/cablage/<faction>.json`, que
+l'extracteur fusionne. Corriger l'extracteur, jamais le fichier généré —
+et le câblage n'est pas généré, donc il est ailleurs.
+
+### Seize règles câblées
+
+`AURAS_PERSO` Khârn (relance des 1 en touche et en blessure quand il
+mène) · `APTIS_CIBLE` le Maître des Exécutions contre les PERSONNAGES,
+les Huit-Enchaînés Exaltés contre MONSTRES et VÉHICULES, le Heldrake
+contre les VOLANTS · `APTIS_COND` les deux Princes Démons, les
+Terminators, l'Annihilateur, le Forgefiend, le Maulerfiend, le
+Slaughterbound · `AURAS_ARMEE` les Balises de Rage.
+
+Elles sont **déclarées**, pas automatiques, quand la règle dépend d'un
+fait de table — la cible la plus proche, une unité entamée, une charge
+au tour précédent. C'est la convention du dépôt : une aptitude qui
+s'appliquerait toute seule mentirait une fois sur deux.
+
+### Ce qui n'est PAS câblé, et ce que ça demande
+
+**Le simulateur n'a pas de champ pour « +N attaques » ni « +N Force ».**
+`S` porte `hitMod`, `wndMod`, `apMod`, `dmgMod` — pas `atkMod`, pas
+`strMod`. Ce n'est pas un oubli de câblage, c'est une capacité qui
+manque au moteur.
+
+Elle bloque, chez les World Eaters : l'aura de **Skarbrand** (+1 attaque
+en mêlée à 6"), celle du **Bloodthirster**, le **Helbrute** (+2 attaques
+sur deux armes) et la moitié du **Slaughterbound** (+3 attaques). Chez
+l'Astra Militarum, c'est **19 des 76 règles à écrire**.
+
+Ajouter `atkMod` touche six endroits d'`app.js` — l'état par défaut, les
+segments d'écran, `prep`, l'application des conditions, les pastilles,
+les raccourcis — deux du moteur et une ligne d'`index.html`. C'est un
+changement de **capacité du simulateur, pour toutes les factions**, pas
+un ajout de données : il se décide, il ne se glisse pas.
+
+Trois autres règles restent dehors pour d'autres raisons : le Collier de
+Khorne des Chiens de Chair (insensibilité 3+ **contre les attaques
+psychiques** seulement — le moteur ne connaît pas ce genre d'attaque), et
+les relances de **dégâts**, que le moteur n'a pas non plus.
+
+### Éprouvé
+
+`npm run livrees` compte désormais les règles câblées faction par
+faction et vérifie qu'**aucune ne désigne une unité qui n'existe pas** —
+une règle câblée sur un nom mort ne s'applique jamais et ne dit rien.
+87 contrôles, tous verts. Nécrons 25 règles, World Eaters 16, Custodes et
+Astra 0.
+
+### Ce qui vient
+
+L'Astra Militarum : 76 règles, dont 19 attendent `atkMod`. Et les
+stratagèmes, toujours hors de portée sans Wahapedia.

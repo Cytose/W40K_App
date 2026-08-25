@@ -60,6 +60,24 @@ FACTIONS = {
 }
 
 SOCLES_JSON = os.path.join(RACINE, 'outils', 'socles.json')
+CABLAGE = os.path.join(RACINE, 'outils', 'cablage')
+
+# Les tables du simulateur qu'on peut cabler a la main. Elles traduisent
+# une regle en code : aucune source ne les donne, et le fichier genere
+# etant reecrit a chaque extraction, elles ne peuvent pas y vivre. Elles
+# vivent dans outils/cablage/<faction>.json, qu'on fusionne ici.
+TABLES_CABLEES = ['APTIS_UNITE', 'APTIS_COND', 'APTIS_CIBLE', 'AURAS_PERSO',
+                  'AURAS_ARMEE', 'OCTROIS_DETACH', 'STRAT_SIMU', 'MOMENTS',
+                  'MOMENTS_ARMEE', 'COMPO', 'ROLES_UNITE', 'ARMEMENT', 'GRPN',
+                  'RETINUE', 'KW']
+
+def chargeCablage(faction):
+    """Le cablage tenu a la main pour cette faction. Les cles commencant
+       par _ sont des commentaires : le JSON n'en a pas."""
+    chemin = os.path.join(CABLAGE, faction + '.json')
+    if not os.path.exists(chemin): return {}
+    d = json.load(open(chemin, encoding='utf-8'))
+    return {k: v for k, v in d.items() if not k.startswith('_')}
 
 # ------------------------------------------------------------------
 # LES NOMS QUE LE GUIDE N'ÉCRIT PAS COMME LES AUTRES SOURCES
@@ -560,11 +578,21 @@ def ecrit(faction, T, stats):
     A('const TRANSPORTS = ' + json.dumps(T['TRANSPORTS'], ensure_ascii=False, indent=1) + ';')
     A('const FACTION = ' + json.dumps(T['FACTION'], ensure_ascii=False, indent=1) + ';')
     A('')
-    A('/* Vides, et pour de bonnes raisons : voir l\'en-tête. */')
+    A('/* Le câblage tenu à la main, repris de outils/cablage/%s.json —' % faction)
+    A('   ce que chaque règle fait au calcul. Ce qui n\'y figure pas sort')
+    A('   vide : le simulateur tourne alors sur les caractéristiques nues,')
+    A('   ce qui est faux par défaut plutôt que faux par invention. */')
+    for nom in TABLES_CABLEES:
+        if nom in T.get('CABLAGE', {}):
+            A('const %s = %s;' % (nom, json.dumps(T['CABLAGE'][nom],
+                                                  ensure_ascii=False, indent=1)))
+    A('')
+    A('/* Vides, faute de câblage : voir l\'en-tête. */')
     for nom in ['ARMEMENT', 'STRAT_SIMU', 'APTIS_CIBLE', 'RETINUE', 'ENH_ANCIENS',
                 'GRPN', 'STRATS', 'MOMENTS', 'MOMENTS_ARMEE', 'COMPO',
                 'ROLES_UNITE', 'OCTROIS_DETACH', 'APTIS_UNITE', 'APTIS_COND',
                 'AURAS_ARMEE', 'AURAS_PERSO']:
+        if nom in T.get('CABLAGE', {}): continue
         vide = '[]' if nom in ('STRAT_SIMU', 'STRATS', 'MOMENTS_ARMEE', 'AURAS_ARMEE') else '{}'
         A('const %s = %s;' % (nom, vide))
     A('')
@@ -787,7 +815,8 @@ def extrait(faction):
     T = dict(UNITS=UNITS, WEAPONS=WEAPONS, CAT=CAT, ATTACH=ATTACH,
              APTITUDES=APTITUDES, DETACHMENTS=DETACHMENTS,
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
-             FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES)
+             FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES,
+             CABLAGE=chargeCablage(faction))
     stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM,
                  multiProfil=multiProfil, sansSocle=sansSocle,
                  guide=len(guide))
@@ -813,6 +842,15 @@ def main():
     print('  %d détachements, %d optimisations, %d transports' %
           (len(T['DETACHMENTS']), len(T['ENHANCEMENTS']), len(T['TRANSPORTS'])))
     print('  %d profils dégradés' % len(T['ABIMEES']))
+    cab = T.get('CABLAGE', {})
+    if cab:
+        n = sum(len(v) if isinstance(v, list) else sum(len(x) for x in v.values())
+                for v in cab.values())
+        print('  %d règles câblées à la main, dans %s'
+              % (n, ', '.join(sorted(cab))))
+    else:
+        print('  aucun câblage : le simulateur tournera sur les'
+              ' caractéristiques nues')
     print('  %d socles sur %d fiches%s'
           % (len(T['SOCLES']), len(T['UNITS']),
              '' if not stats['guide'] else

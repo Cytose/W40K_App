@@ -851,10 +851,179 @@ const FACTION = [
  ]
 ];
 
-/* Vides, et pour de bonnes raisons : voir l'en-tête. */
+/* Le câblage tenu à la main, repris de outils/cablage/worldeaters.json —
+   ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
+   vide : le simulateur tourne alors sur les caractéristiques nues,
+   ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_COND = {
+ "Daemon Prince of Khorne": [
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "Assaut Dévastateur",
+   "quand": "Ce modèle a chargé ce tour",
+   "texte": "Each time this model makes a Charge move, until the end of the turn, its hellforged weapons have the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Daemon Prince of Khorne with wings": [
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "Assaut Dévastateur",
+   "quand": "Ce modèle a chargé ce tour",
+   "texte": "Each time this model makes a Charge move, until the end of the turn, its hellforged weapons have the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Chaos Terminators": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "T",
+   "nom": "Fureur Sanglante",
+   "quand": "La cible est l'unité ennemie éligible la plus proche",
+   "texte": "This unit's ranged attacks that target the closest eligible target can re-roll hit rolls."
+  }
+ ],
+ "Chaos Predator Annihilator": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "port": "T",
+   "nom": "Annihilateur Assoiffé de Sang",
+   "quand": "La cible est le MONSTRE ou VÉHICULE éligible le plus proche, à 18\" ou moins",
+   "texte": "Each time this model makes a ranged attack that targets the closest eligible Monster or Vehicle target within 18\", you can re-roll the Wound roll and you can re-roll the Damage roll. (La relance des dégâts n'est pas simulée.)"
+  }
+ ],
+ "Forgefiend": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "T",
+   "nom": "Assaut Furieux",
+   "quand": "La cible est l'unité éligible la plus proche, à 18\" ou moins",
+   "texte": "Each time this model makes a ranged attack that targets the closest eligible target within 18\", you can re-roll the Hit roll."
+  }
+ ],
+ "Maulerfiend": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Exaltation Sauvage",
+   "quand": "La cible est sous son Effectif de Départ",
+   "texte": "Each time this model makes a melee attack that targets an enemy unit that is below its Starting Strength, add 1 to the Hit roll."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Exaltation Sauvage — sous la moitié",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "If that attack targets an enemy unit that is Below Half-Strength, add 1 to the Wound roll as well."
+  }
+ ],
+ "Slaughterbound": [
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "Seigneur Possédé",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "Once per battle, at the start of the Fight phase: until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and those weapons have the [DEVASTATING WOUNDS] ability. (Le +3 attaques n'est pas simulé : le moteur n'a pas ce champ.)"
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Master of Executions": [
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Un Crâne Digne de ce Nom",
+   "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Hit roll."
+  },
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Un Crâne Digne de ce Nom",
+   "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Wound roll."
+  }
+ ],
+ "Exalted Eightbound": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "dmgMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Déchirer et Lacérer",
+   "texte": "Each time a model in this unit makes a melee attack that targets a Monster or Vehicle unit, improve the Damage characteristic of that attack by 1."
+  }
+ ],
+ "Heldrake": [
+  {
+   "vs": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Prédateur Aérien",
+   "texte": "Each time this model makes an attack that targets a unit that can Fly, add 1 to the Hit roll."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Khârn the Betrayer": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "C",
+   "nom": "Tueur Légendaire",
+   "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, re-roll a Hit roll of 1."
+  },
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "port": "C",
+   "nom": "Tueur Légendaire",
+   "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, re-roll a Wound roll of 1."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Eightbound",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Balises de Rage (Aura)",
+  "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "While a friendly World Eaters unit is within 6\" of this unit, each time a model in that unit makes a melee attack that targets a unit (excluding Monsters and Vehicles), add 1 to the Hit roll."
+ },
+ {
+  "source": "Eightbound",
+  "kw": [],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Balises de Rage (Aura) — cible entamée",
+  "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible est sous la moitié de son effectif",
+  "texte": "If that attack targets a unit that is Below Half-strength, add 1 to the Wound roll as well."
+ }
+];
+
+/* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
 const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -865,9 +1034,6 @@ const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "worldeaters",
