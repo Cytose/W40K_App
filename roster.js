@@ -336,9 +336,14 @@ window.ROSTER = {
   },
   /* Les regles de detachement en vigueur, dites en clair : elles
      s'appliquent sans qu'on les coche, et rien ne le montrait. */
-  reglesDetach: function(){
+  /* Meme regle qu'au-dessus : on ne recopie a l'ecran que ce qui touche
+     l'unite chargee. Lire « Augmentations Technosorcieres » sous des
+     Lames Tombales laissait croire qu'elles en profitaient. */
+  reglesDetach: function(id, ph){
     if(!R) return [];
-    return R.detach.map(n=>{ const d = detachRow(n); return d ? {
+    const ru = (id === undefined || id === null) ? null :
+               (R.units.find(u => String(u.id) === String(id)) || null);
+    return R.detach.map(n=>{ const d = detachRow(n); return (d && regleConcerne(d, ru, ph)) ? {
       detach: nomDetach(d[0]), nom: d[3], texte: d[4],
       conditionnel: !!d[6] } : null; }).filter(Boolean);
   },
@@ -346,7 +351,7 @@ window.ROSTER = {
      quelque chose est vrai ce tour-ci. Le simulateur les propose avec
      les autres retouches de partie ; elles ne touchent que les unites
      de la liste, jamais une arme mesuree seule. */
-  situations: function(){ return situationsDetach(); },
+  situations: function(id, ph){ return situationsDetach(id, ph); },
   poseSituation: function(cle, on){
     /* un choix arrive en liste, une condition ordinaire en booleen */
     situ[cle] = Array.isArray(on) ? on.join(",")
@@ -1107,52 +1112,114 @@ function drapeauxAvecOctrois(ru, porteur, w){
   return ajouts.length ? (base ? base + " " : "") + ajouts.join(" ") : base;
 }
 
+/* ==========================================================
+   CE QUE LA REGLE PEUT TOUCHER
+
+   Une regle de detachement ne vaut jamais pour toute l'armee : le
+   Conclave n'augmente que les CRYPTEKS, la Legion d'Annihilation que le
+   CULTE DESTROYER, le Fer de Lance que les MECANOPTERES. Tant que le
+   simulateur proposait ses sept conditions a n'importe quelle unite, il
+   invitait a cocher ce qui n'allait rien changer : on choisissait
+   « Anti-Infanterie 3+ » sur des Lames Tombales, et le profil ne
+   bougeait pas d'un chiffre. Une case qui ne fait rien fait douter de
+   toutes les autres.
+
+   Une seule table repond donc a la question, et elle sert deux fois :
+   le moteur pour APPLIQUER, l'ecran pour PROPOSER. Les deux ne peuvent
+   plus diverger — ce qui n'est pas propose ne s'applique pas, et ce qui
+   s'applique est propose.
+
+   `ph` est la phase mesuree, « T » ou « C » : deux regles ne parlent
+   que des armes de tir.
+   ========================================================== */
+const PORTEE_DETACH = {
+  led_hit1:      ru => ru.chars.length > 0 || !!(unitRow(ru.name) || [])[9],
+  canoptek_rr:   ru => has("canoptek", ru.name) || has("cryptek", ru.name),
+  obj_hit1:      ru => !has("monster", ru.name),
+  destroyer_ap1: (ru, ph) => has("destroyer", ru.name) && ph !== "C",
+  noble_wound1:  ru => has("noble", ru.name) || has("lychguard", ru.name) ||
+                       has("triarch", ru.name),
+  destroyer_str2:ru => has("destroyer", ru.name),
+  /* le Conclave augmente les figurines de CRYPTEK : un Technomancien
+     rattache rend son escouade eligible, d'ou groupeA et non has */
+  cryptek_anti:  (ru, ph) => groupeA(ru, "cryptek") && ph !== "C",
+  /* l'aura du Pantheon est portee par les MONSTRES de l'armee mais
+     s'applique a la CIBLE : n'importe quel tireur en profite */
+  monster_ap1:   () => true,
+  tomb_hit1:     ru => has("tombblade", ru.name)
+};
+/* une des cinq branches du Conclave, retrouvee par sa valeur */
+const optCryptek = v => ((typeof SITU_CHOIX !== "undefined" &&
+  SITU_CHOIX.cryptek_anti && SITU_CHOIX.cryptek_anti.opts) || [])
+  .find(o => o.v === v) || null;
+/* sans unite chargee — une arme mesuree seule — on ne peut rien exclure */
+function regleVaut(cle, ru, ph){
+  const f = PORTEE_DETACH[cle];
+  return (!f || !ru) ? true : !!f(ru, ph);
+}
+/* La meme question pour la ligne de detachement entiere, y compris
+   celles qui n'ont pas de cle : leur seule portee lisible est celle des
+   mots-cles qu'elles octroient — la Main de la Dynastie ne donne
+   l'Assaut qu'aux IMMORTELS et aux GUERRIERS NECRONS. */
+function regleConcerne(d, ru, ph){
+  if(!ru) return true;
+  if(d[5]) return regleVaut(d[5], ru, ph);
+  const oc = (typeof OCTROIS_DETACH !== "undefined" && OCTROIS_DETACH[d[0]]) || [];
+  if(!oc.length) return true;
+  return oc.some(o => !o.kw || !o.kw.length || o.kw.some(k => groupeA(ru, k)));
+}
+
 /* applique les regles de detachement a un profil deja construit */
 function applyDetach(prof, ru){
-  const n = ru.name, ledBy = ru.chars.length > 0;
   activeRules().forEach(d => {
     const key = d[5], cond = d[6];
     if(cond && !situ[key]) return;
+    /* la table ci-dessus, et rien d'autre : le meme filtre qu'a l'ecran */
+    if(!regleVaut(key, ru, prof.kind)) return;
     switch(key){
       case "led_hit1":
-        if(ledBy || (unitRow(n)||[])[9]) prof.hitMod = Math.max(prof.hitMod, 1);
+        prof.hitMod = Math.max(prof.hitMod, 1);
         break;
       case "canoptek_rr":
-        if(has("canoptek", n) || has("cryptek", n)) prof.rrH = situ.canoptek_rr ? "failed" : "ones";
+        prof.rrH = situ.canoptek_rr ? "failed" : "ones";
         break;
       case "obj_hit1":
-        if(!has("monster", n)) prof.hitMod = Math.max(prof.hitMod, 1);
+        prof.hitMod = Math.max(prof.hitMod, 1);
         break;
       case "destroyer_ap1":
-        if(has("destroyer", n) && prof.kind === "T") prof.ap = Math.min(5, prof.ap + 1);
+        prof.ap = Math.min(5, prof.ap + 1);
         break;
       case "noble_wound1":
-        if(has("noble", n) || has("lychguard", n) || has("triarch", n)) prof.wndMod = Math.max(prof.wndMod, 1);
+        prof.wndMod = Math.max(prof.wndMod, 1);
         break;
       case "destroyer_str2":
-        if(has("destroyer", n)) prof.str += 2;
+        prof.str += 2;
         break;
       case "cryptek_anti":
         /* La regle donne UNE aptitude au choix parmi cinq, a chaque tir.
            Elle ne vaut que pour les armes de tir des figurines de
            CRYPTEK -- « qui:figurine » dans OCTROIS_DETACH dit deja la
            meme chose pour l'Assaut. */
-        if(groupeA(ru, "cryptek") && prof.kind === "T"){
-          /* une aptitude, ou deux avec le strategeme Pouvoir Inexploite */
-          String(situ.cryptek_anti || "").split(",").filter(Boolean).forEach(c=>{
-            if(c === "anti-inf")  prof.critW = Math.min(prof.critW, 3);
-            if(c === "anti-mont") prof.critW = Math.min(prof.critW, 4);
-            if(c === "lourd")     prof.heavy = true;
-            if(c === "assaut")    prof.assault = true;
-            if(c === "ignore")    prof.ignoresCover = true;
-          });
-        }
+        /* une aptitude, ou deux avec le strategeme Pouvoir Inexploite */
+        String(situ.cryptek_anti || "").split(",").filter(Boolean).forEach(c=>{
+          /* Un Anti-X ne mord que ce qu'il nomme : la meme regle que
+             l'Anti-X porte par une arme, qui se lit deja sur les
+             mots-cles de la cible. Sans elle, « Anti-Infanterie 3+ »
+             faisait blesser un char sur 3+. */
+          const o = optCryptek(c);
+          if(o && o.kw && !(S.kwCible || {})[o.kw]) return;
+          if(c === "anti-inf")  prof.critW = Math.min(prof.critW, 3);
+          if(c === "anti-mont") prof.critW = Math.min(prof.critW, 4);
+          if(c === "lourd")     prof.heavy = true;
+          if(c === "assaut")    prof.assault = true;
+          if(c === "ignore")    prof.ignoresCover = true;
+        });
         break;
       case "monster_ap1":
         prof.ap = Math.min(5, prof.ap + 1);
         break;
       case "tomb_hit1":
-        if(has("tombblade", n)) prof.hitMod = Math.max(prof.hitMod, 1);
+        prof.hitMod = Math.max(prof.hitMod, 1);
         break;
     }
   });
@@ -1162,7 +1229,7 @@ function applyDetach(prof, ru){
 function preApply(prof, ru){
   R.detach.forEach(dn=>{
     const d = detachRow(dn); if(!d) return;
-    if(d[5] === "canoptek_rr" && (has("canoptek", ru.name) || has("cryptek", ru.name)))
+    if(d[5] === "canoptek_rr" && regleVaut("canoptek_rr", ru, prof.kind))
       prof.rrH = "ones";
   });
   return prof;
@@ -4547,10 +4614,16 @@ function renderPick(){
    simulateur, aux côtés des aptitudes conditionnelles d'unité, qui sont
    exactement de la même nature.
    ========================================================== */
-function situationsDetach(){
+/* `id` et `ph` disent quelle unite est chargee et dans quelle phase :
+   on ne propose que les conditions qui peuvent vraiment changer un de
+   ses jets. Sans unite — une arme mesuree seule — on les propose
+   toutes, faute de pouvoir en exclure une seule. */
+function situationsDetach(id, ph){
   if(!R) return [];
+  const ru = (id === undefined || id === null) ? null :
+             (R.units.find(u => String(u.id) === String(id)) || null);
   const choix = (typeof SITU_CHOIX !== "undefined") ? SITU_CHOIX : {};
-  return activeRules().filter(d => d[6]).map(d => ({
+  return activeRules().filter(d => d[6] && regleVaut(d[5], ru, ph)).map(d => ({
     cle: d[5], nom: SITU_LABEL[d[5]] || d[3], source: d[0],
     on: !!situ[d[5]],
     /* certaines ne se declarent pas d'un oui ou d'un non mais d'un choix :

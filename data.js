@@ -408,6 +408,10 @@ const MOTS_CIBLE = [
   ["inf",   "Infanterie"],
   ["veh",   "Véhicule"],
   ["mon",   "Monstre"],
+  /* MONTÉ n'était pas là, et l'[ANTI-MONTÉ 4+] du Conclave de Crypteks
+     n'avait donc aucune cible à reconnaître : il ne pouvait jamais
+     jouer. C'est un mot-clé de la cible comme les autres. */
+  ["monte", "Monté"],
   ["perso", "Personnage"],
   ["vol",   "Volant"]
 ];
@@ -437,7 +441,7 @@ const KW_CATEGORIE = {
   "Battleline" : ["inf"],
   "Infanterie" : ["inf"],
   "Bête"       : [],
-  "Monté"      : [],
+  "Monté"      : ["monte"],
   "Véhicule"   : ["veh"],
   "Monstre"    : ["mon"],
   "Fortification" : [],
@@ -1715,9 +1719,12 @@ const SITU_CHOIX = {
   note: "Une seule par tir. La seconde demande le stratagème "
       + "« Pouvoir Inexploité » (1 PC), à ta phase de Tir.",
   opts: [
-   { v:"anti-inf",  nom:"Anti-Infanterie 3+",
+   /* `kw` : le mot-clé que la cible doit porter pour que l'aptitude
+      morde. Un Anti-X ne vaut pas contre tout, et l'écran doit le dire
+      plutôt que promettre un seuil qui ne s'appliquera pas. */
+   { v:"anti-inf",  nom:"Anti-Infanterie 3+", kw:"inf",
      aide:"blessure critique sur 3+ contre de l'INFANTERIE" },
-   { v:"anti-mont", nom:"Anti-Monté 4+",
+   { v:"anti-mont", nom:"Anti-Monté 4+", kw:"monte",
      aide:"blessure critique sur 4+ contre du MONTÉ" },
    { v:"assaut",    nom:"Assaut",
      aide:"tirer après avoir avancé — déjà acquis par la 1re puce de la règle" },
