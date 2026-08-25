@@ -509,6 +509,17 @@ function poserGabarit(d, out, prof){
      trouve. La zone est donc ECLAIREE, et c'est ce qu'il y a derriere
      elle qui tombe dans l'ombre.
 
+     MORDRE UNE EMPRISE, C'EST VOIR A TRAVERS TOUTE L'EMPRISE. La regle
+     ecarte la zone qui CONTIENT l'une des figurines, et un socle qui
+     chevauche la zone suffit : la figurine y est. L'emprise cesse alors
+     d'exister pour cette unite — toute l'emprise, pas la part mordue —
+     et ce qui est derriere se voit. Une unite, ce sont dix figurines :
+     il suffit que L'UNE morde pour que l'unite voie.
+
+     Le terrain dense, lui, ne cede pas : mordre l'emprise ne fait pas
+     voir a travers les murs qu'elle porte. Les deux regles sont
+     distinctes et c'est ici qu'elles se separent.
+
    D'ou deux appels a la meme fonction, avec la face opposee : pour un
    mur plein on part des aretes tournees VERS la lampe, ce qui met le mur
    dans son ombre ; pour une zone occultante on part des aretes tournees
@@ -555,15 +566,44 @@ function dedansPoly(q, poly){
   }
   return d;
 }
-/* toutes les ombres portees par une carte, vues d'un point */
-function ombresVues(src, poses){
+/* distance d'un point a un segment */
+function distSeg(q, a, b){
+  const vx = b[0] - a[0], vy = b[1] - a[1], l2 = vx*vx + vy*vy;
+  let t = l2 ? ((q[0]-a[0])*vx + (q[1]-a[1])*vy) / l2 : 0;
+  t = t < 0 ? 0 : t > 1 ? 1 : t;
+  return Math.hypot(q[0] - a[0] - t*vx, q[1] - a[1] - t*vy);
+}
+/* une figurine MORD un polygone si son socle le chevauche -- dedans, ou
+   assez pres d'un bord pour le toucher */
+function mordPoly(q, r, poly){
+  if(dedansPoly(q, poly)) return true;
+  for(let i = 0, j = poly.length - 1; i < poly.length; j = i++)
+    if(distSeg(q, poly[j], poly[i]) <= r) return true;
+  return false;
+}
+/* toutes les ombres portees par une carte, vues d'un point.
+   `unite` est la liste des socles poses -- {p, r} -- de l'unite qui
+   regarde ; a defaut, le point seul. */
+function ombresVues(src, poses, unite){
+  const socles = (unite && unite.length) ? unite : [{ p:src, r:0 }];
   const out = [];
   poses.forEach(q => {
-    if(dedansPoly(src, q.poly)) return;          /* on ne s'ombre pas soi-meme */
-    if(q.k === "f" && !q.dense) return;          /* le leger laisse voir */
-    out.push(...ombreDe(src, q.poly, q.k === "f"));
+    if(q.k === "f"){
+      if(!q.dense) return;                       /* le leger laisse voir */
+      if(dedansPoly(src, q.poly)) return;        /* on ne tient pas dans un mur */
+      out.push(...ombreDe(src, q.poly, true));
+    } else {
+      if(socles.some(f => mordPoly(f.p, f.r, q.poly))) return;
+      out.push(...ombreDe(src, q.poly, false));
+    }
   });
   return out;
+}
+/* les socles poses d'une unite, tels que la lampe les compte */
+function soclesDe(ru, pos){
+  const figs = figurinesDe(ru);
+  return pos.map((q, i) => ({ p:[q.x, q.y],
+    r: rayonMoyen(socle((figs[i] || figs[0] || {}).nom)) }));
 }
 
 /* les elements de decor d'une carte, une fois poses */
@@ -696,7 +736,7 @@ function dessine(L, p, bd){
       const f = (selection.fig != null && pos[selection.fig]) || null;
       const c = f ? { x:f.x, y:f.y } : centreDe(pos);
       const src = [c.x, c.y];
-      const quads = ombresVues(src, poses);
+      const quads = ombresVues(src, poses, soclesDe(ru, pos));
       if(quads.length){
         /* L'ombre file loin au-dela du plateau ; on la coupe au bord,
            sans quoi elle deborde dans la marge du cadre. */
@@ -1266,6 +1306,24 @@ window.PLATEAU = {
              denses: elementsPoses(bd).filter(q => q.dense).length,
              legers: elementsPoses(bd).filter(q => !q.dense).length,
              objectifs: bd ? bd.objectifs.length : 0 };
+  },
+  /* Ce que la lampe voit d'un point, socle compris : combien d'emprises
+     ce socle mord, combien d'ombres restent en tout, et combien viennent
+     des seuls murs pleins. Deux appels au meme point, l'un sans socle l'autre
+     avec, isolent la regle : rien d'autre n'a bouge. */
+  lampe: function(pt, rayon){
+    const L = listeEnService(); if(!L) return null;
+    const p = etatDe(L), bd = plateauDe(L, p);
+    if(!bd) return null;
+    const poses = [];
+    (bd.decors || []).forEach(d => poserGabarit(d, poses));
+    const unite = [{ p:pt, r:rayon || 0 }];
+    return {
+      emprises: poses.filter(q => q.k === "a").map(q => q.poly),
+      mordues: poses.filter(q => q.k === "a" && mordPoly(pt, rayon || 0, q.poly)).length,
+      ombres: ombresVues(pt, poses, unite).length,
+      pleins: ombresVues(pt, poses.filter(q => q.k === "f"), unite).length
+    };
   },
   /* les mesures d'une unité posée */
   unite: function(id){
