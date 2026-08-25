@@ -140,6 +140,26 @@ function pts(t){
 }
 
 /* le catalogue, rempli au fur et a mesure des gabarits rencontres */
+/* Ce que la source ne dit pas : dense ou leger, et le retournement.
+
+   Elle exporte certains gabarits en deux versions, l'une retournee, et
+   n'a retourne que le contour, pas les elements qu'il porte : le petit L
+   d'angle se retrouvait la ou est la grande ruine. Elle ne porte pas non
+   plus la distinction terrain dense / terrain leger, que le document,
+   lui, peint en vert et en or.
+
+   Les deux se relevent sur les 45 pages officielles, par
+   outils/empreintes.py --densite, et se lisent ici. Sans ce releve, on
+   pose les elements tels quels et on les rend tous du meme gris : le
+   fichier reste coherent, il est seulement moins dit. */
+const RELEVE = (() => {
+  const f = path.join(RACINE, 'outils', 'densite.json');
+  return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : { table: {} };
+})();
+const MIROIRS = [[1,1,0], [-1,1,0], [1,-1,180], [-1,-1,180]];
+const RETOURNE = Object.fromEntries(Object.entries(RELEVE.table || {})
+  .map(([k, v]) => [k, MIROIRS[v.retourne || 0]]));
+
 const catalogue = {};
 function inscrire(idGab, prof){
   const t = gabarits[idGab];
@@ -154,10 +174,16 @@ function inscrire(idGab, prof){
   for(const e of t.features || []){
     const sk = inscrire(e.template, (prof || 0) + 1);
     if(!sk) continue;
-    const q = { g: sk, p: [dec2(e.position.x), dec2(e.position.y)] };
-    if(e.rotation_degrees) q.r = e.rotation_degrees;
+    const [sx, sy, dr] = RETOURNE[cleGab(idGab)] || [1, 1, 0];
+    const q = { g: sk, p: [dec2(sx * e.position.x), dec2(sy * e.position.y)] };
+    const rot = (((sx * sy < 0 ? -(e.rotation_degrees || 0) : (e.rotation_degrees || 0))
+                  + dr) % 360 + 360) % 360;
+    if(rot) q.r = rot;
     f.push(q);
   }
+  const dit = (RELEVE.table || {})[k];
+  if(dit && dit.elements)
+    f.forEach((q, i) => { if(dit.elements[i]) q.d = 1; });
   if(f.length) g.f = f;
   return k;
 }

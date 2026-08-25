@@ -12,6 +12,7 @@
     "orientation": "node outils/test-orientation.mjs",
     "cartes": "python3 outils/cartes-officielles.py",
     "decors": "python3 outils/empreintes.py",
+    "densite": "python3 outils/empreintes.py --densite",
     "fond": "node outils/test-fond.mjs"
   },
   "devDependencies": {

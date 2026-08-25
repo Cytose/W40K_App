@@ -35,6 +35,10 @@ dit('disposition déduite du détachement', e0.dispo, 'Take and Hold');
 dit('mission primaire nommée', e0.mission, 'Battlefield Dominance');
 dit('décor officiel de la carte', e0.decorsOfficiels, v => v > 5);
 dit('objectifs de la carte', e0.objectifs, v => v >= 2);
+/* le document peint le dense en vert et le leger en or ; une carte
+   porte toujours des deux */
+dit('terrain dense sur la carte', e0.denses, v => v > 0);
+dit('terrain leger sur la carte', e0.legers, v => v > 0);
 
 /* poser toutes les unités */
 const n = await p.locator('[data-pose]').count();

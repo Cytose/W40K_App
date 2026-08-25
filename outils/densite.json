@@ -1,0 +1,267 @@
+{
+"_": "Terrain dense (peint en vert par le document) ou leger (peint en or), et retournement des elements portes : releve sur les 45 pages officielles par outils/empreintes.py --densite, lu par outils/dispositions.js. Cle : gabarit d'emprise -> retourne 0..3 (bit 1 = axe x, bit 2 = axe y), elements -> rang -> 1 dense, 0 leger.",
+"table": {
+"c01": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c03": {
+"elements": {
+"0": 1
+},
+"retourne": 0
+},
+"c04": {
+"elements": {
+"0": 0,
+"1": 1
+},
+"retourne": 1
+},
+"c05": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c07": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c08": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c09": {
+"elements": {
+"0": 1
+},
+"retourne": 3
+},
+"c10": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c11": {
+"elements": {
+"0": 0,
+"1": 0,
+"2": 1
+},
+"retourne": 0
+},
+"c12": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c14": {
+"elements": {
+"0": 0,
+"1": 1
+},
+"retourne": 0
+},
+"c16": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c17": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c18": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c19": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c20": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 1
+},
+"c21": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c22": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c23": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 2
+},
+"c24": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c26": {
+"elements": {
+"0": 0,
+"1": 0
+},
+"retourne": 1
+},
+"c27": {
+"elements": {
+"0": 1
+},
+"retourne": 2
+},
+"c28": {
+"elements": {
+"0": 0,
+"1": 1
+},
+"retourne": 0
+},
+"c29": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c30": {
+"elements": {
+"0": 1
+},
+"retourne": 0
+},
+"c31": {
+"elements": {
+"0": 0
+},
+"retourne": 0
+},
+"c32": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 1
+},
+"c33": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c34": {
+"elements": {
+"0": 0,
+"1": 1
+},
+"retourne": 0
+},
+"c35": {
+"elements": {
+"0": 0,
+"1": 1
+},
+"retourne": 0
+},
+"c36": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 0
+},
+"c37": {
+"elements": {
+"0": 1,
+"1": 1
+},
+"retourne": 1
+},
+"c38": {
+"elements": {
+"0": 0,
+"1": 0,
+"2": 1
+},
+"retourne": 1
+},
+"c39": {
+"elements": {
+"0": 0,
+"1": 0
+},
+"retourne": 0
+},
+"c40": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c41": {
+"elements": {
+"0": 0
+},
+"retourne": 0
+},
+"c42": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 0
+},
+"c44": {
+"elements": {
+"0": 1,
+"1": 0
+},
+"retourne": 1
+}
+}
+}
