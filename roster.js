@@ -331,6 +331,10 @@ window.ROSTER = {
       return { nom:st.nom, pc:st.pc, detach:nomDetach(st.detach),
                aide: st.aide + (p ? ", " + p.aide : ""),
                effet: p ? Object.assign({}, st.effet, p.effet) : st.effet,
+               /* celui qui declare une situation au lieu de poser un
+                  chiffre : l'ecran le coche comme les autres, mais ce
+                  qu'il change, ce sont les regles qui s'appliquent */
+               situ: st.situ || "", situOn: st.situ ? !!situ[st.situ] : false,
                enAttente: (st.plus && !p) ? st.plus.aide : "" };
     });
   },
@@ -1141,13 +1145,21 @@ const PORTEE_DETACH = {
                        has("triarch", ru.name),
   destroyer_str2:ru => has("destroyer", ru.name),
   /* le Conclave augmente les figurines de CRYPTEK : un Technomancien
-     rattache rend son escouade eligible, d'ou groupeA et non has */
-  cryptek_anti:  (ru, ph) => groupeA(ru, "cryptek") && ph !== "C",
+     rattache rend son escouade eligible, et le Renforcement
+     Synergetique prete le mot-cle a une unite qui ne l'a pas */
+  cryptek_anti:  (ru, ph) => estCryptek(ru) && ph !== "C",
   /* l'aura du Pantheon est portee par les MONSTRES de l'armee mais
      s'applique a la CIBLE : n'importe quel tireur en profite */
   monster_ap1:   () => true,
   tomb_hit1:     ru => has("tombblade", ru.name)
 };
+/* Une unite « de CRYPTEK » : celle qui en porte le mot-cle, celle que
+   mene un CRYPTEK, et celle a qui le strategeme Renforcement
+   Synergetique l'a prete pour la phase — une seule figurine suffit a
+   faire d'une escouade une unite de CRYPTEK. La Cour Canoptek, elle,
+   garde son propre test : les deux detachements ne peuvent pas etre
+   pris ensemble, le pret n'y a donc pas cours. */
+const estCryptek = ru => groupeA(ru, "cryptek") || !!situ.cryptek_pret;
 /* une des cinq branches du Conclave, retrouvee par sa valeur */
 const optCryptek = v => ((typeof SITU_CHOIX !== "undefined" &&
   SITU_CHOIX.cryptek_anti && SITU_CHOIX.cryptek_anti.opts) || [])

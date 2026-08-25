@@ -361,6 +361,8 @@ const KW = {
    [unites] restreint à ces fiches — vide, toute unité nécron
    [sauf]   exclut les unités qui portent l'un de ces mots-clés
    [effet]  les champs de l'écran que la pastille pose et retire
+   [situ]   pour celui qui ne change pas un jet mais ce que l'unité EST :
+            la clé de situation qu'il déclare, à la place d'`effet`
    ============================================================ */
 const STRAT_SIMU = [
  { nom:"Tempête Cosmique", detach:"The Phaeron's Armoury", pc:1, ph:"T",
@@ -387,6 +389,18 @@ const STRAT_SIMU = [
     les 1 pour blesser ne se relancent que si la cible est effritee. La
     condition existe deja dans les retouches -- « Cible effritee » --,
     il suffisait de brancher l'une sur l'autre. */
+ /* Celui-ci ne pose aucun modificateur : il change ce que l'unite EST.
+    Une figurine NECRON amie a 12" d'un CRYPTEK de l'unite qui le lance
+    recoit le mot-cle CRYPTEK jusqu'a la fin de la phase -- et une unite
+    dont une seule figurine porte CRYPTEK est une unite de CRYPTEK. Les
+    Augmentations Technosorcieres s'ouvrent alors a elle : c'est la
+    seule facon, pour des Lames Tombales ou des Destroyers, d'en
+    profiter. D'ou `situ` au lieu d'`effet` : ce qu'il pose est une
+    situation declaree, pas un chiffre. */
+ { nom:"Renforcement Synergétique", detach:"Cryptek Conclave", pc:1, ph:"T",
+   unites:[], sauf:["cryptek","monster","vehicle"],
+   aide:"l'unité compte comme CRYPTEK cette phase — ouvre les Augmentations Technosorcières",
+   situ:"cryptek_pret", effet:{} },
  { nom:"Ciblage d'Aura Entrophasique", detach:"Pantheon of Woe", pc:1, ph:"TC",
    unites:[], sauf:["monster"],
    aide:"relance des 1 pour toucher",

@@ -1075,8 +1075,12 @@ function renderPresets(){
   if(st.length){
     sep("Stratagèmes");
     st.forEach(x=>{
-      const cles = Object.keys(x.effet);
-      const on = cles.every(k => S[k] === x.effet[k]);
+      const cles = Object.keys(x.effet || {});
+      /* Un strategeme pose des chiffres, ou declare une situation. Le
+         Renforcement Synergetique est du second genre : il ne touche
+         aucun jet, il fait de l'unite une unite de CRYPTEK, et ce sont
+         les regles du detachement qui changent derriere. */
+      const on = x.situ ? x.situOn : (cles.length > 0 && cles.every(k => S[k] === x.effet[k]));
       const b = document.createElement("button");
       b.type = "button";
       b.className = "vpre vstrat" + (on ? " on" : "");
@@ -1085,6 +1089,12 @@ function renderPresets(){
         '<small>' + x.aide + '</small>' +
         (x.enAttente ? '<small class="vattente">en attente : ' + x.enAttente + '</small>' : '');
       b.addEventListener("click", ()=>{
+        if(x.situ){
+          window.ROSTER.poseSituation(x.situ, !on);
+          /* ce qui change, ce sont les regles qui s'appliquent : les
+             profils doivent etre reconstruits, pas seulement redessines */
+          rechargeUnite(); majVite(); return;
+        }
         cles.forEach(k => { S[k] = on ? DEFAUT_STRAT[k] : x.effet[k]; });
         pushState(); renderAtkUnite(); majVite(); render();
       });
@@ -1140,7 +1150,12 @@ function majVite(){
   /* on ne compte que ce qui est propose : une situation restee posee
      d'une unite a l'autre — « reste immobile » apres une escouade
      lourde — ne change plus rien et ne doit plus se compter */
-  const haut = nSit + presetsVisibles().filter(pr => pr.lis()).length +
+  /* les strategemes qui declarent une situation au lieu de poser un
+     chiffre : les autres se comptent deja par ce qu'ils ont pose */
+  const nStr = (atkMode === "unite" && atkUnit && window.ROSTER && window.ROSTER.stratsSimu)
+    ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase)
+        .filter(x => x.situ && x.situOn).length : 0;
+  const haut = nSit + nStr + presetsVisibles().filter(pr => pr.lis()).length +
                Object.keys(condOn).filter(k => condOn[k]).length;
   const bas = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
               (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +

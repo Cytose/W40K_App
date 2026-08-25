@@ -172,6 +172,40 @@ eq('cible effritée déclarée, il relance aussi les 1 pour blesser',
   aura1 && aura1.effet.rrW, 'ones');
 eq('et il ne parle plus d\'attente', !!(aura1 && aura1.enAttente), false);
 
+console.log('\n== 7. le Renforcement Synergétique prête le mot-clé CRYPTEK ==');
+/* Une figurine amie à 12" d'un CRYPTEK reçoit le mot-clé pour la phase :
+   une seule suffit à faire de l'escouade une unité de CRYPTEK, et les
+   Augmentations Technosorcières s'ouvrent à elle. */
+await liste('Cryptek Conclave', [
+  {id:1, name:'Tomb Blades', size:3, lo:[], chars:[], sel:true, grp:'', enh:null},
+  {id:2, name:'Immortals', size:10, lo:[], chars:[{name:'Technomancer', lo:[]}],
+   sel:true, grp:'', enh:null}]);
+await charge(1);
+await cible(['inf']);
+const stTb = await p.evaluate(() => window.SIM.strats());
+const synr = stTb.find(x => /Synergétique/.test(x.nom));
+eq('il est proposé à une unité qui n\'est pas CRYPTEK', !!synr, true);
+eq('et il déclare une situation, il ne pose pas un chiffre',
+  synr && synr.situ, 'cryptek_pret');
+eq('avant de le lancer, le Conclave n\'est pas proposé',
+  (await offre()).situations.indexOf('cryptek_anti'), -1);
+await situ('cryptek_pret', true);
+eq('une fois lancé, il l\'est', (await offre()).situations.indexOf('cryptek_anti') >= 0, true);
+await situ('cryptek_anti', ['anti-inf']);
+eq('et l\'aptitude choisie touche toutes les armes de l\'unité',
+  (await atk()).moteur.every(m => m.critW === 3), true);
+await situ('cryptek_anti', ['lourd']);
+eq('la branche LOURD fait apparaître « resté immobile »',
+  (await offre()).presets.indexOf('immo') >= 0, true);
+await pose('immobile', true);
+eq('... qui donne alors son +1', (await atk()).moteur[0].hitMod, 1);
+await pose('immobile', false);
+await charge(2);
+eq('il n\'est pas proposé à une unité déjà CRYPTEK',
+  (await p.evaluate(() => window.SIM.strats())).some(x => /Synergétique/.test(x.nom)), false);
+await situ('cryptek_pret', false);
+await situ('cryptek_anti', []);
+
 await b.close();
 console.log([...ok, ...ko].join('\n'));
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
