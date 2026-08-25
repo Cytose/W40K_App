@@ -14,6 +14,7 @@
     "decors": "python3 outils/empreintes.py",
     "densite": "python3 outils/empreintes.py --densite",
     "formes": "python3 outils/formes.py",
+    "poses": "python3 outils/poses.py",
     "fond": "node outils/test-fond.mjs"
   },
   "devDependencies": {

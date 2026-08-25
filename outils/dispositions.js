@@ -168,6 +168,23 @@ const FORMES = (() => {
   return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')).formes || {}) : {};
 })();
 
+/* Et ce que la source dit faux : la PLACE des pieces dans leur emprise.
+
+   Un muret a un demi-pouce de son mur, un petit L a deux pouces de son
+   coin, une barriere posee a l'envers. C'est le meme defaut, une
+   troisieme fois : des emprises retournees sans qu'on retourne ce
+   qu'elles portent. Le releve de densite l'avait corrige la ou des
+   rectangles suffisaient a le voir ; des rectangles ne montrent ni un
+   quart de tour ni un demi-tour, et il a fallu que les pieces aient leur
+   vraie forme pour que le reste se voie.
+
+   outils/poses.py le releve sur les 45 fonds de carte et n'ecrit que ce
+   qui gagne vraiment. */
+const POSES = (() => {
+  const f = path.join(RACINE, 'outils', 'poses.json');
+  return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')).poses || {}) : {};
+})();
+
 const RELEVE = (() => {
   const f = path.join(RACINE, 'outils', 'densite.json');
   return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : { table: {} };
@@ -198,8 +215,13 @@ function inscrire(idGab, prof){
     if(!sk) continue;
     const [sx, sy, dr] = RETOURNE[cleGab(idGab)] || [1, 1, 0];
     const q = { g: sk, p: [dec2(sx * e.position.x), dec2(sy * e.position.y)] };
-    const rot = (((sx * sy < 0 ? -(e.rotation_degrees || 0) : (e.rotation_degrees || 0))
-                  + dr) % 360 + 360) % 360;
+    let rot = (((sx * sy < 0 ? -(e.rotation_degrees || 0) : (e.rotation_degrees || 0))
+                + dr) % 360 + 360) % 360;
+    const mis = POSES[k + '/' + f.length];
+    if(mis){
+      q.p = [dec2(q.p[0] + mis.d[0]), dec2(q.p[1] + mis.d[1])];
+      rot = (rot + mis.k) % 360;
+    }
     if(rot) q.r = rot;
     f.push(q);
   }
