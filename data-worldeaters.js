@@ -928,7 +928,25 @@ const APTIS_COND = {
    "port": "C",
    "nom": "Seigneur Possédé",
    "quand": "L'aptitude est déclenchée — une fois par bataille",
-   "texte": "Once per battle, at the start of the Fight phase: until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and those weapons have the [DEVASTATING WOUNDS] ability. (Le +3 attaques n'est pas simulé : le moteur n'a pas ce champ.)"
+   "texte": "Once per battle, at the start of the Fight phase: until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and those weapons have the [DEVASTATING WOUNDS] ability."
+  },
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Seigneur Possédé — les attaques",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "Add 3 to the Attacks characteristic of melee weapons equipped by this model."
+  }
+ ],
+ "Helbrute": [
+  {
+   "champ": "atkMod",
+   "val": 2,
+   "port": "C",
+   "nom": "Voué à la Destruction",
+   "quand": "Le Helbrute porte deux armes de mêlée en plus de son arme de base",
+   "texte": "If this model is equipped with 2 melee weapons in addition to its close combat weapon, add 2 to the Attacks characteristic of those two weapons."
   }
  ]
 };
@@ -1018,6 +1036,26 @@ const AURAS_ARMEE = [
   "nom": "Balises de Rage (Aura) — cible entamée",
   "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible est sous la moitié de son effectif",
   "texte": "If that attack targets a unit that is Below Half-strength, add 1 to the Wound roll as well."
+ },
+ {
+  "source": "Skarbrand",
+  "kw": [],
+  "champ": "atkMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Rage Incarnée (Aura)",
+  "quand": "L'unité est à 6\" de Skarbrand, et elle est BLOOD LEGIONS",
+  "texte": "While a friendly Blood Legions unit is within 6\" of this model, add 1 to the Attacks characteristic of melee weapons equipped by models in that unit."
+ },
+ {
+  "source": "Bloodthirster",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Seigneur Démon de Khorne (Aura)",
+  "quand": "L'unité est à 6\" du Bloodthirster, et elle est BLOOD LEGIONS",
+  "texte": "While a friendly Blood Legions unit is within 6\" of this model, each time a model in that unit makes a melee attack, add 1 to the Hit roll."
  }
 ];
 

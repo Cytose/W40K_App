@@ -10,7 +10,7 @@ const S = {
   tough:4, sv:3, inv:0, wounds:2, models:5, fnp:0, dmgRed:0, cover:false,
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
   blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
-  critH:6, critW:6, hitMod:0, wndMod:0, rrH:"none", rrW:"none",
+  critH:6, critW:6, hitMod:0, wndMod:0, atkMod:0, rrH:"none", rrW:"none",
   apMod:0, dmgMod:0, ignoresCover:false, indirect:false, ignoreMalus:false,
   /* ce que la cible EST — plusieurs règles ne valent que contre un
      certain genre d'unité, et le moteur ne connaissait d'elle que des
@@ -99,6 +99,10 @@ const SEGS = [
   ["segWndMod","wndMod",[[-1,"−1"],[0,"0"],[1,"+1"]]],
   ["segApMod","apMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"]]],
   ["segDmgMod","dmgMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"]]],
+  /* Les attaques, elles, ne sont pas plafonnees a ±1 : ce n'est pas un
+     modificateur de jet mais un ajout a la caracteristique. Skarbrand en
+     donne 1, le Slaughterbound 3 sur ses propres armes. */
+  ["segAtkMod","atkMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"],[3,"+3"]]],
   ["segRrH","rrH",[["none","—"],["ones","1"],["failed","Ratés"]]],
   ["segRrW","rrW",[["none","—"],["ones","1"],["failed","Ratés"]]]
 ];
@@ -647,6 +651,7 @@ function profilPourMoteur(p){
        l'ecran au lieu de s'y ajouter */
     apMod: (p.apMod || 0) + S.apMod,
     dmgMod: (p.dmgMod || 0) + S.dmgMod,
+    atkMod: (p.atkMod || 0) + S.atkMod,
     rrH: plusFort(p.rrH || "none", S.rrH),
     rrW: plusFort(p.rrW || "none", S.rrW),
     /* Quand une unite entiere est chargee, la carte des capacites ne
@@ -696,6 +701,7 @@ function profilPourMoteur(p){
     else if(c.champ === "apMod") q.apMod = (q.apMod || 0) + c.val;
     else if(c.champ === "strMod") q.str = Math.max(1, q.str + c.val);
     else if(c.champ === "dmgMod") q.dmgMod = (q.dmgMod || 0) + c.val;
+    else if(c.champ === "atkMod") q.atkMod = (q.atkMod || 0) + c.val;
   });
   /* le plus petit jet qui reussisse : la caracteristique moins le
      modificateur, et jamais moins de 2 puisqu'un 1 rate toujours */
@@ -777,6 +783,7 @@ function pastilles(q, brut){
     out.push({t:"F " + (q.str > brut.str ? "+" : "−") + Math.abs(q.str - brut.str), cl:"m", d:""});
   if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:""});
   if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:""});
+  if(q.atkMod) out.push({t:"A " + (q.atkMod > 0 ? "+" : "−") + Math.abs(q.atkMod), cl:"m", d:""});
   return out;
 }
 
@@ -969,7 +976,10 @@ function renderPresets(){
   /* Les stratagemes de mes detachements qui changent vraiment un jet.
      Une pastille les pose et les retire comme n'importe quelle
      retouche : leur cout en PC est ecrit, la depense reste au joueur. */
-  const DEFAUT_STRAT = { apMod:0, wndMod:0, hitMod:0, rrH:"none", rrW:"none",
+  /* atkMod y figure meme si aucun stratageme ne le pose encore : c'est
+     la table qui REND l'ecran a son etat neutre quand on decoche, et un
+     champ absent d'ici resterait accroche apres coup. */
+  const DEFAUT_STRAT = { apMod:0, wndMod:0, hitMod:0, atkMod:0, rrH:"none", rrW:"none",
                          sustainedOn:false, sustainedN:"1", ignoreMalus:false };
   const st = (atkMode === "unite" && atkUnit && window.ROSTER && window.ROSTER.stratsSimu)
     ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase) : [];

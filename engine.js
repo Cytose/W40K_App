@@ -1,7 +1,7 @@
 /* ==========================================================
    Moteur de sequence d'attaque — Warhammer 40 000, 11e ed.
    Un profil "S" contient l'attaquant ET la cible :
-   attaquant : attacks, bs, str, ap, dmg, torrent, lethal, dev,
+   attaquant : attacks, atkMod, bs, str, ap, dmg, torrent, lethal, dev,
                sustainedOn/sustainedN, blast, rapidOn/rapidN,
                meltaOn/meltaN, critH, critW, hitMod, wndMod, rrH, rrW,
                apMod, dmgMod, ignoresCover, indirect, ignoreMalus, kind
@@ -143,7 +143,12 @@ function analytic(s0){
   const atk = parseDice(s.attacks) || {n:0,f:0,b:0};
   const blast = s.blast ? Math.floor(s.models/5) : 0;
   const rapid = s.rapidOn ? s.rapidN : 0;
-  const A = diceMean(atk) + blast + rapid;
+  /* atkMod : ce qu'une regle ajoute a la caracteristique d'Attaques.
+     L'aura de Skarbrand donne +1 en melee, le Slaughterbound +3 sur ses
+     propres armes. Ca s'ajoute au nombre d'attaques, pas au jet — et ca
+     ne descend jamais sous zero, une regle qui retire des attaques ne
+     peut pas en rendre de negatives. */
+  const A = Math.max(0, diceMean(atk) + blast + rapid + (s.atkMod || 0));
 
   const hitSet = sets(s.bs, s.hitMod, s.critH);
   const hp = s.torrent ? {ps:1, pc:0} : probs(hitSet, s.rrH);
@@ -179,6 +184,7 @@ function prep(s0){
     dmgD: parseDice(s.dmg) || {n:0,f:0,b:1},
     blast: s.blast ? Math.floor(s.models/5) : 0,
     rapid: s.rapidOn ? s.rapidN : 0,
+    atkMod: s.atkMod || 0,
     hitSet: sets(s.bs, s.hitMod, s.critH),
     wSet: sets(woundTarget(s.str, s.tough), s.wndMod, s.critW),
     st: saveTarget(s),
@@ -190,7 +196,7 @@ function prep(s0){
 }
 /* nombre d'attaques non sauvegardees sur un jet complet */
 function rollUnsaved(P){
-  let A = diceRoll(P.atk) + P.blast + P.rapid;
+  let A = diceRoll(P.atk) + P.blast + P.rapid + P.atkMod;
   if(A < 0) A = 0;
   let normalHits = 0, autoWounds = 0;
   if(P.torrent){ normalHits = A; }

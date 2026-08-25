@@ -3446,7 +3446,37 @@ une règle câblée sur un nom mort ne s'applique jamais et ne dit rien.
 87 contrôles, tous verts. Nécrons 25 règles, World Eaters 16, Custodes et
 Astra 0.
 
+### `atkMod` ajouté — le simulateur sait compter les attaques
+
+Décision prise : le champ manquant est ajouté. `S.atkMod` s'ajoute à la
+caractéristique d'Attaques, **pas au jet** — il n'est donc pas plafonné à
+±1 comme les modificateurs de touche et de blessure, et il ne descend
+jamais sous zéro.
+
+Il traverse les deux chemins du moteur, l'espérance exacte et le tirage
+Monte-Carlo, et les deux s'accordent : sur quatre attaques de base,
+`+1` donne 3,333 touches contre 2,667 — exactement 5/4 — et 60 000
+tirages tombent à **0,31 %** de l'espérance. Il a son segment à l'écran,
+sa pastille sur le profil, et sa remise à zéro dans la table des
+stratagèmes.
+
+`strMod` existait déjà dans l'application des conditions : il lui
+manquait seulement un segment d'écran. Aucune règle des quatre factions
+n'en demande, il reste donc câblable sans être affiché.
+
+Avec lui, les World Eaters passent à **20 règles câblées** : l'aura de
+**Skarbrand** (+1 attaque en mêlée), le **Helbrute** (+2 sur deux armes)
+et le **Slaughterbound** (+3) entrent. Correction au passage : l'aura du
+**Bloodthirster** est un +1 pour toucher, pas +1 attaque — elle n'était
+pas bloquée, je l'avais mal classée. Elle est câblée aussi.
+
+Ne restent dehors que le **Collier de Khorne** des Chiens de Chair, dont
+l'insensibilité ne vaut que contre les attaques psychiques — un genre que
+le moteur ne connaît pas — et les **relances de dégâts** de
+l'Annihilateur, qu'il n'a pas non plus.
+
 ### Ce qui vient
 
-L'Astra Militarum : 76 règles, dont 19 attendent `atkMod`. Et les
-stratagèmes, toujours hors de portée sans Wahapedia.
+L'Astra Militarum : 76 règles, dont les 19 qui attendaient `atkMod` sont
+maintenant écrivables. Et les stratagèmes, toujours hors de portée sans
+Wahapedia.
