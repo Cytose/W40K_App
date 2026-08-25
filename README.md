@@ -385,6 +385,29 @@ décor ajouté sont enregistrés par liste.
   Contrôles : le plafond du format, jamais deux fois la même, et un signal
   quand personne dans le groupe ne peut la porter. Un Epic Hero n'est jamais
   éligible.
+
+  **Les Entraves Nécrodermiques ne passent pas par là.** Le Panthéon de
+  Malheur n'ouvre aucune optimisation : il *impose* à chaque unité de MONSTRE
+  NÉCRON l'entrave qui lui correspond, et en fait payer le coût **sur
+  l'unité**, pas sur un personnage. Rien à choisir, rien à refuser, et deux
+  unités peuvent porter la même — c'est l'inverse d'une optimisation sur les
+  quatre points qui comptent. L'application ne les range donc plus avec elles :
+  elle les pose d'office sur les Échardes C'tan quand le détachement est
+  retenu, ajoute leurs points, et les retire quand il ne l'est plus. Une liste
+  enregistrée qui en portait une comme optimisation la perd au chargement, avec
+  un message qui la nomme, et récupère l'entrave.
+
+  | | Écharde | Coût |
+  |---|---|---|
+  | Aiguillon Quantique | Nyctophore | 45 |
+  | Matrice de Singularité | Mystificateur | 45 |
+  | Sourdine Spirituelle | Dragon du Néant | 35 |
+  | Longe Relativiste | C'tan Transcendant | 40 |
+
+  Le texte vient du pack, les coûts du Munitorum où ces quatre lignes portent
+  encore leur nom anglais ; `npm run detachements` vérifie que les deux
+  sources se recoupent, que le texte de chaque entrave nomme bien la figurine
+  qui la porte, et qu'une liste sous Panthéon paie ce qu'elle doit.
 - **Encaisser** — le calcul du simulateur, rôles inversés : une unité de la
   liste subit un volume de tir. Dix archétypes d'armes — fusil laser, bolter,
   bolter lourd, fuseur, plasma, canon laser, autocanon, lance-flammes, épée
@@ -457,10 +480,12 @@ prises — « YOUR 1ST TO 2ND UNITS COST 50 pts », « YOUR 3RD + UNIT COSTS
 compte sur toute l'armée, personnages rattachés compris ; le catalogue annonce
 le prix de la copie à venir, pas celui de la première.
 
-Le MFM donne les noms et les coûts, jamais les règles : les quatre optimisations
-du Panthéon de Malheur portent leur coût et une mention explicite à la place
-d'un texte inventé. Les dispositions de force sont rendues telles que le MFM les
-imprime, en anglais.
+Le MFM donne les noms et les coûts, jamais les règles. Il range quatre lignes
+du Panthéon de Malheur avec les optimisations — *Animus Damper*, *Quantum
+Goad*, *Reletavistic Tether*, *Singularity Matrix* — et ce n'en sont pas : le
+pack de faction en donne le texte, et ce sont des **Entraves Nécrodermiques**
+(voir plus bas). L'application n'a gardé du MFM que leurs quatre coûts. Les
+dispositions de force sont rendues telles que le MFM les imprime, en anglais.
 
 Deux unités du MFM manquent encore, faute de fiche : Overlord with Translocation
 Shroud et Seraptek Heavy Construct.
@@ -501,7 +526,8 @@ grande partie des données de règles :
   (section 15) et le glossaire des aptitudes d'arme et de base (section 24).
 
 Ce qui en vient : les 43 stratagèmes, les règles des sept détachements du
-pack, leurs 20 optimisations, les aptitudes des 8 fiches du pack, les
+pack, leurs 18 optimisations et les 4 Entraves Nécrodermiques du Panthéon de
+Malheur, les aptitudes des 8 fiches du pack, les
 Protocoles de Réanimation, le glossaire complet, et les errata qui touchent
 des fiches existantes (Chronomancien, Plasmancien, Monolithe, Roi Silencieux,
 Réanimateur Canoptek, Console de Commandement, Destroyers Ophydiens, C'tan
