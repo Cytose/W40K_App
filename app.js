@@ -324,7 +324,7 @@ function appliqueCibleGardee(c){
   CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
   poseKwCible(c.kw);
   tgtName = c.nom; tgtUnit = null;
-  refreshTarget(); pushState(); render();
+  refreshTarget(); pushState(); majApresCible();
 }
 function renderCiblesGardees(){
   const host = el("cibGardees"); if(!host) return;
@@ -351,6 +351,16 @@ function renderCiblesGardees(){
    modifiables : l'application ne connait pas les armees adverses, et
    l'archetype « Space Marine » couvre autant une escouade tactique
    qu'un personnage a pied. */
+/* Changer de cible ne change pas que des chiffres : un Anti-X ne mord
+   que ce qu'il nomme, une aptitude de fiche ne vaut que contre les
+   VEHICULES, l'aptitude choisie du Conclave demande de l'INFANTERIE.
+   Tout cela est calcule quand l'unite est chargee : redessiner ne
+   suffit pas, il faut reconstruire les profils. Sans quoi une escouade
+   chargee face a des Space Marines gardait sa blessure critique a 3+
+   apres qu'on eut choisi un char pour cible. */
+function majApresCible(){
+  if(atkMode === "unite" && atkUnitId !== null) rechargeUnite(); else render();
+}
 function poseKwCible(liste){
   S.kwCible = {};
   (liste || []).forEach(k => { S.kwCible[k] = true; });
@@ -403,7 +413,7 @@ function applyGenericTarget(name){
   Object.assign(S, p[1]);
   poseKwCible((typeof KW_ARCHETYPE !== "undefined" ? KW_ARCHETYPE : {})[name]);
   tgtName = name; tgtUnit = null;
-  refreshTarget(); pushState(); render();
+  refreshTarget(); pushState(); majApresCible();
 }
 function applyNecronTarget(name, size){
   const u = unitRow(name); if(!u) return;
@@ -415,7 +425,7 @@ function applyNecronTarget(name, size){
   S.dmgRed = /Necrodermis|Implacable Resilience|-1 D.gât/.test(u[11]) ? 1 : 0;
   poseKwCible(kwDeCategorie(catDe(name)));
   tgtName = name; tgtUnit = u; tgtSize = size;
-  refreshTarget(); pushState(); render();
+  refreshTarget(); pushState(); majApresCible();
 }
 /* le nom retenu, le profil reellement en vigueur, et l'etat des cibles
    gardees — tout ce qui doit suivre la moindre retouche */
@@ -598,7 +608,7 @@ function renderTargetList(){
            deja sa categorie */
         poseKwCible(kwDeCategorie(x.cat || catDe(x.unite)));
         tgtName = x.nom; tgtUnit = null;
-        refreshTarget(); pushState(); render();
+        refreshTarget(); pushState(); majApresCible();
       });
       host.appendChild(b);
     });
@@ -917,10 +927,17 @@ function renderRosterUnitList(){
    se lisent sur l'unite chargee : la distance, le mouvement, le
    couvert. Le reste de cet encadre — conditions de detachement,
    strategemes, aptitudes de fiche — vient de la liste ouverte. */
+/* Chacun porte un `si` : la situation ne se propose que si l'attaquant
+   charge peut en tirer quelque chose. « Reste immobile » offert a des
+   Lames Tombales, qui n'ont aucune arme LOURDE, promettait un +1 qui
+   n'arrivait jamais. */
 const PRESETS = [
   {id:"cover", nom:"Cible à couvert", aide:"−1 pour toucher",
+   /* le couvert ne joue qu'au tir : en melee le moteur l'ignore */
+   si:f => f.tir,
    lis:()=> S.cover,            met:v=>{ S.cover = v; }},
   {id:"immo",  nom:"Resté immobile", aide:"+1 pour toucher aux armes LOURDES",
+   si:f => f.lourd,
    lis:()=> S.immobile,         met:v=>{ S.immobile = v; }}
 ];
 /* Ce qui ne vaut que pour une unite entiere : la distance vaut pour
@@ -928,8 +945,32 @@ const PRESETS = [
    arme par arme. */
 const PRESETS_UNITE = [
   {id:"mi",    nom:"À mi-portée",     aide:"Tir Rapide et Fonte comptent",
+   si:f => f.miPortee,
    lis:()=> S.rapidOn && S.meltaOn, met:v=>{ S.rapidOn = v; S.meltaOn = v; }}
 ];
+/* CE QUE L'ATTAQUANT CHARGE PERMET VRAIMENT.
+   Trois faits suffisent a trancher : tire-t-il, a-t-il une arme LOURDE,
+   une arme qui gagne quelque chose a mi-portee. En mode « une arme » ils
+   se lisent sur l'arme choisie ; en mode « unite entiere », sur tous ses
+   profils — une seule arme lourde dans l'escouade suffit a rendre la
+   question du mouvement legitime. */
+function faitsAttaquant(){
+  if(atkMode === "unite"){
+    const ps = (atkUnit && atkUnit.profils) || [];
+    return { tir:      ps.some(p => p.kind !== "C"),
+             lourd:    ps.some(p => p.heavy),
+             miPortee: ps.some(p => p.rapidOn || p.meltaOn) };
+  }
+  const f = drapeauxCourants();
+  return { tir: S.kind !== "C", lourd: !!f.heavy,
+           miPortee: !!(f.rf || f.melta) };
+}
+/* les situations effectivement proposees, dans l'ordre ou on les voit */
+function presetsVisibles(){
+  const f = faitsAttaquant();
+  return PRESETS.concat(atkMode === "unite" ? PRESETS_UNITE : [])
+                .filter(pr => !pr.si || pr.si(f));
+}
 function renderPresets(){
   const host = el("vitePresets"); if(!host) return;
   host.innerHTML = "";
@@ -944,10 +985,12 @@ function renderPresets(){
   };
   const sep = txt => { const d = document.createElement("div");
     d.className = "vsep"; d.textContent = txt; host.appendChild(d); };
-  PRESETS.forEach(bouton);
-  if(atkMode === "unite"){
+  const vus = presetsVisibles();
+  PRESETS.filter(pr => vus.indexOf(pr) >= 0).forEach(bouton);
+  const uni = PRESETS_UNITE.filter(pr => vus.indexOf(pr) >= 0);
+  if(uni.length){
     sep("Toutes les armes de l'unité");
-    PRESETS_UNITE.forEach(bouton);
+    uni.forEach(bouton);
   }
   /* Les aptitudes que porte l'unite chargee et qui attendent une
      condition. Elles arrivent sous leur nom officiel : le joueur
@@ -956,7 +999,7 @@ function renderPresets(){
      qui n'existe plus. Elles ne valent que pour une unite de la liste :
      une arme mesuree seule ne connait aucun detachement. */
   const sit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
-    ? window.ROSTER.situations() : [];
+    ? window.ROSTER.situations(atkUnitId, atkPhase) : [];
   if(sit.length){
     sep("Conditions du détachement");
     sit.forEach(x=>{
@@ -976,11 +1019,18 @@ function renderPresets(){
           /* au plafond, ce qui n'est pas pris s'eteint : le joueur voit
              qu'il doit en lacher une avant d'en prendre une autre */
           const plein = !on && pris.length >= max;
+          /* un Anti-X ne mord que ce qu'il nomme : contre une cible d'un
+             autre genre il reste choisissable — c'est la regle — mais il
+             ne promet plus un seuil qui ne s'appliquera pas */
+          const mordPas = !!(c.kw && !S.kwCible[c.kw]);
           const b = document.createElement("button");
           b.type = "button";
-          b.className = "vpre vcond" + (on ? " on" : "") + (plein ? " opt-off" : "");
+          b.className = "vpre vcond" + (on ? " on" : "") + (plein ? " opt-off" : "") +
+                        (mordPas ? " vinact" : "");
           b.title = c.aide || "";
-          b.innerHTML = c.nom + (c.aide ? '<small>' + c.aide + '</small>' : '');
+          b.innerHTML = c.nom + '<small>' +
+            (mordPas ? "sans effet : la cible n'est pas " + nomMotCible(c.kw)
+                     : (c.aide || "")) + '</small>';
           b.addEventListener("click", ()=>{
             if(plein) return;
             const v = on ? pris.filter(k => k !== c.v) : pris.concat([c.v]);
@@ -1063,7 +1113,7 @@ function renderPresets(){
      depuis le debut mais rien ne le disait : on ne verifie pas ce qu'on
      ne voit pas. Lecture seule — ce n'est pas une retouche. */
   const regles = (atkMode === "unite" && window.ROSTER && window.ROSTER.reglesDetach)
-    ? window.ROSTER.reglesDetach() : [];
+    ? window.ROSTER.reglesDetach(atkUnitId, atkPhase) : [];
   if(!regles.length) return;
   sep("Ce que fait ton détachement");
   regles.forEach(r=>{
@@ -1085,10 +1135,12 @@ function majVite(){
      plus lequel des deux etait charge -- et un +1 oublie fausse toute
      une soiree de calculs. */
   const nSit = (atkMode === "unite" && window.ROSTER && window.ROSTER.situations)
-    ? window.ROSTER.situations().reduce((a, x) =>
+    ? window.ROSTER.situations(atkUnitId, atkPhase).reduce((a, x) =>
         a + (x.choix ? (x.val || []).length : (x.on ? 1 : 0)), 0) : 0;
-  const haut = nSit + (S.cover ? 1 : 0) + (S.immobile ? 1 : 0) +
-               ((atkMode === "unite" && S.rapidOn && S.meltaOn) ? 1 : 0) +
+  /* on ne compte que ce qui est propose : une situation restee posee
+     d'une unite a l'autre — « reste immobile » apres une escouade
+     lourde — ne change plus rien et ne doit plus se compter */
+  const haut = nSit + presetsVisibles().filter(pr => pr.lis()).length +
                Object.keys(condOn).filter(k => condOn[k]).length;
   const bas = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
               (S.dmgMod ? 1 : 0) + (S.rrH !== "none" ? 1 : 0) +
@@ -1205,6 +1257,14 @@ function drawBars(svg, data, color, tipFmt){
 /* ==========================================================
    RENDU
    ========================================================== */
+/* « Reste immobile » n'est pas un modificateur mais une situation : le
+   +1 ne part qu'aux armes LOURDES. En mode unite c'est profilPourMoteur
+   qui s'en charge, profil par profil ; ici, pour l'arme unique de
+   l'ecran. */
+function etatMoteur(){
+  if(!S.immobile || !faitsAttaquant().lourd) return S;
+  return Object.assign({}, S, {hitMod: borne1((S.hitMod || 0) + 1)});
+}
 let lastSim = null, lastData = null;
 function render(){
   majVite();
@@ -1219,6 +1279,10 @@ function render(){
      de sorte que la surtue de l'arme lourde profite — ou nuit — aux
      suivantes, exactement comme en partie. */
   const lot = (atkMode === "unite") ? profilsActifs().map(profilPourMoteur) : null;
+  /* En mode « une arme », l'ecran est le profil : « reste immobile »
+     n'avait aucun chemin jusqu'au moteur et ne faisait rien. Il en prend
+     un, au meme prix qu'en mode unite — seule une arme LOURDE y gagne. */
+  const E = lot ? null : etatMoteur();
   let a, sim;
   if(lot){
     if(!lot.length){ videResultats(); return; }
@@ -1229,8 +1293,8 @@ function render(){
     }));
     sim = ENG.simulateCombined(lot, a.A > 120 ? 8000 : 30000);
   } else {
-    a = analytic(S);
-    sim = simulate(S, a.A > 120 ? 8000 : 30000);
+    a = analytic(E);
+    sim = simulate(E, a.A > 120 ? 8000 : 30000);
   }
   lastSim = sim;
   const M = S.models;
@@ -1243,7 +1307,7 @@ function render(){
   /* le seuil de touche affiche doit etre celui que le moteur applique :
      le couvert et le tir indirect passent par la normalisation, pas par
      le modificateur de l'ecran */
-  const Sn = ENG.normalise(S);
+  const Sn = ENG.normalise(E || S);
   const steps = [
     ["Attaques", a.A, lot ? lot.length + " profil" + (lot.length > 1 ? "s" : "") : ""],
     ["Touches", a.hits, lot ? "" : (S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,Sn.bs - Sn.hitMod))+"+")],
@@ -1583,6 +1647,18 @@ global.SIM = {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti, 
                  ignoresCover: !!q.ignoresCover };
       }) };
   },
+  /* ce que l'encadre du haut propose vraiment pour ce qui est charge :
+     une situation qu'aucune arme ne peut utiliser ne doit pas y etre */
+  offre: function(){
+    const R2 = window.ROSTER || {};
+    return { presets: presetsVisibles().map(pr => pr.id),
+             situations: (atkMode === "unite" && R2.situations)
+               ? R2.situations(atkUnitId, atkPhase).map(x => x.cle) : [],
+             regles: (atkMode === "unite" && R2.reglesDetach)
+               ? R2.reglesDetach(atkUnitId, atkPhase).map(x => x.nom) : [] };
+  },
+  /* les mots-cles de la cible, comme les pastilles de la carte Cible */
+  cible: function(kws){ poseKwCible(kws); refreshTarget(); majApresCible(); },
   /* poser une retouche comme le ferait un doigt sur l'ecran */
   pose: function(k, v){ S[k] = v;
     if(atkMode === "unite") renderAtkUnite();
