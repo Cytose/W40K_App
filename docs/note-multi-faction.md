@@ -11,6 +11,48 @@ sensiblement la ligne entre les deux moitiés. Le §3 en tient compte.
 
 ---
 
+> ## ⚠ Ce que l'exécution a démenti — 25/08/2026
+>
+> **La note a été faite. Le corps ci-dessous n'est plus à jour, et il est
+> gardé tel quel : c'est le compte rendu de ce qu'on savait le 22/08, pas
+> l'état du dépôt.** Ce qui a réellement été livré est au §11, §12 et §13
+> de `docs/feuille-de-route.md`.
+>
+> Guillaume a signalé que `BSData/wh40k-11e` porte les 29 factions. Le
+> dépôt est joignable depuis mes machines, son voisin `wh40k-11e-mfm`
+> aussi, et il est passé du `.cat` XML au **JSON** depuis la rédaction.
+> Trois affirmations de cette note ne tiennent plus :
+>
+> | La note dit | Mesuré depuis |
+> |---|---|
+> | §2 — « L'invulnérable et le FNP ne sont pas dans le profil », d'où une passe de relecture par faction | Le profil `Unit` porte **`InSv`**, à côté de M, T, Sv, W, OC, LD. Cette passe n'existe pas. Le FNP, lui, reste dans le texte. |
+> | §2 — « le catalogue s'est révélé **périmé sur les points** » | Les prix de l'effectif de base sont justes : **49 sur 49** contre notre table nécrone. Ce sont les **paliers** qui manquent, et le Munitorum les donne, seuils de réquisition compris. |
+> | §3 — les optimisations en anglais, à chiffrer depuis le MFM | Le Munitorum donne nom **et** coût, BSData le texte complet. Les deux se recoupent par le nom. |
+>
+> Et une chose que la note ne dit pas, mesurée depuis : **BSData ne porte
+> les règles de détachement que pour les Nécrons** — 9 sur 12, contre 0
+> sur 9 pour les Custodes, 0 sur 11 pour l'Astra Militarum, 1 sur 8 pour
+> les World Eaters.
+>
+> **Ce qui reste vrai, et qui était l'essentiel :** les stratagèmes sont
+> absents des deux sources et exigent toujours Wahapedia, injoignable
+> depuis mes machines (403 au tunnel) ; les socles viennent du Base Size
+> Guide, un PDF ; et le **câblage du simulateur** reste le seul vrai poste
+> manuel — aucune source ne traduit une règle en code.
+>
+> **L'option B du §7 a été retenue et exécutée.** Le refactor est fait,
+> `data.js` ne connaît plus aucune faction, et les quatre factions sont
+> livrées : Nécrons (51 fiches, relues à la main), Adeptus Custodes (31),
+> Astra Militarum (134 dont 72 jouables), World Eaters (30). Le
+> simulateur tourne sur les caractéristiques nues pour les trois
+> ajoutées, comme l'option le prévoyait.
+>
+> L'estimation du §6 — « deux à trois semaines de soirées à deux » pour
+> l'option A — portait pour l'essentiel sur du travail qui s'est révélé
+> automatisable. Ce qu'il en reste, c'est le câblage, et lui seul.
+
+---
+
 ## 1. Le constat de départ
 
 L'application est écrite pour **une** faction. Ce n'est pas un défaut de
