@@ -408,6 +408,24 @@ décor ajouté sont enregistrés par liste.
   encore leur nom anglais ; `npm run detachements` vérifie que les deux
   sources se recoupent, que le texte de chaque entrave nomme bien la figurine
   qui la porte, et qu'une liste sous Panthéon paie ce qu'elle doit.
+
+  **Et elles se rappellent en partie.** Une entrave qu'on oublie ne sert à
+  rien : l'écran *En partie* les annonce au moment où elles se jouent, et
+  nulle part ailleurs.
+
+  | | Rappelée |
+  |---|---|
+  | Aiguillon Quantique | ton Mouvement **et** ta Charge — à l'un on décide d'Avancer, à l'autre on oublie qu'on a quand même le droit de charger |
+  | Sourdine Spirituelle | début de la phase de Tir **adverse**, une fois par tour, avec son bouton « Marquer utilisée » |
+  | Longe Relativiste | ton Mouvement, avec le Déplacement Transdimensionnel |
+  | Matrice de Singularité | toutes les phases — c'est une aura qui réagit aux Stratagèmes adverses, elle passe en pied de bloc |
+  | Champs de Distorsion | début de chaque phase : trois blessures mortelles pour pousser l'aura de 6″ à 9″ |
+
+  L'entrave n'est pas écrite sur la fiche de l'Écharde : elle n'existe que
+  sous ce détachement, et l'y écrire en dur ferait mentir la fiche dans les
+  six autres. Elle s'y greffe à l'affichage, une seule fois — la fiche
+  d'unité et le « Maintenant » de l'écran En partie en héritent tous les
+  deux.
 - **Encaisser** — le calcul du simulateur, rôles inversés : une unité de la
   liste subit un volume de tir. Dix archétypes d'armes — fusil laser, bolter,
   bolter lourd, fuseur, plasma, canon laser, autocanon, lance-flammes, épée
