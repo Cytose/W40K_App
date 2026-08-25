@@ -3536,3 +3536,158 @@ rien — elle ne s'applique jamais, en silence :
   d'arme qui bouge le plus, parce que le catalogue préfixe les
   sous-profils d'un `➤` — « ➤ Executioner plasma cannon - standard » et
   non « executioner plasma cannon ».
+
+---
+
+## 17. Les stratagèmes, enfin — 25/08/2026
+
+### Le trou qu'on traînait
+
+Trois factions livrées, et le même vide dans les trois : l'onglet
+Stratagèmes s'ouvrait sur rien. L'en-tête de chaque fichier généré le
+disait honnêtement — « STRATS est vide : ni BSData ni le Munitorum ne
+portent les stratagèmes » — mais le dire ne le remplit pas. Les
+détachements souffraient de la même faim : le Munitorum donne leur nom,
+leurs PD, leur Disposition de Force et le prix de leurs optimisations,
+jamais le texte de leur règle. BSData le porte pour les Nécrons et
+presque jamais ailleurs.
+
+Le compte avant :
+
+| | règle de détachement | optimisation avec texte | stratagèmes |
+|---|---:|---:|---:|
+| Adeptus Custodes | 0 / 9 | 27 / 30 | 0 |
+| Astra Militarum | 0 / 11 | 33 / 38 | 0 |
+| World Eaters | 1 / 8 | 22 / 26 | 0 |
+
+Un détachement sans le texte de sa règle, c'est un nom dans un
+sélecteur. Le joueur choisit à l'aveugle.
+
+### La source, et pourquoi elle n'est pas dans `npm run sources`
+
+Wahapedia publie un export de ses tables : `Stratagems.csv`,
+`Detachment_abilities.csv`, `Enhancements.csv`, `Factions.csv`,
+`Last_update.csv`. Il couvre les vingt-quatre factions, pas seulement
+les quatre d'ici.
+
+Il ne se télécharge pas depuis ce dépôt : le site sert ses fichiers
+derrière une protection que le proxy ne franchit pas. On les récupère à
+la main sur <https://wahapedia.ru/wh40k11ed/home/> (lien « Export
+data »), on les pose sous `build/wahapedia/`, et l'extraction les
+trouve. Sans eux elle tourne quand même : elle sort STRATS vide et
+l'écrit dans l'en-tête, comme avant.
+
+Wahapedia demande à être cité. Le pied de page de l'application le fait,
+et l'en-tête de chaque fichier généré le répète.
+
+### Le format, et le piège qu'il tend
+
+Ce ne sont pas des CSV. Les champs sont séparés par `|`, la ligne se
+termine par un `|` de plus, l'en-tête porte une marque d'ordre d'octets,
+et les descriptions contiennent du HTML **et** des retours à la ligne.
+Un enregistrement s'étale donc sur plusieurs lignes, et on ne sait qu'il
+est fini qu'en comptant les séparateurs.
+
+En compter un de trop recolle deux fiches en une. Le résultat reste un
+tableau bien formé, avec la moitié des lignes, chacune portant le nom
+d'un stratagème et le texte du suivant. Rien ne proteste. C'est arrivé :
+sur 1661 stratagèmes on en lisait 830, et il a fallu compter autrement
+pour s'en apercevoir — le début d'un enregistrement se reconnaît à son
+identifiant, un nombre de neuf chiffres au moins, et ce compte-là ne
+dépend pas du recollement. `outils/test-wahapedia.py` fait les deux
+comptes et exige qu'ils tombent pareil, sur les trois fichiers.
+
+### Ce qui est écarté, et pourquoi
+
+Wahapedia range les stratagèmes par détachement, y compris ceux des
+**Actions d'Abordage** — « Tomb Ship Complement », « Boarding
+Butchers », « Tempestus Boarding Regiment ». Ce format n'est pas celui
+que l'application tient, et le Munitorum ne connaît pas ces
+détachements. On ne garde donc que les stratagèmes dont le détachement
+figure dans DETACHMENTS : 79 lignes nécrones deviennent 63, 65 Astra
+deviennent 57, 47 World Eaters deviennent 39, 53 Custodes deviennent 45.
+
+Le nom du détachement retenu est celui du **Munitorum**, pas celui de
+Wahapedia : c'est lui que porte DETACHMENTS, et l'onglet apparie les
+deux par égalité de chaîne. « Hammer of the Emperor » contre « Hammer Of
+The Emperor » aurait suffi à rendre six stratagèmes invisibles, sans
+erreur.
+
+### L'étalonnage
+
+Comme tout le reste, mesuré sur les Nécrons : leurs stratagèmes ont été
+saisis à la main depuis le pack de faction français. Les noms ne se
+comparent pas — la référence est en français officiel, l'extraction en
+anglais. Ce qui se compare, c'est la **forme du lot** : combien de
+stratagèmes par détachement, et quel jeu de (famille, coût en PC). Un
+écart d'un point de commandement ou d'une famille se verrait aussitôt.
+
+**Sept détachements sur sept, trente-trois stratagèmes, accord exact.**
+Familles et coûts identiques, carte pour carte. La lecture croisée des
+textes confirme : chaque entrée française a son jumeau anglais, même
+effet, même déclencheur.
+
+L'extraction apporte en plus les cinq détachements que la saisie à la
+main n'avait jamais couverts — Annihilation Legion, Awakened Dynasty,
+Canoptek Court, Hypercrypt Legion, Obeisance Phalanx — soit trente
+stratagèmes de plus.
+
+### Ce que l'étalonnage a trouvé, et qu'on ne corrige pas seul
+
+Le seul écart tient aux **stratagèmes de base**. La table nécrone tenue
+à la main en porte dix : Explosifs, Impact Écrasant, Contre-Offensive…
+C'est le jeu de la **10e édition**. Celui de la 11e en compte onze, et
+n'est pas le même : *Go to Ground* et *Tank Shock* entrent, *Explosifs*
+et *Impact Écrasant* sortent, *Grenade* remplace le premier.
+
+Wahapedia porte les deux jeux — l'ancien sous le type « Core
+Stratagem », le nouveau sous « Core – … Stratagem ». Les factions
+générées reçoivent le nouveau, onze cartes. Les Nécrons gardent les dix
+anciennes, en français.
+
+C'est un choix à faire, pas un défaut à réparer en passant : remplacer
+la table nécrone, c'est troquer dix textes français relus contre onze
+textes anglais. `npm run livrees` le laisse passer et l'écrit ici plutôt
+que de le cacher derrière un seuil.
+
+### Le compte après
+
+| | règle de détachement | optimisation avec texte | stratagèmes |
+|---|---:|---:|---:|
+| Nécrons *(à la main)* | 12 / 12 | 42 / 42 | 43 |
+| Adeptus Custodes | **9 / 9** | **30 / 30** | **56** |
+| Astra Militarum | **11 / 11** | **36 / 38** | **68** |
+| World Eaters | **8 / 8** | **26 / 26** | **50** |
+
+Douze textes d'optimisation manquaient parce que le Munitorum suffixe
+« (Upgrade) » les optimisations qui se paient sur une figurine, et que
+Wahapedia ne le fait pas. Le suffixe suffisait à faire rater le
+rapprochement ; on l'ôte avant de chercher.
+
+### Ce que les tests exigent maintenant
+
+`npm run livrees` passe de 91 à **119 contrôles**. Sept sont neufs, par
+faction :
+
+- tout stratagème cite un détachement **retenu**, ou « Core » — sinon il
+  est invisible, et invisible sans erreur ;
+- tout stratagème a un coût en PC, dit **quand** il se joue et **ce
+  qu'il fait** ;
+- aucun doublon nom+détachement : la clé de saisie utilisateur est
+  `détachement|nom`, deux homonymes s'écraseraient ;
+- aucun **HTML** de Wahapedia n'atteint l'écran — `<b>`, `<br>`,
+  `<span class="kwb">`, `&nbsp;` ;
+- les stratagèmes de base sont livrés.
+
+`npm run wahapedia` (24 contrôles) éprouve la lecture elle-même :
+recollement, nettoyage du HTML, découpage QUAND/CIBLE/EFFET/
+RESTRICTIONS, mise en casse des noms criés. `npm run custodes` monte à
+33 et vérifie que l'onglet dessine bien les six stratagèmes du Bouclier
+Hôte et les onze de base.
+
+### Ce qui reste dehors
+
+`STRAT_SIMU` — ce qu'un stratagème fait au **calcul** — reste vide pour
+les trois factions générées. Comme les aptitudes, cela ne se déduit
+d'aucune source : il faut lire chaque carte et décider. Les stratagèmes
+s'affichent, ils ne se cochent pas encore dans le simulateur.

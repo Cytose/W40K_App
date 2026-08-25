@@ -238,3 +238,43 @@ console.log('  unités documentées : référence ' + apRef + ' · extraction ' 
 console.log('  (les textes ne se comparent pas : la référence est en français' +
   ' officiel, l\'extraction en anglais du catalogue)');
 console.log('  lignes d\'aptitude extraites pour ces unités : ' + apLignes);
+
+/* ---------------- STRATAGÈMES ----------------
+   Les noms ne se rapprochent pas : la référence est en français
+   officiel, l'extraction en anglais de Wahapedia. Ce qui se compare,
+   c'est la FORME du lot — combien de stratagèmes par détachement, et
+   quel jeu de (famille, coût). Deux lots qui s'accordent là-dessus
+   décrivent les mêmes cartes ; un écart d'un point de commandement ou
+   d'une famille se verrait aussitôt. */
+const parDet = t => {
+  const m = new Map();
+  (t.STRATS || []).forEach(x => {
+    const k = cle(x[1]);
+    if (!m.has(k)) m.set(k, { nom: x[1], lot: [] });
+    m.get(k).lot.push(x[2] + '|' + x[3]);
+  });
+  m.forEach(v => v.lot.sort());
+  return m;
+};
+const sRef = parDet(REF), sGen = parDet(GEN);
+let sOk = 0, sKo = 0, sCartes = 0;
+const sEcarts = [], sEnPlus = [];
+sRef.forEach((r, k) => {
+  const g = sGen.get(k);
+  if (!g) { sEcarts.push([r.nom, r.lot.join(' '), '— absent —']); sKo++; return; }
+  if (r.lot.join(' ') === g.lot.join(' ')) { sOk++; sCartes += r.lot.length; }
+  else { sKo++; sEcarts.push([r.nom, r.lot.join(' '), g.lot.join(' ')]); }
+});
+sGen.forEach((g, k) => { if (!sRef.has(k)) sEnPlus.push(g.nom + ' (' + g.lot.length + ')'); });
+
+console.log('\n════ LES STRATAGÈMES ════');
+console.log('  référence ' + (REF.STRATS || []).length + ' · extraits ' + (GEN.STRATS || []).length);
+console.log('  détachements d\'accord sur le lot (famille et coût) : ' + sOk +
+  ' sur ' + sRef.size + '   — ' + sCartes + ' stratagèmes');
+sEcarts.forEach(([n, a, b]) => {
+  console.log('    · ' + n + '\n        réf : ' + a + '\n        ext : ' + b);
+});
+if (sEnPlus.length) {
+  console.log('  détachements que la référence ne couvrait pas, et que');
+  console.log('  l\'extraction apporte : ' + sEnPlus.join(', '));
+}

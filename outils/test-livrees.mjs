@@ -48,12 +48,17 @@ for (const F of registre) {
     const noms = new Set(UNITS.map(u => u[0]));
     const detach = new Set(DETACHMENTS.map(d => d[0]));
     const balise = t => /\*\*|\^\^/.test(String(t || ''));
+    /* Wahapedia sert du HTML : <b>, <br>, <span class="kwb">, &nbsp;.
+       L'application affiche ses textes tels quels — une balise oubliée
+       se lirait en clair au milieu d'une règle. */
+    const html = t => /<[a-z\/][^>]*>|&[a-z]+;/i.test(String(t || ''));
 
     const textes = [];
     Object.values(APTITUDES).forEach(a => a.forEach(x => textes.push(x[1])));
     ENHANCEMENTS.forEach(e => textes.push(e[3]));
     DETACHMENTS.forEach(d => textes.push(d[4]));
     FACTION.forEach(f => textes.push(f[1]));
+    STRATS.forEach(x => textes.push(x[4], x[5], x[6], x[7]));
 
     return {
       unites: UNITS.length,
@@ -79,6 +84,31 @@ for (const F of registre) {
       /* toute optimisation cite un détachement du catalogue */
       enhOrphelines: ENHANCEMENTS.filter(e => !detach.has(e[2])).map(e => e[0]),
       enhSansCout: ENHANCEMENTS.filter(e => !(e[1] > 0)).map(e => e[0]),
+
+      /* LES STRATAGÈMES. L'onglet ne montre que ceux des détachements
+         retenus par la liste, plus « Core » : un stratagème rangé sous
+         un détachement que DETACHMENTS ne connaît pas est invisible, et
+         invisible sans erreur. C'est ainsi que les stratagèmes d'Action
+         d'Abordage entreraient — le format que l'application ne joue pas. */
+      strats: STRATS.length,
+      stratsCoeur: STRATS.filter(x => x[1] === 'Core').length,
+      stratsOrphelins: [...new Set(STRATS.filter(x => x[1] !== 'Core' && !detach.has(x[1]))
+        .map(x => x[1]))],
+      stratsSansCout: STRATS.filter(x => !(x[3] > 0)).map(x => x[0]),
+      stratsSansEffet: STRATS.filter(x => !x[6]).map(x => x[0]),
+      stratsSansQuand: STRATS.filter(x => !x[4]).map(x => x[0]),
+      stratsHtml: textes.filter(html).length,
+      /* Deux stratagèmes de même nom dans le même détachement se
+         recouvriraient : la saisie de l'un écraserait l'autre, la clé de
+         SUSER étant « détachement|nom ». */
+      stratsDoublons: (() => {
+        const vus = new Set(), out = [];
+        STRATS.forEach(x => {
+          const k = x[1] + '|' + x[0];
+          if (vus.has(k)) out.push(k); else vus.add(k);
+        });
+        return out;
+      })(),
 
       /* toute unité a au moins une arme — une fiche muette est une fiche ratée */
       unitesSansArme: UNITS.filter(u => !WEAPONS.some(w => w[0] === u[0])).map(u => u[0]),
@@ -158,7 +188,8 @@ for (const F of registre) {
   const dit = (quoi, v, att) => T(F.nom + ' — ' + quoi, v, att);
   console.log('── ' + F.nom + ' : ' + R.unites + ' fiches (' + R.jouables + ' jouables), ' +
     R.armes + ' armes, ' + R.detachements + ' détachements, ' + R.optimisations +
-    ' optimisations, ' + R.socles + ' socles, ' + R.cablees + ' règles câblées');
+    ' optimisations, ' + R.strats + ' stratagèmes, ' + R.socles + ' socles, ' +
+    R.cablees + ' règles câblées');
 
   dit('la table est peuplée', R.unites, v => v > 0);
   dit('toute fiche a un nom', R.sansNom, 0);
@@ -171,6 +202,19 @@ for (const F of registre) {
   dit('et vise des unités réelles', R.attachCibles, []);
   dit('toute optimisation cite un détachement du catalogue', R.enhOrphelines, []);
   dit('toute optimisation a un coût', R.enhSansCout, []);
+  dit('tout stratagème cite un détachement retenu, ou « Core »', R.stratsOrphelins, []);
+  dit('tout stratagème a un coût en PC', R.stratsSansCout, []);
+  dit('tout stratagème dit ce qu\'il fait', R.stratsSansEffet, []);
+  dit('tout stratagème dit quand il se joue', R.stratsSansQuand, []);
+  dit('aucun stratagème en double dans son détachement', R.stratsDoublons, []);
+  dit('aucun HTML de Wahapedia n\'atteint l\'écran', R.stratsHtml, 0);
+/* Les stratagèmes de base ne dépendent pas de la faction : toutes les
+   armées jouent les mêmes. Une faction qui en livrerait moins que les
+   autres aurait perdu quelque chose en route. Le compte exact n'est pas
+   figé ici — la table nécrone tenue à la main porte encore le jeu de la
+   10e édition, dix cartes au lieu de onze, et c'est écrit dans la
+   feuille de route plutôt que caché dans un seuil. */
+  dit('les stratagèmes de base sont livrés', R.stratsCoeur, v => v >= 10);
 /* Une fiche sans arme existe : la Ligne de Défense Aegis est une
    fortification, le Véhicule de Démolition Cyclope explose par une
    aptitude. Ce n'est donc pas une faute — mais une faction où beaucoup

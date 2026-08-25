@@ -8,8 +8,8 @@
    Ce qu'elle vérifie n'est pas que les chiffres sont beaux, c'est qu'ils
    traversent l'application : une liste custodes se relit, se compte, se
    simule, s'affiche et se pose sur le plateau — y compris là où la
-   génération laisse un trou (les socles, les stratagèmes, les tables du
-   simulateur), qui doivent se traverser sans casser.
+   génération laisse un trou (les tables du simulateur), qui doit se
+   traverser sans casser.
 
    Lancer : node outils/test-custodes.mjs (le site servi sur :8099, ou $SITE)
    ============================================================ */
@@ -133,8 +133,28 @@ T('le Prétorien Vertus sur un ovale 75x42',
 T('BASES est reconstruit depuis eux, ovale compris',
   await p.evaluate(() => [Object.keys(BASES).length, BASES['Vertus Praetors']]), [31, '75×42']);
 
+/* ---- les stratagèmes, depuis l'export de Wahapedia ---- */
+/* Ils étaient vides à la livraison de la faction : ni BSData ni le
+   Munitorum ne les portent. Ils viennent maintenant de l'export du
+   site — quarante-cinq de détachement, onze de base — et l'onglet
+   n'affiche que ceux des détachements retenus par la liste. */
+T('les 9 détachements ont leurs stratagèmes', await p.evaluate(() =>
+  [STRATS.filter(x => x[1] !== 'Core').length,
+   new Set(STRATS.filter(x => x[1] !== 'Core').map(x => x[1])).size]), [45, 9]);
+T('plus les stratagèmes de base', await p.evaluate(() =>
+  STRATS.filter(x => x[1] === 'Core').length), 11);
+T('l\'onglet en dessine ceux du détachement retenu, et les rangs de base',
+  await p.evaluate(() => {
+    const h = document.getElementById('stratList');
+    return [h.querySelectorAll('.strat').length,
+            [...h.querySelectorAll('.stratsep')].map(x => x.textContent)];
+  }), v => v[0] === 17 && v[1].length === 2 && v[1][1] === 'Stratagèmes de base');
+T('un stratagème dit quand, sur quoi et ce qu\'il fait', await p.evaluate(() => {
+  const x = STRATS.find(s => s[0] === 'Vengeful Retaliation') || STRATS[0];
+  return [x[3] > 0, x[4].length > 10, x[6].length > 10, /<|&[a-z]+;/.test(x[4] + x[5] + x[6])];
+}), [true, true, true, false]);
+
 /* ---- les trous qui restent se traversent sans casser ---- */
-T('STRATS est vide, comme annoncé', await p.evaluate(() => STRATS.length), 0);
 T('et les tables du simulateur aussi', await p.evaluate(() =>
   [Object.keys(APTIS_COND).length, AURAS_ARMEE.length, Object.keys(OCTROIS_DETACH).length]),
   [0, 0, 0]);

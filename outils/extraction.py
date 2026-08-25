@@ -4,12 +4,16 @@
 ============================================================
 EXTRAIRE UNE FACTION DE BSDATA ET DU MUNITORUM
 
-Deux sources, deux rôles, et elles ne se recouvrent pas :
+Trois sources, trois rôles, et elles ne se recouvrent pas :
 
 - BSData/wh40k-11e   (JSON) — les fiches : profils, armes, aptitudes,
                               mots-clés, textes de règles. Pas de socles,
                               pas de stratagèmes, et un seul prix par
                               fiche, celui de l'effectif de base.
+- Wahapedia (CSV)    — l'export du site : les stratagèmes, le texte des
+                              règles de détachement, et celui des optimisations
+                              que BSData n'attache pas. Voir outils/wahapedia.py
+                              pour le format et d'où il vient.
 - BSData/wh40k-11e-mfm (YAML) — le Munitorum : les paliers de points par
                               effectif, les seuils de réquisition, les
                               détachements avec leurs PD, leur Disposition
@@ -17,9 +21,8 @@ Deux sources, deux rôles, et elles ne se recouvrent pas :
                               et qui peut rejoindre qui.
 
 Ce que ce script NE produit PAS, et qu'il faut savoir avant de lire sa
-sortie : les socles (ils viennent du Base Size Guide, un PDF), les
-stratagèmes (absents des deux sources), et toutes les tables qui
-traduisent une règle en code pour le simulateur — APTIS_COND, AURAS_*,
+sortie : les socles (ils viennent du Base Size Guide, un PDF) et toutes
+les tables qui traduisent une règle en code pour le simulateur — APTIS_COND, AURAS_*,
 OCTROIS_DETACH, STRAT_SIMU, MOMENTS. Celles-là ne se déduisent pas d'une
 source : il faut lire chaque règle et décider ce qu'elle fait au calcul.
 Elles sortent vides, et c'est honnête : le simulateur tournera sur les
@@ -33,6 +36,9 @@ Les sources sont attendues sous build/ (voir npm run sources).
 ============================================================
 """
 import json, os, re, sys, unicodedata
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import wahapedia
 
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BSDATA = os.environ.get('BSDATA', os.path.join(RACINE, 'build', 'bsdata'))
@@ -497,10 +503,24 @@ def ecrit(faction, T, stats):
     A('')
     A('   Sources : BSData/wh40k-11e pour les fiches, les armes et les')
     A('   textes d\'aptitudes ; BSData/wh40k-11e-mfm pour les points, les')
-    A('   détachements et les rattachements.')
+    A('   détachements et les rattachements ; l\'export de Wahapedia pour')
+    A('   les stratagèmes et les textes de règles que BSData ne porte pas.')
+    A('   Données de stratagèmes et de règles de détachement fournies par')
+    A('   Wahapedia (wahapedia.ru).')
     A('')
+    if T['STRATS']:
+        A('   STRATS porte %d stratagèmes : ceux des détachements que le'
+          % len(T['STRATS']))
+        A('   Munitorum reconnaît, plus les %d de base. Ceux des Actions'
+          % sum(1 for x in T['STRATS'] if x[1] == 'Core'))
+        A('   d\'Abordage sont écartés : l\'application ne tient pas ce format.')
+        A('')
     A('   Ce que ce fichier NE porte PAS, et qu\'il faut savoir avant de')
     A('   s\'y fier :')
+    if not T['STRATS']:
+        A('   · STRATS est vide — l\'export de Wahapedia n\'était pas sous')
+        A('     build/wahapedia/ au moment de l\'extraction. Les stratagèmes')
+        A('     se saisissent alors à la main dans l\'application.')
     if T['SOCLES']:
         A('   · SOCLES vient du Base Size Guide, relevé par outils/socles.py :')
         A('     %d fiches sur %d en ont un. Les autres — des Legends, que le'
@@ -510,8 +530,6 @@ def ecrit(faction, T, stats):
         A('   · SOCLES est vide — le relevé du Base Size Guide ne couvre pas')
         A('     cette faction. Le Plateau posera ses figurines sur un socle')
         A('     par défaut.')
-    A('   · STRATS est vide — ni BSData ni le Munitorum ne portent les')
-    A('     stratagèmes. Ils se saisissent à la main dans l\'application.')
     A('   · Les tables du simulateur — APTIS_COND, AURAS_ARMEE,')
     A('     AURAS_PERSO, OCTROIS_DETACH, STRAT_SIMU, MOMENTS, ABIMEES —')
     A('     sont vides. Elles traduisent une règle en code : aucune source')
@@ -562,6 +580,12 @@ def ecrit(faction, T, stats):
     A(',\n'.join('  ' + ligneUnite(e) for e in T['ENHANCEMENTS']))
     A('];')
     A('')
+    A('/* STRATS : [nom, détachement, famille, PC, quand, cible, effet,')
+    A('   restrictions]. Texte de l\'export Wahapedia, en anglais. */')
+    A('const STRATS = [')
+    A(',\n'.join('  ' + ligneUnite(x) for x in T['STRATS']))
+    A('];')
+    A('')
     A('/* KW : les mots-clés dont les règles de détachement se servent,')
     A('   déduits des catégories du catalogue */')
     A('const KW = ' + json.dumps(T['KW'], ensure_ascii=False, indent=1) + ';')
@@ -589,11 +613,11 @@ def ecrit(faction, T, stats):
     A('')
     A('/* Vides, faute de câblage : voir l\'en-tête. */')
     for nom in ['ARMEMENT', 'STRAT_SIMU', 'APTIS_CIBLE', 'RETINUE', 'ENH_ANCIENS',
-                'GRPN', 'STRATS', 'MOMENTS', 'MOMENTS_ARMEE', 'COMPO',
+                'GRPN', 'MOMENTS', 'MOMENTS_ARMEE', 'COMPO',
                 'ROLES_UNITE', 'OCTROIS_DETACH', 'APTIS_UNITE', 'APTIS_COND',
                 'AURAS_ARMEE', 'AURAS_PERSO']:
         if nom in T.get('CABLAGE', {}): continue
-        vide = '[]' if nom in ('STRAT_SIMU', 'STRATS', 'MOMENTS_ARMEE', 'AURAS_ARMEE') else '{}'
+        vide = '[]' if nom in ('STRAT_SIMU', 'MOMENTS_ARMEE', 'AURAS_ARMEE') else '{}'
         A('const %s = %s;' % (nom, vide))
     A('')
     A('enregistreFaction({')
@@ -738,6 +762,50 @@ def extrait(faction):
             ENHANCEMENTS.append([en, e.get('points') or 0, nom,
                                  txtAptis.get(cle(en), ''), None])
 
+    # ------------------------------------------------------------------
+    # CE QUE WAHAPEDIA COMPLÈTE
+    #
+    # Le Munitorum nomme les détachements et chiffre leurs optimisations,
+    # mais ne dit pas ce que leurs règles FONT ; BSData le dit pour les
+    # Nécrons et presque jamais ailleurs — 27 règles de détachement sur 28
+    # manquaient chez l'Astra, les World Eaters et les Custodes, et douze
+    # optimisations sortaient sans texte. Les stratagèmes, eux, ne sont
+    # dans aucune des deux.
+    #
+    # BSData reste prioritaire : c'est la source sur laquelle l'extracteur
+    # a été étalonné, et on ne remplace pas un texte vérifié par un autre.
+    # Wahapedia ne comble que les trous.
+    #
+    # Les stratagèmes sont filtrés aux détachements que le Munitorum
+    # reconnaît : le reste est de l'Action d'Abordage, un format que
+    # l'application ne joue pas.
+    # ------------------------------------------------------------------
+    STRATS, waha = [], dict(regles=0, textes=0, coeur=0)
+    if wahapedia.dispo():
+        rd = wahapedia.reglesDetachement(faction)
+        for d in DETACHMENTS:
+            if d[4]: continue
+            r = rd.get(cle(d[0]))
+            if r:
+                d[3], d[4] = d[3] or r[0], r[1]
+                waha['regles'] += 1
+        # Le Munitorum suffixe « (Upgrade) » douze optimisations sur les
+        # quatre factions — c'est sa façon de dire qu'elle se paie sur une
+        # figurine plutôt que sur le détachement. Wahapedia ne le fait pas,
+        # et le suffixe suffisait à faire rater le rapprochement.
+        opt = wahapedia.optimisations(faction)
+        for e in ENHANCEMENTS:
+            if e[3]: continue
+            nu = re.sub(r'\s*\((?:upgrade|amélioration)\)\s*$', '', e[0], flags=re.I)
+            t = opt.get(cle(e[0])) or opt.get(cle(nu))
+            if t:
+                e[3] = t
+                waha['textes'] += 1
+        STRATS = wahapedia.stratagemes(faction, [d[0] for d in DETACHMENTS])
+        coeur = wahapedia.coeur()
+        waha['coeur'] = len(coeur)
+        STRATS += coeur
+
     # KW : ce dont une règle de détachement a besoin pour désigner un genre
     KW = {}
     for genre, fr in [('vehicle', 'Véhicule'), ('monster', 'Monstre'),
@@ -816,10 +884,10 @@ def extrait(faction):
              APTITUDES=APTITUDES, DETACHMENTS=DETACHMENTS,
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
              FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES,
-             CABLAGE=chargeCablage(faction))
+             STRATS=STRATS, CABLAGE=chargeCablage(faction))
     stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM,
                  multiProfil=multiProfil, sansSocle=sansSocle,
-                 guide=len(guide))
+                 guide=len(guide), waha=waha)
     return T, stats
 
 def main():
@@ -865,6 +933,17 @@ def main():
              else "   ← BSData ne les porte pas pour cette faction"))
     print('  optimisations avec leur texte : %d sur %d'
           % (avecTexte, len(T['ENHANCEMENTS'])))
+    w = stats['waha']
+    if not wahapedia.dispo():
+        print('  PAS DE STRATAGÈMES : l\'export Wahapedia est absent de %s'
+              % os.path.relpath(wahapedia.DOSSIER, RACINE))
+    else:
+        coeur = sum(1 for x in T['STRATS'] if x[1] == 'Core')
+        print('  %d stratagèmes (%d de détachement, %d de base), export du %s'
+              % (len(T['STRATS']), len(T['STRATS']) - coeur, coeur,
+                 wahapedia.daté()))
+        print('    Wahapedia a complété %d règle(s) de détachement et'
+              ' %d texte(s) d\'optimisation' % (w['regles'], w['textes']))
 
     if stats['horsMFM']:
         print('\n  %d fiches absentes du Munitorum, donc sans points :'

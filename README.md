@@ -86,6 +86,7 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | `mkloader.js` | fabrique un chargeur compressé, hors chaîne de build |
 | `outils/cablage/*.json` | le câblage du simulateur, tenu à la main : ce que chaque règle fait au calcul. Fusionné par l'extracteur, jamais écrasé par lui |
 | `outils/socles.json` | le relevé du Base Size Guide : 29 factions, 1 097 socles. Produit par `outils/socles.py` depuis le PDF, qui n'entre pas dans le dépôt |
+| `outils/wahapedia.py` | la lecture de l'export Wahapedia : stratagèmes, règles de détachement, textes d'optimisation. `npm run wahapedia` l'éprouve |
 
 ### Ajouter une faction
 
@@ -99,9 +100,17 @@ d'une liste rebranche les tables globales sur les siennes.
    arrête le chargement en la nommant plutôt que de valoir `undefined`.
    Le plus souvent, il suffit de la **générer** : `npm run sources` récupère
    BSData et le Munitorum, puis `python3 outils/extraction.py <faction>` écrit
-   le fichier. Les socles viennent d'ailleurs — du Base Size Guide, relevé une
-   fois pour les 29 factions dans `outils/socles.json` ; il suffit de nommer
-   l'en-tête du guide dans la table `FACTIONS` de l'extracteur.
+   le fichier. Deux sources s'ajoutent à la main, et l'extraction tourne sans
+   elles en le disant dans l'en-tête du fichier produit :
+   - les **socles**, du Base Size Guide, relevés une fois pour les 29 factions
+     dans `outils/socles.json` ; il suffit de nommer l'en-tête du guide dans la
+     table `FACTIONS` de l'extracteur ;
+   - les **stratagèmes** et les textes de règles de détachement, de l'export
+     Wahapedia. Le site le sert derrière une protection que le proxy ne
+     franchit pas : on récupère les cinq CSV à la main sur
+     <https://wahapedia.ru/wh40k11ed/home/> (« Export data ») et on les pose
+     sous `build/wahapedia/`. Ajouter le code de faction du site à `CODES`
+     dans `outils/wahapedia.py`.
    `npm run etalonnage` mesure ce que vaut l'extraction en la confrontant à la
    table nécrone, la seule relue à la main sur les documents officiels.
 2. L'ajouter à `SOURCES` dans `build.js`, à `ASSETS` dans `sw.js`, et poser sa
