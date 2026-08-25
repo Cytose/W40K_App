@@ -152,6 +152,22 @@ function pts(t){
    outils/empreintes.py --densite, et se lisent ici. Sans ce releve, on
    pose les elements tels quels et on les rend tous du meme gris : le
    fichier reste coherent, il est seulement moins dit. */
+/* Ce que la source dit mal : la FORME des pieces de decor.
+
+   Elle n'en donne que la boite -- « Small L, rectangle 1,5 x 2,5 ». Le
+   document, lui, dessine un L : deux branches minces a angle droit. Rendre
+   la piece pleine boucherait une ouverture par laquelle on tire.
+
+   Les contours se relevent sur les 45 fonds de carte, par
+   outils/formes.py, et se lisent ici. Ils sont deja dans le repere de
+   pose -- origine au centre de la boite -- et on ne les RECENTRE PAS :
+   les recentrer sur leur propre centre de gravite deplacerait la piece
+   hors de la ou la source la met. */
+const FORMES = (() => {
+  const f = path.join(RACINE, 'outils', 'formes.json');
+  return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')).formes || {}) : {};
+})();
+
 const RELEVE = (() => {
   const f = path.join(RACINE, 'outils', 'densite.json');
   return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : { table: {} };
@@ -166,9 +182,15 @@ function inscrire(idGab, prof){
   if(!t || (prof || 0) > 3) return null;
   const k = cleGab(idGab);
   if(catalogue[k]) return k;
-  const v = pts(t), c = centroide(v);
+  const mesure = FORMES[k];
+  const v = mesure || pts(t), c = mesure ? [0, 0] : centroide(v);
+  /* Le relevé tombe sur des huitiemes de pouce -- 1,875 -- et deux
+     decimales les arrondiraient a 1,88 : une piece de 3,75 pouces en
+     ferait 3,76. On garde donc trois decimales pour les contours
+     mesures, deux pour ceux de la source, qui n'en demandent pas plus. */
+  const rd = mesure ? (n => +n.toFixed(3)) : dec2;
   const g = { n: t.name.replace(/^Battlemaster /, ''), k: t.kind === 'feature' ? 'f' : 'a',
-              p: v.map(q => [dec2(q[0] - c[0]), dec2(q[1] - c[1])]) };
+              p: v.map(q => [rd(q[0] - c[0]), rd(q[1] - c[1])]) };
   catalogue[k] = g;                       /* avant la recursion : coupe les cycles */
   const f = [];
   for(const e of t.features || []){

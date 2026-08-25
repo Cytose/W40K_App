@@ -757,6 +757,48 @@ confirme le nombre et les dimensions des gabarits sur une source indépendante,
 `npm run decors` leur agencement ; leurs coordonnées au dixième de pouce
 viennent toujours de 40kdc-data.
 
+### La forme des pièces
+
+La source ne donne de chaque pièce de décor que sa **boîte** : *Small L,
+rectangle 1,5 × 2,5*. Le document, lui, dessine un **L** — deux branches
+minces à angle droit. La différence n'est pas cosmétique : rendre la pièce
+pleine boucherait l'ouverture par laquelle on tire, et c'est cette ouverture
+que la ligne de vue lit.
+
+Aucune source ne porte ces contours ; ils se relèvent, et le seul relevé
+possible est celui des cartes elles-mêmes. `npm run formes` rapporte chacune
+des 90 à 180 poses d'une pièce dans son repère propre, y lit la couleur du
+document — le vert du dense, l'or du léger, les mêmes prédicats que le relevé
+de densité — et **moyenne**. Ce qui appartient à la pièce est là sur toutes
+les poses ; une ruine mitoyenne, une pastille de légende changent de place à
+chaque pose et tombent sous le seuil.
+
+Quatre précautions, chacune apprise d'un contour faux :
+
+- **Le seuil est relatif.** Une barrière mince ne noircit jamais autant qu'un
+  pan de ruine : sa matière est étroite, le crénelage et le JPEG la diluent.
+  Au seuil absolu les quatre pièces d'or disparaissaient. On prend la moitié
+  de ce que la pièce atteint chez elle — son 92ᵉ centile.
+- **Deux seuils, pas un.** Une barrière est un muret entre deux contreforts :
+  les contreforts passent le seuil, le muret non, et la pièce se cassait en
+  trois morceaux dont on ne gardait que le plus gros — 28 % de sa longueur.
+  On garde donc aussi le faible, le quart du plein, quand il **tient** à du
+  fort. Le voisinage, lui, ne tient à rien.
+- **La boîte fait loi.** Rien de la pièce n'est hors de sa boîte englobante ;
+  ce qui déborde est le voisinage, et on le coupe. Les douze contours
+  remplissent alors leur boîte exactement, ce qu'une boîte englobante doit
+  faire — le contrôle qui le dit aurait signalé un décalage d'ensemble.
+- **La grille se cale sur la boîte**, pas sur la fenêtre de mesure. Une pièce
+  de 3,75″ centrée sur une grille du quart de pouce coupe sinon une case en
+  deux, et le contour déborde d'un huitième.
+
+Les douze contours sont dans `outils/formes.json`. `npm run formes --
+--planche` dessine en plus une planche de contrôle, `outils/formes.png` — la
+moyenne relevée en gris, le contour retenu par-dessus ; elle n'est pas
+versionnée, le dépôt ne garde pas d'images de travail. `npm run dispositions-test` vérifie que `layouts.js` les porte
+point pour point, que leurs arêtes suivent les axes, et que le L reste un L :
+`small-l`, `small-l-flip` et `corner` occupent 47, 48 et 46 % de leur boîte.
+
 ## Unités Legends
 
 Elles ont été retirées à la demande de l'utilisateur, qui ne les joue pas :

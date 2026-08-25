@@ -154,6 +154,40 @@ t('les deux familles sont sur la table',
   elems.filter(q => q.dense).length + ' denses, ' +
   elems.filter(q => !q.dense).length + ' legers');
 
+console.log('\n== 8. la forme des pieces ==');
+/* La source ne donne de chaque piece que sa boite. Le document, lui,
+   dessine des L : deux branches minces a angle droit. Rendre la piece
+   pleine boucherait une ouverture par laquelle on tire -- c'est
+   exactement ce que la ligne de vue va lire. Les contours sont releves
+   sur les 45 fonds de carte par outils/formes.py ; on verifie ici que
+   layouts.js porte bien ce relevé, et que la forme y a survecu. */
+const formes = JSON.parse(fs.readFileSync(path.join(RACINE, 'outils', 'formes.json'), 'utf8')).formes;
+const pieces = Object.entries(L.gab).filter(([, g]) => g.k === 'f');
+t('chaque piece a son contour releve', pieces.every(([k]) => formes[k]),
+  pieces.length + ' pieces');
+t('layouts.js porte le contour releve, point pour point',
+  pieces.every(([k, g]) => JSON.stringify(g.p) === JSON.stringify(formes[k])));
+const aire = v => Math.abs(v.reduce((s, q, i) => {
+  const r = v[(i + 1) % v.length]; return s + q[0]*r[1] - r[0]*q[1]; }, 0)) / 2;
+const boite = v => (Math.max(...v.map(q => q[0])) - Math.min(...v.map(q => q[0]))) *
+                   (Math.max(...v.map(q => q[1])) - Math.min(...v.map(q => q[1])));
+t('un contour est rectiligne : ses aretes suivent les axes',
+  pieces.every(([, g]) => g.p.every((q, i) => {
+    const r = g.p[(i + 1) % g.p.length];
+    return Math.abs(q[0] - r[0]) < 1e-9 || Math.abs(q[1] - r[1]) < 1e-9; })));
+const creuses = pieces.filter(([, g]) => aire(g.p) < 0.9 * boite(g.p));
+t('la plupart des pieces ne remplissent pas leur boite',
+  creuses.length >= pieces.length - 2,
+  creuses.length + ' pieces sur ' + pieces.length + ' sont creuses');
+/* Le L est le cas qui compte : mince, coude, et c'est par son ouverture
+   qu'on voit. Une boite pleine a sa place fermerait la ligne de vue. */
+['small-l', 'small-l-flip', 'corner'].forEach(k => {
+  const g = L.gab[k];
+  t('le L de ' + k + ' est garde',
+    g && aire(g.p) < 0.6 * boite(g.p),
+    g ? Math.round(100 * aire(g.p) / boite(g.p)) + ' % de sa boite' : 'absent');
+});
+
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
 if(ko.length) console.log('KO : ' + ko.join(' ; '));
 process.exit(ko.length ? 1 : 0);
