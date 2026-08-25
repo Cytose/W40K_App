@@ -25,6 +25,13 @@
    cotes porteurs — les aretes qui portent le plus de longueur dans une
    direction donnee.
 
+   Depuis que layouts.js ecrit les gabarits une fois pour toutes et ne
+   garde par carte que leur pose, la mesure se fait sur le catalogue, a
+   l'endroit, une seule fois par gabarit ; les cartes ne sont plus
+   comptees que par la cle qu'elles citent. Deux choses sont donc
+   verifiees d'un coup : que les contours du catalogue sont bien ceux du
+   document, et que chaque carte en pose le bon nombre.
+
    Le gabarit polygonal, lui, n'est pas un rectangle : le document le dit
    lui-meme. Il est reconnu par elimination, et son compte verifie.
 
@@ -77,8 +84,15 @@ function gabarit(w){
   return null;
 }
 
+/* le catalogue, classe une fois */
+const classe = {};
+for (const [k, g] of Object.entries(L.gab || {})){
+  if (g.k !== 'a') continue;
+  classe[k] = gabarit([g.p]);
+}
+
 const compte = new Map(RECT.map(r => [r[0] + 'x' + r[1], 0]));
-let cartes = 0, zones = 0, polygonales = 0;
+let cartes = 0, zones = 0, polygonales = 0, inconnues = 0;
 const fautives = [];
 
 for (const id of Object.keys(L.matchups))
@@ -89,7 +103,8 @@ for (const id of Object.keys(L.matchups))
     if (t.length !== PAR_CARTE) fautives.push(id + v + ' : ' + t.length + ' zones');
     let poly = 0;
     for (const d of t){
-      const g = d.w && d.w.length ? gabarit(d.w) : null;
+      if (!(d.g in classe)){ inconnues++; continue; }
+      const g = classe[d.g];
       if (g) compte.set(g, compte.get(g) + 1); else poly++;
     }
     polygonales += poly;
@@ -100,6 +115,8 @@ const ok = [], ko = [];
 const T = (nom, vrai, dit) => (vrai ? ok : ko).push(nom + ' — ' + dit);
 
 T('45 agencements', cartes === 45, cartes + ' cartes');
+T('chaque pose cite un gabarit du catalogue', inconnues === 0,
+  inconnues + ' pose(s) sans gabarit');
 T('16 zones de terrain par agencement',
   zones === 45 * PAR_CARTE, zones + ' zones, soit ' + (zones / cartes).toFixed(2) + ' par carte');
 for (const [w, h, n] of RECT)

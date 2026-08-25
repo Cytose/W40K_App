@@ -470,6 +470,30 @@ function svgEl(tag, attrs, txt){
   if(txt != null) e.textContent = txt;
   return e;
 }
+/* --------------------------------------------------------- gabarits
+   Une carte ne stocke que la pose d'un gabarit : sa cle, son centre, son
+   angle, son miroir. Le contour, lui, est ecrit une fois dans
+   LAYOUTS.gab. Poser, c'est donc : retourner le contour local si la pose
+   le demande, le tourner d'un angle horaire (l'axe y descend), puis le
+   porter au centre. Un gabarit d'emprise porte ses elements -- murs,
+   conteneurs, passerelles -- dont la position est deja donnee dans son
+   repere local : ils suivent le meme chemin. */
+function poserGabarit(d, out, prof){
+  const cat = (typeof LAYOUTS !== "undefined" && LAYOUTS.gab) || {};
+  const g = cat[d.g];
+  if(!g || (prof || 0) > 3) return;
+  const r = (d.r || 0) * Math.PI / 180, co = Math.cos(r), si = Math.sin(r);
+  const loc = q => {
+    let x = q[0], y = q[1];
+    if(d.m === 1) x = -x; else if(d.m === 2) y = -y;
+    return [d.p[0] + x*co - y*si, d.p[1] + x*si + y*co];
+  };
+  out.push({ k: g.k, n: g.n, poly: g.p.map(loc) });
+  (g.f || []).forEach(f => poserGabarit(
+    { g:f.g, p:loc(f.p), r:(d.r || 0) + (f.r || 0) * (d.m ? -1 : 1), m:d.m },
+    out, (prof || 0) + 1));
+}
+
 const chemin = poly => poly.map(q => DX(q[0],q[1]) + "," + DY(q[0],q[1])).join(" ");
 
 function iconeObjectif(g, genre, coul){
@@ -538,18 +562,17 @@ function dessine(L, p, bd){
   etiquette(bd.lui, "var(--alert)", "ADVERSAIRE");
   etiquette(bd.moi, "var(--cyan)", "TOI");
 
-  (bd.decors || []).forEach(t => {
-    const b = t.b;
-    const g = svgEl("g", {transform:"translate(" + DX(b[0],b[1]) + " " + DY(b[0],b[1]) +
-                                   ") rotate(" + (b[4] + ROT()) + ")"});
-    g.appendChild(svgEl("rect", {x:-b[2]/2, y:-b[3]/2, width:b[2], height:b[3], rx:0.25,
-      fill:"var(--s3)", stroke:"var(--line-hi)", "stroke-width":0.1}));
-    trace.appendChild(g);
-    (t.w || []).forEach(q => trace.appendChild(svgEl("polygon", {points:chemin(q),
-      fill:"var(--green)", "fill-opacity":0.9})));
-    (t.o || []).forEach(q => trace.appendChild(svgEl("polygon", {points:chemin(q),
-      fill:"var(--warn)", "fill-opacity":0.9})));
-  });
+  /* L'emprise d'abord, les elements qu'elle porte par-dessus : c'est
+     l'ordre du document, et il compte -- un mur pose sur son emprise
+     doit rester lisible. */
+  const poses = [];
+  (bd.decors || []).forEach(d => poserGabarit(d, poses));
+  poses.filter(q => q.k === "a").forEach(q => trace.appendChild(svgEl("polygon",
+    {points:chemin(q.poly), fill:"var(--s3)", "fill-opacity":0.92,
+     stroke:"var(--line-hi)", "stroke-width":0.12})));
+  poses.filter(q => q.k === "f").forEach(q => trace.appendChild(svgEl("polygon",
+    {points:chemin(q.poly), fill:"var(--line)", "fill-opacity":0.95,
+     stroke:"var(--line-hi)", "stroke-width":0.08})));
 
   (p.decors || []).forEach(d => {
     const spec = DECORS.find(s => s.t === d.t); if(!spec) return;
@@ -726,12 +749,12 @@ function renderMap(){
         '<span><i style="background:var(--alert)"></i>Sa zone</span>' +
         '<span><i style="background:var(--glow);border-radius:50%"></i>Objectif central</span>' +
         '<span><i style="background:var(--green)"></i>No man\'s land</span>' +
-        /* Les decors ne sont plus des contours reconstruits mais les
-           gabarits officiels : le vert est l'emprise de jeu du decor,
-           celle qu'on mesure, et le brun les elements qui la garnissent. */
-        '<span><i style="background:var(--s3);border:1px solid var(--line-hi)"></i>Socle</span>' +
-        '<span><i style="background:var(--green)"></i>Emprise du décor</span>' +
-        '<span><i style="background:var(--warn)"></i>Ruines</span>' +
+        /* Le document dessine chaque decor en deux temps : l'emprise de
+           terrain, gris a liset fin, puis les elements poses dessus. On
+           l'imite. Le vert et l'orange des elements -- terrain dense ou
+           leger -- viendront au temps suivant. */
+        '<span><i style="background:var(--s3);border:1px solid var(--line-hi)"></i>Emprise de terrain</span>' +
+        '<span><i style="background:var(--line)"></i>Élément de décor</span>' +
       '</div>' +
       '<p class="hint" id="mapHud">Touche une unité pour la poser, glisse-la pour l\'ajuster.</p>' +
     '</div>' +

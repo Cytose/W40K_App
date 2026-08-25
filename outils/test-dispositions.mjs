@@ -91,13 +91,41 @@ t('autant d\'objectifs de depart de chaque cote',
   vars().every(x => (x.va.h1||[]).length === (x.va.h2||[]).length));
 
 console.log('\n== 6. les decors ==');
+/* Poser un gabarit, comme le fait plateau.js : contour local, miroir,
+   rotation horaire, puis translation. Le refaire ici plutot que de le
+   supposer, c'est verifier que le catalogue et les poses s'accordent. */
+function poser(d, out, prof){
+  const g = (L.gab || {})[d.g];
+  if(!g || (prof || 0) > 3) return;
+  const r = (d.r || 0) * Math.PI / 180, co = Math.cos(r), si = Math.sin(r);
+  const loc = q => {
+    let x = q[0], y = q[1];
+    if(d.m === 1) x = -x; else if(d.m === 2) y = -y;
+    return [d.p[0] + x*co - y*si, d.p[1] + x*si + y*co];
+  };
+  out.push({ k: g.k, poly: g.p.map(loc) });
+  (g.f || []).forEach(f => poser(
+    { g:f.g, p:loc(f.p), r:(d.r || 0) + (f.r || 0) * (d.m ? -1 : 1), m:d.m },
+    out, (prof || 0) + 1));
+}
 const dec = vars().flatMap(x => x.va.t || []);
 t('720 pieces de decor', dec.length === 720, dec.length);
-t('chacune porte son emprise', dec.every(p => Array.isArray(p.w) && p.w.length >= 1));
-t('chaque emprise est un polygone ferme', dec.every(p => p.w.every(q => q.length >= 3)));
-const horsPlateau = dec.filter(p => p.w.flat().some(c =>
+t('chaque pose nomme un gabarit connu', dec.every(d => (L.gab || {})[d.g]));
+t('chaque pose porte son centre', dec.every(d => Array.isArray(d.p) && d.p.length === 2));
+const gabs = Object.values(L.gab || {});
+t('le catalogue tient en une cinquantaine de gabarits',
+  gabs.length > 0 && gabs.length < 80, gabs.length + ' gabarits');
+t('chaque gabarit est un polygone ferme',
+  gabs.every(g => Array.isArray(g.p) && g.p.length >= 3));
+const poses = [];
+dec.forEach(d => poser(d, poses));
+t('chaque emprise porte ses elements', poses.length > dec.length,
+  poses.length + ' contours pour ' + dec.length + ' emprises');
+const horsPlateau = poses.filter(q => q.poly.some(c =>
   c[0] < -2 || c[0] > W + 2 || c[1] < -2 || c[1] > H + 2)).length;
 t('aucun decor ne deborde du plateau', horsPlateau === 0, horsPlateau + ' debordement(s)');
+const retournees = dec.filter(d => d.m).length;
+t('le miroir de la source est conserve', retournees > 0, retournees + ' emprises retournees');
 
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
 if(ko.length) console.log('KO : ' + ko.join(' ; '));
