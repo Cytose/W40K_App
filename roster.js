@@ -322,8 +322,17 @@ window.ROSTER = {
       if(st.unites.length && !st.unites.some(u => noms.indexOf(u) >= 0)) return false;
       if((st.sauf || []).some(k => porte(k))) return false;
       return true;
-    }).map(st => ({ nom:st.nom, pc:st.pc, aide:st.aide, effet:st.effet,
-                    detach:nomDetach(st.detach) }));
+    }).map(st => {
+      /* Un strategeme peut faire une chose de plus quand la table s'y
+         prete -- « et les 1 pour blesser si la cible est effritee ». La
+         condition est deja declaree dans les retouches ; on la lit ici
+         plutot que de promettre l'effet entier tout le temps. */
+      const p = st.plus && situ[st.plus.situ] ? st.plus : null;
+      return { nom:st.nom, pc:st.pc, detach:nomDetach(st.detach),
+               aide: st.aide + (p ? ", " + p.aide : ""),
+               effet: p ? Object.assign({}, st.effet, p.effet) : st.effet,
+               enAttente: (st.plus && !p) ? st.plus.aide : "" };
+    });
   },
   /* Les regles de detachement en vigueur, dites en clair : elles
      s'appliquent sans qu'on les coche, et rien ne le montrait. */
@@ -338,7 +347,11 @@ window.ROSTER = {
      les autres retouches de partie ; elles ne touchent que les unites
      de la liste, jamais une arme mesuree seule. */
   situations: function(){ return situationsDetach(); },
-  poseSituation: function(cle, on){ situ[cle] = !!on; },
+  poseSituation: function(cle, on){
+    /* un choix arrive en liste, une condition ordinaire en booleen */
+    situ[cle] = Array.isArray(on) ? on.join(",")
+              : (typeof on === "string" ? on : !!on);
+  },
   /* l'inventaire des unites de la liste, avec de quoi montrer d'avance
      combien de profils chacune apporte dans chaque phase */
   simListe: function(){
@@ -985,14 +998,18 @@ function validate(){
 /* ==========================================================
    REGLES DE DETACHEMENT
    ========================================================== */
+/* La phrase que le joueur doit pouvoir verifier des yeux, sur la table.
+   Trois d'entre elles etaient restees en anglais, du temps ou le codex
+   etait la seule source : le pack de faction les dit en francais, et
+   c'est ce mot-la qu'on lit sur la carte. */
 const SITU_LABEL = {
-  canoptek_rr : "Unité entièrement dans la Matrice de Puissance (relance totale)",
-  obj_hit1    : "Cible à portée d'un marqueur d'objectif",
+  canoptek_rr : "Unité entièrement dans la Matrice Énergétique (relance totale)",
+  obj_hit1    : "Cible à portée d'un pion d'objectif",
   destroyer_ap1: "Cible éligible la plus proche",
-  noble_wound1: "Cible désignée par Worthy Foes",
-  cryptek_anti: "Aptitude choisie : Anti-Infanterie 3+",
-  monster_ap1 : "Cible « unravelling » à 6\" d'un MONSTRE",
-  tomb_hit1   : "Tomb Blades arrivées par ingress ce tour"
+  noble_wound1: "Cible désignée à ta phase de Commandement (Adversaires Dignes)",
+  cryptek_anti: "Augmentations Technosorcières — l'aptitude choisie",
+  monster_ap1 : "Cible effritée — à 6\" d'un MONSTRE NÉCRON",
+  tomb_hit1   : "Mécanoptères arrivés ce tour (mouvement d'arrivée)"
 };
 function activeRules(){
   const out = [];
@@ -1116,7 +1133,20 @@ function applyDetach(prof, ru){
         if(has("destroyer", n)) prof.str += 2;
         break;
       case "cryptek_anti":
-        if(groupeA(ru, "cryptek")) prof.critW = Math.min(prof.critW, 3);
+        /* La regle donne UNE aptitude au choix parmi cinq, a chaque tir.
+           Elle ne vaut que pour les armes de tir des figurines de
+           CRYPTEK -- « qui:figurine » dans OCTROIS_DETACH dit deja la
+           meme chose pour l'Assaut. */
+        if(groupeA(ru, "cryptek") && prof.kind === "T"){
+          /* une aptitude, ou deux avec le strategeme Pouvoir Inexploite */
+          String(situ.cryptek_anti || "").split(",").filter(Boolean).forEach(c=>{
+            if(c === "anti-inf")  prof.critW = Math.min(prof.critW, 3);
+            if(c === "anti-mont") prof.critW = Math.min(prof.critW, 4);
+            if(c === "lourd")     prof.heavy = true;
+            if(c === "assaut")    prof.assault = true;
+            if(c === "ignore")    prof.ignoresCover = true;
+          });
+        }
         break;
       case "monster_ap1":
         prof.ap = Math.min(5, prof.ap + 1);
@@ -4519,8 +4549,15 @@ function renderPick(){
    ========================================================== */
 function situationsDetach(){
   if(!R) return [];
+  const choix = (typeof SITU_CHOIX !== "undefined") ? SITU_CHOIX : {};
   return activeRules().filter(d => d[6]).map(d => ({
-    cle: d[5], nom: SITU_LABEL[d[5]] || d[3], source: d[0], on: !!situ[d[5]]
+    cle: d[5], nom: SITU_LABEL[d[5]] || d[3], source: d[0],
+    on: !!situ[d[5]],
+    /* certaines ne se declarent pas d'un oui ou d'un non mais d'un choix :
+       le Conclave de Crypteks en offre cinq, une a la fois -- deux avec
+       son strategeme. `val` est donc une liste, pas une valeur. */
+    choix: choix[d[5]] || null,
+    val: choix[d[5]] ? String(situ[d[5]] || "").split(",").filter(Boolean) : null
   }));
 }
 

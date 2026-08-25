@@ -383,10 +383,16 @@ const STRAT_SIMU = [
    unites:[], sauf:["monster","vehicle"],
    aide:"Touches Soutenues 1",
    effet:{ sustainedOn:true, sustainedN:"1" } },
+ /* Ce strategeme fait DEUX choses, et la seconde depend de la table :
+    les 1 pour blesser ne se relancent que si la cible est effritee. La
+    condition existe deja dans les retouches -- « Cible effritee » --,
+    il suffisait de brancher l'une sur l'autre. */
  { nom:"Ciblage d'Aura Entrophasique", detach:"Pantheon of Woe", pc:1, ph:"TC",
    unites:[], sauf:["monster"],
-   aide:"relance des 1 pour toucher — et pour blesser si la cible est effritée",
-   effet:{ rrH:"ones" } }
+   aide:"relance des 1 pour toucher",
+   effet:{ rrH:"ones" },
+   plus:{ situ:"monster_ap1", effet:{ rrW:"ones" },
+          aide:"et des 1 pour blesser — la cible est effritée" } }
 ];
 
 /* ============================================================
@@ -1688,6 +1694,39 @@ const OCTROIS_DETACH = {
      nom:"Augmentations Technosorcières",
      texte:"Les armes de tir dont sont équipées les figurines de CRYPTEK de votre armée ont l'aptitude [ASSAUT]." }
  ]
+};
+
+/* ============================================================
+   LES CONDITIONS DE DETACHEMENT QUI SE CHOISISSENT
+
+   La plupart des regles conditionnelles se declarent d'un oui ou d'un
+   non : « la cible tient un objectif », « l'unite est arrivee ce tour ».
+   Le Conclave de Crypteks, lui, ne demande pas SI la regle joue mais
+   LAQUELLE : a chaque tir d'une unite de CRYPTEK, on choisit une
+   aptitude parmi cinq, et une seule. Un interrupteur ne peut pas dire
+   ca -- il n'en montrait qu'une, l'Anti-Infanterie, et les quatre
+   autres n'existaient pas dans le simulateur.
+
+   [valeur, nom, ce que le simulateur en fait]
+   ============================================================ */
+const SITU_CHOIX = {
+ cryptek_anti: {
+  max: 2,
+  note: "Une seule par tir. La seconde demande le stratagème "
+      + "« Pouvoir Inexploité » (1 PC), à ta phase de Tir.",
+  opts: [
+   { v:"anti-inf",  nom:"Anti-Infanterie 3+",
+     aide:"blessure critique sur 3+ contre de l'INFANTERIE" },
+   { v:"anti-mont", nom:"Anti-Monté 4+",
+     aide:"blessure critique sur 4+ contre du MONTÉ" },
+   { v:"assaut",    nom:"Assaut",
+     aide:"tirer après avoir avancé — déjà acquis par la 1re puce de la règle" },
+   { v:"lourd",     nom:"Lourd",
+     aide:"+1 pour toucher si l'unité n'a pas bougé" },
+   { v:"ignore",    nom:"Ignore le couvert",
+     aide:"la cible ne profite pas de son couvert" }
+  ]
+ }
 };
 
 /* ============================================================
