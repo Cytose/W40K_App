@@ -2,7 +2,11 @@ node_modules/
 package-lock.json
 dist/
 *.png
-t*.js
+# Les brouillons a la racine — t1.js, tmp.js. La regle etait ecrite sans
+# barre oblique, donc git l'appliquait a TOUS les niveaux : elle avalait
+# outils/triage.js en silence, un outil qu'on croyait commite. Ancree a
+# la racine, elle ne mange plus que ce qu'elle vise.
+/t*.js
 enginetest.js
 build/
 __pycache__/
