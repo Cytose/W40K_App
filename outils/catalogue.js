@@ -35,7 +35,10 @@ if(!fs.existsSync(SRC)){
    Le catalogue de l'application. `const` ne s'accroche pas au global :
    on ajoute une queue qui expose ce dont on a besoin.
    ------------------------------------------------------------------ */
-vm.runInThisContext(fs.readFileSync(path.join(RACINE, 'data.js'), 'utf8') +
+/* Les tables necrones ont quitte data.js pour data-necrons.js, qui les
+   remet au registre : on evalue les deux, comme la page le fait. */
+vm.runInThisContext(fs.readFileSync(path.join(RACINE, 'data.js'), 'utf8') + '\n' +
+  fs.readFileSync(path.join(RACINE, 'data-necrons.js'), 'utf8') +
   '\n;globalThis.__cat = {UNITS, WEAPONS, ARMEMENT};');
 const APP = globalThis.__cat;
 

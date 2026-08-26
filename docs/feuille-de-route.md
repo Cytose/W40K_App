@@ -3014,3 +3014,787 @@ La carte officielle en fond d'écran, que tu proposais, demande les images de GW
 Elles ne sont pas accessibles d'ici, et les embarquer redistribuerait leur
 travail. Si tu me les fournis, elles serviront à vérifier la géométrie plutôt
 qu'à être livrées avec l'application.
+
+## 11. Le socle multi-faction — 25/08/2026
+
+La note `docs/note-multi-faction.md` chiffrait trois options. Décision : **B**,
+et on commence par la seule partie qui ne se divise pas — le refactor. Il ne
+dépend pas de l'export Wahapedia, qui reste à récupérer sur une machine ayant
+accès au site.
+
+### Ce qui a changé
+
+`data.js` déclarait 39 tables globales, toutes nécrones. Il en garde
+**onze**, celles qui ne dépendent d'aucune faction : le barème de points,
+les mots-clés de cible, les archétypes de menace, les catégories, les rôles
+tactiques, les Dispositions de Force, le glossaire des règles de base. Il
+porte en plus le registre des factions et l'adaptateur.
+
+Les **28 autres** sont parties dans `data-necrons.js`, qui s'enregistre au
+chargement. À l'ouverture d'une liste, `activeFaction()` rebranche les noms
+globaux sur les tables voulues.
+
+**Les 142 lectures existantes n'ont pas bougé d'une ligne.** C'était tout
+l'intérêt du procédé, et il tient.
+
+| | avant | après |
+|---|---:|---:|
+| `data.js` | 1 810 lignes | 364 |
+| `data-necrons.js` | — | 1 598 |
+
+### Le prix, sans le cacher
+
+- **`const` → `let`** sur les 28 tables : on perd le filet du `const` sur des
+  tables qu'on ne veut pourtant pas voir bouger ailleurs.
+- **Les index dérivés** — `BASES`, `KWSET`, `CATMAP` — se construisaient une
+  fois au chargement, deux d'entre eux depuis `roster.js`. Ils sont réunis
+  dans `reconstruitIndex()`, seule fonction qui les touche, rappelée à chaque
+  bascule. C'est la partie du procédé où l'on oublie quelque chose.
+- **Une table oubliée** par une faction arrête le chargement en la nommant.
+  Sans ce contrôle elle vaudrait `undefined`, et la faute se lirait vingt
+  écrans plus loin sur un symptôme sans rapport.
+
+### La liste appartient à une faction
+
+`{id, nom, faction, cap, detach, fd, units, nextId}`. Les listes enregistrées
+avant ce champ sont nécrones — il n'y avait pas d'autre choix — et sont
+migrées à la relecture, puis réécrites tout de suite.
+
+Le champ voyage : lien de partage compressé, sauvegarde fichier, export JSON.
+Un lien d'avant le champ arrive en nécron ; un lien d'une faction que cette
+copie ne connaît pas est refusé **en le disant**, au lieu de rendre une liste
+vide.
+
+`normaliseListe()` bascule sur la faction de la liste avant de la relire.
+C'est le piège du procédé : cette fonction retire ce qu'elle ne reconnaît
+pas, et appliquée à une liste custodes avec la table nécrone en place, elle
+effacerait l'armée entière en la croyant périmée.
+
+Le sélecteur de faction reste **caché tant qu'il n'y a qu'une faction** : un
+menu à un seul choix n'apporte rien. Changer la faction d'une liste peuplée
+prévient d'abord — une armée ne se convertit pas, elle se refait.
+
+### Éprouvé
+
+`npm run factions` — 37 contrôles. La suite se donne une seconde faction en
+interceptant `data-necrons.js` : c'est le seul moyen d'éprouver une bascule
+tant qu'une seule faction est livrée, et c'est le vrai chemin, puisque le
+fichier s'enregistre au chargement et survit aux rechargements.
+
+Elle a trouvé un défaut réel, introduit par le refactor lui-même : `GRPN`
+étant devenu propre à la faction, `nomGroupe()` lisait `GRPN.forme.length`
+sans regarder. Une faction livrée sans noms de groupe — un agrément, pas une
+donnée de règle — emportait le chargement de la liste, donc l'application,
+sans message. Corrigé : la fonction rend une chaîne vide.
+
+Le découpage lui-même a été vérifié table par table avant d'être commité :
+**39 tables et 210 prix identiques** au fichier d'origine, index dérivés
+compris. Aucune donnée n'a été réécrite à la main — les segments sont
+recopiés verbatim.
+
+Les cinq suites existantes — Plateau, PC, orientation, gabarits,
+dispositions — passent sans changement.
+
+### Ce qui reste
+
+- **L'export Wahapedia**, toujours pas récupérable depuis mes machines :
+  `wahapedia.ru` répond 403 au tunnel. La commande `curl` est au bas de
+  `docs/note-multi-faction.md`, dix-neuf fichiers, deux minutes.
+- **Une liste dont le fichier de faction manque** retombe sur la faction par
+  défaut, et ses unités sont signalées comme retirées. Le cas ne peut pas se
+  produire aujourd'hui — une seule faction est livrée, et c'est la
+  faction par défaut. Il méritera mieux le jour où une faction peut
+  disparaître d'une copie de l'application.
+- **`plateau.js` n'a pas eu à changer** : il lit la liste en service dans le
+  stockage et `SOCLES` dans les globales, que `roster.js` tient à jour. Les
+  deux restent d'accord parce qu'ils parlent de la même liste.
+
+## 12. Les Custodes, générés — 25/08/2026
+
+Guillaume a signalé que `BSData/wh40k-11e` porte les 29 factions. Vérifié :
+le dépôt se clone d'ici, et son voisin `wh40k-11e-mfm` aussi. Deux choses
+que la note §3 tenait pour hors de portée sont donc à portée, et **la moitié
+du travail qu'elle attribuait à Wahapedia tombe**.
+
+### Ce que la note disait de faux
+
+Elle a été écrite sur l'ancien format `.cat` (XML). BSData est passé au JSON
+depuis, et trois de ses affirmations ne tiennent plus :
+
+| La note dit | En fait |
+|---|---|
+| « L'invulnérable et le FNP ne sont pas dans le profil. » | Le profil `Unit` porte **`InSv`**, à côté de M, T, Sv, W, OC, LD. La passe de relecture par faction qu'elle annonçait disparaît. Le FNP, lui, reste dans le texte. |
+| « Le catalogue s'est révélé périmé sur les points. » | Les prix de l'effectif de base sont justes : **49 sur 49** contre notre table. Ce sont les **paliers** qui manquent, et le Munitorum les a. |
+| « Les optimisations restent en anglais, sans coût. » | Le Munitorum donne nom + coût, BSData le texte complet. |
+
+Une piste que j'avais avancée était fausse, et je peux maintenant la
+chiffrer : je pensais les règles de détachement présentes dans BSData. Elles
+n'y sont **que pour les Nécrons** — 9 détachements sur 13 liés à leur règle,
+contre 0 sur 10 pour les Custodes, 1 sur 9 pour les World Eaters, 0 sur 1
+pour l'Astra Militarum.
+
+### L'extracteur
+
+`outils/extraction.py` lit les deux sources et écrit un `data-<faction>.js`
+au format du registre. `npm run sources` récupère les dépôts sous `build/`,
+qui n'est pas suivi : **c'est le fichier généré qu'on versionne**, pas ses
+sources — la chaîne se rejoue quand on veut, elle ne devient pas une
+dépendance dure à deux projets de fans.
+
+### Ce qu'il vaut, mesuré
+
+On ne juge pas un extracteur sur une faction dont personne ne connaît les
+chiffres. `npm run etalonnage` le lâche sur les Nécrons — la seule table
+relue à la main sur le pack officiel — et compte les écarts.
+
+| | d'accord | en écart |
+|---|---:|---:|
+| M, E, Svg, PV, CO, Cd | **300** | 0 |
+| Invulnérable | 49 | 1 |
+| Effectifs et paliers de points | **100** | 0 |
+| Profils d'arme (genre, A, CT, F, PA, D, portée, drapeaux) | **959** | 1 |
+| Catégories | **50** | 0 |
+| Rattachements | **13** | 0 |
+| Détachements : PD et Disposition de Force | **24** | 0 |
+
+Sur 138 armes de référence, 120 se retrouvent par leur nom et 10 de plus par
+leurs chiffres — la table traduit et désambiguïse (« Heat ray — focalisé »)
+là où BSData garde son nom de catalogue (« ➤ Heat ray - focused »). Restent
+8 vraies absences, dont 5 sur le seul Roi Silencieux, que BSData nomme
+« The Silent King ».
+
+Les deux écarts de fond sont explicables et ne sont pas des fautes de
+l'extracteur : l'invulnérable du Lychguard vient de son bouclier de
+dispersion, pas de son profil ; le CT de l'arme d'Imotekh est « N/A » chez
+BSData parce qu'elle est Torrent — et `engine.js` court-circuite le jet de
+touche pour les Torrent, donc 0 est plus honnête que le 4 de notre table.
+
+### Adeptus Custodes
+
+`data-custodes.js` — **31 fiches, 111 profils d'armes, 31 jeux d'aptitudes,
+9 détachements avec leurs PD et leur Disposition de Force, 30 optimisations
+chiffrées dont 27 avec leur texte, 8 rattachements.** Pas une ligne relue à
+la main.
+
+Ce que le fichier ne porte pas est écrit dans son en-tête plutôt que deviné
+à l'usage : les **socles** (Base Size Guide, un PDF), les **stratagèmes**
+(absents des deux sources), les **règles de détachement** (BSData ne les a
+pas pour cette faction), le **panachage d'armes**, et toutes les tables qui
+traduisent une règle en code — `APTIS_COND`, `AURAS_*`, `OCTROIS_DETACH`,
+`STRAT_SIMU`, `MOMENTS`. Le simulateur tourne donc sur les caractéristiques
+nues, ce qui est exactement l'option B de la note.
+
+### Éprouvé
+
+`npm run custodes` — 27 contrôles sur la faction réelle : la liste se relit,
+le total s'affiche (595 pts pour trois unités), le seuil de réquisition monte
+au 4ᵉ exemplaire, le moteur rend ses espérances sur une lance gardienne, la
+fiche montre ses aptitudes sans balisage, et le Plateau pose les onze
+figurines **malgré un `SOCLES` vide** — le trou se traverse sans casser.
+
+`npm run factions` passe toujours (37 contrôles), et les cinq suites
+existantes aussi.
+
+### Trois défauts trouvés en éprouvant
+
+- Trois fiches nécrones du mode **Crucible**, absentes du Munitorum, ouvraient
+  l'armurerie entière à un personnage : trente-trois armes chacune qui ne sont
+  l'armement de personne. Une fiche sans prix ne se joue pas — elles sont
+  écartées, et nommées.
+- Les armes partagées — « Close combat weapon », « Armoured bulk », les
+  pouvoirs de C'tan — sont liées par `entryLink`, pas recopiées. Sans suivre
+  ces liens il manquait **54 armes sur 138**, et pas au hasard : toutes les
+  armes de corps à corps ordinaires.
+- BSData balise ses textes (`**`, `^^`) ; l'application les affichait en clair.
+  550 occurrences nettoyées.
+
+### Ce qui reste
+
+- **Les stratagèmes** — le seul poste qui exige encore Wahapedia, toujours en
+  403 depuis mes machines.
+- **Les socles** — le Base Size Guide couvre les 29 factions, mais c'est un
+  PDF qu'il faut fournir. Sans lui, le Plateau pose sur un socle par défaut.
+- **Le câblage du simulateur** — inchangé, et toujours le seul vrai poste
+  manuel : lire chaque règle et décider ce qu'elle fait au calcul.
+- **Astra Militarum et World Eaters** — l'extracteur les connaît déjà
+  (`python3 outils/extraction.py astra`, `worldeaters`). Rien ne les bloque
+  sinon la décision de les livrer.
+
+## 13. Astra Militarum et World Eaters — 25/08/2026
+
+L'extracteur les connaissait déjà. Les sortir a demandé trois correctifs,
+tous trouvés parce que le compte ne tombait pas juste — et l'un d'eux
+aurait livré une faction amputée sans que rien ne le signale.
+
+### L'Astra Militarum n'était pas écrite comme les autres
+
+Première extraction : **49 unités jouables sur les 72 que le Munitorum
+annonce**. Vingt-trois manquantes, et pas n'importe lesquelles — les
+Cadiens, les Kasrkin, les Ogryns, tous les Leman Russ. Le fond de l'armée.
+
+Deux raisons, toutes deux des différences d'écriture entre catalogues :
+
+1. **Les figurines sont rangées à part.** Les Nécrons et les Custodes posent
+   chaque fiche entière, figurines comprises. L'Astra fait de « Shock
+   Trooper » une entrée racine à elle seule, que la fiche « Cadian Shock
+   Troops » lie. Mon garde-fou anti-collision — ne jamais descendre dans une
+   entrée qui porte un profil — bloquait exactement ce qu'il fallait suivre.
+   Il distingue maintenant une fiche d'une figurine : une figurine est ce
+   qu'une fiche lie.
+2. **Les profils sont partagés.** « Shock Trooper » ne porte aucune
+   caractéristique en propre : son profil vit dans `sharedProfiles` et il le
+   lie. La fiche qui le compte n'en portait donc pas non plus, et
+   disparaissait du recensement.
+
+Après correction : **134 fiches, 72 jouables** — le compte exact du
+Munitorum — et 20 rattachements au lieu de 8.
+
+### La règle d'armée se reconnaît à sa formule
+
+Je la cherchais en comptant les liens : la règle partagée que la moitié des
+fiches lient. Ça marche pour les Nécrons, dont toutes les fiches portent les
+Protocoles de Réanimation. Ça échoue pour l'Astra Militarum, dont la **Voix
+du Commandement** n'est liée que par ses officiers.
+
+Les règles d'armée s'annoncent : leur texte commence par *« If your Army
+Faction is… »*. C'est la formule que GW emploie pour ce qui vaut à l'armée
+entière, et elle trouve les quatre du premier coup — Protocoles de
+Réanimation, Martial Ka'tah, Bénédictions de Khorne, Voix du Commandement.
+
+### Ce qui est livré
+
+| | fiches | jouables | armes | détachements | optimisations |
+|---|---:|---:|---:|---:|---:|
+| Nécrons *(relu à la main)* | 51 | 51 | 138 | 12 | 42 |
+| Adeptus Custodes | 31 | 31 | 111 | 9 | 30 |
+| Astra Militarum | 134 | 72 | 854 | 11 | 38 |
+| World Eaters | 30 | 30 | 127 | 8 | 26 |
+
+`data.js` reste à 364 lignes : le socle ne connaît toujours aucune faction.
+Le fichier autonome passe de 4,8 à 5,4 Mo.
+
+### `npm run livrees`
+
+Une suite qui passe sur **toutes** les factions du registre, celles d'hier
+comme celles qu'on ajoutera — 75 contrôles. Elle ne mesure pas si les
+chiffres sont beaux, elle mesure l'**intégrité référentielle** : une arme
+rattachée à une unité qui n'existe pas, un rattachement vers un nom mal
+orthographié, une optimisation qui cite un détachement absent. Rien de tout
+cela ne fait tomber l'application — ça produit un écran qui ment, et c'est
+précisément ce qu'un extracteur risque de fabriquer.
+
+Elle vérifie aussi le chemin complet, faction par faction : une liste posée
+dans le stockage, relue, ouverte, son pavé dessiné et son total calculé.
+
+Elle a trouvé deux fiches de l'Astra sans aucune arme — la **Ligne de
+Défense Aegis** et le **Véhicule de Démolition Cyclope**. Vérifié dans
+BSData : elles n'en ont réellement pas, l'une est une fortification, l'autre
+explose par une aptitude. C'est l'invariant qui était faux, pas les données.
+Il mesure maintenant une proportion : une faction où beaucoup de fiches
+seraient muettes serait le symptôme d'un défaut, et c'est exactement la
+forme qu'avait celui des liens non suivis.
+
+### Ce qui reste, inchangé
+
+- **Les stratagèmes** — absents des deux sources pour les quatre factions.
+- **Les règles de détachement** — BSData ne les porte que pour les Nécrons :
+  9 sur 12, contre 0 sur 9 pour les Custodes, 0 sur 11 pour l'Astra, 1 sur 8
+  pour les World Eaters.
+- **Les socles** — Base Size Guide, un PDF. Le Plateau pose sur un socle par
+  défaut pour les trois factions ajoutées.
+- **Le câblage du simulateur** — toujours le seul vrai poste manuel.
+
+## 14. Les socles des quatre factions — 25/08/2026
+
+Guillaume a fourni le Base Size Guide, en deux morceaux — un extrait A→N,
+puis la suite. C'était le dernier poste que ni BSData ni le Munitorum ne
+couvraient et qui pouvait se régler sans réfléchir.
+
+`outils/socles.py` lit le PDF et écrit `outils/socles.json` : **29 factions,
+1 097 socles**. Le PDF n'entre pas dans le dépôt — c'est le relevé qu'on
+versionne, comme pour les cartes. `npm run socles` le rejoue.
+
+### Étalonné là encore sur les Nécrons
+
+La table nécrone avait été relevée à la main sur ce même guide, et c'est
+elle qui juge : **52 entrées sur 52 identiques, zéro écart**. La seule qui
+ne se rapproche pas est le Roi Silencieux, que le guide nomme « The Silent
+King » et l'application « Szarekh, The Silent King ».
+
+### Ce que le guide n'écrit pas comme l'application l'attend
+
+- **Il nomme des figurines, l'application nomme des unités.** « Repentia
+  Squad: Sister Repentia » est une ligne pour la moitié d'une unité. On
+  garde les deux et on ajoute l'unité elle-même, au socle **le plus grand**
+  de ses figurines : c'est lui qui décide de la place qu'elle prend, et le
+  Plateau ne mesure rien d'autre. Quatorze noms d'unité ainsi reconstitués.
+- **Deux entrées portent un nom de produit Citadel** — « Large Flying Base »
+  et « Small Flying Base » — que le guide ne chiffre nulle part. Les valeurs
+  retenues, 120x92 et 60x35.5, sont celles qu'il donne par ailleurs aux
+  modèles volés qu'il chiffre : c'est une **déduction**, elle est comptée et
+  annoncée à chaque exécution, et elle confirme celle que la table nécrone
+  portait déjà.
+- **« Unique »** est une vraie valeur, pour les quatre aéronefs qui viennent
+  avec leur socle propre. Elle vaut « coque », comme « Hull ».
+- **Deux noms débordent de leur colonne** et se poursuivent sur la ligne
+  suivante, alors que la taille est restée sur la première. On recolle avant
+  d'analyser : sans ça le nom sortait tronqué sur une virgule.
+
+### Le résultat
+
+| | socles | sur | |
+|---|---:|---:|---|
+| Nécrons | 53 | 51 | relevés à la main, inchangés |
+| Adeptus Custodes | **31** | 31 | toutes |
+| Astra Militarum | **72** | 134 | **toutes les jouables** — les 62 sans socle sont des Legends, que le guide ne liste pas |
+| World Eaters | **30** | 30 | toutes |
+
+Une seule divergence de nommage sur les trois factions : le guide écrit
+« Terminator Squad » là où BSData et le Munitorum écrivent « Chaos
+Terminators ». Aucune règle ne devine ça — les deux noms n'ont pas un mot
+en commun. Une table d'alias le porte, avec sa raison.
+
+### Un défaut que la suite a attrapé, et qui aurait été invisible
+
+L'extracteur **annonçait 31 socles et n'en écrivait aucun**. `SOCLES` était
+resté dans sa liste de tables émises vides : le compte affiché venait de la
+table en mémoire, le fichier généré portait `const SOCLES = {}`. Le journal
+d'extraction disait donc la vérité sur ce qu'il avait trouvé, et le fichier
+mentait sur ce qu'il contenait.
+
+Rien ne l'aurait signalé — le Plateau serait simplement resté sur son socle
+par défaut, et une unité aurait pris une place qui n'est pas la sienne. Il a
+fallu compter dans le fichier produit, pas dans le journal. `npm run livrees`
+le fait maintenant à chaque exécution : **toute unité jouable doit avoir son
+socle**, faction par faction.
+
+### Ce qui reste
+
+Les **stratagèmes** — seul poste encore hors de portée, et le seul qui exige
+Wahapedia — et le **câblage du simulateur**, qui n'a jamais été automatisable
+et ne le sera pas.
+
+## 15. Le câblage du simulateur, World Eaters — 25/08/2026
+
+Kévin joue **Astra Militarum** et **World Eaters** : le câblage commence
+donc là. Avant d'en taper une ligne, on mesure — et la mesure a trouvé
+autre chose.
+
+### Ce que la mesure a trouvé avant le câblage
+
+`outils/triage.js` lit les textes d'aptitude et les range par ce qu'ils
+**font au calcul**. Il ne câble rien ; il dit par où commencer.
+
+| | aptitudes | touchent le calcul | générables | **à écrire** |
+|---|---:|---:|---:|---:|
+| World Eaters | 97 | 20 | 5 | **15** |
+| Astra Militarum | 358 | 128 | 52 | **76** |
+
+**91 lignes, pas les six cents** que la note annonçait. Une bonne part de
+son estimation portait sur du travail qui s'est révélé automatisable, et
+le compte lui-même était gonflé par les optimisations (voir §14).
+
+### Où vit le câblage
+
+Le fichier de faction est **réécrit à chaque extraction** : le câblage ne
+peut pas y vivre. Il vit dans `outils/cablage/<faction>.json`, que
+l'extracteur fusionne. Corriger l'extracteur, jamais le fichier généré —
+et le câblage n'est pas généré, donc il est ailleurs.
+
+### Seize règles câblées
+
+`AURAS_PERSO` Khârn (relance des 1 en touche et en blessure quand il
+mène) · `APTIS_CIBLE` le Maître des Exécutions contre les PERSONNAGES,
+les Huit-Enchaînés Exaltés contre MONSTRES et VÉHICULES, le Heldrake
+contre les VOLANTS · `APTIS_COND` les deux Princes Démons, les
+Terminators, l'Annihilateur, le Forgefiend, le Maulerfiend, le
+Slaughterbound · `AURAS_ARMEE` les Balises de Rage.
+
+Elles sont **déclarées**, pas automatiques, quand la règle dépend d'un
+fait de table — la cible la plus proche, une unité entamée, une charge
+au tour précédent. C'est la convention du dépôt : une aptitude qui
+s'appliquerait toute seule mentirait une fois sur deux.
+
+### Ce qui n'est PAS câblé, et ce que ça demande
+
+**Le simulateur n'a pas de champ pour « +N attaques » ni « +N Force ».**
+`S` porte `hitMod`, `wndMod`, `apMod`, `dmgMod` — pas `atkMod`, pas
+`strMod`. Ce n'est pas un oubli de câblage, c'est une capacité qui
+manque au moteur.
+
+Elle bloque, chez les World Eaters : l'aura de **Skarbrand** (+1 attaque
+en mêlée à 6"), celle du **Bloodthirster**, le **Helbrute** (+2 attaques
+sur deux armes) et la moitié du **Slaughterbound** (+3 attaques). Chez
+l'Astra Militarum, c'est **19 des 76 règles à écrire**.
+
+Ajouter `atkMod` touche six endroits d'`app.js` — l'état par défaut, les
+segments d'écran, `prep`, l'application des conditions, les pastilles,
+les raccourcis — deux du moteur et une ligne d'`index.html`. C'est un
+changement de **capacité du simulateur, pour toutes les factions**, pas
+un ajout de données : il se décide, il ne se glisse pas.
+
+Trois autres règles restent dehors pour d'autres raisons : le Collier de
+Khorne des Chiens de Chair (insensibilité 3+ **contre les attaques
+psychiques** seulement — le moteur ne connaît pas ce genre d'attaque), et
+les relances de **dégâts**, que le moteur n'a pas non plus.
+
+### Éprouvé
+
+`npm run livrees` compte désormais les règles câblées faction par
+faction et vérifie qu'**aucune ne désigne une unité qui n'existe pas** —
+une règle câblée sur un nom mort ne s'applique jamais et ne dit rien.
+87 contrôles, tous verts. Nécrons 25 règles, World Eaters 16, Custodes et
+Astra 0.
+
+### `atkMod` ajouté — le simulateur sait compter les attaques
+
+Décision prise : le champ manquant est ajouté. `S.atkMod` s'ajoute à la
+caractéristique d'Attaques, **pas au jet** — il n'est donc pas plafonné à
+±1 comme les modificateurs de touche et de blessure, et il ne descend
+jamais sous zéro.
+
+Il traverse les deux chemins du moteur, l'espérance exacte et le tirage
+Monte-Carlo, et les deux s'accordent : sur quatre attaques de base,
+`+1` donne 3,333 touches contre 2,667 — exactement 5/4 — et 60 000
+tirages tombent à **0,31 %** de l'espérance. Il a son segment à l'écran,
+sa pastille sur le profil, et sa remise à zéro dans la table des
+stratagèmes.
+
+`strMod` existait déjà dans l'application des conditions : il lui
+manquait seulement un segment d'écran. Aucune règle des quatre factions
+n'en demande, il reste donc câblable sans être affiché.
+
+Avec lui, les World Eaters passent à **20 règles câblées** : l'aura de
+**Skarbrand** (+1 attaque en mêlée), le **Helbrute** (+2 sur deux armes)
+et le **Slaughterbound** (+3) entrent. Correction au passage : l'aura du
+**Bloodthirster** est un +1 pour toucher, pas +1 attaque — elle n'était
+pas bloquée, je l'avais mal classée. Elle est câblée aussi.
+
+Ne restent dehors que le **Collier de Khorne** des Chiens de Chair, dont
+l'insensibilité ne vaut que contre les attaques psychiques — un genre que
+le moteur ne connaît pas — et les **relances de dégâts** de
+l'Annihilateur, qu'il n'a pas non plus.
+
+### Ce qui vient
+
+L'Astra Militarum : 76 règles, dont les 19 qui attendaient `atkMod` sont
+maintenant écrivables. Et les stratagèmes, toujours hors de portée sans
+Wahapedia.
+
+## 16. Le câblage de l'Astra Militarum — 25/08/2026
+
+76 lignes au compte par fiche, mais la même règle revient sur plusieurs
+fiches : **29 décisions distinctes** sur les jouables. Vingt-six sont
+câblées.
+
+Automatiques, parce que l'application connaît les mots-clés de la cible :
+la **Hydra** contre les VOLANTS, les **Sentinelles Blindées** et le
+**Vanquisher** contre MONSTRES et VÉHICULES, le **Shadowsword** qui leur
+inflige des Blessures Dévastatrices, le **Punisher** qui les inflige à
+tout le reste, les **Armes Lourdes Catachanes** qui relancent leurs 1.
+
+Déclarées, parce que la règle dépend d'un fait de table : le **Leman Russ**
+qui relance mieux sur un objectif adverse, les **Combattants de la
+Jungle** après une charge, la **Mine Sombre** du Korps de Krieg quand
+l'unité est entamée, l'**Exécuteur** contre une cible à demi effacée, les
+**Scions**, les **Ratlings**, le **Prêtre**, le **Taurox**, la
+**Reconnaissance** des Sentinelles.
+
+### Trois familles restent dehors, et ce ne sont pas des oublis
+
+**L'insensibilité.** Quatre règles en donnent une. Ce n'est pas un champ
+de l'attaquant : le moteur la lit sur la CIBLE, dans `UNITS[8]`. Une
+aptitude ne peut pas l'accorder depuis le côté offensif. L'extraire du
+texte vers `UNITS[8]` est le chantier suivant — et le seul qui reste
+avant que la défense soit juste.
+
+**Les Ordres.** « Voice Of Command » porte quinze fiches, mais ce n'est
+pas un modificateur : c'est une mécanique où l'officier choisit un Ordre
+dans une liste. Ce sont les Ordres qu'il faudrait câbler, et ils ne sont
+pas dans les aptitudes de fiche.
+
+**Les relances uniques.** « Called Shots » donne UNE relance de touche,
+UNE de blessure, UNE de dégâts. Le moteur ne connaît que « les 1 » et
+« les ratés » ; écrire une relance unique en « ratés » la surestimerait
+beaucoup. Mieux vaut ne rien dire que mentir en faveur du joueur.
+
+### Le compte, et ce qui le garde
+
+| | règles câblées |
+|---|---:|
+| Nécrons *(relu à la main)* | 25 |
+| Astra Militarum | **26** |
+| World Eaters | **20** |
+| Adeptus Custodes | 0 |
+
+`npm run livrees` en compte **91** maintenant. Deux contrôles neufs y
+sont entrés avec le câblage, parce qu'une règle mal adressée ne casse
+rien — elle ne s'applique jamais, en silence :
+
+- aucune règle ne doit désigner une **unité** qui n'existe pas ;
+- aucune ne doit désigner une **arme** que l'unité n'a pas. C'est le nom
+  d'arme qui bouge le plus, parce que le catalogue préfixe les
+  sous-profils d'un `➤` — « ➤ Executioner plasma cannon - standard » et
+  non « executioner plasma cannon ».
+
+---
+
+## 17. Les stratagèmes, enfin — 25/08/2026
+
+### Le trou qu'on traînait
+
+Trois factions livrées, et le même vide dans les trois : l'onglet
+Stratagèmes s'ouvrait sur rien. L'en-tête de chaque fichier généré le
+disait honnêtement — « STRATS est vide : ni BSData ni le Munitorum ne
+portent les stratagèmes » — mais le dire ne le remplit pas. Les
+détachements souffraient de la même faim : le Munitorum donne leur nom,
+leurs PD, leur Disposition de Force et le prix de leurs optimisations,
+jamais le texte de leur règle. BSData le porte pour les Nécrons et
+presque jamais ailleurs.
+
+Le compte avant :
+
+| | règle de détachement | optimisation avec texte | stratagèmes |
+|---|---:|---:|---:|
+| Adeptus Custodes | 0 / 9 | 27 / 30 | 0 |
+| Astra Militarum | 0 / 11 | 33 / 38 | 0 |
+| World Eaters | 1 / 8 | 22 / 26 | 0 |
+
+Un détachement sans le texte de sa règle, c'est un nom dans un
+sélecteur. Le joueur choisit à l'aveugle.
+
+### La source, et pourquoi elle n'est pas dans `npm run sources`
+
+Wahapedia publie un export de ses tables : `Stratagems.csv`,
+`Detachment_abilities.csv`, `Enhancements.csv`, `Factions.csv`,
+`Last_update.csv`. Il couvre les vingt-quatre factions, pas seulement
+les quatre d'ici.
+
+Il ne se télécharge pas depuis ce dépôt : le site sert ses fichiers
+derrière une protection que le proxy ne franchit pas. On les récupère à
+la main sur <https://wahapedia.ru/wh40k11ed/home/> (lien « Export
+data »), on les pose sous `build/wahapedia/`, et l'extraction les
+trouve. Sans eux elle tourne quand même : elle sort STRATS vide et
+l'écrit dans l'en-tête, comme avant.
+
+Wahapedia demande à être cité. Le pied de page de l'application le fait,
+et l'en-tête de chaque fichier généré le répète.
+
+### Le format, et le piège qu'il tend
+
+Ce ne sont pas des CSV. Les champs sont séparés par `|`, la ligne se
+termine par un `|` de plus, l'en-tête porte une marque d'ordre d'octets,
+et les descriptions contiennent du HTML **et** des retours à la ligne.
+Un enregistrement s'étale donc sur plusieurs lignes, et on ne sait qu'il
+est fini qu'en comptant les séparateurs.
+
+En compter un de trop recolle deux fiches en une. Le résultat reste un
+tableau bien formé, avec la moitié des lignes, chacune portant le nom
+d'un stratagème et le texte du suivant. Rien ne proteste. C'est arrivé :
+sur 1661 stratagèmes on en lisait 830, et il a fallu compter autrement
+pour s'en apercevoir — le début d'un enregistrement se reconnaît à son
+identifiant, un nombre de neuf chiffres au moins, et ce compte-là ne
+dépend pas du recollement. `outils/test-wahapedia.py` fait les deux
+comptes et exige qu'ils tombent pareil, sur les trois fichiers.
+
+### Ce qui est écarté, et pourquoi
+
+Wahapedia range les stratagèmes par détachement, y compris ceux des
+**Actions d'Abordage** — « Tomb Ship Complement », « Boarding
+Butchers », « Tempestus Boarding Regiment ». Ce format n'est pas celui
+que l'application tient, et le Munitorum ne connaît pas ces
+détachements. On ne garde donc que les stratagèmes dont le détachement
+figure dans DETACHMENTS : 79 lignes nécrones deviennent 63, 65 Astra
+deviennent 57, 47 World Eaters deviennent 39, 53 Custodes deviennent 45.
+
+Le nom du détachement retenu est celui du **Munitorum**, pas celui de
+Wahapedia : c'est lui que porte DETACHMENTS, et l'onglet apparie les
+deux par égalité de chaîne. « Hammer of the Emperor » contre « Hammer Of
+The Emperor » aurait suffi à rendre six stratagèmes invisibles, sans
+erreur.
+
+### L'étalonnage
+
+Comme tout le reste, mesuré sur les Nécrons : leurs stratagèmes ont été
+saisis à la main depuis le pack de faction français. Les noms ne se
+comparent pas — la référence est en français officiel, l'extraction en
+anglais. Ce qui se compare, c'est la **forme du lot** : combien de
+stratagèmes par détachement, et quel jeu de (famille, coût en PC). Un
+écart d'un point de commandement ou d'une famille se verrait aussitôt.
+
+**Sept détachements sur sept, trente-trois stratagèmes, accord exact.**
+Familles et coûts identiques, carte pour carte. La lecture croisée des
+textes confirme : chaque entrée française a son jumeau anglais, même
+effet, même déclencheur.
+
+L'extraction apporte en plus les cinq détachements que la saisie à la
+main n'avait jamais couverts — Annihilation Legion, Awakened Dynasty,
+Canoptek Court, Hypercrypt Legion, Obeisance Phalanx — soit trente
+stratagèmes de plus.
+
+### Ce que l'étalonnage a trouvé, et qu'on ne corrige pas seul
+
+Le seul écart tient aux **stratagèmes de base**. La table nécrone tenue
+à la main en porte dix : Explosifs, Impact Écrasant, Contre-Offensive…
+C'est le jeu de la **10e édition**. Celui de la 11e en compte onze, et
+n'est pas le même : *Go to Ground* et *Tank Shock* entrent, *Explosifs*
+et *Impact Écrasant* sortent, *Grenade* remplace le premier.
+
+Wahapedia porte les deux jeux — l'ancien sous le type « Core
+Stratagem », le nouveau sous « Core – … Stratagem ». Les factions
+générées reçoivent le nouveau, onze cartes. Les Nécrons gardent les dix
+anciennes, en français.
+
+C'est un choix à faire, pas un défaut à réparer en passant : remplacer
+la table nécrone, c'est troquer dix textes français relus contre onze
+textes anglais. `npm run livrees` le laisse passer et l'écrit ici plutôt
+que de le cacher derrière un seuil.
+
+### Le compte après
+
+| | règle de détachement | optimisation avec texte | stratagèmes |
+|---|---:|---:|---:|
+| Nécrons *(à la main)* | 12 / 12 | 42 / 42 | 43 |
+| Adeptus Custodes | **9 / 9** | **30 / 30** | **56** |
+| Astra Militarum | **11 / 11** | **36 / 38** | **68** |
+| World Eaters | **8 / 8** | **26 / 26** | **50** |
+
+Douze textes d'optimisation manquaient parce que le Munitorum suffixe
+« (Upgrade) » les optimisations qui se paient sur une figurine, et que
+Wahapedia ne le fait pas. Le suffixe suffisait à faire rater le
+rapprochement ; on l'ôte avant de chercher.
+
+### Ce que les tests exigent maintenant
+
+`npm run livrees` passe de 91 à **119 contrôles**. Sept sont neufs, par
+faction :
+
+- tout stratagème cite un détachement **retenu**, ou « Core » — sinon il
+  est invisible, et invisible sans erreur ;
+- tout stratagème a un coût en PC, dit **quand** il se joue et **ce
+  qu'il fait** ;
+- aucun doublon nom+détachement : la clé de saisie utilisateur est
+  `détachement|nom`, deux homonymes s'écraseraient ;
+- aucun **HTML** de Wahapedia n'atteint l'écran — `<b>`, `<br>`,
+  `<span class="kwb">`, `&nbsp;` ;
+- les stratagèmes de base sont livrés.
+
+`npm run wahapedia` (24 contrôles) éprouve la lecture elle-même :
+recollement, nettoyage du HTML, découpage QUAND/CIBLE/EFFET/
+RESTRICTIONS, mise en casse des noms criés. `npm run custodes` monte à
+33 et vérifie que l'onglet dessine bien les six stratagèmes du Bouclier
+Hôte et les onze de base.
+
+### Ce qui reste dehors
+
+`STRAT_SIMU` — ce qu'un stratagème fait au **calcul** — reste vide pour
+les trois factions générées. Comme les aptitudes, cela ne se déduit
+d'aucune source : il faut lire chaque carte et décider. Les stratagèmes
+s'affichent, ils ne se cochent pas encore dans le simulateur.
+
+---
+
+## 18. Les stratagèmes dans le simulateur — 25/08/2026
+
+Les stratagèmes s'affichaient. Ils ne se cochaient pas : `STRAT_SIMU`,
+la table qui dit ce qu'une carte fait au **calcul**, était vide partout
+sauf chez les Nécrons, et n'y portait que six lignes.
+
+### Ce qui manquait au moteur : la Force
+
+Avant de câbler quoi que ce soit, un trou est apparu. « Minute
+Mordiane » donne +1 en Force, « Feu Nourri » +1, « Tir Combiné » +2,
+« Protocol of the Hungry Void » +1. Le moteur savait retoucher la
+touche, la blessure, la pénétration, les dégâts, les attaques — pas la
+Force.
+
+Et ce n'est pas un modificateur de jet : la Force change **avant** la
+comparaison avec l'Endurance, si bien qu'un palier franchi vaut
+beaucoup plus qu'un +1 au dé. F5 contre E5 blesse à 4+ ; F6 contre E5, à
+3+ — un tiers de blessures en plus, pas un sixième. `strMod` traverse
+donc maintenant toute la chaîne, comme `atkMod` avant lui : le moteur,
+le profil d'unité, la carte des retouches, la remise à neuf.
+
+### Ce qui est câblé, et ce qui ne l'est pas
+
+| | stratagèmes | câblés | détachements couverts |
+|---|---:|---:|---:|
+| Nécrons | 73 | **17** | 7 / 12 |
+| Astra Militarum | 68 | **16** | 8 / 11 |
+| World Eaters | 50 | **10** | 6 / 8 |
+
+**Ce qui reste dehors n'est pas un oubli.** Trois familles, et une
+raison chaque fois :
+
+**La défense.** « Formes Inflexibles », « Résistance Démoniaque »,
+« Plaquage Additionnel », les insensibilités, les sauvegardes
+invulnérables accordées : le moteur les lit sur la **cible**, pas sur
+l'attaquant. `STRAT_SIMU` ne touche que le côté qui frappe. Elles se
+règlent dans la carte Cible, à la main.
+
+**Les mots-clés que le moteur ne connaît pas.** [PRÉCISION] choisit à
+quelle figurine la blessure va ; [ASSAUT] et [MOBILE] parlent de
+mouvement ; [HASARDEUX] fait perdre des figurines à l'attaquant. Aucun
+n'entre dans l'espérance d'une séquence d'attaque.
+
+**Ce qui ne vaut que pour une figurine.** « Aspire to Infamy » donne +1
+attaque et +2 en Force aux seules figurines de PERSONNAGE de l'unité.
+Le simulateur mesure l'unité entière : l'appliquer partout la
+surestimerait franchement. Mieux vaut ne rien dire.
+
+### Deux forces valent deux pastilles
+
+Beaucoup de stratagèmes ont une version de base et une meilleure sous
+condition. « Fail Not the Blood God » relance les 1 pour toucher, et
+relance **tout** si l'unité est à 6" d'un Monstre ami. « Protocol of
+the Conquering Tyrant » pareil, si un Personnage la mène.
+
+Faire une moyenne serait faux dans les deux cas. On pose donc deux
+pastilles, la seconde suffixée par sa condition. Le joueur sait laquelle
+est vraie ce tour-ci ; l'application, non.
+
+### Les cinq détachements nécrons qui n'avaient rien
+
+Impossible de câbler « Curse of the Cryptek » quand la Cour Canoptek
+n'a aucun stratagème à afficher : la pastille se serait montrée dans le
+simulateur pour une carte illisible partout ailleurs.
+
+Les cinq détachements du codex — Dynastie Éveillée, Cour Canoptek,
+Légion d'Annihilation, Phalange d'Obéissance, Légion d'Hypercrypte —
+reçoivent donc leurs **trente stratagèmes**, repris de Wahapedia, en
+anglais. Rien de français n'a été remplacé : ces cinq-là n'avaient
+absolument rien, et les avoir en anglais vaut mieux que ne pas les
+avoir. Les sept détachements du pack de faction gardent leur texte
+français relu, intact.
+
+`npm run etalonnage` mesure maintenant **12 détachements sur 12
+d'accord**, 63 stratagèmes, familles et coûts identiques. Le seul écart
+qui subsiste reste celui des stratagèmes de base, 10e contre 11e
+édition, décrit à la section précédente et toujours ouvert.
+
+### Quatre façons de se tromper, toutes silencieuses
+
+Un câblage faux ne casse rien : il ne s'applique jamais, ou pire, il
+s'applique et ne s'enlève plus. `npm run livrees` passe de 119 à **165
+contrôles**, dont huit neufs par faction :
+
+- un **détachement** mal orthographié → la pastille ne paraît jamais,
+  `roster.js` filtrant sur les détachements retenus ;
+- une **unité** inconnue dans `unites` → même silence ;
+- un **mot-clé** absent de `KW` dans `sauf` → `porteMot()` retombe sur
+  une comparaison de noms, et l'exclusion cesse de jouer ;
+- un **champ d'effet** absent de `DEFAUT_STRAT` → la pastille pose le
+  bonus et ne peut plus le retirer. Le joueur décoche, et garde le
+  bonus. C'est le pire des quatre, et c'est pourquoi `DEFAUT_STRAT` est
+  sortie de sa fonction et exportée : la table du simulateur et le
+  câblage des factions se confrontent maintenant l'un à l'autre.
+
+S'y ajoutent : tout stratagème câblé doit faire quelque chose, coûter
+des PC, se jouer dans une phase connue, et **être lisible dans
+l'onglet** — sans quoi il apparaîtrait dans le simulateur sans exister
+nulle part.
+
+Enfin la suite ouvre, pour chaque faction, une liste dont le détachement
+retenu porte un stratagème câblé **sans restriction de fiche**, et
+vérifie que `ROSTER.stratsSimu` le lui rend. Vérifier la table ne prouve
+rien : c'est le trajet jusqu'à l'écran qui casse.

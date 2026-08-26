@@ -8,7 +8,14 @@
    Le chargeur compresse, lui, sort sous dist/hors-ligne.html : il ne doit
    surtout pas occuper dist/index.html, qui est la porte d'entree du site. */
 const fs=require('fs'), zlib=require('zlib'), crypto=require('crypto'), terser=require('terser');
-const SOURCES=['index.html','data.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
+/* L'ordre compte : data.js pose le registre des factions, chaque
+   data-<faction>.js s'y enregistre, et tout le reste lit les tables que
+   l'adaptateur a mises en service. Une faction de plus, c'est une ligne
+   de plus ici, une dans sw.js et une balise dans index.html. */
+const SOURCES=['index.html','data.js','data-necrons.js','data-custodes.js','data-astra.js','data-worldeaters.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
+/* les memes, moins la page : c'est ce qui part chez terser, dans cet
+   ordre. Derive de SOURCES pour que les deux listes ne divergent pas. */
+const JS=SOURCES.filter(f=>f.endsWith('.js'));
 const STATIQUES=['manifest.json','icon.svg'];
 (async()=>{
   /* L'empreinte se calcule d'abord : elle est ecrite DANS les sorties, pour
@@ -23,7 +30,7 @@ const STATIQUES=['manifest.json','icon.svg'];
   const css=html.match(/<style>([\s\S]*?)<\/style>/)[1]
     .replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s*([{}:;,>])\s*/g,'$1')
     .replace(/;}/g,'}').replace(/\n+/g,'').replace(/\s{2,}/g,' ').trim();
-  const js=['data.js','engine.js','app.js','roster.js','layouts.js','plateau.js'].map(f=>fs.readFileSync(f,'utf8')).join('\n');
+  const js=JS.map(f=>fs.readFileSync(f,'utf8')).join('\n');
   const min=await terser.minify(js,{compress:{passes:3},mangle:{toplevel:true},format:{comments:false}});
   if(min.error) throw min.error;
   /* Les fonds de carte. Sur le site ils restent un fichier chacun, demande
@@ -39,10 +46,15 @@ const STATIQUES=['manifest.json','icon.svg'];
   const bagage=Object.keys(cartes).length
     ? '<script>window.CARTES='+JSON.stringify(cartes)+'<\/script>' : '';
 
+  /* La suite des balises de script, remplacee d'un bloc par le paquet
+     minifie. Le motif se deduit de JS : deux listes ecrites a la main
+     finissaient par diverger, et un fichier oublie ici partait du
+     fichier autonome sans que rien ne le signale. */
+  const balises=new RegExp(JS.map(f=>'<script src="'+f.replace(/\./g,'\\.')+'"><\\/script>').join('\\s*'));
+  if(!balises.test(html)) throw new Error('index.html ne charge pas les scripts dans l\'ordre de SOURCES');
   const full=html.replace(/<style>[\s\S]*?<\/style>/,'<style>'+css+'</style>')
     .replace(/\n\s*\n/g,'\n')
-    .replace(/<script src="data.js"><\/script>\s*<script src="engine.js"><\/script>/,bagage+'<script>'+min.code+'<\/script>')
-    .replace(/\s*<script src="app.js"><\/script>\s*<script src="roster.js"><\/script>\s*<script src="layouts.js"><\/script>\s*<script src="plateau.js"><\/script>/,'');
+    .replace(balises,bagage+'<script>'+min.code+'<\/script>');
   fs.mkdirSync('dist',{recursive:true});
   const b64=zlib.gzipSync(Buffer.from(full,'utf8'),{level:9}).toString('base64');
   const loader='<!DOCTYPE html>\n<html lang="fr"><head><meta charset="utf-8">'

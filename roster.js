@@ -15,17 +15,24 @@ const {S, unitRow, unitWeps, parseFlags, antiDe, antiActif, libelleAnti,
 const RKEY = "mathhammer.roster.v1";   /* ancien format, une seule liste */
 const LKEY = "mathhammer.lists.v1";
 
-/* Une liste : {id, nom, cap, detach:[], units:[], nextId}
-   units : {id,name,size,lo:[{w,n}],chars:[{name,w}],sel,grp,enh} */
+/* Une liste : {id, nom, faction, cap, detach:[], units:[], nextId}
+   units : {id,name,size,lo:[{w,n}],chars:[{name,w}],sel,grp,enh}
+
+   `faction` est la cle du registre de data.js. Une liste appartient a
+   une faction et ne s'en detache pas : ses unites, ses detachements et
+   ses optimisations n'ont de sens que dans la table d'ou elles
+   viennent. Les listes enregistrees avant ce champ sont necrones,
+   puisqu'il n'y avait pas d'autre choix. */
 let LISTS = [];
 let R = null;                         // la liste ouverte
 let nextId = 1;                       // compteur d'unites de la liste ouverte
 let phase = "T";
 let situ = {};                        // conditions situationnelles cochees
 
-const listeVierge = (nom, cap) => ({
+const listeVierge = (nom, cap, faction) => ({
   id: "l" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36),
-  nom: nom || "Nouvelle liste", cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
+  nom: nom || "Nouvelle liste", faction: faction || FACTION_ACTIVE || FACTION_DEFAUT,
+  cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
 });
 
 function saveR(){
@@ -55,8 +62,26 @@ function migreEnh(nom){
    fausse le total sans prevenir */
 let RETIREES = [];
 let MIGRE = false;
+/* listes dont le fichier de faction manque a cette copie de
+   l'application : elles retombent sur la faction par defaut, ce qui
+   retire leurs unites. On les nomme plutot que de laisser croire a une
+   liste videe sans raison. */
+let ORPHELINES = [];
 
 function normaliseListe(L){
+  /* Une liste se relit dans SA faction, jamais dans celle qui se trouve
+     en service. Cette fonction retire ce qu'elle ne reconnait pas :
+     appliquee a une liste custodes avec la table necrone en place, elle
+     effacerait l'armee entiere en la croyant perimee. */
+  if(!L.faction || !FACTIONS[L.faction]){
+    /* pas de champ du tout : la liste est d'avant le multi-faction,
+       donc necrone — il n'y avait pas d'autre choix. Un champ present
+       mais inconnu, c'est un fichier de faction qui manque ici, et ce
+       n'est pas la meme chose : on le nomme. */
+    if(L.faction) ORPHELINES.push("« " + (L.nom || "sans nom") + " » (" + L.faction + ")");
+    L.faction = FACTION_DEFAUT; MIGRE = true;
+  }
+  activeFaction(L.faction);
   L.detach = L.detach || []; L.units = L.units || [];
   L.cap = L.cap || 2000; L.nom = L.nom || "Liste"; L.nextId = L.nextId || 1;
   if(!L.id) L.id = listeVierge().id;
@@ -140,7 +165,9 @@ function normaliseListe(L){
   return L;
 }
 
-function ouvre(L){ R = L; nextId = L.nextId || 1; }
+/* Le seul endroit ou une liste devient la liste en service — c'est donc
+   ici, et nulle part ailleurs, que la faction bascule. */
+function ouvre(L){ R = L; nextId = L.nextId || 1; activeFaction(L.faction || FACTION_DEFAUT); }
 
 function loadR(){
   let actif = null;
@@ -166,6 +193,13 @@ function loadR(){
   /* premier lancement, ou reprise de l'ancien format : on fixe l'etat
      tout de suite plutot que d'attendre la premiere modification */
   if(!localStorage.getItem(LKEY) || MIGRE){ saveR(); MIGRE = false; }
+  if(ORPHELINES.length){
+    const q = ORPHELINES.slice();
+    ORPHELINES = [];
+    setTimeout(()=> toast(q.join(", ") + (q.length > 1 ? " sont d'une faction" : " est d'une faction") +
+      " que cette copie de l'application ne connaît pas : " + factionNom(FACTION_DEFAUT) +
+      " par défaut, leurs unités n'ont pas pu être reprises.", "", null), 600);
+  }
   if(RETIREES.length){
     const uniques = RETIREES.filter((x,i) => RETIREES.indexOf(x) === i);
     saveR();
@@ -541,9 +575,18 @@ function renderBarreListe(){
    d'Obsidienne tire »), sans avoir a le saisir. On peut le
    reecrire a la main ou en retirer un autre au hasard.
    ========================================================== */
-const auHasard = t => t[Math.floor(Math.random() * t.length)];
+/* GRPN appartient a la faction : une faction peut n'en fournir aucun,
+   ou n'en fournir qu'une partie. Ce n'est pas une faute a signaler --
+   un nom de groupe est un agrement, pas une donnee de regle -- mais
+   c'en etait une a l'usage : nomGroupe() lisait GRPN.forme.length sans
+   regarder, et une faction sans noms de groupe emportait le chargement
+   de la liste entiere, donc l'application, sans message. On rend une
+   chaine vide, ce que le reste de l'ecran sait deja afficher. */
+const auHasard = t => (Array.isArray(t) && t.length) ? t[Math.floor(Math.random() * t.length)] : "";
 function nomGroupe(){
-  return auHasard(GRPN.forme) + " " + auHasard(GRPN.qualif) + " " + auHasard(GRPN.origine);
+  const G = GRPN || {};
+  return [auHasard(G.forme), auHasard(G.qualif), auHasard(G.origine)]
+    .filter(Boolean).join(" ");
 }
 
 /* un personnage ne peut rejoindre que les unites listees par sa
@@ -848,8 +891,11 @@ function supplementPts(ru, L){
   return (e && typeof e[1] === "number" ? e[1] : 0) + (t ? t[1] : 0);
 }
 
-const KWSET = {};
-Object.keys(KW).forEach(k => KWSET[k] = new Set(KW[k]));
+/* KWSET et CATMAP se construisaient ici, une fois pour toutes. Ils
+   derivent de KW et de CAT, qui changent maintenant avec la faction :
+   ils sont donc passes dans reconstruitIndex(), du cote de data.js, que
+   l'adaptateur rappelle a chaque bascule. Ne restent ici que les deux
+   lectures. */
 const has = (kw, name) => KWSET[kw] ? KWSET[kw].has(name) : false;
 const detachRow = n => DETACHMENTS.find(d => d[0] === n);
 /* nom francais officiel du detachement, le nom du catalogue sinon */
@@ -859,8 +905,6 @@ const nomDetach = n => { const d = detachRow(n); return (d && d[7]) || n; };
    on la rend telle quelle plutot que d'en traduire une version qui
    n'existerait dans aucun livre. */
 const dispoDetach = n => { const d = detachRow(n); return (d && d[8]) || ""; };
-const CATMAP = {};
-CAT.forEach(([n, c]) => CATMAP[n] = c);
 const categorie = n => CATMAP[n] || "Autre";
 
 /* Les PV figurine par figurine, dans l'ordre ou le defenseur les
@@ -2893,6 +2937,20 @@ function renderLists(){
   const nom = el("listName"), cap = el("listCap");
   if(nom && document.activeElement !== nom) nom.value = R.nom;
   if(cap && document.activeElement !== cap) cap.value = R.cap;
+  const fac = el("listFaction"), rowFac = el("rowFaction");
+  if(fac && rowFac){
+    const dispo = listeFactions();
+    rowFac.hidden = dispo.length < 2;
+    const voulu = dispo.map(f => f.cle).join("|");
+    /* on ne refait le menu que si les factions ont change : le refaire a
+       chaque rendu ferme la liste deroulante sous le doigt */
+    if(fac.dataset.cles !== voulu){
+      fac.innerHTML = dispo.map(f =>
+        '<option value="' + f.cle + '">' + f.nom + '</option>').join("");
+      fac.dataset.cles = voulu;
+    }
+    fac.value = R.faction || FACTION_DEFAUT;
+  }
   const hint = el("detHint");
   if(hint) hint.textContent = capDP() + " Points de Détachement à " + R.cap +
     " pts. Deux détachements ne peuvent pas partager le même tag d'exclusivité.";
@@ -5611,14 +5669,14 @@ function dessineQR(txt, taille){
 }
 
 function exportImport(){
-  const txt = JSON.stringify({nom:R.nom, cap:R.cap, detach:R.detach, units:R.units});
+  const txt = JSON.stringify({nom:R.nom, faction:R.faction, cap:R.cap, detach:R.detach, units:R.units});
   const v = prompt("Copie ce texte pour sauvegarder ta liste, ou colle-en un autre pour l'importer " +
     "— la liste importée s'ajoutera aux tiennes :", txt);
   if(v === null || v === txt) return;
   try{
     const o = JSON.parse(v);
     if(!o || !Array.isArray(o.units)) throw 0;
-    const L = listeVierge(o.nom || "Liste importée", o.cap || 2000);
+    const L = listeVierge(o.nom || "Liste importée", o.cap || 2000, o.faction);
     L.detach = o.detach || [];
     L.units = o.units;
     normaliseListe(L);
@@ -5661,7 +5719,7 @@ function unb64u(str){
 
 /* on ne transporte que ce qui n'est pas reconstructible : ni id ni points */
 const packList = () => ({
-  t: R.nom, p: R.cap,
+  t: R.nom, p: R.cap, k: R.faction || FACTION_DEFAUT,
   d: R.detach, f: R.fd || "",
   /* le role choisi voyage ; la suggestion non — elle se recalcule a
      l'arrivee, et si le catalogue a change entre-temps c'est la
@@ -5697,7 +5755,15 @@ async function decodeList(code){
 /* une liste recue arrive a cote des tiennes, elle n'en ecrase aucune */
 function applyPacked(o){
   if(!o || !Array.isArray(o.u)) throw 0;
-  const L = listeVierge(o.t || "Liste reçue", o.p || 2000);
+  /* La faction d'abord : les noms qui suivent se lisent dans sa table,
+     et migreEnh comme roleRow y puisent. Un lien d'avant ce champ vient
+     forcement des Necrons. Une faction inconnue de cette copie de
+     l'application se dit, plutot que de rendre une liste vide. */
+  const cle = o.k || FACTION_DEFAUT;
+  if(!FACTIONS[cle]) throw new Error("Cette liste est " + (o.k || "d'une autre faction") +
+    " : cette version de l'application ne connaît pas cette faction.");
+  const L = listeVierge(o.t || "Liste reçue", o.p || 2000, cle);
+  activeFaction(cle);
   L.detach = Array.isArray(o.d) ? o.d : [];
   L.fd = o.f || "";
   L.units = o.u.map(u => ({
@@ -5807,7 +5873,8 @@ function importeRos(txt){
   }
 
   if(!trouvees.length){
-    rapport([{txt:"Aucune unité nécron reconnue dans ce fichier. Il vient peut-être d'une autre faction.", warn:true}]);
+    rapport([{txt:"Aucune unité " + factionNom(FACTION_ACTIVE) + " reconnue dans ce fichier. " +
+      "Il vient peut-être d'une autre faction : ouvre une liste de cette faction avant d'importer.", warn:true}]);
     return;
   }
   const L = listeVierge(nom, R.cap || 2000);
@@ -5841,7 +5908,10 @@ async function readSharedLink(){
     if(confirm("Ce lien contient « " + (o.t || "une liste") + " », " + n + " unité" +
       (n>1?"s":"") + ". L'ajouter à tes listes ? Les tiennes ne sont pas touchées."))
       applyPacked(o);
-  }catch(e){ alert("Ce lien de partage est illisible — ta liste n'a pas été modifiée."); }
+  /* un lien d'une faction qu'on ne connait pas n'est pas illisible : il
+     est lisible et refuse, et le dire evite de chercher une faute de
+     copier-coller qui n'existe pas */
+  }catch(e){ alert((e && e.message) || "Ce lien de partage est illisible — ta liste n'a pas été modifiée."); }
   /* on nettoie l'URL pour ne pas reproposer l'import a chaque rechargement */
   try{ history.replaceState(null, "", location.href.replace(/#.*$/, "")); }catch(e){}
 }
@@ -6108,13 +6178,18 @@ el("fileIn").addEventListener("change", ()=>{
       let n = 0;
       lot.forEach(L => {
         if(!L || !Array.isArray(L.units)) return;
-        const neuve = listeVierge(L.nom || "Liste restaurée", L.cap || 2000);
+        const neuve = listeVierge(L.nom || "Liste restaurée", L.cap || 2000, L.faction);
         neuve.detach = L.detach || [];
         neuve.units = L.units;
         normaliseListe(neuve);
         LISTS.push(neuve); n++;
       });
       if(!n) throw 0;
+      /* normaliseListe a bascule sur la faction de chaque liste relue :
+         la liste en service, elle, n'a pas change. On la remet en place,
+         sans quoi l'ecran continuerait avec la table de la derniere
+         liste du fichier. */
+      if(R) activeFaction(R.faction);
       /* les stratagemes saisis voyagent avec les listes : ils se completent,
          ce qui est deja saisi ici n'est pas ecrase */
       if(o && o.strats && o.strats.fiches){
@@ -6135,6 +6210,21 @@ el("fileIn").addEventListener("change", ()=>{
 });
 if(el("listName")) el("listName").addEventListener("change", ()=>{
   R.nom = el("listName").value.trim() || "Liste"; saveR(); renderList();
+});
+/* Changer la faction d'une liste ne convertit rien : les unites, les
+   detachements et les optimisations de l'ancienne n'existent pas dans la
+   nouvelle. On le dit avant, et on ne vide que si c'est accepte. */
+if(el("listFaction")) el("listFaction").addEventListener("change", ()=>{
+  const cle = el("listFaction").value;
+  if(!FACTIONS[cle] || cle === R.faction){ renderLists(); return; }
+  const n = R.units.length;
+  if(n && !confirm("Passer « " + R.nom + " » en " + factionNom(cle) + " retire ses " +
+    n + " unité" + (n > 1 ? "s" : "") + " et son détachement : une armée ne change pas " +
+    "de faction, elle se refait.\n\nContinuer ?")){
+    el("listFaction").value = R.faction; return;
+  }
+  R.faction = cle; R.units = []; R.detach = []; R.fd = ""; R.nextId = 1;
+  ouvre(R); saveR(); renderList();
 });
 if(el("listCap")) el("listCap").addEventListener("change", ()=>{
   const v = parseInt(el("listCap").value, 10);

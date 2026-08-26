@@ -22,7 +22,12 @@ const t = (quoi, bon, dit) => (bon ? ok : ko).push((bon ? '  ✓ ' : '  ✗ ') +
 const eq = (quoi, vu, att) => t(quoi, vu === att, JSON.stringify(vu) +
   (vu === att ? '' : ' au lieu de ' + JSON.stringify(att)));
 
-const D = new Function(fs.readFileSync(path.join(RACINE, 'data.js'), 'utf8') +
+/* Les tables necrones ont quitte data.js pour data-necrons.js, qui les
+   remet au registre : on evalue les deux, dans l'ordre du chargement de
+   la page, et l'adaptateur branche les noms globaux comme il le fait
+   dans le navigateur. */
+const lis = f => fs.readFileSync(path.join(RACINE, f), 'utf8');
+const D = new Function(lis('data.js') + ';' + lis('data-necrons.js') +
   '; return {E:ENHANCEMENTS, T:ENTRAVES, K:KW, D:DETACHMENTS, O:ENH_OTEES, A:APTITUDES};')();
 
 console.log('\n== 1. les sept detachements du pack ==');

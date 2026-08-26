@@ -1,0 +1,297 @@
+{
+  "_": [
+      "CÂBLAGE DU SIMULATEUR — WORLD EATERS",
+      "",
+      "Écrit à la main, et il n'y a pas d'autre façon : aucune source ne dit",
+      "ce qu'une règle fait au CALCUL. BSData donne le texte, le Munitorum",
+      "les chiffres ; décider que « re-roll the Hit roll » est un rrH failed",
+      "en corps à corps, et qu'il faut le déclarer parce qu'il dépend de la",
+      "cible, ça se lit et ça se tranche.",
+      "",
+      "extraction.py fusionne ce fichier dans data-worldeaters.js. Le fichier",
+      "généré est écrasé à chaque extraction ; celui-ci ne l'est jamais.",
+      "",
+      "Les textes sont en anglais, comme le reste de la faction : c'est la",
+      "convention du dépôt, une règle mal traduite se paie en partie. Les",
+      "libellés `nom` et `quand`, eux, sont en français — ils s'affichent.",
+      "",
+      "CE QUI N'EST PAS CÂBLÉ : le Collier de Khorne des Chiens de Chair",
+      "(insensibilité 3+ contre les attaques PSYCHIQUES seulement — le moteur",
+      "ne connaît pas ce genre d'attaque) et les relances de DÉGÂTS de",
+      "l'Annihilateur, qu'il n'a pas non plus. Tout le reste est là.",
+      "",
+      "──────────────────────────────────────────────────────────────",
+      "STRAT_SIMU : LES STRATAGÈMES QUI CHANGENT UN JET",
+      "",
+      "Dix sur trente-neuf, dans six détachements sur huit. Le reste",
+      "déplace, embarque, réanime, ou protège — et protéger se lit sur la",
+      "CIBLE, pas sur l'attaquant : le simulateur le règle dans sa carte",
+      "Cible, à la main. « Résistance Démoniaque », « Résilience",
+      "Frénétique », « Dédain du Sorcier » sont de celles-là.",
+      "",
+      "« Aspire to Infamy » reste dehors pour une autre raison : ses +1",
+      "attaque et +2 en Force ne valent que pour les figurines de",
+      "PERSONNAGE de l'unité. Le simulateur mesure l'unité entière ;",
+      "l'appliquer partout la surestimerait franchement.",
+      "",
+      "Deux stratagèmes ont une version meilleure sous condition — « Fail",
+      "Not the Blood God » près d'un Monstre, « Daemonic Fury » sous Rage",
+      "Démoniaque. Chacun fait DEUX pastilles : une moyenne serait fausse",
+      "dans les deux cas, et le joueur sait laquelle est vraie ce tour-ci."
+  ],
+  "AURAS_PERSO": {
+    "Khârn the Betrayer": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Tueur Légendaire",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, re-roll a Hit roll of 1."
+      },
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "port": "C",
+        "nom": "Tueur Légendaire",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, re-roll a Wound roll of 1."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Master of Executions": [
+      {
+        "vs": [
+          "perso"
+        ],
+        "champ": "rrH",
+        "val": "failed",
+        "port": "C",
+        "nom": "Un Crâne Digne de ce Nom",
+        "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Hit roll."
+      },
+      {
+        "vs": [
+          "perso"
+        ],
+        "champ": "rrW",
+        "val": "failed",
+        "port": "C",
+        "nom": "Un Crâne Digne de ce Nom",
+        "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Wound roll."
+      }
+    ],
+    "Exalted Eightbound": [
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "champ": "dmgMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Déchirer et Lacérer",
+        "texte": "Each time a model in this unit makes a melee attack that targets a Monster or Vehicle unit, improve the Damage characteristic of that attack by 1."
+      }
+    ],
+    "Heldrake": [
+      {
+        "vs": [
+          "vol"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Prédateur Aérien",
+        "texte": "Each time this model makes an attack that targets a unit that can Fly, add 1 to the Hit roll."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Daemon Prince of Khorne": [
+      {
+        "mot": "dev",
+        "port": "C",
+        "nom": "Assaut Dévastateur",
+        "quand": "Ce modèle a chargé ce tour",
+        "texte": "Each time this model makes a Charge move, until the end of the turn, its hellforged weapons have the [DEVASTATING WOUNDS] ability."
+      }
+    ],
+    "Daemon Prince of Khorne with wings": [
+      {
+        "mot": "dev",
+        "port": "C",
+        "nom": "Assaut Dévastateur",
+        "quand": "Ce modèle a chargé ce tour",
+        "texte": "Each time this model makes a Charge move, until the end of the turn, its hellforged weapons have the [DEVASTATING WOUNDS] ability."
+      }
+    ],
+    "Chaos Terminators": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Fureur Sanglante",
+        "quand": "La cible est l'unité ennemie éligible la plus proche",
+        "texte": "This unit's ranged attacks that target the closest eligible target can re-roll hit rolls."
+      }
+    ],
+    "Chaos Predator Annihilator": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Annihilateur Assoiffé de Sang",
+        "quand": "La cible est le MONSTRE ou VÉHICULE éligible le plus proche, à 18\" ou moins",
+        "texte": "Each time this model makes a ranged attack that targets the closest eligible Monster or Vehicle target within 18\", you can re-roll the Wound roll and you can re-roll the Damage roll. (La relance des dégâts n'est pas simulée.)"
+      }
+    ],
+    "Forgefiend": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Assaut Furieux",
+        "quand": "La cible est l'unité éligible la plus proche, à 18\" ou moins",
+        "texte": "Each time this model makes a ranged attack that targets the closest eligible target within 18\", you can re-roll the Hit roll."
+      }
+    ],
+    "Maulerfiend": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Exaltation Sauvage",
+        "quand": "La cible est sous son Effectif de Départ",
+        "texte": "Each time this model makes a melee attack that targets an enemy unit that is below its Starting Strength, add 1 to the Hit roll."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Exaltation Sauvage — sous la moitié",
+        "quand": "La cible est sous la moitié de son effectif",
+        "texte": "If that attack targets an enemy unit that is Below Half-Strength, add 1 to the Wound roll as well."
+      }
+    ],
+    "Slaughterbound": [
+      {
+        "mot": "dev",
+        "port": "C",
+        "nom": "Seigneur Possédé",
+        "quand": "L'aptitude est déclenchée — une fois par bataille",
+        "texte": "Once per battle, at the start of the Fight phase: until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and those weapons have the [DEVASTATING WOUNDS] ability."
+      },
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Seigneur Possédé — les attaques",
+        "quand": "L'aptitude est déclenchée — une fois par bataille",
+        "texte": "Add 3 to the Attacks characteristic of melee weapons equipped by this model."
+      }
+    ],
+    "Helbrute": [
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "C",
+        "nom": "Voué à la Destruction",
+        "quand": "Le Helbrute porte deux armes de mêlée en plus de son arme de base",
+        "texte": "If this model is equipped with 2 melee weapons in addition to its close combat weapon, add 2 to the Attacks characteristic of those two weapons."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Eightbound",
+      "kw": [],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Balises de Rage (Aura)",
+      "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible n'est ni MONSTRE ni VÉHICULE",
+      "texte": "While a friendly World Eaters unit is within 6\" of this unit, each time a model in that unit makes a melee attack that targets a unit (excluding Monsters and Vehicles), add 1 to the Hit roll."
+    },
+    {
+      "source": "Eightbound",
+      "kw": [],
+      "champ": "wndMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Balises de Rage (Aura) — cible entamée",
+      "quand": "L'unité est à 6\" des Huit-Enchaînés, et la cible est sous la moitié de son effectif",
+      "texte": "If that attack targets a unit that is Below Half-strength, add 1 to the Wound roll as well."
+    },
+    {
+      "source": "Skarbrand",
+      "kw": [],
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Rage Incarnée (Aura)",
+      "quand": "L'unité est à 6\" de Skarbrand, et elle est BLOOD LEGIONS",
+      "texte": "While a friendly Blood Legions unit is within 6\" of this model, add 1 to the Attacks characteristic of melee weapons equipped by models in that unit."
+    },
+    {
+      "source": "Bloodthirster",
+      "kw": [],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Seigneur Démon de Khorne (Aura)",
+      "quand": "L'unité est à 6\" du Bloodthirster, et elle est BLOOD LEGIONS",
+      "texte": "While a friendly Blood Legions unit is within 6\" of this model, each time a model in that unit makes a melee attack, add 1 to the Hit roll."
+    }
+  ],
+
+  "STRAT_SIMU": [
+    { "nom": "Hack and Slash", "detach": "Berzerker Warband", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "+1 en PA au corps à corps — l'unité doit avoir chargé ce tour",
+      "effet": { "apMod": 1 } },
+
+    { "nom": "Apoplectic Clarity", "detach": "Brazen Engines", "pc": 1, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "ignore les malus de CT/CC et de jets de touche et de blessure",
+      "effet": { "ignoreMalus": true } },
+
+    { "nom": "A Trophy for the Throne", "detach": "Butchers Of Khorne", "pc": 1, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "+1 pour blesser — contre MONSTRE ou VÉHICULE seulement",
+      "effet": { "wndMod": 1 } },
+
+    { "nom": "Focused Ferocity", "detach": "Butchers Of Khorne", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "+1 attaque à chaque arme de corps à corps",
+      "effet": { "atkMod": 1 } },
+
+    { "nom": "Bloody Vengeance", "detach": "Cult Of Blood", "pc": 1, "ph": "TC",
+      "unites": ["Jakhals", "Goremongers"], "sauf": [],
+      "aide": "relance des touches ratées contre l'unité qui a détruit ton Monstre ou ton Titanesque",
+      "effet": { "rrH": "failed" } },
+
+    { "nom": "Fail Not the Blood God", "detach": "Cult Of Blood", "pc": 1, "ph": "C",
+      "unites": ["Jakhals", "Goremongers"], "sauf": [],
+      "aide": "relance des 1 pour toucher",
+      "effet": { "rrH": "ones" } },
+
+    { "nom": "Fail Not the Blood God — près d'un Monstre", "detach": "Cult Of Blood", "pc": 1, "ph": "C",
+      "unites": ["Jakhals", "Goremongers"], "sauf": [],
+      "aide": "relance TOTALE des touches — l'unité est à 6\" d'un MONSTRE ami, ou à 9\" d'un TITANESQUE",
+      "effet": { "rrH": "failed" } },
+
+    { "nom": "Daemonic Fury", "detach": "Khorne Daemonkin", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+      "effet": { "wndMod": 1 } },
+
+    { "nom": "Daemonic Fury — Rage Démoniaque active", "detach": "Khorne Daemonkin", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "[LANCE] et [JUMELÉE] : +1 pour blesser après une charge, et relance des blessures ratées",
+      "effet": { "wndMod": 1, "rrW": "failed" } },
+
+    { "nom": "Daemonic Strength", "detach": "Possessed Slaughterband", "pc": 1, "ph": "C",
+      "unites": ["Eightbound", "Exalted Eightbound", "Slaughterbound"], "sauf": [],
+      "aide": "+1 dégât — les ENCHAÎNÉS contre tout sauf MONSTRE/VÉHICULE, les ENCHAÎNÉS EXALTÉS contre eux seuls",
+      "effet": { "dmgMod": 1 } }
+  ]
+}
