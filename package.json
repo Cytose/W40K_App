@@ -17,7 +17,8 @@
     "poses": "python3 outils/poses.py",
     "fond": "node outils/test-fond.mjs",
     "detachements": "node outils/test-detachements.mjs",
-    "simulateur": "node outils/test-simulateur.mjs"
+    "simulateur": "node outils/test-simulateur.mjs",
+    "equipement": "node outils/test-equipement.mjs"
   },
   "devDependencies": {
     "terser": "^5.36.0"

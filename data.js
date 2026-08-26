@@ -129,7 +129,8 @@ const ARMEMENT = {
  "Canoptek Macrocytes" : { f:[3], s:[{min:1, o:[[0],[1],[2],[]],
    omax:[0, 0, 1, 1],
    onom:["", "", "Faisceau atomiseur + projecteur de nanoscarabées",
-         "Mandibule accélératrice"]}] }, /* d'office : Claws */
+         "Mandibule accélératrice"],
+   oapt:[[], [], ["Projecteur de nanoscarabées"], ["Mandibule accélératrice"]]}] }, /* d'office : Claws */
  /* « 1 figurine peut remplacer sa faucheuse Gauss jumelée par 1 Isolateur
     transdimensionnel » : l'isolateur est plafonne a une figurine. */
  "Canoptek Tomb Crawlers" : { f:[2], s:[{min:1, o:[[0],[1]], omax:[0, 1]}] }, /* d'office : Claws */
@@ -142,10 +143,19 @@ const ARMEMENT = {
  "Tesseract Vault" : { f:[4,0,1,2,3], s:[], n:{0:4} }, /* d'office : Armoured bulk, Tesla spheres ×4, Antimatter Meteor (C'tan), Cosmic Fire (C'tan), Time's Arrow (C'tan) */
  "Doom Scythe" : { f:[0,1,2], s:[] }, /* d'office : Heavy death ray, Twin tesla destructor, Armoured bulk */
  "Night Scythe" : { f:[0,1], s:[] }, /* d'office : Twin tesla destructor, Armoured bulk */
- "Overlord" : { f:[], s:[{min:1, o:[[2,0],[3],[1,4]]}] }, /* aucune arme d'office */
+ /* L'orbe de resurrection n'est pas une arme : c'est un equipement, pris
+    ou non, et il ne remplace rien. Il occupe donc son propre emplacement,
+    facultatif, dont l'option ne donne aucune arme -- `oapt` dit quelle
+    aptitude de la fiche elle apporte, et c'est elle qui decide si l'aide
+    de jeu doit la rappeler. */
+ "Overlord" : { f:[], s:[{min:1, o:[[2,0],[3],[1,4]]},
+   {min:0, o:[[]], onom:["Orbe de Résurrection"],
+    oapt:[["Orbe de Résurrection"]]}] }, /* aucune arme d'office */
  "Overlord with Translocation Shroud" : { f:[0], s:[] }, /* d'office : Overlord's blade */
  "Royal Warden" : { f:[1,0], s:[] }, /* d'office : Close combat weapon, Relic gauss blaster */
- "Lokhust Lord" : { f:[], s:[{min:1, o:[[1],[0,2]]}] }, /* aucune arme d'office */
+ "Lokhust Lord" : { f:[], s:[{min:1, o:[[1],[0,2]]},
+   {min:0, o:[[]], onom:["Amulette Nanoscarabée"],
+    oapt:[["Amulette Nanoscarabée"]]}] }, /* aucune arme d'office */
  "Skorpekh Lord" : { f:[0,2,1], s:[] }, /* d'office : Enmitic annihilator, Flensing claw, Hyperphase harvester */
  "Hexmark Destroyer" : { f:[1,0], s:[] }, /* d'office : Close combat weapon, Enmitic disintegrator pistols */
  "Technomancer" : { f:[0,1], s:[] }, /* d'office : Staff of light (tir), Staff of light (càc) */
@@ -1141,6 +1151,16 @@ const MOMENTS = {
  "Night Scythe|Quantum Invader":                  {ph:"mvt", camp:"moi", pos:"", uniq:""},
  "Royal Warden|Engrammatic Logic":                {ph:"",    camp:"",    pos:"debut", uniq:"partie"},
  "Lokhust Lord|Résurrection":                     {ph:"",    camp:"",    pos:"fin", uniq:"partie"},
+ /* Les orbes de resurrection. Ils se jouent A LA FIN DE N'IMPORTE QUELLE
+    PHASE, une fois par partie : c'est exactement le genre d'aptitude
+    qu'on retrouve dans sa poche a la fin de la bataille. Celui de
+    l'Overlord est un equipement facultatif -- l'aide de jeu ne le
+    rappelle qu'a qui l'a emporte. */
+ "Overlord|Orbe de Résurrection (équipement)":    {ph:"",    camp:"",    pos:"fin", uniq:"partie"},
+ "Overlord with Translocation Shroud|Orbe de Résurrection":
+                                                  {ph:"",    camp:"",    pos:"fin", uniq:"partie"},
+ "Overlord with Translocation Shroud|Ma Volonté Sera Faite":
+                                                  {ph:"",    camp:"",    pos:"", uniq:""},
  "Hexmark Destroyer|Multi-threat Eliminator":     {ph:"tir", camp:"adv", pos:"", uniq:"tour"},
  "Technomancer|Technomancer":                     {ph:"mvt", camp:"moi", pos:"fin", uniq:""},
  "Plasmancer|Foudre Consciente":                  {ph:"tir", camp:"moi", pos:"", uniq:""},
@@ -1508,7 +1528,8 @@ const APTITUDES = {
   ["Quantum Invader","This model can be set up in the Reinforcements step of your first, second or third Movement phase, regardless of any mission rules."]
  ],
  "Overlord" : [
-  ["Implacable Resilience","Each time an attack is allocated to this model, subtract 1 from that attack's Damage characteristic."]
+  ["Implacable Resilience","Each time an attack is allocated to this model, subtract 1 from that attack's Damage characteristic."],
+  ["Orbe de Résurrection (équipement)","(Une fois par partie, par unité) À la fin d'une phase, cette unité peut ressusciter : ses Protocoles de Réanimation s'activent, mais elle récupère D6 points de vie au lieu de D3. Vous ne pouvez pas ressusciter plus d'une unité par tour. Même orbe que celui de l'Overlord au Linceul de Translocation, où il est d'office."]
  ],
  "Royal Warden" : [
   ["Adaptive Strategy","This model's unit is eligible to shoot and declare a charge in a turn in which it Fell Back."],
@@ -1517,7 +1538,7 @@ const APTITUDES = {
  "Lokhust Lord" : [
   ["Destroyer Cult","While this model is leading a unit, each time a model in that unit makes a ranged attack, a successful unmodifed Hit roll of 5+ scores a Critical Hit."],
   ["Driven by Hatred","Each time this model makes an attack that targets an enemy unit that is Below Half-strength, you can re-roll the Hit roll and you can re-roll the Wound roll."],
-  ["Nanoscarab amulet","The bearer has the Feel No Pain 5+ ability."],
+  ["Amulette Nanoscarabée (équipement)","Le porteur a l'aptitude Insensible à la Douleur 5+."],
   ["Résurrection","(Une fois par bataille, par unité) À la fin de n'importe quelle phase, vous pouvez utiliser cette aptitude. Dans ce cas, cette unité ressuscite : ses Protocoles de Réanimation s'activent, mais l'unité soigne D6 points de vie au lieu de D3. Vous ne pouvez pas ressusciter plus d'une unité par tour. Texte donné par le pack de faction v1.1 pour le Seigneur Lokhust et le Tétrarque."]
  ],
  "Skorpekh Lord" : [
