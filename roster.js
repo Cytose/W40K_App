@@ -619,6 +619,45 @@ const armPort = nom => { const a = armRow(nom); return (a && a.n) || null; };
 const nPort = (n, i) => (n && n[i]) || 1;
 const aDesChoix = nom => armSlots(nom).length > 0;
 
+/* ==========================================================
+   L'EQUIPEMENT QUI N'EST PAS UNE ARME
+
+   Un orbe de resurrection ne tire pas et ne frappe pas : il ouvre une
+   aptitude, une fois par partie, a la fin d'une phase. Il se prend
+   pourtant comme une arme -- c'est un emplacement facultatif dont
+   l'option ne donne aucune arme, et dont `oapt` nomme l'aptitude
+   apportee.
+
+   Ce lien est ce qui manquait : l'aide de jeu rappelait les aptitudes
+   d'equipement a toutes les figurines de la fiche, qu'elles l'aient
+   emporte ou non. Elle ne les rappelle plus qu'a celles qui l'ont.
+   ========================================================== */
+const SUF_EQ = " (équipement)";
+/* un emplacement dont aucune option ne donne d'arme */
+const slotEquip = sl => sl.o.every(o => !o || !o.length);
+/* les aptitudes d'equipement que CETTE figurine-la a prises */
+function equipPris(obj, nom){
+  const out = {}, slots = armSlots(nom);
+  ((obj && obj.lo) || []).forEach(l=>{
+    const sl = slots[l.s];
+    if(!sl || (l.n !== undefined && l.n <= 0)) return;
+    ((sl.oapt || [])[l.o] || []).forEach(a => { out[a] = 1; });
+  });
+  return out;
+}
+/* le nom d'une aptitude d'equipement, sans son suffixe */
+const nomEquip = apt => apt.slice(0, -SUF_EQ.length);
+/* La fiche porte-t-elle cette aptitude sous condition d'equipement ?
+   Si aucune option ne l'apporte, c'est qu'elle vaut sans rien prendre :
+   on ne l'ecarte pas faute de savoir. */
+function equipOuvert(apt, obj, nom){
+  if(apt.slice(-SUF_EQ.length) !== SUF_EQ) return true;
+  const attendu = nomEquip(apt);
+  const offert = armSlots(nom).some(sl =>
+    (sl.oapt || []).some(lot => (lot || []).indexOf(attendu) >= 0));
+  return offert ? !!equipPris(obj, nom)[attendu] : true;
+}
+
 /* ce que l'unite a retenu dans un emplacement */
 /* Certaines options ne sont ouvertes qu'a une figurine — « 1 figurine peut
    remplacer sa faucheuse Gauss jumelée par 1 Isolateur transdimensionnel ».
@@ -1815,7 +1854,14 @@ let padRoleOuvert = "";
    qu'on cherche justement a verifier d'un coup d'oeil avant une partie. */
 function detailCase(ru){
   const out = [];
-  ru.chars.forEach(c => out.push({ cl: "dp", t: c.name }));
+  /* L'equipement emporte se lit sur la case, sous le nom de qui le
+     porte : c'est l'orbe de resurrection qu'on cherche des yeux quand on
+     se demande ce que la liste peut encore faire. Il ne se voyait nulle
+     part, alors qu'il vaut un tour de jeu entier. */
+  const gear = (obj, nom) => Object.keys(equipPris(obj, nom))
+    .forEach(e => out.push({ cl: "dq", t: e }));
+  ru.chars.forEach(c => { out.push({ cl: "dp", t: c.name }); gear(c, c.name); });
+  gear(ru, ru.name);
   if(ru.enh) out.push({ cl: "de", t: nomEnh(ru.enh) });
   const tv = entraveDe(ru);
   if(tv) out.push({ cl: "dt", t: tv[0] });
@@ -1851,7 +1897,11 @@ function armementCourt(ru){
      il reste autre chose a dire, et on la garde quand c'est tout ce que
      l'unite a — les Ecorcheurs n'ont que leurs griffes. */
   const utiles = out.filter(x => !x.gen);
-  return (utiles.length ? utiles : out).map(x => x.t).join(" · ");
+  const armes = (utiles.length ? utiles : out).map(x => x.t);
+  /* l'orbe ne tire pas, mais il se voit : c'est lui qu'on cherche des
+     yeux quand on compte ce que la liste sait faire */
+  const eq = Object.keys(equipPris(ru, ru.name));
+  return armes.concat(eq).join(" · ");
 }
 /* Et quand deux unites de la liste portent quand meme le meme nom
    affiche, on les numerote : « #1 », « #2 ». Sans reperage, choisir
@@ -2430,17 +2480,22 @@ function declenchements(){
   });
 
   /* les aptitudes des figurines qui sont dans la liste */
+  /* On dedoublonne sur l'aptitude et non sur la fiche : deux Overlords
+     dont un seul porte l'orbe ne doivent pas se repondre l'un pour
+     l'autre. */
   const vues = {};
-  const ajoute = nom => {
-    if(vues[nom]) return; vues[nom] = 1;
+  const ajoute = (nom, obj) => {
     aptitudesDe(nom).forEach(([apt, txt])=>{
       const m = tblM[nom + "|" + apt];
       if(!m || !concerne(m, G.phase, camp)) return;
-      out.push({cle: nom + "|" + apt, nom: apt, source: nom, texte: txt,
+      if(!equipOuvert(apt, obj, nom)) return;
+      const cle = nom + "|" + apt;
+      if(vues[cle]) return; vues[cle] = 1;
+      out.push({cle: cle, nom: apt, source: nom, texte: txt,
                 pos: m.pos, uniq: m.uniq, qui: nom, ph: m.ph});
     });
   };
-  R.units.forEach(ru=>{ ajoute(ru.name); ru.chars.forEach(c => ajoute(c.name)); });
+  R.units.forEach(ru=>{ ajoute(ru.name, ru); ru.chars.forEach(c => ajoute(c.name, c)); });
 
   /* en debut de phase d'abord, en fin de phase en dernier : c'est
      l'ordre dans lequel on les jouera */
@@ -2511,7 +2566,11 @@ function renderMaintenant(){
       l.type = "button";
       l.className = "mune" + (fait ? " fait" : "");
       l.title = x.texte;
+      /* « a n'importe quelle phase » ne veut pas dire « a n'importe quel
+         instant » : l'orbe de resurrection se joue A LA FIN de la phase,
+         quelle qu'elle soit. Le pied de bloc le taisait. */
       l.innerHTML = '<b>' + x.nom + '</b><i>' + x.source +
+        (POS[x.pos] ? " · " + POS[x.pos] : "") +
         (x.uniq === "partie" ? " · 1×partie" : x.uniq === "tour" ? " · 1×tour" : "") + '</i>';
       l.addEventListener("click", ()=>{
         if(!x.uniq) return;
@@ -3404,11 +3463,18 @@ function renderRoster(){
       const pris = () => totalSlot(ru, si);
       const reste = ru.size - pris();
       const rep = document.createElement("div");
-      rep.className = "repart" + (reste === 0 ? " ok" : (sl.min >= 1 || reste < 0 ? " todo" : ""));
-      rep.innerHTML = '<b>' + pris() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
-        (sl.min >= 1 ? '' : ' · facultatif') +
-        (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>'
-                   : (sl.min >= 1 && reste > 0 ? ' · <span>' + reste + ' sans arme</span>' : ''));
+      /* Un emplacement d'equipement ne repartit pas des armes entre des
+         figurines : il se prend ou non. Compter « 0 / 1 figurine » pour
+         un orbe de resurrection ne veut rien dire. */
+      const eq = slotEquip(sl);
+      rep.className = "repart" + (eq ? (pris() ? " ok" : "")
+                                    : (reste === 0 ? " ok" : (sl.min >= 1 || reste < 0 ? " todo" : "")));
+      rep.innerHTML = eq
+        ? '<b>Équipement</b>' + (sl.min >= 1 ? '' : ' · facultatif')
+        : '<b>' + pris() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
+          (sl.min >= 1 ? '' : ' · facultatif') +
+          (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>'
+                     : (sl.min >= 1 && reste > 0 ? ' · <span>' + reste + ' sans arme</span>' : ''));
       div.appendChild(rep);
 
       sl.o.forEach((opt, oi)=>{
@@ -3427,15 +3493,18 @@ function renderRoster(){
         row.className = "lo" + (n() ? " lo-on" : "") + (omax && n() > omax ? " lo-trop" : "");
         row.innerHTML = '<span class="ln">' + libelleOption(ru.name, opt, sl, oi) +
           (omax ? ' <b class="omax">' + omax + ' max</b>' : '') +
-          ' <em>' + detailDe(opt) + '</em></span>';
-        if(ru.size === 1 && sl.min >= 1){
-          /* une figurine seule ne repartit rien : elle choisit */
+          ' <em>' + (detailDe(opt) || (eq ? "équipement, aucune arme" : "")) + '</em></span>';
+        /* une figurine seule ne repartit rien : elle choisit. Un
+           equipement facultatif se prend ET se rend — d'ou le second
+           test : une arme obligatoire, elle, ne se decoche pas. */
+        if((ru.size === 1 && sl.min >= 1) || (eq && sl.o.length === 1)){
           const b = document.createElement("button");
           b.type = "button"; b.className = "chip" + (n() ? " on" : "");
           b.textContent = n() ? "prise" : "prendre";
           b.addEventListener("click", ()=>{
+            const etait = n();
             ru.lo = ru.lo.filter(l => l.s !== si);
-            ru.lo.push({s:si, o:oi, n:1});
+            if(!(etait && sl.min < 1)) ru.lo.push({s:si, o:oi, n:1});
             saveR(); renderList();
           });
           row.appendChild(b);
@@ -3504,8 +3573,9 @@ function renderRoster(){
           const pris = (c.lo || []).some(l => l.s === si && l.o === oi);
           const r = document.createElement("div");
           r.className = "lo" + (pris ? " lo-on" : "");
-          r.innerHTML = '<span class="ln">' + libelleOption(c.name, opt) +
-            ' <em>' + detailC(opt) + '</em></span>';
+          r.innerHTML = '<span class="ln">' + libelleOption(c.name, opt, sl, oi) +
+            ' <em>' + (detailC(opt) ||
+              (slotEquip(sl) ? "équipement, aucune arme" : "")) + '</em></span>';
           const b = document.createElement("button");
           b.type = "button"; b.className = "chip" + (pris ? " on" : "");
           b.textContent = pris ? "prise" : "prendre";
