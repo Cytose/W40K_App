@@ -248,6 +248,71 @@ if (typeof lien === 'string' && /#/.test(lien)) {
   T('et met cette faction en service', recue.enService, 'essai');
 }
 
+/* ------------------------------------------------------------------
+   L'ARMÉE SE CHOISIT À LA CRÉATION
+
+   Le choix n'existait que dans les réglages de la liste — donc après
+   coup, et en changer là vide la liste. Il se pose maintenant avant
+   qu'il y ait quoi que ce soit à perdre.
+   ------------------------------------------------------------------ */
+await p.evaluate(() => localStorage.removeItem('mathhammer.lists.v1'));
+await p.goto(base); await p.waitForTimeout(1000);
+await p.click('#tabs button[data-s="scList"]'); await p.waitForTimeout(400);
+await p.click('#btnNewList2'); await p.waitForTimeout(500);
+const feuille = await p.evaluate(() => {
+  const s = document.getElementById('sheetListAct');
+  return { ouverte: s.classList.contains('open'),
+           titre: document.getElementById('listActTitle').textContent,
+           choix: [...document.querySelectorAll('#listActList .opt')]
+             .map(b => b.querySelector('.o1').textContent) };
+});
+T('créer une liste demande d\'abord l\'armée', feuille.ouverte, true);
+T('et elle le demande en toutes lettres', feuille.titre, 'Quelle armée ?');
+T('toutes les factions du registre y sont', feuille.choix.length, registre.length);
+const apres = await p.evaluate(() => {
+  const b = [...document.querySelectorAll('#listActList .opt')]
+    .find(x => /Custodes/.test(x.textContent));
+  b.click();
+  return null;
+});
+await p.waitForTimeout(700);
+const neuve = await p.evaluate(() => {
+  const o = JSON.parse(localStorage.getItem('mathhammer.lists.v1'));
+  const L = o.listes.find(x => x.id === o.actif);
+  return { faction: L.faction, unites: L.units.length, enService: FACTION_ACTIVE };
+});
+T('la liste naît dans l\'armée choisie', neuve.faction, 'custodes');
+T('et cette armée est en service', neuve.enService, 'custodes');
+T('elle naît vide — rien n\'a été perdu', neuve.unites, 0);
+
+/* ------------------------------------------------------------------
+   UNE LISTE SE CHIFFRE DANS SA FACTION
+
+   « Mes listes » les montre toutes, mais les tables sont celles de la
+   faction active : une armée lue dans la mauvaise table ne trouve
+   aucune de ses fiches et s'affiche à zéro point, sans un mot.
+   ------------------------------------------------------------------ */
+await p.evaluate(() => {
+  localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v:1, actif:'n', listes:[
+    { id:'n', nom:'N', faction:'necrons', cap:2000, detach:[], fd:'', nextId:9,
+      units:[{ id:1, name:'Immortals', size:10, lo:[], chars:[], sel:true, grp:'', enh:null }] },
+    { id:'c', nom:'C', faction:'custodes', cap:2000, detach:[], fd:'', nextId:9,
+      units:[{ id:1, name:'Agamatus Custodians', size:3, lo:[], chars:[], sel:true, grp:'', enh:null }] }
+  ]}));
+});
+await p.goto(base); await p.waitForTimeout(1100);
+await p.click('#tabs button[data-s="scList"]'); await p.waitForTimeout(500);
+const cartes = await p.evaluate(() => ({
+  service: FACTION_ACTIVE,
+  pts: [...document.querySelectorAll('.lcard .lp b')].map(e => +e.textContent),
+  noms: [...document.querySelectorAll('.lcard .li i')].map(e => e.textContent)
+}));
+T('la faction en service est celle de la liste ouverte', cartes.service, 'necrons');
+T('la liste nécrone est chiffrée', cartes.pts[0], 140);
+T('celle d\'une autre faction aussi, et pas à zéro', cartes.pts[1], 225);
+T('chaque carte dit de quelle armée elle est',
+  cartes.noms.map(t => t.split(' · ')[0]), ['Nécrons', 'Adeptus Custodes']);
+
 console.log('\n════ CONFORME ════'); ok.forEach(x => console.log('  ✓ ' + x));
 console.log('\n════ ÉCARTS ════'); console.log(ko.length ? ko.map(x => '  ✗ ' + x).join('\n') : '  (aucun)');
 console.log('\n════ ERREURS JS ════'); console.log(errs.length ? [...new Set(errs)].join('\n') : '  aucune');
