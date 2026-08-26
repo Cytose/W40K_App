@@ -1372,12 +1372,14 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <div class="vc"><span class="vk">Blesser</span><div class="seg small" id="segWndMod"></div></div>
         <div class="vc"><span class="vk">Pénétration d'armure</span><div class="seg small" id="segApMod"></div></div>
         <div class="vc"><span class="vk">Dégâts</span><div class="seg small" id="segDmgMod"></div></div>
+        <div class="vc"><span class="vk">Attaques</span><div class="seg small" id="segAtkMod"></div></div>
+        <div class="vc"><span class="vk">Force</span><div class="seg small" id="segStrMod"></div></div>
         <div class="vc"><span class="vk">Relance de touche</span><div class="seg small" id="segRrH"></div></div>
         <div class="vc"><span class="vk">Relance de blessure</span><div class="seg small" id="segRrW"></div></div>
         <div class="vc"><span class="vk">Touche critique sur</span><div class="seg small" id="segCritH"></div></div>
         <div class="vc"><span class="vk">Blessure crit. — « Anti-X »</span><div class="seg small" id="segCritW"></div></div>
       </div>
-      <p class="hint">« +1 » en pénétration rend la PA meilleure : une PA -1 devient -2. Les modificateurs de touche et de blessure restent plafonnés à ±1 comme dans les règles ; un 1 naturel rate toujours, un critique réussit toujours. Ces réglages s'appliquent à tous les profils chargés.</p>
+      <p class="hint">« +1 » en pénétration rend la PA meilleure : une PA -1 devient -2. Les modificateurs de touche et de blessure restent plafonnés à ±1 comme dans les règles ; un 1 naturel rate toujours, un critique réussit toujours. Ceux d'attaques et de Force ne le sont pas : ils s'ajoutent à la caractéristique, pas au jet — et un palier de Force franchi vaut plus qu'un +1 au dé. Ces réglages s'appliquent à tous les profils chargés.</p>
       <div class="capgrid" id="capGrid"></div>
       <div class="capinfo" id="capInfo"></div>
     </div>
@@ -1607,7 +1609,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <footer>
     Chaîne touche → blessure → sauvegarde calculée exactement ; répartition des dégâts entre figurines
     simulée 30 000 fois (les dégâts ne débordent pas d'une figurine à l'autre).<br>
-    Données 11<sup>e</sup> éd. : faction pack Necrons v1.0 + Wahapedia. Points à revérifier au MFM.
+    Données 11<sup>e</sup> éd. — Nécrons : faction pack v1.0, relu à la main. Autres factions :
+    fiches et armes de <b>BSData</b>, points et détachements du <b>Munitorum Field Manual</b>,
+    stratagèmes et règles de détachement de <b>Wahapedia</b>. Points à revérifier au MFM.
     Tous les champs sont modifiables. Non affilié à Games Workshop.<br>
     <span class="ver" id="verBuild"></span>
   </footer>
@@ -1657,6 +1661,13 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <div class="row">
         <label for="listName">Nom</label>
         <div class="ctl"><input type="text" id="listName" maxlength="42"></div>
+      </div>
+      <!-- La ligne reste cachee tant qu'il n'y a qu'une faction : un menu
+           a un seul choix ne demande rien, il encombre. Elle apparait le
+           jour ou un second data-<faction>.js s'enregistre. -->
+      <div class="row" id="rowFaction" hidden>
+        <label for="listFaction">Faction</label>
+        <div class="ctl"><select id="listFaction"></select></div>
       </div>
       <div class="row">
         <label for="listCap">Plafond de points</label>
@@ -1730,7 +1741,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <section class="card collapsed" id="cardStrat">
     <h2>Stratagèmes <span class="chev">▾</span></h2>
     <div class="body">
-      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte. Le texte officiel n'étant dans aucune source ouverte, il se saisit ici — en anglais, tel qu'il figure sur ta fiche — et reste enregistré sur cet appareil.</p>
+      <p class="hint" style="margin-top:2px">Ceux des détachements retenus, plus les stratagèmes de base. Touche un nom pour dérouler son texte. Les textes des factions autres que les Nécrons viennent de Wahapedia, en anglais ; tu peux les corriger ici, et ta correction reste enregistrée sur cet appareil.</p>
       <div id="stratList"></div>
       <div class="addrow"><button type="button" id="btnAddStrat">+ Ajouter un stratagème</button></div>
     </div>
@@ -1856,6 +1867,10 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="sheet-list" id="dList"></div>
 </div>
 <script src="data.js"></script>
+<script src="data-necrons.js"></script>
+<script src="data-custodes.js"></script>
+<script src="data-astra.js"></script>
+<script src="data-worldeaters.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
 <script src="roster.js"></script>

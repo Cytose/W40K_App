@@ -1,7 +1,8 @@
 # Nécron — aide de jeu
 
 Simulateur de séquence d'attaque, constructeur de liste et comparateur d'unités
-pour **Warhammer 40 000, 11e édition**, orienté armée **Nécrons**.
+pour **Warhammer 40 000, 11e édition**. Quatre factions : **Nécrons**,
+**Adeptus Custodes**, **Astra Militarum**, **World Eaters**.
 
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
@@ -69,7 +70,11 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | Fichier | Rôle |
 |---|---|
 | `index.html` | structure et thème (noir nécrodermis / vert gauss / cyan phasique) |
-| `data.js` | 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, glossaire des mots-clés, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
+| `data.js` | le socle commun : registre des factions et adaptateur, barème de points, mots-clés de cible, archétypes de menace, catégories, rôles tactiques, Dispositions de Force, glossaire des règles de base |
+| `data-astra.js` | l'Astra Militarum : **fichier généré**, 134 fiches (72 jouables), 854 profils d'armes, 11 détachements, 38 optimisations, 72 socles |
+| `data-custodes.js` | les Adeptus Custodes : **fichier généré** par `outils/extraction.py`, 31 fiches, 111 profils d'armes, 9 détachements, 30 optimisations, 31 socles. Ni stratagèmes ni tables de simulateur — voir son en-tête |
+| `data-worldeaters.js` | les World Eaters : **fichier généré**, 30 fiches, 127 profils d'armes, 8 détachements, 26 optimisations, 30 socles |
+| `data-necrons.js` | les Nécrons : 50 datasheets (profil complet, CO et Cd), 136 profils d'armes avec portée, composition de l'armement, aptitudes d'unité, règle de faction, 12 détachements, rattachements, améliorations avec leur cible, socles, octrois d'aptitudes d'arme |
 | `engine.js` | moteur de dés : espérances exactes + simulation Monte-Carlo |
 | `app.js` | onglet Simulateur |
 | `roster.js` | axes Listes et En partie, vue Comparer, fiche d'unité, partage, encodeur QR |
@@ -79,14 +84,52 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | `build.js` | fabrique `dist/` : le site à déployer **et** le fichier autonome |
 | `vercel.json` | pointe le déploiement sur `dist/` |
 | `mkloader.js` | fabrique un chargeur compressé, hors chaîne de build |
+| `outils/cablage/*.json` | le câblage du simulateur, tenu à la main : ce que chaque règle fait au calcul. Fusionné par l'extracteur, jamais écrasé par lui |
+| `outils/socles.json` | le relevé du Base Size Guide : 29 factions, 1 097 socles. Produit par `outils/socles.py` depuis le PDF, qui n'entre pas dans le dépôt |
+| `outils/wahapedia.py` | la lecture de l'export Wahapedia : stratagèmes, règles de détachement, textes d'optimisation. `npm run wahapedia` l'éprouve |
+
+### Ajouter une faction
+
+`data.js` ne connaît aucune faction : il porte le registre et l'adaptateur.
+Chaque faction est un fichier qui s'enregistre au chargement, et l'ouverture
+d'une liste rebranche les tables globales sur les siennes.
+
+1. Écrire `data-<faction>.js` sur le modèle de `data-necrons.js` : les tables
+   dans une fonction, puis un appel à `enregistreFaction({cle, nom, tables})`.
+   Les **28 tables** de `TABLES_FACTION` sont obligatoires — une table oubliée
+   arrête le chargement en la nommant plutôt que de valoir `undefined`.
+   Le plus souvent, il suffit de la **générer** : `npm run sources` récupère
+   BSData et le Munitorum, puis `python3 outils/extraction.py <faction>` écrit
+   le fichier. Deux sources s'ajoutent à la main, et l'extraction tourne sans
+   elles en le disant dans l'en-tête du fichier produit :
+   - les **socles**, du Base Size Guide, relevés une fois pour les 29 factions
+     dans `outils/socles.json` ; il suffit de nommer l'en-tête du guide dans la
+     table `FACTIONS` de l'extracteur ;
+   - les **stratagèmes** et les textes de règles de détachement, de l'export
+     Wahapedia. Le site le sert derrière une protection que le proxy ne
+     franchit pas : on récupère les cinq CSV à la main sur
+     <https://wahapedia.ru/wh40k11ed/home/> (« Export data ») et on les pose
+     sous `build/wahapedia/`. Ajouter le code de faction du site à `CODES`
+     dans `outils/wahapedia.py`.
+   `npm run etalonnage` mesure ce que vaut l'extraction en la confrontant à la
+   table nécrone, la seule relue à la main sur les documents officiels.
+2. L'ajouter à `SOURCES` dans `build.js`, à `ASSETS` dans `sw.js`, et poser sa
+   balise dans `index.html`, après `data.js`.
+3. `npm run factions` éprouve le registre, la bascule, la reconstruction des
+   index dérivés et le voyage de la faction dans le lien de partage.
+   `npm run livrees` passe sur **toutes** les factions du registre et vérifie
+   leur intégrité référentielle — une arme rattachée à une unité qui n'existe
+   pas ne fait pas tomber l'application, elle produit un écran qui ment.
+
+Le sélecteur de faction, caché tant qu'il n'y en a qu'une, apparaît tout seul.
 
 ### Déploiement
 
 `node build.js` remplit `dist/` avec deux choses distinctes :
 
-- **le site** — `index.html`, `data.js`, `engine.js`, `app.js`, `roster.js`,
-  `sw.js`, `manifest.json`, `icon.svg`, les sources telles quelles, un fichier
-  par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
+- **le site** — `index.html`, `data.js`, les quatre `data-<faction>.js`,
+  `engine.js`, `app.js`, `roster.js`, `layouts.js`, `plateau.js`, `sw.js`,
+  `manifest.json`, `icon.svg`, les sources telles quelles, un fichier par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
 - **le fichier autonome** — `dist/W40K_App.html`, l'application repliée
   en un seul fichier, recopiée à la racine du dépôt et téléchargeable depuis le
   site. `dist/hors-ligne.html` en est la variante compressée, qui se déplie au
