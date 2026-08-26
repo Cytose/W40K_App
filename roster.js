@@ -211,9 +211,43 @@ function loadR(){
 }
 
 /* ---- gestion des listes ---- */
-function nouvelleListe(){
-  const L = listeVierge("Liste " + (LISTS.length + 1), R ? R.cap : 2000);
+/* UNE ARMEE SE CHOISIT AVANT D'ALIGNER DES UNITES.
+
+   Le choix de faction n'existait que dans les reglages de la liste,
+   c'est-a-dire une fois la liste ouverte -- et en changer la, c'est
+   perdre ses unites, son detachement et ses optimisations, ce que
+   l'ecran fait confirmer. Autant dire que la question se posait au plus
+   mauvais moment. Elle se pose maintenant a la creation, quand il n'y a
+   rien a perdre : c'est le seul instant ou la reponse est gratuite.
+
+   Une seule faction enregistree, aucune question : on n'interroge pas
+   quelqu'un sur un choix qu'il n'a pas. */
+function nouvelleListe(apres){
+  const dispo = (typeof listeFactions === "function") ? listeFactions() : [];
+  if(dispo.length < 2){ creeListe(dispo.length ? dispo[0].cle : FACTION_DEFAUT, apres); return; }
+  el("listActTitle").textContent = "Quelle armée ?";
+  const host = el("listActList");
+  host.innerHTML = "";
+  dispo.forEach(f=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "opt";
+    b.innerHTML = '<span class="oi"><span class="o1">' + f.nom + '</span>' +
+      '<span class="o2">' + fichesDe(f.cle) + ' fiches jouables</span></span>';
+    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); creeListe(f.cle, apres); });
+    host.appendChild(b);
+  });
+  openSheet("sheetListAct");
+}
+/* combien de fiches une faction apporte, lu au registre sans la mettre
+   en service : la faction courante ne doit pas bouger pour un menu */
+function fichesDe(cle){
+  const T = FACTIONS[cle] && FACTIONS[cle].tables;
+  return T ? T.UNITS.filter(u => !u[10]).length : 0;
+}
+function creeListe(cle, apres){
+  const L = listeVierge("Liste " + (LISTS.length + 1), R ? R.cap : 2000, cle);
   LISTS.push(L); ouvre(L); saveR(); renderList();
+  if(typeof apres === "function") apres();
 }
 function dupliqueListe(){
   if(!R) return;
@@ -1450,7 +1484,24 @@ function unitProfiles(ru){
    ECRAN « MA LISTE »
    ========================================================== */
 /* points d'une liste quelconque, sans passer par la liste ouverte */
+/* LIRE UNE LISTE DANS SA FACTION, ET PAS DANS CELLE QUI EST EN SERVICE.
+
+   « Mes listes » les montre toutes a la fois, mais les tables — UNITS,
+   DETACHMENTS — sont celles de la faction active. Une armee custodes
+   chiffree dans la table necrone ne trouve aucune de ses fiches et
+   s'affiche a zero point, sans erreur et sans un mot. On bascule donc
+   le temps du calcul, et l'on remet en service celle qui l'etait, meme
+   si le calcul jette. */
+function dansSaFaction(L, f){
+  const avant = FACTION_ACTIVE;
+  const cle = (L && L.faction) || FACTION_DEFAUT;
+  if(cle !== avant && FACTIONS[cle]) activeFaction(cle);
+  try { return f(); }
+  finally { if(FACTION_ACTIVE !== avant) activeFaction(avant); }
+}
 function pointsDe(L){
+  if((L.faction || FACTION_DEFAUT) !== FACTION_ACTIVE)
+    return dansSaFaction(L, ()=> pointsDe(L));
   const rg = rangsArmee(L);
   return L.units.reduce((a,ru)=>{
     const u = unitRow(ru.name); if(!u) return a;
@@ -2291,9 +2342,13 @@ function renderIndex(){
     b.className = "lcard" + (L === R ? " on" : "");
     b.innerHTML =
       '<span class="li"><b>' + L.nom + '</b>' +
-      '<i>' + L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
+      '<i>' + (listeFactions().length > 1 ? factionNom(L.faction || FACTION_DEFAUT) + ' · ' : '') +
+        L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
         ' · ' + L.detach.length + ' détachement' + (L.detach.length > 1 ? 's' : '') + '</i>' +
-      '<span class="det">' + (L.detach.map(nomDetach).join(" · ") || "aucun détachement") + '</span>' +
+      /* le nom francais d'un detachement se lit dans SA table : celui
+         d'une liste custodes n'existe pas chez les Necrons */
+      '<span class="det">' + (dansSaFaction(L, ()=> L.detach.map(nomDetach).join(" · ")) ||
+                              "aucun détachement") + '</span>' +
       (L === R ? '<span class="lserv">En service — simulateur et partie</span>' : '') + '</span>' +
       '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
     b.addEventListener("click", ()=> ouvreEditeur(L.id));
@@ -6058,7 +6113,10 @@ if(el("btnPadQClear")) el("btnPadQClear").addEventListener("click", ()=>{
   padQ = ""; renderPad();
   const c = el("padQ"); if(c) c.focus();
 });
-el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(); ouvreEditeur(); });
+/* l'editeur ne s'ouvre qu'une fois l'armee choisie : sans quoi il
+   s'ouvrirait derriere la question, sur une liste d'une faction qu'on
+   est en train de changer */
+el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(()=> ouvreEditeur()); });
 function syncTarget(){
   el("ptName5").textContent = SIM.tgtName;
   el("ptSub5").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
