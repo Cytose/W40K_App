@@ -6,10 +6,11 @@
     "extraction.py fusionne ce fichier dans data-deathguard.js, réécrit à",
     "chaque extraction ; celui-ci ne l'est jamais.",
     "",
-    "LA RÈGLE D'ARMÉE N'EST PAS CÂBLÉE, et c'est un manque du moteur, pas",
-    "un oubli. Le Don de Nurgle retire 1 à l'ENDURANCE de la cible Affligée :",
-    "aucun champ de l'attaquant ne retouche l'Endurance de la cible. Le",
-    "joueur l'ôte à la main dans la carte Cible. Les Fléaux qui l'accompagnent",
+    "LA RÈGLE D'ARMÉE. Le Don de Nurgle retire 1 à l'ENDURANCE de la cible",
+    "Affligée : une pastille d'AURAS_ARMEE sans source, `toughMod` −1, que le",
+    "joueur déclare (l'application ne sait pas qui est dans la portée de",
+    "Contagion). Avant le 30/10/2026, il fallait l'ôter à la main dans la",
+    "carte Cible : le moteur ne savait pas retoucher l'Endurance. Les Fléaux qui l'accompagnent",
     "(couvert, −1 pour toucher, Sauvegarde dégradée) jouent sur les attaques",
     "ADVERSES : ils relèvent d'Encaisser, pas de la séquence d'attaque.",
     "",
@@ -17,11 +18,14 @@
     "Pestilence Rampante — se déclare : l'application ne sait pas qui est",
     "dans la portée de Contagion.",
     "",
+    "La [LANCE] du Seigneur de la Contagion est un octroi d'AURAS_PERSO, à",
+    "côté de ses Touches Soutenues : elle compte quand le joueur coche « A",
+    "chargé ce tour ». « Overwhelming Generosity » relance le NOMBRE",
+    "d'attaques (`rrA`).",
+    "",
     "CE QUI RESTE DEHORS : le Familier Pestilent (une arme psychique, une",
-    "fois), la Garde Silencieuse (défense), « Overwhelming Generosity »",
-    "(relance du NOMBRE d'attaques, que le moteur n'a pas), la [LANCE] du",
-    "Seigneur de la Contagion comptée à part comme +1 pour blesser après",
-    "une charge, puisque le moteur ne connaît pas ce mot-clé."
+    "fois par bataille) et la Garde Silencieuse (défense, à déclarer dans",
+    "Encaisser quand elle sera câblée)."
   ],
 
   "APTIS_UNITE": {
@@ -129,6 +133,12 @@
         "port": "C",
         "nom": "Vecteur de Maladie",
         "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
+      },
+      {
+        "mot": "lance",
+        "port": "C",
+        "nom": "Vecteur de Maladie — [LANCE]",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
       }
     ],
     "Biologus Putrifier": [
@@ -148,14 +158,12 @@
 
   "AURAS_ARMEE": [
     {
-      "source": "Lord of Contagion",
       "kw": [],
-      "champ": "wndMod",
-      "val": 1,
-      "port": "C",
-      "nom": "Vecteur de Maladie — [LANCE]",
-      "quand": "L'unité est menée par le Seigneur de la Contagion et a chargé ce tour",
-      "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
+      "champ": "toughMod",
+      "val": -1,
+      "nom": "Don de Nurgle — cible Affligée",
+      "quand": "La cible est à portée de Contagion d'une unité Death Guard (−1 en Endurance)",
+      "texte": "While an enemy unit is within Contagion Range of one or more Death Guard units from your army, it is Afflicted. Until the end of the battle, while an enemy unit is Afflicted, subtract 1 from the Toughness characteristic of models in that unit."
     },
     {
       "source": "Lord of Virulence",
@@ -284,6 +292,8 @@
 
     {"nom": "Clutching Corruption", "detach": "Tallyband Summoners", "pc": 1, "ph": "C", "unites": [], "sauf": [], "aide": "relance des touches ratées — la cible est au contact d'une unité des LÉGIONS DE LA PESTE", "effet": {"rrH": "failed"}},
 
-    {"nom": "Creeping Blight", "detach": "Virulent Vectorium", "pc": 1, "ph": "T", "unites": ["Biologus Putrifier", "Blightlord Terminators", "Death Guard Chaos Lord", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Cultists", "Death Guard Possessed", "Death Guard Sorcerer in Terminator Armour", "Deathshroud Terminators", "Foul Blightspawn", "Icon Bearer", "Lord of Contagion", "Lord of Poxes", "Lord of Virulence", "Malignant Plaguecaster", "Noxious Blightbringer", "Plague Marines", "Plague Surgeon", "Plaguebearers", "Poxwalkers", "Tallyman", "Typhus"], "sauf": [], "aide": "relance des touches et des blessures ratées — contre une cible Affligée", "effet": {"rrH": "failed", "rrW": "failed"}}
+    {"nom": "Creeping Blight", "detach": "Virulent Vectorium", "pc": 1, "ph": "T", "unites": ["Biologus Putrifier", "Blightlord Terminators", "Death Guard Chaos Lord", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Cultists", "Death Guard Possessed", "Death Guard Sorcerer in Terminator Armour", "Deathshroud Terminators", "Foul Blightspawn", "Icon Bearer", "Lord of Contagion", "Lord of Poxes", "Lord of Virulence", "Malignant Plaguecaster", "Noxious Blightbringer", "Plague Marines", "Plague Surgeon", "Plaguebearers", "Poxwalkers", "Tallyman", "Typhus"], "sauf": [], "aide": "relance des touches et des blessures ratées — contre une cible Affligée", "effet": {"rrH": "failed", "rrW": "failed"}},
+
+    {"nom": "Overwhelming Generosity", "detach": "Virulent Vectorium", "pc": 1, "ph": "T", "unites": [], "sauf": [], "aide": "relance du nombre d'attaques — contre l'unité désignée", "effet": {"rrA": "tous"}}
   ]
 }

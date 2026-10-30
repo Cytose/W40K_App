@@ -1316,6 +1316,12 @@ const AURAS_PERSO = {
    "port": "C",
    "nom": "Vecteur de Maladie",
    "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
+  },
+  {
+   "mot": "lance",
+   "port": "C",
+   "nom": "Vecteur de Maladie — [LANCE]",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
   }
  ],
  "Biologus Putrifier": [
@@ -1334,14 +1340,12 @@ const AURAS_PERSO = {
 };
 const AURAS_ARMEE = [
  {
-  "source": "Lord of Contagion",
   "kw": [],
-  "champ": "wndMod",
-  "val": 1,
-  "port": "C",
-  "nom": "Vecteur de Maladie — [LANCE]",
-  "quand": "L'unité est menée par le Seigneur de la Contagion et a chargé ce tour",
-  "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
+  "champ": "toughMod",
+  "val": -1,
+  "nom": "Don de Nurgle — cible Affligée",
+  "quand": "La cible est à portée de Contagion d'une unité Death Guard (−1 en Endurance)",
+  "texte": "While an enemy unit is within Contagion Range of one or more Death Guard units from your army, it is Afflicted. Until the end of the battle, while an enemy unit is Afflicted, subtract 1 from the Toughness characteristic of models in that unit."
  },
  {
   "source": "Lord of Virulence",
@@ -1670,6 +1674,18 @@ const STRAT_SIMU = [
   "effet": {
    "rrH": "failed",
    "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Overwhelming Generosity",
+  "detach": "Virulent Vectorium",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance du nombre d'attaques — contre l'unité désignée",
+  "effet": {
+   "rrA": "tous"
   }
  }
 ];

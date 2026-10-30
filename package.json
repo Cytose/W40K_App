@@ -18,6 +18,8 @@
     "fond": "node outils/test-fond.mjs",
     "detachements": "node outils/test-detachements.mjs",
     "simulateur": "node outils/test-simulateur.mjs",
+    "moteur": "node outils/test-moteur.mjs",
+    "regles": "node outils/test-regles.mjs",
     "equipement": "node outils/test-equipement.mjs",
     "factions": "node outils/test-factions.mjs",
     "sources": "git clone --depth 1 https://github.com/BSData/wh40k-11e.git build/bsdata && git clone --depth 1 https://github.com/BSData/wh40k-11e-mfm.git build/mfm",

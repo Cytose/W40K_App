@@ -15,6 +15,15 @@ const S = {
   /* une situation, pas un modificateur : l'unite n'a pas bouge ce tour,
      et ses armes LOURDES gagnent leur +1 pour toucher toutes seules */
   immobile:false,
+  /* une situation encore : l'unite a charge ce tour, et ses armes
+     [LANCE] gagnent leur +1 pour blesser */
+  charge:false,
+  /* ce que le moteur sait depuis le 30/10/2026 — voir engine.js. Cote
+     attaquant : l'Endurance de la cible retouchee, la CT amelioree, la
+     relance des degats, le genre psychique et [LANCE] de l'arme. Cote
+     cible : ce qu'elle impose a qui l'attaque. */
+  toughMod:0, bsMod:0, rrD:"none", rrA:"none", psychic:false, lance:false,
+  fnpPsy:0, defHit:0, defWnd:0, defWndFE:0, dmgHalf:0, svMod:0,
   /* ce que la cible EST — plusieurs règles ne valent que contre un
      certain genre d'unité, et le moteur ne connaissait d'elle que des
      chiffres */
@@ -110,8 +119,23 @@ const SEGS = [
      un palier franchi vaut plus qu'un +1 au de. « Feu Nourri » de
      l'Astra en donne 2, « Minute Mordiane » 1. */
   ["segStrMod","strMod",[[-1,"−1"],[0,"0"],[1,"+1"],[2,"+2"]]],
-  ["segRrH","rrH",[["none","—"],["ones","1"],["failed","Ratés"]]],
-  ["segRrW","rrW",[["none","—"],["ones","1"],["failed","Ratés"]]]
+  /* « Une » : UNE relance pour la sequence, pas une par de. « 1-2 » :
+     les 1 et les 2, comme l'Oeil de la Meute des Space Wolves. */
+  ["segRrH","rrH",[["none","—"],["un","Une"],["ones","1"],["deux","1-2"],["failed","Ratés"]]],
+  ["segRrW","rrW",[["none","—"],["un","Une"],["ones","1"],["deux","1-2"],["failed","Ratés"]]],
+  /* la relance des degats : le joueur reprend un jet sous la moyenne */
+  ["segRrD","rrD",[["none","—"],["un","Une"],["tous","Faibles"]]],
+  /* l'Endurance de la cible, retouchee par l'attaquant (Don de Nurgle) */
+  ["segToughMod","toughMod",[[-2,"−2"],[-1,"−1"],[0,"0"]]],
+  /* la CT/CC amelioree : la caracteristique, hors du plafond a ±1 */
+  ["segBsMod","bsMod",[[0,"0"],[1,"+1"],[2,"+2"]]],
+  /* ce que la cible impose, et ce qui la protege en plus de sa fiche */
+  ["segDefHit","defHit",[[0,"—"],[-1,"−1"]]],
+  ["segDefWnd","defWnd",[[0,"—"],[-1,"−1"]]],
+  ["segDefWndFE","defWndFE",[[0,"—"],[-1,"−1"]]],
+  ["segDmgHalf","dmgHalf",[[0,"—"],[1,"½"]]],
+  ["segSvMod","svMod",[[0,"—"],[1,"+1"]]],
+  ["segFnpPsy","fnpPsy",[[0,"—"],[3,"3+"],[4,"4+"],[5,"5+"],[6,"6+"]]]
 ];
 /* Ce a quoi un stratageme decoche remet le champ qu'il touche. Ce sont
    les valeurs NEUTRES du mode unite : videCaps() les pose en entrant
@@ -123,7 +147,8 @@ const SEGS = [
    exportee, et outils/test-livrees.mjs verifie que chaque effet cable,
    dans chaque faction, ne touche que des champs qui figurent ici. */
 const DEFAUT_STRAT = { apMod:0, wndMod:0, hitMod:0, atkMod:0, strMod:0, dmgMod:0,
-                       rrH:"none", rrW:"none", lethal:false, dev:false,
+                       rrH:"none", rrW:"none", rrD:"none", rrA:"none", toughMod:0, bsMod:0,
+                       lance:false, lethal:false, dev:false,
                        critH:6, critW:6, ignoresCover:false, torrent:false,
                        sustainedOn:false, sustainedN:"1", ignoreMalus:false };
 
@@ -230,6 +255,9 @@ function applyWeapon(){
   S.critH   = 6;
   S.critW   = antiActif(antiDe(f), S.kwCible) ? antiDe(f).seuil : 6;
   S.rrW     = f.twin ? "failed" : "none";
+  /* le genre de l'attaque et la [LANCE] sont des proprietes de l'arme */
+  S.psychic = !!f.psychic;
+  S.lance   = !!f.lance;
   /* Ignore le couvert est une propriete de l'arme : elle vaut toujours.
      Le tir indirect, lui, se decide au moment de tirer — une arme qui
      voit sa cible tire normalement — donc il part eteint. */
@@ -310,7 +338,14 @@ let tgtName = "Space Marine", tgtUnit = null, tgtSize = 5;
    on le lui fait garder plutot que d'inventer des caracteristiques
    d'autres factions. */
 const CLE_CIBLES = "mathhammer.cibles.v1";
-const CHAMPS_CIBLE = ["tough","sv","inv","wounds","models","fnp","dmgRed"];
+const CHAMPS_CIBLE = ["tough","sv","inv","wounds","models","fnp","dmgRed",
+                      "fnpPsy","defHit","defWnd","defWndFE","dmgHalf","svMod"];
+/* ce que la cible impose a qui l'attaque : neutre par defaut. Une cible
+   gardee avant le 30/10/2026 ne porte pas ces champs, et un archetype
+   generique non plus — sans ceci, ils garderaient ceux de la cible
+   d'avant. */
+const DEF_NEUTRE = {fnpPsy:0, defHit:0, defWnd:0, defWndFE:0, dmgHalf:0, svMod:0};
+const champCible = (c, k) => (c[k] === undefined && k in DEF_NEUTRE) ? DEF_NEUTRE[k] : c[k];
 /* les mots-cles font partie de la cible : une cible gardee sans eux
    rappellerait des chiffres justes et des regles fausses */
 const clesKw = o => Object.keys(o || {}).filter(k => o[k]).sort().join(",");
@@ -327,7 +362,7 @@ const resumeCible = c => "E" + c.tough + " · Svg " + c.sv + "+" +
   (c.inv ? "/" + c.inv + "++" : "") + " · " + c.wounds + " PV ×" + c.models +
   (c.fnp ? " · FNP " + c.fnp + "+" : "") + (c.dmgRed ? " · -" + c.dmgRed + " D" : "");
 /* la cible de l'ecran est-elle exactement celle-ci ? */
-const memeCible = c => CHAMPS_CIBLE.every(k => S[k] === c[k]) &&
+const memeCible = c => CHAMPS_CIBLE.every(k => S[k] === champCible(c, k)) &&
   clesKw(S.kwCible) === (c.kw || []).slice().sort().join(",");
 
 function gardeCible(){
@@ -343,7 +378,7 @@ function gardeCible(){
   refreshTarget(); render();
 }
 function appliqueCibleGardee(c){
-  CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
+  CHAMPS_CIBLE.forEach(k => S[k] = champCible(c, k));
   poseKwCible(c.kw);
   tgtName = c.nom; tgtUnit = null;
   refreshTarget(); pushState(); majApresCible();
@@ -432,7 +467,7 @@ const kwDeCategorie = cat => {
 function applyGenericTarget(name){
   const p = GENERIC_TARGETS.find(t => t[0] === name);
   if(!p) return;
-  Object.assign(S, p[1]);
+  Object.assign(S, DEF_NEUTRE, p[1]);
   poseKwCible((typeof KW_ARCHETYPE !== "undefined" ? KW_ARCHETYPE : {})[name]);
   tgtName = name; tgtUnit = null;
   refreshTarget(); pushState(); majApresCible();
@@ -444,6 +479,7 @@ function applyNecronTarget(name, size){
   S.tough = u[2]; S.sv = u[3]; S.inv = u[4]; S.wounds = u[5];
   S.models = (name === "Szarekh, The Silent King") ? 1 : size;
   S.fnp = u[8];
+  Object.assign(S, DEF_NEUTRE);
   S.dmgRed = /Necrodermis|Implacable Resilience|-1 D.gât/.test(u[11]) ? 1 : 0;
   poseKwCible(kwDeCategorie(catDe(name)));
   tgtName = name; tgtUnit = u; tgtSize = size;
@@ -625,7 +661,7 @@ function renderTargetList(){
         resumeCible(c) + (x.persos.length ? ' · ' + x.persos.join(", ") : '') + '</span></span>';
       b.addEventListener("click", ()=>{
         closeSheet("sheetTarget");
-        CHAMPS_CIBLE.forEach(k => S[k] = c[k]);
+        CHAMPS_CIBLE.forEach(k => S[k] = champCible(c, k));
         /* une unite de ma liste sait ce qu'elle est : simListe donne
            deja sa categorie */
         poseKwCible(kwDeCategorie(x.cat || catDe(x.unite)));
@@ -652,8 +688,10 @@ function renderTargetList(){
 /* ==========================================================
    L'UNITE ENTIERE COMME ATTAQUANT
    ========================================================== */
-const FORCE_RR = {none:0, ones:1, failed:2};
+const FORCE_RR = {none:0, ones:1, deux:2, failed:3};
 const plusFort = (a, b) => (FORCE_RR[a] || 0) >= (FORCE_RR[b] || 0) ? a : b;
+const FORCE_RD = {none:0, un:1, tous:2};
+const plusFortD = (a, b) => (FORCE_RD[a] || 0) >= (FORCE_RD[b] || 0) ? (a || "none") : (b || "none");
 const borne1 = v => Math.max(-1, Math.min(1, v));
 
 /* Un profil charge n'apporte que son arme. La cible et les retouches de
@@ -669,12 +707,32 @@ const borne1 = v => Math.max(-1, Math.min(1, v));
 function condPour(p){
   if(!atkUnit || !atkUnit.conditions) return [];
   return atkUnit.conditions.filter(c => condOn[c.id] &&
-    (!c.sur || c.sur === p.porteur) && (!c.arme || c.arme === p.arme));
+    (!c.sur || c.sur === p.porteur) && (!c.arme || c.arme === p.arme) &&
+    /* `psy` : la regle ne vaut que pour les armes psychiques de l'unite
+       — le Grand Coven des Thousand Sons, pas leurs bolters */
+    (!c.psy || !!p.psychic) &&
+    /* `siMot` : seulement les armes qui portent DEJA ce mot-cle — la
+       touche critique sur 5+ du Carnival of Excess, pour les armes deja
+       [SOUTENUES] */
+    (!c.siMot || !!p[c.siMot === "sust" ? "sustainedOn" : c.siMot]));
 }
 function profilPourMoteur(p){
   const q = Object.assign({}, p, {
     tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
     fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover,
+    fnpPsy:S.fnpPsy, defHit:S.defHit, defWnd:S.defWnd, defWndFE:S.defWndFE,
+    dmgHalf:S.dmgHalf, svMod:S.svMod,
+    /* l'Endurance retouchee et la CT amelioree s'additionnent, comme la
+       Force ; la relance unique de l'ecran s'ajoute a celle de l'arme */
+    toughMod: (p.toughMod || 0) + S.toughMod,
+    bsMod: (p.bsMod || 0) + S.bsMod,
+    rrH1: !!p.rrH1 || S.rrH === "un",
+    rrW1: !!p.rrW1 || S.rrW === "un",
+    rrD: plusFortD(p.rrD, S.rrD),
+    /* la relance du nombre d'attaques : un stratageme la pose sur l'ecran */
+    rrA: (p.rrA && p.rrA !== "none") ? p.rrA : S.rrA,
+    lance: !!p.lance || !!S.lance,
+    charge: !!S.charge,
     /* Lourd ne donne son +1 que si l'unite n'a pas bouge : c'est une
        situation, pas un mot-cle qui joue tout seul. Le joueur la declare
        une fois pour l'unite, et seules les armes LOURDES en profitent. */
@@ -688,8 +746,8 @@ function profilPourMoteur(p){
     dmgMod: (p.dmgMod || 0) + S.dmgMod,
     atkMod: (p.atkMod || 0) + S.atkMod,
     strMod: (p.strMod || 0) + S.strMod,
-    rrH: plusFort(p.rrH || "none", S.rrH),
-    rrW: plusFort(p.rrW || "none", S.rrW),
+    rrH: plusFort(p.rrH || "none", S.rrH === "un" ? "none" : S.rrH),
+    rrW: plusFort(p.rrW || "none", S.rrW === "un" ? "none" : S.rrW),
     /* Quand une unite entiere est chargee, la carte des capacites ne
        decrit plus une arme : elle decrit ce que la partie ajoute a
        toutes ses armes — un stratageme qui donne Lethal, un Anti-X
@@ -713,7 +771,7 @@ function profilPourMoteur(p){
     meltaOn: !!p.meltaOn && !!S.meltaOn,
     /* le couvert ignore s'ajoute — l'arme l'a, ou la partie l'accorde */
     ignoresCover: !!p.ignoresCover || !!S.ignoresCover,
-    ignoreMalus: !!S.ignoreMalus,
+    ignoreMalus: !!p.ignoreMalus || !!S.ignoreMalus,
     /* le tir indirect demande les deux : que l'arme le permette, et que
        le joueur declare qu'il tire sans voir */
     indirect: !!p.indirectCap && !!S.indirect
@@ -734,7 +792,28 @@ function profilPourMoteur(p){
       if(!q.sustainedOn || (+q.sustainedN && +n > +q.sustainedN)) q.sustainedN = n;
       q.sustainedOn = true;
     }
+    /* « heavy » pose par une condition : le +1 suit, si l'unite est
+       restee immobile et que l'arme ne l'avait pas deja */
+    else if(c.mot === "heavy"){ if(!q.heavy && S.immobile) q.hitMod = borne1(q.hitMod + 1);
+                                q.heavy = true; }
+    /* les autres mots poses tels quels : lethal, dev, ignoresCover,
+       et depuis le 30/10/2026 ignoreMalus et lance */
     else if(c.mot) q[c.mot] = true;
+    else if(c.champ === "anti"){
+      /* « 4:veh » : un Anti-X prete par une condition, qui ne mord que
+         si la cible porte le mot-cle */
+      const a = antiDe({anti: c.val});
+      if(antiActif(a, S.kwCible)) q.critW = Math.min(q.critW, a.seuil);
+    }
+    /* « un » : UNE relance, qui s'ajoute a la politique de l'arme */
+    else if((c.champ === "rrH" || c.champ === "rrW") && c.val === "un") q[c.champ + "1"] = true;
+    else if(c.champ === "rrD") q.rrD = plusFortD(q.rrD, c.val);
+    else if(c.champ === "rrA") q.rrA = "tous";
+    else if(c.champ === "toughMod") q.toughMod = (q.toughMod || 0) + c.val;
+    else if(c.champ === "bsMod") q.bsMod = (q.bsMod || 0) + c.val;
+    else if(c.champ === "apCrit") q.apCrit = (q.apCrit || 0) + c.val;
+    else if(c.champ === "bsSet" || c.champ === "strSet" ||
+            c.champ === "atkSet" || c.champ === "dmgSet") q[c.champ] = c.val;
     else if(c.champ === "critH") { if(c.val === "tous") toutH = true;
                                    else q.critH = Math.min(q.critH, c.val); }
     else if(c.champ === "critW") { if(c.val === "tous") toutW = true;
@@ -751,8 +830,8 @@ function profilPourMoteur(p){
   /* le plus petit jet qui reussisse : la caracteristique moins le
      modificateur, et jamais moins de 2 puisqu'un 1 rate toujours */
   const plancher = (cible, mod) => Math.max(2, cible - Math.max(-1, Math.min(1, mod || 0)));
-  if(toutH) q.critH = Math.min(q.critH, plancher(q.bs, q.hitMod));
-  if(toutW) q.critW = Math.min(q.critW, plancher(ENG.woundTarget(q.str, q.tough), q.wndMod));
+  if(toutH) q.critH = Math.min(q.critH, plancher(ENG.ctEffective(q), q.hitMod));
+  if(toutW) q.critW = Math.min(q.critW, plancher(ENG.woundTarget(ENG.force(q), ENG.endurance(q)), q.wndMod));
   return q;
 }
 const profilsActifs = () => !atkUnit ? [] :
@@ -763,7 +842,7 @@ const profilsActifs = () => !atkUnit ? [] :
    qui ne peut pas verifier ne fait pas confiance au chiffre. Les
    pastilles se lisent donc sur le profil DEJA retouche, pas sur la
    fiche : ce qui s'affiche est ce qui sera calcule. */
-const RR_MOT = {ones:"des 1", failed:"des ratés"};
+const RR_MOT = {ones:"des 1", deux:"des 1 et des 2", failed:"des ratés"};
 function pastilles(q, brut){
   const out = [];
   /* d'ou vient ce mot-cle : de la fiche de l'arme, ou d'une regle qui le
@@ -810,6 +889,22 @@ function pastilles(q, brut){
                                               : "mot-clé visé inconnu au catalogue"});
   if(q.rrH !== "none") out.push({t:"Relance touche " + RR_MOT[q.rrH], cl:"m", d:dit("rrH")});
   if(q.rrW !== "none") out.push({t:"Relance blessure " + RR_MOT[q.rrW], cl:"m", d:dit("rrW")});
+  if(q.rrH1 && q.rrH !== "failed") out.push({t:"Une relance de touche", cl:"m", d:dit("rrH")});
+  if(q.rrW1 && q.rrW !== "failed") out.push({t:"Une relance de blessure", cl:"m", d:dit("rrW")});
+  if(q.rrA && q.rrA !== "none") out.push({t:"Relance du nombre d'attaques", cl:"m", d:""});
+  if(q.rrD === "un") out.push({t:"Une relance de dégâts", cl:"m", d:dit("rrD")});
+  else if(q.rrD === "tous") out.push({t:"Relance des dégâts", cl:"m", d:dit("rrD") || "les jets sous la moyenne"});
+  /* [LANCE] porte sa condition : sans charge, on la montre eteinte */
+  if(q.lance) out.push(q.charge ? {t:"LANCE", cl:"k", d:"+1 pour blesser après une charge"}
+                                : {t:"LANCE", cl:"d", d:"l'unité n'a pas chargé"});
+  if(q.psychic) out.push({t:"PSYCHIQUE", cl:"k", d:""});
+  if(q.toughMod) out.push({t:"E cible " + (q.toughMod > 0 ? "+" : "−") + Math.abs(q.toughMod), cl:"m", d:dit("toughMod")});
+  if(q.bsMod) out.push({t:"CT/CC +" + q.bsMod, cl:"m", d:dit("bsMod")});
+  if(q.apCrit) out.push({t:"PA +" + q.apCrit + " sur blessure crit.", cl:"m", d:dit("apCrit")});
+  if(q.bsSet) out.push({t:"CT/CC fixée à " + q.bsSet + "+", cl:"m", d:""});
+  if(q.strSet) out.push({t:"F fixée à " + q.strSet, cl:"m", d:""});
+  if(q.atkSet) out.push({t:"A fixées à " + q.atkSet, cl:"m", d:""});
+  if(q.dmgSet) out.push({t:"D fixés à " + q.dmgSet, cl:"m", d:""});
   /* le modificateur de touche porte sa cause : un -1 qui arrive sans nom
      ne se verifie pas, et le couvert comme le tir indirect passent
      desormais par la, pas par la sauvegarde. Quand un bonus les annule,
@@ -974,7 +1069,10 @@ const PRESETS = [
    lis:()=> S.cover,            met:v=>{ S.cover = v; }},
   {id:"immo",  nom:"Resté immobile", aide:"+1 pour toucher aux armes LOURDES",
    si:f => f.lourd,
-   lis:()=> S.immobile,         met:v=>{ S.immobile = v; }}
+   lis:()=> S.immobile,         met:v=>{ S.immobile = v; }},
+  {id:"charge", nom:"A chargé ce tour", aide:"+1 pour blesser aux armes LANCE",
+   si:f => f.lance,
+   lis:()=> S.charge,           met:v=>{ S.charge = v; }}
 ];
 /* Ce qui ne vaut que pour une unite entiere : la distance vaut pour
    toutes ses armes a la fois, et sans ce bouton il fallait descendre
@@ -995,11 +1093,12 @@ function faitsAttaquant(){
     const ps = (atkUnit && atkUnit.profils) || [];
     return { tir:      ps.some(p => p.kind !== "C"),
              lourd:    ps.some(p => p.heavy),
-             miPortee: ps.some(p => p.rapidOn || p.meltaOn) };
+             miPortee: ps.some(p => p.rapidOn || p.meltaOn),
+             lance:    ps.some(p => p.lance) || !!S.lance };
   }
   const f = drapeauxCourants();
   return { tir: S.kind !== "C", lourd: !!f.heavy,
-           miPortee: !!(f.rf || f.melta) };
+           miPortee: !!(f.rf || f.melta), lance: !!S.lance };
 }
 /* les situations effectivement proposees, dans l'ordre ou on les voit */
 function presetsVisibles(){
@@ -1198,6 +1297,7 @@ function majVite(){
               (S.dmgMod ? 1 : 0) + (S.atkMod ? 1 : 0) + (S.strMod ? 1 : 0) +
               (S.rrH !== "none" ? 1 : 0) +
               (S.rrW !== "none" ? 1 : 0) + (S.critH < 6 ? 1 : 0) +
+              (S.rrD !== "none" ? 1 : 0) + (S.toughMod ? 1 : 0) + (S.bsMod ? 1 : 0) +
               (S.critW < 6 ? 1 : 0) +
               (atkMode !== "unite" ? 0 :
                 (S.torrent ? 1 : 0) + (S.lethal ? 1 : 0) + (S.dev ? 1 : 0) +
@@ -1499,7 +1599,8 @@ const CAPS = [
   {k:"meltaOn",      nom:"Fonte",             aide:"dégâts en plus à mi-portée",
    uAide:"on est à mi-portée", num:{id:"meltaN", min:1, max:6}, uSansNum:true},
   {k:"ignoresCover", nom:"Ignore le couvert", aide:"la cible n'en profite pas"},
-  {k:"indirect",     nom:"Tir indirect",      aide:"−1 pour toucher, cible à couvert"}
+  {k:"indirect",     nom:"Tir indirect",      aide:"−1 pour toucher, cible à couvert"},
+  {k:"lance",        nom:"Lance",             aide:"+1 pour blesser après une charge"}
 ];
 /* Ceux-la, la sequence d'attaque ne les traduit pas : ils changent qui
    peut tirer, sur qui, ou combien de fois — pas les jets. On les montre
@@ -1512,7 +1613,8 @@ const CAPS_INFO = [
   ["oneshot",   "Tir unique",          "une seule fois par partie"],
   ["extra",     "Attaques supp.",      "s'ajoute à l'autre arme de mêlée au lieu de la remplacer"],
   ["twin",      "Jumelée",             "relance les blessures ratées — déjà appliqué"],
-  ["indirect",  "Tir indirect",        "disponible sur cette arme : la pastille ci-dessus l'active"]
+  ["indirect",  "Tir indirect",        "disponible sur cette arme : la pastille ci-dessus l'active"],
+  ["psychic",   "Psychique",           "attaque psychique : l'insensibilité de la cible contre le psychique joue"]
 ];
 function majApresCap(redessine){
   if(redessine !== false) renderCaps();
@@ -1696,6 +1798,11 @@ global.SIM = {S, DEFAUT_STRAT, unitRow, unitWeps, parseFlags, antiDe, antiActif,
         return { label: p.label, attacks: q.attacks, bs: q.bs, str: q.str,
                  ap: q.ap, apEff: ENG.apEffectif(q), dmg: q.dmg, dmgMod: q.dmgMod,
                  hitMod: q.hitMod, wndMod: q.wndMod, rrH: q.rrH, rrW: q.rrW,
+                 rrH1: !!q.rrH1, rrW1: !!q.rrW1, rrD: q.rrD || "none",
+                 toughMod: q.toughMod || 0, bsMod: q.bsMod || 0, apCrit: q.apCrit || 0,
+                 lance: !!q.lance, charge: !!q.charge, psychic: !!q.psychic,
+                 ignoreMalus: !!q.ignoreMalus, sustainedOn: !!q.sustainedOn, dev: !!q.dev,
+                 sustainedN: q.sustainedN,
                  critH: q.critH, critW: q.critW, heavy: !!p.heavy,
                  ignoresCover: !!q.ignoresCover };
       }) };
@@ -1722,5 +1829,17 @@ global.SIM = {S, DEFAUT_STRAT, unitRow, unitWeps, parseFlags, antiDe, antiActif,
       ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase) : [];
   },
   charge: function(id, ph){ atkMode = "unite"; if(ph) atkPhase = ph; atkOff = {};
-    majAtkMode(); capsPourMode(); chargeUnite(id); majVite(); }};
+    majAtkMode(); capsPourMode(); chargeUnite(id); majVite(); },
+  /* declarer une condition par son nom, comme un doigt sur sa pastille */
+  cond: function(nom, on){
+    const c = atkUnit && (atkUnit.conditions || []).find(x => x.nom === nom);
+    if(!c) return false;
+    condOn[c.id] = on !== false;
+    renderAtkUnite(); majVite(); render();
+    return true;
+  },
+  /* l'esperance de chaque profil actif, telle que le moteur la calcule */
+  esperances: function(){
+    return profilsActifs().map(p => +ENG.analytic(profilPourMoteur(p)).rawDmg.toFixed(4));
+  }};
 })(window);

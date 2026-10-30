@@ -1374,12 +1374,15 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <div class="vc"><span class="vk">Dégâts</span><div class="seg small" id="segDmgMod"></div></div>
         <div class="vc"><span class="vk">Attaques</span><div class="seg small" id="segAtkMod"></div></div>
         <div class="vc"><span class="vk">Force</span><div class="seg small" id="segStrMod"></div></div>
-        <div class="vc"><span class="vk">Relance de touche</span><div class="seg small" id="segRrH"></div></div>
-        <div class="vc"><span class="vk">Relance de blessure</span><div class="seg small" id="segRrW"></div></div>
+        <div class="vc vlarge"><span class="vk">Relance de touche</span><div class="seg small" id="segRrH"></div></div>
+        <div class="vc vlarge"><span class="vk">Relance de blessure</span><div class="seg small" id="segRrW"></div></div>
+        <div class="vc"><span class="vk">Relance de dégâts</span><div class="seg small" id="segRrD"></div></div>
+        <div class="vc"><span class="vk">CT/CC améliorée</span><div class="seg small" id="segBsMod"></div></div>
+        <div class="vc"><span class="vk">Endurance de la cible</span><div class="seg small" id="segToughMod"></div></div>
         <div class="vc"><span class="vk">Touche critique sur</span><div class="seg small" id="segCritH"></div></div>
         <div class="vc"><span class="vk">Blessure crit. — « Anti-X »</span><div class="seg small" id="segCritW"></div></div>
       </div>
-      <p class="hint">« +1 » en pénétration rend la PA meilleure : une PA -1 devient -2. Les modificateurs de touche et de blessure restent plafonnés à ±1 comme dans les règles ; un 1 naturel rate toujours, un critique réussit toujours. Ceux d'attaques et de Force ne le sont pas : ils s'ajoutent à la caractéristique, pas au jet — et un palier de Force franchi vaut plus qu'un +1 au dé. Ces réglages s'appliquent à tous les profils chargés.</p>
+      <p class="hint">« +1 » en pénétration rend la PA meilleure : une PA -1 devient -2. Les modificateurs de touche et de blessure restent plafonnés à ±1 comme dans les règles ; un 1 naturel rate toujours, un critique réussit toujours. Ceux d'attaques et de Force ne le sont pas : ils s'ajoutent à la caractéristique, pas au jet — et un palier de Force franchi vaut plus qu'un +1 au dé. La CT/CC améliorée non plus : « Pour le Bien Suprême » fait d'une CT 4+ une 3+, et s'ajoute à un +1 pour toucher. Une relance « Une » ne reprend qu'un seul dé de la séquence, pour toute l'unité ; « Faibles » relance chaque jet de dégâts sous la moyenne du dé. Ces réglages s'appliquent à tous les profils chargés.</p>
       <div class="capgrid" id="capGrid"></div>
       <div class="capinfo" id="capInfo"></div>
     </div>
@@ -1408,6 +1411,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
           <div class="vc vlarge"><span class="vk">Invulnérable</span><div class="seg small" id="segInv"></div></div>
           <div class="vc"><span class="vk">Insensible (FNP)</span><div class="seg small" id="segFNP"></div></div>
           <div class="vc"><span class="vk">Dégâts subis en moins</span><div class="seg small" id="segDmgRed"></div></div>
+          <div class="vc"><span class="vk">Dégâts divisés par deux</span><div class="seg small" id="segDmgHalf"></div></div>
+          <div class="vc"><span class="vk">−1 pour la toucher</span><div class="seg small" id="segDefHit"></div></div>
+          <div class="vc"><span class="vk">−1 pour la blesser</span><div class="seg small" id="segDefWnd"></div></div>
+          <div class="vc"><span class="vk">−1 pour blesser si F &gt; E</span><div class="seg small" id="segDefWndFE"></div></div>
+          <div class="vc"><span class="vk">Sauvegarde améliorée</span><div class="seg small" id="segSvMod"></div></div>
+          <div class="vc"><span class="vk">Insensible au psychique</span><div class="seg small" id="segFnpPsy"></div></div>
         </div>
         <label class="toggle tcov"><input type="checkbox" id="cover"><span class="box">✓</span><span class="txt">Bénéfice du couvert<em>−1 pour toucher — sur les attaques de tir seulement</em></span></label>
       </div>
