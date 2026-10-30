@@ -313,6 +313,26 @@ T('celle d\'une autre faction aussi, et pas à zéro', cartes.pts[1], 270);
 T('chaque carte dit de quelle armée elle est',
   cartes.noms.map(t => t.split(' · ')[0]), ['Nécrons', 'Adeptus Custodes']);
 
+/* ------------------------------------------------------------------
+   LES LEGENDS
+
+   Le Munitorum fait passer des unités en Legends : jouables entre amis,
+   pas en compétitif. La liste les garde et le dit.
+   ------------------------------------------------------------------ */
+await p.evaluate(() => {
+  localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v:1, actif:'a', listes:[
+    { id:'a', nom:'A', faction:'astra', cap:2000, detach:[], fd:'', nextId:9,
+      units:[{ id:1, name:'Aquila Lander', size:1, lo:[], chars:[], sel:true, grp:'', enh:null },
+             { id:2, name:'Aegis Defence Line', size:1, lo:[], chars:[], sel:true, grp:'', enh:null }] }
+  ]}));
+});
+await p.goto(base); await p.waitForTimeout(1100);
+await p.click('#tabs button[data-s="scList"]'); await p.waitForTimeout(500);
+const avis = await p.evaluate(() => (document.getElementById('rosterWarn') || {}).innerHTML || '');
+T('une unité Legends est signalée non jouable en compétitif', avis,
+  v => /Aquila Lander<\/b> : Legends, non jouable en compétitif/.test(v));
+T('une unité ordinaire ne l\'est pas', avis, v => !/Aegis Defence Line/.test(v));
+
 console.log('\n════ CONFORME ════'); ok.forEach(x => console.log('  ✓ ' + x));
 console.log('\n════ ÉCARTS ════'); console.log(ko.length ? ko.map(x => '  ✗ ' + x).join('\n') : '  (aucun)');
 console.log('\n════ ERREURS JS ════'); console.log(errs.length ? [...new Set(errs)].join('\n') : '  aucune');

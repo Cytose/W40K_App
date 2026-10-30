@@ -1118,6 +1118,14 @@ function validate(){
   const capEnh = capEnhancements();
   if(enhs.length > capEnh) w.push("<b>" + enhs.length + " améliorations</b> : " + capEnh +
     " au maximum à " + cap + " pts.");
+  /* Une unite passee en Legends reste jouable entre amis, pas en tournoi :
+     le Munitorum la marque, et la liste le dit plutot que de la retirer.
+     Celles que la table ne connait plus, normaliseListe() les retire
+     deja en les nommant (RETIREES). */
+  const noms = R.units.map(x => x.name).concat(...R.units.map(x => x.chars.map(c => c.name)));
+  const legends = [...new Set(noms.filter(n => { const u = UNITS.find(x => x[0] === n); return u && u[10]; }))];
+  if(legends.length) w.push("<b>" + legends.join(", ") + "</b> : Legends, non " +
+    (legends.length > 1 ? "jouables" : "jouable") + " en compétitif.");
   return w;
 }
 
@@ -4725,6 +4733,8 @@ function renderPick(){
     norm(u[9] || "").includes(q) ||
     Object.keys(KW).some(k => has(k, u[0]) && norm(k).includes(q)));
   const parCat = {};
+  /* les Legends en fin de categorie : jouables, mais pas en competitif */
+  retenues.sort((x, y) => (x[10] ? 1 : 0) - (y[10] ? 1 : 0));
   retenues.forEach(u => (parCat[categorie(u[0])] = parCat[categorie(u[0])] || []).push(u));
   const bouton = u => {
     const b = document.createElement("button");
