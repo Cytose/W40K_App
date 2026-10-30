@@ -1,0 +1,1099 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — ORKS",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-orks.js, qui est réécrit à",
+    "chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "Le compte de triage (209 aptitudes « qui touchent le calcul ») est",
+    "gonflé : BSData accroche à chaque fiche les optimisations qu'elle",
+    "pourrait prendre (Temperamental Shokka, Targetin' Gizmos…), et la",
+    "même règle d'armée revient sur toutes. Restent une quarantaine de",
+    "décisions distinctes.",
+    "",
+    "LA RÈGLE D'ARMÉE. « Waaagh! » rend l'unité excitée (riled up) : une",
+    "invulnérable 5+ et [ASSAUT]. Seule l'invulnérable touche le calcul, et",
+    "elle protège : AURAS_ARMEE, sans source, `sens: def`. Les aptitudes",
+    "« si l'unité est excitée » sont toutes déclarées.",
+    "",
+    "LES MENEURS. Les fiches orks écrivent « this unit's attacks » sur un",
+    "personnage : quand il mène, c'est toute l'unité. Ces règles sont donc",
+    "à la fois dans APTIS_UNITE (le personnage seul) et dans AURAS_PERSO",
+    "(l'unité qu'il mène).",
+    "",
+    "LES DÉTACHEMENTS. Trois jouent d'office (OCTROIS_DETACH) : War Horde,",
+    "Bully Boyz, et les Boyz de Green Tide. Les autres posent une condition",
+    "ou un jet : AURAS_ARMEE avec `detach`.",
+    "",
+    "RESTE DEHORS : la défense (Mobile Fortress, Dead 'Ard, Arrogant",
+    "Invulnerability, Hardy Bioniks…), les malus infligés à l'adversaire",
+    "(Squig Barrage), [TIR RAPIDE] et [FENDOIR] ajoutés (Close-Range Dakka,",
+    "Mow 'em Down), +2 A par passager du Hunta Rig, les pouvoirs du",
+    "Wurrband, et Zodgrod, dont le bonus ne vise que les surins des",
+    "Gretchins et pas sa propre arme."
+  ],
+  "APTIS_UNITE": {
+    "Beastboss": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Esquive Ça !",
+        "texte": "This unit's attacks have +1 to hit rolls."
+      }
+    ],
+    "Big Mek": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Plus d'Dakka",
+        "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+      }
+    ],
+    "Big Mek in Mega Armour": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Plus d'Dakka",
+        "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+      }
+    ],
+    "Big Mek with Shokk Attack Gun": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Plus d'Dakka",
+        "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+      }
+    ],
+    "Boss Zagstruk": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Chef de Largage",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ],
+    "Gorkanaut": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Grand et Piétineur",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Kaptin Badrukk": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Les Gitz les Plus Clinquants",
+        "texte": "This unit's ranged attacks can re-roll hit rolls."
+      }
+    ],
+    "Lootas": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "C'est Not' Butin",
+        "texte": "- This unit's ranged attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Mek": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Dakka Kustom",
+        "texte": "This unit's ranged attacks have [IGNORES COVER]."
+      }
+    ],
+    "Morkanaut": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Grand et Tireur",
+        "texte": "In your Shooting phase, this unit's ranged attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Warboss on Warbike": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Boss Rapide",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ],
+    "Bigboss": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Quelque Chose à Prouver",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ],
+    "Nazdreg": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Les Trucs de Nazdreg",
+        "texte": "- This unit's ranged attacks have [IGNORES COVER]."
+      }
+    ],
+    "Gunwagon": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Arsenal Mobile",
+        "texte": "In your Shooting phase, this unit's ranged attacks can re-roll hit rolls of 1."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Dakkajet": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "sauf": [
+          "vol"
+        ],
+        "port": "T",
+        "nom": "Passe de Mitraillage",
+        "texte": "In your Shooting phase, this unit's ranged attacks that target a unit (excluding FLY units) have +1 to hit rolls."
+      }
+    ],
+    "Mozrog Skragbad": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "port": "C",
+        "nom": "Plus Y Sont Gros…",
+        "texte": "This unit's melee attacks that target a MONSTER/VEHICLE unit can re-roll wounds rolls."
+      }
+    ],
+    "Wazbom Blastajet": [
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "port": "T",
+        "nom": "Vise l'Point Faible",
+        "texte": "In your Shooting phase, this unit's ranged attacks that target a MONSTER/VEHICLE unit have +1 to wound rolls."
+      }
+    ],
+    "Big Mek Dakkarig": [
+      {
+        "champ": "atkMod",
+        "val": 6,
+        "arme": "Blitzkannon",
+        "sauf": [
+          "mon",
+          "veh"
+        ],
+        "port": "T",
+        "nom": "Blitz Dem Gitz !",
+        "texte": "In your Shooting phase, if this unit's Blitzkannon weapon targets a unit (excluding MONSTER/VEHICLE units), that weapon has +6 A."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Beastboss": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Esquive Ça !",
+        "texte": "This unit's attacks have +1 to hit rolls."
+      }
+    ],
+    "Big Mek": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Plus d'Dakka",
+        "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+      }
+    ],
+    "Big Mek in Mega Armour": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Plus d'Dakka",
+        "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+      }
+    ],
+    "Big Mek with Shokk Attack Gun": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Plus d'Dakka",
+        "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+      }
+    ],
+    "Boss Zagstruk": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Chef de Largage",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ],
+    "Kaptin Badrukk": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Les Gitz les Plus Clinquants",
+        "texte": "This unit's ranged attacks can re-roll hit rolls."
+      }
+    ],
+    "Warboss on Warbike": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Boss Rapide",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ],
+    "Nazdreg": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Les Trucs de Nazdreg",
+        "texte": "- This unit's ranged attacks have [IGNORES COVER]."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Boyz": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Munitions Grots",
+        "quand": "Les Munitions Grots sont utilisées (une fois par bataille)",
+        "texte": "In your Shooting phase, when this unit is selected to shoot, you can use this ability. If you do, this unit's ranged attacks have +1 to hit rolls."
+      },
+      {
+        "mot": "lethal",
+        "port": "C",
+        "nom": "Marée de Muscles",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "In the Fight phase, if this unit made a charge move this turn, this unit's melee attacks have [LETHAL HITS]."
+      }
+    ],
+    "Nobz": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Munitions Grots",
+        "quand": "Les Munitions Grots sont utilisées (une fois par bataille)",
+        "texte": "In your Shooting phase, when this unit is selected to shoot, you can use this ability. If you do, this unit's ranged attacks have +1 to hit rolls."
+      },
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "arme": "Kustom Krumpa",
+        "port": "C",
+        "nom": "Krumpas Jumelles",
+        "quand": "La figurine porte deux Kustom Krumpas",
+        "texte": "Attacks made with this model's Kustom Krumpa weapon can re-roll hit rolls and wound rolls."
+      },
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "arme": "Kustom Krumpa",
+        "port": "C",
+        "nom": "Krumpas Jumelles",
+        "quand": "La figurine porte deux Kustom Krumpas",
+        "texte": "Attacks made with this model's Kustom Krumpa weapon can re-roll hit rolls and wound rolls."
+      }
+    ],
+    "Burna Boyz": [
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Pyromaniaks",
+        "quand": "La cible est à 6\" ou moins",
+        "texte": "This unit's attacks that target a unit within 6\" of this unit can re-roll wound rolls of 1."
+      }
+    ],
+    "Lootas": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "C'est Not' Butin — sur objectif",
+        "quand": "La cible est à portée d'un objectif",
+        "texte": "- This unit's ranged attacks that target a unit within range of an objective can re-roll hit rolls."
+      }
+    ],
+    "Deffkoptas": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "La Mort Vient d'en Haut",
+        "quand": "L'unité a fait un mouvement d'arrivée ce tour",
+        "texte": "In your Shooting phase, if this unit made an ingress move this turn, this unit's ranged attacks have +1 to hit rolls."
+      }
+    ],
+    "Flash Gitz": [
+      {
+        "champ": "apMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Ki Trouve Garde",
+        "quand": "L'unité ou la cible est à portée d'un objectif",
+        "texte": "In your Shooting phase, if any of the following apply, this unit's ranged attacks have +1 AP. - This unit is within range of an objective. - The target of that attack is within range of an objective."
+      }
+    ],
+    "Killa Kans": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Sale Caractère",
+        "quand": "La cible n'a aucune figurine d'Endurance 7 ou plus",
+        "texte": "This unit's attacks that target a unit that has no models with a T of 7+ have +1 to hit rolls."
+      }
+    ],
+    "Kommandos": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Nulle Part où s'Cacher",
+        "quand": "La cible est cachée",
+        "texte": "This unit's attacks that target a hidden unit have +1 to hit rolls."
+      }
+    ],
+    "Meganobz": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "C'est l'Heure du Krump",
+        "quand": "L'unité est excitée",
+        "texte": "In the Fight phase, if this unit is riled up, this unit has +1 to hit rolls."
+      }
+    ],
+    "Squighog Boyz": [
+      {
+        "champ": "dmgMod",
+        "val": 1,
+        "nom": "Impact Brutal",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn, this unit's attacks have +1 D."
+      }
+    ],
+    "Stormboyz": [
+      {
+        "champ": "atkMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Charge Rokkit",
+        "quand": "L'unité a chargé et utilise la Charge Rokkit ([DANGEREUX])",
+        "texte": "When this unit is selected to fight, if this unit made a charge move this turn, you can use this ability. If you do, this unit's melee attacks have: - +1 A and S. - [HAZARDOUS]."
+      },
+      {
+        "champ": "strMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Charge Rokkit",
+        "quand": "L'unité a chargé et utilise la Charge Rokkit ([DANGEREUX])",
+        "texte": "When this unit is selected to fight, if this unit made a charge move this turn, you can use this ability. If you do, this unit's melee attacks have: - +1 A and S. - [HAZARDOUS]."
+      }
+    ],
+    "Tankbustas": [
+      {
+        "champ": "apMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Pulsa Rokkit",
+        "quand": "La cible est le MONSTRE ou VÉHICULE désigné (une fois par bataille)",
+        "texte": "In your Shooting phase, when this unit is selected to shoot, you can select one enemy MONSTER/VEHICLE unit within 24\" of this unit. If you do, this unit's attacks that target that unit have: - +1 AP. - [LETHAL HITS]."
+      },
+      {
+        "mot": "lethal",
+        "port": "T",
+        "nom": "Pulsa Rokkit",
+        "quand": "La cible est le MONSTRE ou VÉHICULE désigné (une fois par bataille)",
+        "texte": "In your Shooting phase, when this unit is selected to shoot, you can select one enemy MONSTER/VEHICLE unit within 24\" of this unit. If you do, this unit's attacks that target that unit have: - +1 AP. - [LETHAL HITS]."
+      }
+    ],
+    "Warbikers": [
+      {
+        "champ": "strMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Carnage à Grande Vitesse",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn, this unit's melee attacks have: - +1 S and D."
+      },
+      {
+        "champ": "dmgMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Carnage à Grande Vitesse",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn, this unit's melee attacks have: - +1 S and D."
+      }
+    ],
+    "Warboss": [
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "La Force Fait le Droit",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn, this model's melee attacks have: - +3 A. - +2 S."
+      },
+      {
+        "champ": "strMod",
+        "val": 2,
+        "port": "C",
+        "nom": "La Force Fait le Droit",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn, this model's melee attacks have: - +3 A. - +2 S."
+      },
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Munitions Grots du Boss",
+        "quand": "Les munitions sont utilisées (une fois par bataille)",
+        "texte": "In your Shooting phase, when this unit is selected to shoot, you can use this ability. If you do, this model's ranged attacks have +1 to hit rolls."
+      }
+    ],
+    "Big Mek Dakkarig": [
+      {
+        "mot": "sust:1",
+        "port": "T",
+        "nom": "Encore Plus d'Dakka",
+        "quand": "L'unité est excitée",
+        "texte": "If this unit is riled up, this unit's ranged attacks have [SUSTAINED HITS 1]."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "sens": "def",
+      "kw": [],
+      "champ": "inv",
+      "val": 5,
+      "nom": "Waaagh! — excitée",
+      "quand": "L'unité est excitée (Cri de Guerre, ou une autre règle)",
+      "texte": "While a unit is riled up: ▪ That unit has 5+ InSv."
+    },
+    {
+      "mot": "sust:1",
+      "source": "Big Mek",
+      "kw": [
+        "Big Mek",
+        "Boyz",
+        "Breaka Boyz",
+        "Flash Gitz",
+        "Mek Gunz",
+        "Nobz",
+        "Tankbustas"
+      ],
+      "port": "T",
+      "nom": "Plus d'Dakka — excitée",
+      "quand": "L'unité du Big Mek est excitée",
+      "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+    },
+    {
+      "mot": "sust:1",
+      "source": "Big Mek in Mega Armour",
+      "kw": [
+        "Big Mek in Mega Armour",
+        "Meganobz",
+        "Mek Gunz"
+      ],
+      "port": "T",
+      "nom": "Plus d'Dakka — excitée",
+      "quand": "L'unité du Big Mek est excitée",
+      "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+    },
+    {
+      "mot": "sust:1",
+      "source": "Big Mek with Shokk Attack Gun",
+      "kw": [
+        "Big Mek with Shokk Attack Gun",
+        "Boyz",
+        "Mek Gunz",
+        "Nobz",
+        "Tankbustas"
+      ],
+      "port": "T",
+      "nom": "Plus d'Dakka — excitée",
+      "quand": "L'unité du Big Mek est excitée",
+      "texte": "This unit's ranged attacks have: - [IGNORES COVER]. - If this unit is riled up, [SUSTAINED HITS 1]."
+    },
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "source": "Ghazghkull Thraka",
+      "kw": [],
+      "port": "C",
+      "nom": "Prophète de la Grande Waaagh! (Aura)",
+      "quand": "L'unité est à 6\" de Ghazghkull",
+      "texte": "While a friendly ORKS unit is within 6\" of this unit, that unit's melee attacks have: - +1 to hit rolls. - +1 to wound rolls."
+    },
+    {
+      "champ": "wndMod",
+      "val": 1,
+      "source": "Ghazghkull Thraka",
+      "kw": [],
+      "port": "C",
+      "nom": "Prophète de la Grande Waaagh! (Aura)",
+      "quand": "L'unité est à 6\" de Ghazghkull",
+      "texte": "While a friendly ORKS unit is within 6\" of this unit, that unit's melee attacks have: - +1 to hit rolls. - +1 to wound rolls."
+    },
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "source": "Mek",
+      "kw": [
+        "vehicle"
+      ],
+      "nom": "Bidouillages Malins",
+      "quand": "Ce VÉHICULE a été bidouillé par le Mek à sa phase de Mouvement",
+      "texte": "In your Movement phase, at the start or end of this unit's move, you can select one friendly ORKS VEHICLE model (excluding AIRCRAFT/TITANIC models) within 3\" of this model: - That VEHICLE model's attacks have +1 to hit rolls until the start of your next Movement phase."
+    },
+    {
+      "mot": "lethal",
+      "source": "Wartrakks",
+      "kw": [
+        "Blitza-bommer",
+        "Burna-bommer",
+        "Dakkajet",
+        "Deffkilla Wartrike",
+        "Deffkoptas",
+        "Rukkatrukk Squigbuggies",
+        "Trukk",
+        "Warbikers",
+        "Warboss on Warbike",
+        "Warbuggies",
+        "Wartrakks",
+        "Wazbom Blastajet",
+        "Wazdakka Gutsmek"
+      ],
+      "nom": "Défonce-les",
+      "quand": "La cible a été « défoncée » par les Wartrakks ce tour",
+      "texte": "In your Shooting phase, when this unit has shot, select one enemy unit hit by those attacks. That enemy unit is busted until the end of the turn: - Friendly SPEED FREEKS units' attacks that target a busted unit have [LETHAL HITS]."
+    },
+    {
+      "champ": "apMod",
+      "val": 1,
+      "detach": "Da Big Hunt",
+      "kw": [
+        "Beast Snagga Boyz",
+        "Beastboss",
+        "Beastboss on Squigosaur",
+        "Hunta Rig",
+        "Kill Rig",
+        "Mozrog Skragbad",
+        "Painboss",
+        "Squighog Boyz"
+      ],
+      "nom": "La Chasse est Ouverte",
+      "quand": "La cible est un MONSTRE ou un VÉHICULE",
+      "texte": "Friendly Beast Snagga units’ attacks that target a MONSTER/VEHICLE unit have +1 AP."
+    },
+    {
+      "champ": "atkMod",
+      "val": 1,
+      "detach": "Dread Mob",
+      "kw": [
+        "Big Mek Dakkarig",
+        "Deff Dread",
+        "Gorkanaut",
+        "Killa Kans",
+        "Morkanaut",
+        "Stompa"
+      ],
+      "nom": "Essaye Ce Bouton ! — 1-2",
+      "quand": "Le dé donne 1 ou 2",
+      "texte": "TRY DAT BUTTON! D6 RESULT 1-2 +1 A"
+    },
+    {
+      "champ": "strMod",
+      "val": 2,
+      "detach": "Dread Mob",
+      "kw": [
+        "Big Mek Dakkarig",
+        "Deff Dread",
+        "Gorkanaut",
+        "Killa Kans",
+        "Morkanaut",
+        "Stompa"
+      ],
+      "nom": "Essaye Ce Bouton ! — 3-4",
+      "quand": "Le dé donne 3 ou 4",
+      "texte": "TRY DAT BUTTON! D6 RESULT 3-4 +2 S"
+    },
+    {
+      "champ": "apMod",
+      "val": 1,
+      "detach": "Dread Mob",
+      "kw": [
+        "Big Mek Dakkarig",
+        "Deff Dread",
+        "Gorkanaut",
+        "Killa Kans",
+        "Morkanaut",
+        "Stompa"
+      ],
+      "nom": "Essaye Ce Bouton ! — 5-6",
+      "quand": "Le dé donne 5 ou 6",
+      "texte": "TRY DAT BUTTON! D6 RESULT 5-6 +1 AP"
+    },
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "detach": "Flyboyz",
+      "kw": [
+        "Blitza-bommer",
+        "Burna-bommer",
+        "Dakkajet",
+        "Wazbom Blastajet",
+        "Deffkoptas"
+      ],
+      "port": "T",
+      "nom": "Dingos Volants",
+      "quand": "L'unité est excitée",
+      "texte": "▪ While a friendly Orks Aircraft/Deffkoptas unit is riled up, this unit’s ranged attacks have +1 to hit rolls."
+    },
+    {
+      "mot": "lethal",
+      "detach": "Green Tide",
+      "kw": [
+        "Bannernob",
+        "Beast Snagga Boyz",
+        "Beastboss",
+        "Big Mek",
+        "Big Mek in Mega Armour",
+        "Big Mek with Shokk Attack Gun",
+        "Bigboss",
+        "Boss Snikrot",
+        "Boss Zagstruk",
+        "Boyz",
+        "Breaka Boyz",
+        "Burna Boyz",
+        "Flash Gitz",
+        "Ghazghkull Thraka",
+        "Gretchin",
+        "Kaptin Badrukk",
+        "Kommandos",
+        "Lootas",
+        "Mad Dok Grotsnik",
+        "Meganobz",
+        "Mek",
+        "Nazdreg",
+        "Nobz",
+        "Painboss",
+        "Painboy",
+        "Runtherd",
+        "Stormboyz",
+        "Tankbustas",
+        "Warboss",
+        "Warboss in Mega Armour",
+        "Weirdboy",
+        "Zodgrod Wortsnagga"
+      ],
+      "port": "C",
+      "nom": "Brutalité en Bande",
+      "quand": "L'unité d'INFANTERIE a chargé ce tour, et la cible n'est ni MONSTRE ni VÉHICULE",
+      "texte": "▪ If a friendly Orks Infantry unit made a charge move this turn, that unit’s melee attacks have [Lethal Hits: non-Monster/Vehicle]."
+    },
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "detach": "Madcap Meks",
+      "kw": [
+        "Big Mek",
+        "Mek Gunz",
+        "Morkanaut",
+        "Wazbom Blastajet"
+      ],
+      "port": "T",
+      "nom": "Génie Imprévisible — Chercheurz",
+      "quand": "Le dé donne 4, et tous les tirs visent une seule unité",
+      "texte": "4 Seekerz: Those attacks have +1 to hit rolls."
+    },
+    {
+      "champ": "rrH",
+      "val": "ones",
+      "detach": "Wreckas",
+      "kw": [
+        "Breaka Boyz",
+        "Flash Gitz",
+        "Tankbustas"
+      ],
+      "port": "T",
+      "nom": "Cass' et Pillage",
+      "quand": "L'unité ou la cible est à portée d'un objectif",
+      "texte": "In your Shooting phase, when a friendly Breaka Boyz/Flash Gitz/Tankbustas unit is selected to shoot, if any of the following apply, that unit’s attacks can re-roll hit rolls of 1: ▪ That unit is within range of an objective. ▪ The target of that attack is within range of an objective."
+    }
+  ],
+  "OCTROIS_DETACH": {
+    "War Horde": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "qui": "unite",
+        "kw": [],
+        "nom": "Rentrez-leur Dedans",
+        "texte": "Friendly ORKS units’ melee attacks have [Sustained Hits 1]."
+      }
+    ],
+    "Bully Boyz": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "qui": "unite",
+        "kw": [
+          "Meganobz",
+          "Nobz"
+        ],
+        "nom": "Démonstrations de Sauvagerie",
+        "texte": "Friendly Meganobz/Nobz units’ melee attacks have [Sustained Hits 1]."
+      }
+    ],
+    "Green Tide": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "qui": "unite",
+        "kw": [
+          "Boyz"
+        ],
+        "nom": "Brutalité en Bande",
+        "texte": "▪ Friendly Boyz units’ melee attacks have [Sustained Hits 1]."
+      }
+    ]
+  },
+  "STRAT_SIMU": [
+    {
+      "nom": "Armed to Da Teef",
+      "detach": "Bully Boyz",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Meganobz",
+        "Nobz"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour toucher",
+      "effet": {
+        "rrH": "ones"
+      }
+    },
+    {
+      "nom": "Armed to Da Teef — excitée",
+      "detach": "Bully Boyz",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Meganobz",
+        "Nobz"
+      ],
+      "sauf": [],
+      "aide": "relance TOTALE des touches — l'unité est excitée",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "Long, Uncontrolled Bursts",
+      "detach": "Flyboyz",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Blitza-bommer",
+        "Burna-bommer",
+        "Dakkajet",
+        "Wazbom Blastajet",
+        "Deffkoptas"
+      ],
+      "sauf": [],
+      "aide": "relance des touches ratées — contre une unité qui VOLE seulement",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "Unbridled Carnage",
+      "detach": "Green Tide",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Boyz"
+      ],
+      "sauf": [],
+      "aide": "+1 attaque au corps à corps — l'unité a chargé ce tour",
+      "effet": {
+        "atkMod": 1
+      }
+    },
+    {
+      "nom": "Dakkastorm",
+      "detach": "Kult of Speed",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Blitza-bommer",
+        "Burna-bommer",
+        "Dakkajet",
+        "Deffkilla Wartrike",
+        "Deffkoptas",
+        "Rukkatrukk Squigbuggies",
+        "Trukk",
+        "Warbikers",
+        "Warboss on Warbike",
+        "Warbuggies",
+        "Wartrakks",
+        "Wazbom Blastajet",
+        "Wazdakka Gutsmek"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] sur les armes de tir",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Vindictive Artillerists",
+      "detach": "Madcap Meks",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Mek Gunz"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] — ou l'une des deux autres options",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Vindictive Artillerists — Soutenues",
+      "detach": "Madcap Meks",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Mek Gunz"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1]",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Vindictive Artillerists — les deux",
+      "detach": "Madcap Meks",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Mek Gunz"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] et [TOUCHES SOUTENUES 1], au prix de [DANGEREUX]",
+      "effet": {
+        "lethal": true,
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Glowin' Dakka",
+      "detach": "Shoota Boyz",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Bannernob",
+        "Beast Snagga Boyz",
+        "Beastboss",
+        "Big Mek",
+        "Big Mek in Mega Armour",
+        "Big Mek with Shokk Attack Gun",
+        "Bigboss",
+        "Boss Snikrot",
+        "Boss Zagstruk",
+        "Boyz",
+        "Breaka Boyz",
+        "Burna Boyz",
+        "Flash Gitz",
+        "Ghazghkull Thraka",
+        "Gretchin",
+        "Kaptin Badrukk",
+        "Kommandos",
+        "Lootas",
+        "Mad Dok Grotsnik",
+        "Meganobz",
+        "Mek",
+        "Nazdreg",
+        "Nobz",
+        "Painboss",
+        "Painboy",
+        "Runtherd",
+        "Stormboyz",
+        "Tankbustas",
+        "Warboss",
+        "Warboss in Mega Armour",
+        "Weirdboy",
+        "Zodgrod Wortsnagga"
+      ],
+      "sauf": [],
+      "aide": "+1 en PA — cible à 9\" ou moins",
+      "effet": {
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Kustom Dakka",
+      "detach": "Shoota Boyz",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Bannernob",
+        "Beast Snagga Boyz",
+        "Beastboss",
+        "Big Mek",
+        "Big Mek in Mega Armour",
+        "Big Mek with Shokk Attack Gun",
+        "Bigboss",
+        "Boss Snikrot",
+        "Boss Zagstruk",
+        "Boyz",
+        "Breaka Boyz",
+        "Burna Boyz",
+        "Flash Gitz",
+        "Ghazghkull Thraka",
+        "Gretchin",
+        "Kaptin Badrukk",
+        "Kommandos",
+        "Lootas",
+        "Mad Dok Grotsnik",
+        "Meganobz",
+        "Mek",
+        "Nazdreg",
+        "Nobz",
+        "Painboss",
+        "Painboy",
+        "Runtherd",
+        "Stormboyz",
+        "Tankbustas",
+        "Warboss",
+        "Warboss in Mega Armour",
+        "Weirdboy",
+        "Zodgrod Wortsnagga"
+      ],
+      "sauf": [],
+      "aide": "+1 pour blesser — la cible n'est ni MONSTRE ni VÉHICULE",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Never Enough Dakka",
+      "detach": "Shoota Boyz",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Bannernob",
+        "Beast Snagga Boyz",
+        "Beastboss",
+        "Big Mek",
+        "Big Mek in Mega Armour",
+        "Big Mek with Shokk Attack Gun",
+        "Bigboss",
+        "Boss Snikrot",
+        "Boss Zagstruk",
+        "Boyz",
+        "Breaka Boyz",
+        "Burna Boyz",
+        "Flash Gitz",
+        "Ghazghkull Thraka",
+        "Gretchin",
+        "Kaptin Badrukk",
+        "Kommandos",
+        "Lootas",
+        "Mad Dok Grotsnik",
+        "Meganobz",
+        "Mek",
+        "Nazdreg",
+        "Nobz",
+        "Painboss",
+        "Painboy",
+        "Runtherd",
+        "Stormboyz",
+        "Tankbustas",
+        "Warboss",
+        "Warboss in Mega Armour",
+        "Weirdboy",
+        "Zodgrod Wortsnagga"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] sur les armes de tir",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Hit 'em Harder",
+      "detach": "War Horde",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] au corps à corps",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Drive-By Bustin'",
+      "detach": "Wreckas",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Battlewagon",
+        "Big Trakk",
+        "Gargantuan Squiggoth",
+        "Gorkanaut",
+        "Gunwagon",
+        "Hunta Rig",
+        "Kill Rig",
+        "Kill Tank",
+        "Morkanaut",
+        "Stompa",
+        "Trukk"
+      ],
+      "sauf": [],
+      "aide": "+1 pour toucher — armes choisies pour le Pont de Tir seulement",
+      "effet": {
+        "hitMod": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "_": [
+      "CÂBLAGE DU SIMULATEUR — CULTES GENESTEALERS",
+      "",
+      "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+      "extraction.py fusionne ce fichier dans data-gsc.js, qui est réécrit",
+      "à chaque extraction ; celui-ci ne l'est jamais.",
+      "",
+      "La règle d'armée, l'Embuscade du Culte, ne touche pas la séquence",
+      "d'attaque : elle ramène des unités et pose des marqueurs.",
+      "",
+      "Les règles de détachement conditionnelles sont dans AURAS_ARMEE, sans",
+      "`source` mais avec `detach` : elles se déclarent quand ce détachement",
+      "est retenu. « Killer Reputation » (Heroes of the Uprising) ne pose pas",
+      "de condition : elle est dans OCTROIS_DETACH et joue d'office.",
+      "",
+      "RESTE DEHORS :",
+      "· l'insensibilité que donne la règle de Xenocreed Congregation aux",
+      "  Magus, Primus et Iconward : elle protège, elle se lit sur la cible ;",
+      "· « Hulking Bodyguards » des Aberrants et les malus que « Mind",
+      "  Control » inflige à l'adversaire : ils touchent les attaques QUI",
+      "  VISENT l'unité, pas les siennes ;",
+      "· le Biophagus, le Locus et le Kelermorph n'ont aucun rattachement",
+      "  dans ATTACH (Wahapedia ne les donne pas) : l'aura du Biophagus est",
+      "  câblée juste, mais ne joue qu'une fois le rattachement connu.",
+      "",
+      "STRAT_SIMU : dix stratagèmes sur les sept détachements qui en ont un",
+      "qui change un jet. Ceux qui ne valent que contre un genre de cible",
+      "(MONSTRE ou VÉHICULE, cible à 18\") le disent dans `aide` : le joueur",
+      "les coche quand c'est vrai."
+  ],
+
+  "APTIS_UNITE": {
+    "Acolyte Hybrids with Hand Flamers": [
+      { "champ": "rrW", "val": "ones", "nom": "Destruction Industrielle",
+        "texte": "Each time a model in this unit makes an attack, re-roll a Wound Roll of 1." }
+    ]
+  },
+
+  "AURAS_PERSO": {
+    "Biophagus": [
+      { "mot": "lethal", "port": "C", "nom": "Science Dévoyée",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [LETHAL HITS] ability." }
+    ],
+    "Patriarch": [
+      { "mot": "dev", "port": "C", "nom": "Puissance de l'Au-delà",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [DEVASTATING WOUNDS] ability." }
+    ],
+    "Primus": [
+      { "champ": "hitMod", "val": 1, "nom": "Démagogue du Culte",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, you can add 1 to the Hit roll." }
+    ],
+    "Benefictus": [
+      { "mot": "lethal", "port": "T", "nom": "Perturbation Bio-horrifique",
+        "texte": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [LETHAL HITS] ability." }
+    ],
+    "Acolyte Iconward": [
+      { "champ": "fnp", "val": 5, "nom": "Nexus de Dévotion",
+        "texte": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability. (Le 4+ des Hybrides Métamorphes n'est pas distingué.)" }
+    ]
+  },
+
+  "APTIS_COND": {
+    "Acolyte Hybrids with Hand Flamers": [
+      { "champ": "rrW", "val": "failed", "nom": "Destruction Industrielle — sur objectif",
+        "quand": "La cible est à portée d'un pion d'objectif",
+        "texte": "If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the wound roll." }
+    ],
+    "Biophagus": [
+      { "champ": "wndMod", "val": 1, "port": "C", "nom": "Familier Alchimique",
+        "quand": "Le familier est utilisé (une fois par bataille) et la cible est INFANTERIE",
+        "texte": "Once per battle, when the bearer’s unit is selected to fight, the bearer can use its alchemicus familiar. If it does, until the end of the phase, each time a model in the bearer's unit makes an attack that targets an INFANTRY unit, add 1 to the Wound roll" }
+    ],
+    "Sanctus": [
+      { "champ": "rrH", "val": "failed", "nom": "Piste Psychique",
+        "quand": "La cible est la proie désignée au premier round",
+        "texte": "Each time this model makes an attack that targets its prey, you can re-roll the Hit roll and you can re-roll the Wound roll." },
+      { "champ": "rrW", "val": "failed", "nom": "Piste Psychique",
+        "quand": "La cible est la proie désignée au premier round",
+        "texte": "Each time this model makes an attack that targets its prey, you can re-roll the Hit roll and you can re-roll the Wound roll." }
+    ]
+  },
+
+  "AURAS_ARMEE": [
+    { "source": "Achilles Ridgerunners", "kw": [], "champ": "apMod", "val": 1,
+      "nom": "Feux Croisés",
+      "quand": "La cible a été touchée par les Ridgerunners ce tour",
+      "texte": "In your Shooting phase, after this unit has shot, select one enemy unit hit by one or more of those attacks. Until the end of the turn, each time a friendly Genestealer Cults unit makes an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1." },
+    { "source": "Achilles Ridgerunners", "kw": [], "mot": "ignoresCover",
+      "nom": "Augure de Relevé",
+      "quand": "La cible a été touchée par le porteur de l'augure cette phase",
+      "texte": "Each time the bearer’s unit has shot, select one enemy unit that was hit by one or more attacks made by the bearer this phase. Until the end of the phase, each time a friendly GENESTEALER CULTS model makes an attack against that unit, that attack has the [IGNORES COVER] ability." },
+    { "source": "Jackal Alphus", "kw": [], "champ": "rrH", "val": "ones", "port": "T",
+      "nom": "Cible Prioritaire",
+      "quand": "La cible a été touchée par le fusil de précision de l'Alphus cette phase",
+      "texte": "In your Shooting phase, after this model's unit has shot, select one enemy unit hit by one or more of those attacks made with a cult sniper rifle. Until the end of the phase, each time a friendly Genestealer Cults model makes an attack that targets that enemy unit, re-roll a Hit roll of 1." },
+    { "source": "Goliath Truck", "kw": [], "champ": "rrW", "val": "failed", "port": "T",
+      "nom": "Appui-Feu",
+      "quand": "L'unité a débarqué de ce Goliath ce tour, et vise l'unité qu'il a touchée",
+      "texte": "In your Shooting phase, after this model has shot, select one enemy unit it scored one or more hits against this phase. Until the end of the phase, each time a friendly model that disembarked from this TRANSPORT this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll." },
+
+    { "detach": "Biosanctic Broodsurge", "kw": ["Aberrants", "Biophagus", "Purestrain Genestealers"],
+      "champ": "atkMod", "val": 1, "port": "C", "nom": "Fureur Hypermorphique",
+      "quand": "L'unité a chargé ce tour",
+      "texte": "Each time such a unit is selected to fight, if it made a Charge move this turn, until the end of the phase, add 1 to the Attacks characteristic of melee weapons equipped by models in that unit." },
+    { "detach": "Host of Ascension", "kw": [], "mot": "sust:1", "nom": "Embuscade Parfaite",
+      "quand": "L'unité a été placée en Renforts, jusqu'à la fin de ta phase de Combat suivante",
+      "texte": "Each time a GENESTEALER CULTS unit from your army is set up on the battlefield as Reinforcements, until the end of your next Fight phase, weapons equipped by models in that unit have the [SUSTAINED HITS 1] and [IGNORES COVER] abilities." },
+    { "detach": "Host of Ascension", "kw": [], "mot": "ignoresCover", "port": "T", "nom": "Embuscade Parfaite",
+      "quand": "L'unité a été placée en Renforts, jusqu'à la fin de ta phase de Combat suivante",
+      "texte": "Each time a GENESTEALER CULTS unit from your army is set up on the battlefield as Reinforcements, until the end of your next Fight phase, weapons equipped by models in that unit have the [SUSTAINED HITS 1] and [IGNORES COVER] abilities." },
+    { "detach": "Final Day", "kw": [], "champ": "hitMod", "val": 1, "nom": "Catalyseur (Aura)",
+      "quand": "La cible est à 6\" d'une unité TYRANIDS amie",
+      "texte": "Catalyst (Aura): While an enemy unit is within 6\" of this unit, each time a friendly GENESTEALER CULTS unit makes an attack that targets that enemy unit, add 1 to the Hit roll." }
+  ],
+
+  "OCTROIS_DETACH": {
+    "Heroes of the Uprising": [
+      { "champ": "rrH", "val": "ones", "qui": "figurine",
+        "kw": ["Kelermorph", "Locus", "Reductus Saboteur", "Sanctus"],
+        "nom": "Réputation de Tueur",
+        "texte": "Friendly KELERMORPH/LOCUS/REDUCTUS SABOTEUR/SANCTUS models have KILLER. Friendly KILLER models’ attacks can: ▪ Re-roll hit rolls of 1." },
+      { "champ": "rrW", "val": "ones", "qui": "figurine",
+        "kw": ["Kelermorph", "Locus", "Reductus Saboteur", "Sanctus"],
+        "nom": "Réputation de Tueur",
+        "texte": "Friendly KELERMORPH/LOCUS/REDUCTUS SABOTEUR/SANCTUS models have KILLER. Friendly KILLER models’ attacks can: ▪ Re-roll wound rolls of 1." }
+    ]
+  },
+
+  "STRAT_SIMU": [
+    { "nom": "Gene-Twisted Muscle", "detach": "Biosanctic Broodsurge", "pc": 1, "ph": "C",
+      "unites": ["Aberrants", "Biophagus", "Purestrain Genestealers"], "sauf": [],
+      "aide": "+1 pour blesser — contre MONSTRE ou VÉHICULE seulement",
+      "effet": { "wndMod": 1 } },
+
+    { "nom": "Avenge the Star Children", "detach": "Final Day", "pc": 1, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "+1 pour toucher et +1 pour blesser — contre l'unité qui a détruit ton PERSONNAGE TYRANIDS",
+      "effet": { "hitMod": 1, "wndMod": 1 } },
+
+    { "nom": "Hyperferocity", "detach": "Final Day", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "relance des 1 pour blesser",
+      "effet": { "rrW": "ones" } },
+
+    { "nom": "Hyperferocity — près des Tyranides", "detach": "Final Day", "pc": 1, "ph": "C",
+      "unites": [], "sauf": [],
+      "aide": "relance TOTALE des blessures — une unité TYRANIDS amie est à 6\" de la cible",
+      "effet": { "rrW": "failed" } },
+
+    { "nom": "Surging Broodworship", "detach": "Heroes of the Uprising", "pc": 1, "ph": "TC",
+      "unites": ["Kelermorph", "Locus", "Reductus Saboteur", "Sanctus"], "sauf": [],
+      "aide": "[BLESSURES DÉVASTATRICES] pour les figurines de TUEUR",
+      "effet": { "dev": true } },
+
+    { "nom": "Coordinated Trap", "detach": "Host of Ascension", "pc": 2, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "+1 pour blesser — deux unités visent la même cible, et elle seule",
+      "effet": { "wndMod": 1 } },
+
+    { "nom": "Primed and Readied", "detach": "Host of Ascension", "pc": 2, "ph": "TC",
+      "unites": [], "sauf": [],
+      "aide": "touches critiques sur 5+",
+      "effet": { "critH": 5 } },
+
+    { "nom": "Close-Range Shoot-Out", "detach": "Outlander Claw", "pc": 1, "ph": "T",
+      "unites": ["Atalan Jackals", "Jackal Alphus", "Achilles Ridgerunners",
+                 "Goliath Rockgrinder", "Goliath Truck"], "sauf": [],
+      "aide": "[TOUCHES FATALES] sur les armes de tir — cible à 18\" ou moins",
+      "effet": { "lethal": true } },
+
+    { "nom": "Vengeance for the Martyr!", "detach": "Xenocreed Congregation", "pc": 1, "ph": "TC",
+      "unites": ["Acolyte Hybrids with Autopistols", "Acolyte Hybrids with Hand Flamers",
+                 "Hybrid Metamorphs", "Neophyte Hybrids"], "sauf": [],
+      "aide": "relance des 1 pour toucher — contre l'unité qui a tué ton PERSONNAGE",
+      "effet": { "rrH": "ones" } },
+
+    { "nom": "Vengeance for the Martyr! — Magus, Primus ou Iconward", "detach": "Xenocreed Congregation", "pc": 1, "ph": "TC",
+      "unites": ["Acolyte Hybrids with Autopistols", "Acolyte Hybrids with Hand Flamers",
+                 "Hybrid Metamorphs", "Neophyte Hybrids"], "sauf": [],
+      "aide": "relance TOTALE des touches — le personnage tué était un Magus, un Primus ou un Iconward",
+      "effet": { "rrH": "failed" } },
+
+    { "nom": "Fanatical Hail", "detach": "Xenocult Masses", "pc": 1, "ph": "T",
+      "unites": ["Neophyte Hybrids"], "sauf": [],
+      "aide": "relance des touches ratées contre l'unité désignée",
+      "effet": { "rrH": "failed" } }
+  ]
+}

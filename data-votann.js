@@ -930,10 +930,588 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Hearthkyn Warriors": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Balayage Pan-spectral",
+   "texte": "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "Brôkhyr Iron-master": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "port": "T",
+   "nom": "Visière Multispectrale",
+   "texte": "Each time a model in this unit makes a ranged attack, re-roll a Wound roll of 1."
+  }
+ ],
+ "Sagitaur": [
+  {
+   "mot": "ignorescover",
+   "port": "T",
+   "nom": "Obus de Saturation",
+   "texte": "This unit’s ranged attacks have [IGNORES COVER]."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Einhyr Hearthguard": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Destruction Décisive",
+   "quand": "La cible est la cible éligible la plus proche",
+   "texte": "Each time a model in this unit makes a ranged attack that targets the closest eligible target, re-roll a Hit roll of 1."
+  }
+ ],
+ "Brôkhyr Thunderkyn": [
+  {
+   "arme": "SP conversion beamer",
+   "champ": "critH",
+   "val": 4,
+   "port": "T",
+   "nom": "Conversion",
+   "quand": "La cible est à plus de 12\" — rayon de conversion seulement",
+   "texte": "Each time an attack made with this weapon targets an enemy unit that is not within 12\", an unmodified Hit roll of 4+ scores a Critical Hit."
+  }
+ ],
+ "Cthonian Earthshakers": [
+  {
+   "arme": "Breacher ordnance",
+   "champ": "rrW",
+   "val": "failed",
+   "port": "T",
+   "nom": "Chasseurs Géomantiques",
+   "quand": "L'aptitude est utilisée (deux fois par bataille) — artillerie de brèche seulement",
+   "texte": "Up to twice per battle, in your Shooting phase, when this unit is selected to shoot, it can use this ability. If it does, until the end of the phase, each time a model in this unit makes an attack with its breacher ordnance, you can re-roll the Wound roll."
+  }
+ ],
+ "Hernkyn Pioneers": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Scanner Pan-spectral",
+   "quand": "L'unité porte le scanner pan-spectral",
+   "texte": "Each time a model in the bearer's unit makes a ranged attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "Hekaton Land Fortress": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Scanner Pan-spectral",
+   "quand": "Le véhicule porte le scanner pan-spectral",
+   "texte": "Each time a model in the bearer's unit makes a ranged attack, re-roll a Hit roll of 1."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Kâhl": [
+  {
+   "mot": "lethal",
+   "nom": "Héros de la Parentèle",
+   "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Acquisition Hostile",
+  "quand": "Tes unités ont Acquisition Hostile, et la cible est à portée d'un objectif",
+  "texte": "Hostile Acquisition — Each time a model in this unit makes an attack that targets an enemy unit within range of one or more objective markers, add 1 to the Hit roll."
+ },
+ {
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Prise Fortifiée",
+  "quand": "Tes unités ont Prise Fortifiée, et l'unité est à portée d'un objectif que tu contrôles",
+  "texte": "Fortify Takeover — Each time a model in this unit makes an attack that targets an enemy unit, if this unit is within range of one or more objective markers you control, add 1 to the Hit roll."
+ },
+ {
+  "detach": "Brandfast Oathband",
+  "kw": [
+   "infantry"
+  ],
+  "mot": "sust:1",
+  "port": "T",
+  "nom": "Contrôle de Base de Feu (Aura)",
+  "quand": "L'unité d'INFANTERIE est entièrement à 6\" d'un TRANSPORT ami",
+  "texte": "Firebase Control (Aura): While a friendly Leagues of Votann Infantry unit is wholly within 6\" of this TRANSPORT, ranged weapons equipped by models in that INFANTRY unit have the [sustained hits 1] ability."
+ },
+ {
+  "detach": "Farseekers",
+  "kw": [
+   "Hernkyn Pioneers",
+   "Hernkyn Yaegirs",
+   "Kapricus Carrier",
+   "Kapricus Defenders"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Œil de la Chasse",
+  "quand": "La cible est à 12\" ou moins",
+  "texte": "Friendly HERNKYN units’ ranged attacks that target a unit within 12\" have +1 to hit rolls."
+ },
+ {
+  "detach": "Hearthband",
+  "kw": [],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Annihilation Méthodique",
+  "quand": "La cible est la cible éligible la plus proche, ou au contact de l'unité",
+  "texte": "Each time a Leagues of Votann model from your army makes an attack with a weapon that targets the closest eligible target or a target that is within Engagement Range of that model’s unit: ▪ Re-roll a Wound roll of 1."
+ },
+ {
+  "detach": "Hearthband",
+  "kw": [
+   "Kâhl",
+   "Einhyr Hearthguard",
+   "Ûthar the Destined"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "nom": "Annihilation Méthodique — Kâhl et Hearthguard",
+  "quand": "La cible est la cible éligible la plus proche, ou au contact de l'unité",
+  "texte": "▪ If your unit is a Kâhl, Einhyr Hearthguard or Ûthar the Destined unit, improve the Armour Penetration characteristic of that attack by 1."
+ },
+ {
+  "detach": "Hearthfyre Arsenal",
+  "kw": [
+   "Brôkhyr Iron-master",
+   "Brôkhyr Thunderkyn",
+   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
+   "Ironkin Steeljacks with Melee Weapons",
+   "Arkanyst Evaluator"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "port": "T",
+  "nom": "Application Optimale",
+  "quand": "Tu dépenses 1 PR quand l'unité est choisie pour tirer",
+  "texte": "In your Shooting phase, each time a Brôkhyr, Ironkin Steeljacks or Arkanyst Evaluator unit from your army is selected to shoot, you can spend 1YP. If you do, until the end of the phase, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "detach": "Hearthguard Covenant",
+  "kw": [
+   "Kâhl",
+   "Einhyr Champion",
+   "Einhyr Hearthguard",
+   "Ûthar the Destined"
+  ],
+  "champ": "rrW",
+  "val": "ones",
+  "port": "T",
+  "nom": "Avatars des Ancêtres",
+  "quand": "La cible est à 9\" ou moins",
+  "texte": "Friendly KÂHL/EINHYR CHAMPION/EINHYR HEARTHGUARD/ÛTHAR THE DESTINED units’ ranged attacks that target a unit within 9\" can re-roll wound rolls of 1."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Illuminated Priority",
+  "detach": "Brandfast Oathband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Arkanyst Evaluator",
+   "Berehk Stornbröw",
+   "Brôkhyr Iron-master",
+   "Brôkhyr Thunderkyn",
+   "Buri Aegnirssen",
+   "Cthonian Beserks",
+   "Cthonian Earthshakers",
+   "Einhyr Champion",
+   "Einhyr Hearthguard",
+   "Grimnyr",
+   "Hearthkyn Warriors",
+   "Hernkyn Yaegirs",
+   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
+   "Ironkin Steeljacks with Melee Weapons",
+   "Kâhl",
+   "Memnyr Strategist",
+   "Ûthar the Destined"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher — INFANTERIE, contre l'unité touchée par ton VÉHICULE",
+  "effet": {
+   "rrH": "ones"
+  }
+ },
+ {
+  "nom": "Cyberstimm Infusion",
+  "detach": "Dêlve Assault Shift",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Cthonian Beserks"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour blesser",
+  "effet": {
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Cyberstimm Infusion — 2 PR dépensés",
+  "detach": "Dêlve Assault Shift",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Cthonian Beserks"
+  ],
+  "sauf": [],
+  "aide": "relance TOTALE des blessures — tu as dépensé 2 PR",
+  "effet": {
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "No Shot Wasted",
+  "detach": "Farseekers",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Hernkyn Pioneers",
+   "Hernkyn Yaegirs",
+   "Kapricus Carrier",
+   "Kapricus Defenders"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] sur les armes de tir",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Scornful Analysis",
+  "detach": "Farseekers",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] contre l'unité désignée par tes HERNKYN",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Fury of the Hearth",
+  "detach": "Hearthband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Einhyr Hearthguard"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force aux armes de tir",
+  "effet": {
+   "strMod": 1
+  }
+ },
+ {
+  "nom": "Fury of the Hearth — 1 PR dépensé",
+  "detach": "Hearthband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Einhyr Hearthguard"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force et [TOUCHES SOUTENUES 1] — tu as dépensé 1 PR",
+  "effet": {
+   "strMod": 1,
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Superior Craftsmanship",
+  "detach": "Hearthband",
+  "pc": 2,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 aux Dégâts — contre MONSTRE ou VÉHICULE seulement",
+  "effet": {
+   "dmgMod": 1
+  }
+ },
+ {
+  "nom": "Unwavering Accuracy",
+  "detach": "Hearthfyre Arsenal",
+  "pc": 2,
+  "ph": "T",
+  "unites": [
+   "Brôkhyr Thunderkyn"
+  ],
+  "sauf": [],
+  "aide": "ignore les malus de CT, de touche, de blessure et de PA",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Fury of the Hearth",
+  "detach": "Hearthguard Covenant",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Einhyr Hearthguard"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force aux armes de tir",
+  "effet": {
+   "strMod": 1
+  }
+ },
+ {
+  "nom": "Fury of the Hearth — 1 PR dépensé",
+  "detach": "Hearthguard Covenant",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Einhyr Hearthguard"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force et [TOUCHES SOUTENUES 1] — tu as dépensé 1 PR",
+  "effet": {
+   "strMod": 1,
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Optimal Expenditure",
+  "detach": "Mercenary Oathband",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Arkanyst Evaluator",
+   "Berehk Stornbröw",
+   "Brôkhyr Iron-master",
+   "Brôkhyr Thunderkyn",
+   "Buri Aegnirssen",
+   "Cthonian Beserks",
+   "Cthonian Earthshakers",
+   "Einhyr Champion",
+   "Einhyr Hearthguard",
+   "Grimnyr",
+   "Hearthkyn Warriors",
+   "Hernkyn Yaegirs",
+   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
+   "Ironkin Steeljacks with Melee Weapons",
+   "Kâhl",
+   "Memnyr Strategist",
+   "Ûthar the Destined"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher et pour blesser",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Optimal Expenditure — 3 PR dépensés",
+  "detach": "Mercenary Oathband",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Arkanyst Evaluator",
+   "Berehk Stornbröw",
+   "Brôkhyr Iron-master",
+   "Brôkhyr Thunderkyn",
+   "Buri Aegnirssen",
+   "Cthonian Beserks",
+   "Cthonian Earthshakers",
+   "Einhyr Champion",
+   "Einhyr Hearthguard",
+   "Grimnyr",
+   "Hearthkyn Warriors",
+   "Hernkyn Yaegirs",
+   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
+   "Ironkin Steeljacks with Melee Weapons",
+   "Kâhl",
+   "Memnyr Strategist",
+   "Ûthar the Destined"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher, relance TOTALE des blessures — tu as dépensé 3 PR",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Privateer Arsenal",
+  "detach": "Mercenary Oathband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Arkanyst Evaluator",
+   "Berehk Stornbröw",
+   "Brôkhyr Iron-master",
+   "Brôkhyr Thunderkyn",
+   "Buri Aegnirssen",
+   "Cthonian Beserks",
+   "Cthonian Earthshakers",
+   "Einhyr Champion",
+   "Einhyr Hearthguard",
+   "Grimnyr",
+   "Hearthkyn Warriors",
+   "Hernkyn Yaegirs",
+   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
+   "Ironkin Steeljacks with Melee Weapons",
+   "Kâhl",
+   "Memnyr Strategist",
+   "Ûthar the Destined"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher et pour blesser",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Privateer Arsenal — 3 PR dépensés",
+  "detach": "Mercenary Oathband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Arkanyst Evaluator",
+   "Berehk Stornbröw",
+   "Brôkhyr Iron-master",
+   "Brôkhyr Thunderkyn",
+   "Buri Aegnirssen",
+   "Cthonian Beserks",
+   "Cthonian Earthshakers",
+   "Einhyr Champion",
+   "Einhyr Hearthguard",
+   "Grimnyr",
+   "Hearthkyn Warriors",
+   "Hernkyn Yaegirs",
+   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
+   "Ironkin Steeljacks with Melee Weapons",
+   "Kâhl",
+   "Memnyr Strategist",
+   "Ûthar the Destined"
+  ],
+  "sauf": [],
+  "aide": "relance TOTALE des touches, relance des 1 pour blesser — tu as dépensé 3 PR",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Ancestral Sentence",
+  "detach": "Needgaârd Oathband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] sur les armes de tir",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Ancestral Sentence — 3 PR dépensés",
+  "detach": "Needgaârd Oathband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 2] sur les armes de tir — tu as dépensé 3 PR",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "2"
+  }
+ },
+ {
+  "nom": "Honour of the Hold",
+  "detach": "Needgaârd Oathband",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA au corps à corps contre l'unité désignée",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Honour of the Hold — 3 PR dépensés",
+  "detach": "Needgaârd Oathband",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+2 en PA au corps à corps contre l'unité désignée — tu as dépensé 3 PR",
+  "effet": {
+   "apMod": 2
+  }
+ },
+ {
+  "nom": "Huntr’s Mark",
+  "detach": "Needgaârd Oathband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher et pour blesser",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Exposed Flaws",
+  "detach": "Persecution Prospect",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Hernkyn Pioneers",
+   "Hernkyn Yaegirs",
+   "Kapricus Carrier",
+   "Kapricus Defenders"
+  ],
+  "sauf": [],
+  "aide": "relance des blessures ratées — tu as dépensé 2 PR, ou la cible est assaillie",
+  "effet": {
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Ranger Tactics",
+  "detach": "Persecution Prospect",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées — la cible est assaillie, ou ton unité est HERNKYN",
+  "effet": {
+   "rrH": "failed"
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
@@ -943,10 +1521,6 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "votann",

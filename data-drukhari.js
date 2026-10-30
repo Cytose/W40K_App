@@ -1075,11 +1075,710 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_COND = {
+ "Incubi": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Tourmenteurs",
+   "quand": "La cible est sous le choc",
+   "texte": "Each time a model in this unit makes a melee attack that targets a Battle-shocked unit, add 1 to the Hit roll."
+  }
+ ],
+ "Drazhar": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Exécuteur Silencieux",
+   "quand": "La cible est sous son Effectif de Départ",
+   "texte": "Each time this model make an attack that targets a unit that is below its Starting Strength, you can re-roll the Hit roll."
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Exécuteur Silencieux — sous la moitié",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "If that target is Below Half-Strength, you can re-roll the Wound roll as well."
+  }
+ ],
+ "Hellions": [
+  {
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Boucherie du Champ de Bataille (Douleur)",
+   "quand": "L'unité est Renforcée (1 jeton de Douleur)",
+   "texte": "In the Fight phase, when you select this unit to fight, you can spend 1 Pain token to Empower this unit. While Empowered, add 1 to the Attacks and Strength characteristics of this unit's melee weapons."
+  },
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Boucherie du Champ de Bataille (Douleur)",
+   "quand": "L'unité est Renforcée (1 jeton de Douleur)",
+   "texte": "In the Fight phase, when you select this unit to fight, you can spend 1 Pain token to Empower this unit. While Empowered, add 1 to the Attacks and Strength characteristics of this unit's melee weapons."
+  }
+ ],
+ "Kabalite Warriors": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Pillards Sadiques (Douleur)",
+   "quand": "L'unité est Renforcée (1 jeton de Douleur)",
+   "texte": "In your Shooting phase or the Fight phase, when you select this unit to shoot or fight, you can spend 1 Pain token to Empower this unit. While Empowered, each time a model in this unit makes an attack, re-roll a Wound roll of 1."
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Pillards Sadiques (Douleur) — sur objectif",
+   "quand": "L'unité est Renforcée, et la cible est à portée d'un objectif",
+   "texte": "If the target is within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Ravager": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Éradiquer l'Ennemi",
+   "quand": "La cible est à son Effectif de Départ",
+   "texte": "Each time this model makes an attack that targets an enemy unit that is at its Starting Strength, you can re-roll the Hit roll."
+  }
+ ],
+ "Reaper": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Éradiquer l'Ennemi",
+   "quand": "La cible est à son Effectif de Départ",
+   "texte": "Each time this model makes an attack that targets an enemy unit that is at its Starting Strength, re-roll a Hit roll of 1. If the target unit has a Starting Strength of 1, this ability only applies if that unit has its starting number of wounds."
+  }
+ ],
+ "Scourges with Heavy Weapons": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "T",
+   "nom": "Frappe Ailée (Douleur)",
+   "quand": "L'unité est Renforcée (1 jeton de Douleur)",
+   "texte": "In your Shooting phase, when you select this unit to shoot, you can spend 1 Pain token to Empower this unit. While Empowered, each time a model in this unit makes a range attack, you can re-roll the Hit roll."
+  }
+ ],
+ "Raven Strike Fighter": [
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Feu Déchiqueteur (Douleur)",
+   "quand": "L'unité est Renforcée (1 jeton de Douleur)",
+   "texte": "In your Shooting phase, when you select this unit to shoot, you can spend 1 Pain token to Empower this unit. While Empowered, the Armour Penetration characteristic of its ranged weapons is increased by 1."
+  }
+ ],
+ "Court of the Archon": [
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Suite Mortelle (Douleur)",
+   "quand": "L'unité est Renforcée, et contient un Lhamaean",
+   "texte": "While this unit is Empowered: ■ If it contains one or more Lhamaean models, melee weapons equipped by models in this unit have the [LETHAL HITS] ability."
+  },
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Suite Mortelle (Douleur)",
+   "quand": "L'unité est Renforcée, et contient une Medusae",
+   "texte": "■ If it contains one or more Medusae models, ranged weapons equipped by models in this unit have the [IGNORES COVER] ability."
+  }
+ ],
+ "Grotesques": [
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Macro-stéroïdes (Douleur)",
+   "quand": "L'unité est Renforcée (1 jeton de Douleur) — la Force 8 n'est pas simulée",
+   "texte": "In the Fight phase, when you select this unit to fight, you can spend 1 of your Pain tokens to Empower this unit. While Empowered, melee weapons equipped by models in this unit have a Strength characteristic of 8 and the [LETHAL HITS] ability."
+  }
+ ],
+ "Wracks": [
+  {
+   "arme": "Torturer's tool",
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Améliorations Expérimentales (Douleur)",
+   "quand": "L'unité est Renforcée, et choisit 3 attaques — outils de tourmenteur",
+   "texte": "■ Melee weapons equipped by non-Character models in this unit have an Attacks characteristic of 3."
+  },
+  {
+   "arme": "Twin Torturer's Tools",
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Améliorations Expérimentales (Douleur)",
+   "quand": "L'unité est Renforcée, et choisit 3 attaques — outils de tourmenteur",
+   "texte": "■ Melee weapons equipped by non-Character models in this unit have an Attacks characteristic of 3."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Razorwing Jetfighter": [
+  {
+   "sauf": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Appareil d'Attaque au Sol",
+   "texte": "Each time a model in this unit makes a ranged attack that targets an enemy unit (excluding units that can Fly), add 1 to the Hit roll."
+  }
+ ],
+ "Raven Strike Fighter": [
+  {
+   "sauf": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Appareil d'Attaque au Sol",
+   "texte": "Each time a model in this unit makes a ranged attack that targets an enemy unit  (excluding unit that can Fly), add 1 to the Hit roll."
+  }
+ ],
+ "Succubus": [
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Spectacle Sanglant",
+   "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+  },
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Spectacle Sanglant",
+   "texte": "Each time this model makes a melee attack that targets a Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Succubus": [
+  {
+   "mot": "sust:1",
+   "port": "C",
+   "nom": "Tempête de Lames",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Archon",
+  "kw": [
+   "Archon",
+   "Court of the Archon",
+   "Hand of the Archon",
+   "Incubi",
+   "Kabalite Warriors"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Haine Éternelle (Douleur)",
+  "quand": "L'unité est menée par l'Archon, et elle est Renforcée",
+  "texte": "In your Shooting or the Fight phase, when you select this model's unit to shoot or fight, you can spend 1 Pain token to Empower that unit. While that unit is Empowered, each time a model in that unit makes an attack, you can re-roll the Hit roll."
+ },
+ {
+  "source": "Drazhar",
+  "kw": [
+   "Drazhar",
+   "Incubi"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Maître des Lames (Douleur)",
+  "quand": "L'unité est menée par Drazhar, et elle est Renforcée",
+  "texte": "In the Fight phase, when you select this model's unit to fight, you can spend 1 Pain token to Empower that unit. While that unit is Empowered, each time a model in that unit makes a melee attack, add 1 to the Wound roll."
+ },
+ {
+  "source": "Lelith Hesperax",
+  "kw": [
+   "Lelith Hesperax",
+   "Wyches"
+  ],
+  "champ": "strMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Épouses de la Mort (Douleur)",
+  "quand": "L'unité est menée par Lelith, et elle est Renforcée",
+  "texte": "In the Fight phase, when you select this model's unit to fight, you can spend 1 Pain token to Empower that unit. While that unit is Empowered, each time a model in that unit makes a melee attack, improve the Strength and Armour Penetration characteristics of that attack by 1."
+ },
+ {
+  "source": "Lelith Hesperax",
+  "kw": [
+   "Lelith Hesperax",
+   "Wyches"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Épouses de la Mort (Douleur)",
+  "quand": "L'unité est menée par Lelith, et elle est Renforcée",
+  "texte": "In the Fight phase, when you select this model's unit to fight, you can spend 1 Pain token to Empower that unit. While that unit is Empowered, each time a model in that unit makes a melee attack, improve the Strength and Armour Penetration characteristics of that attack by 1."
+ },
+ {
+  "source": "Urien Rakarth",
+  "kw": [
+   "Urien Rakarth",
+   "Wracks"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Sculpteur de Tourments (Douleur)",
+  "quand": "L'unité est menée par Urien, et elle est Renforcée",
+  "texte": "In your Fight phase, when you select this model’s unit to fight, you can spend 1 of your Pain tokens to Empower this model’s unit. While that unit is Empowered, each time a model in that unit makes a melee attack, add 1 to the Wound roll."
+ },
+ {
+  "source": "Scourges with Shardcarbines",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Feux Croisés Meurtriers",
+  "quand": "La cible a été touchée par les Scourges cette phase",
+  "texte": "After this unit has shot, select one enemy unit hit by one or more of those attacks. Until the end of the phase, each time a friendly Drukhari unit makes a ranged attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1. The same enemy unit can only be affected by this ability once per turn."
+ },
+ {
+  "detach": "Exhibition of Slaughter",
+  "kw": [
+   "Hellions",
+   "Lelith Hesperax",
+   "Reavers",
+   "Succubus",
+   "Wyches"
+  ],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Cruauté Exigeante",
+  "quand": "La cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "Friendly WYCH CULT units’ melee attacks have [LETHAL HITS: non-MONSTER/VEHICLE]."
+ },
+ {
+  "detach": "Kabalite Agonysts",
+  "kw": [
+   "Archon",
+   "Court of the Archon",
+   "Hand of the Archon",
+   "Kabalite Warriors",
+   "Lady Malys",
+   "Ravager",
+   "Reaper",
+   "Drazhar",
+   "Incubi",
+   "Mandrakes",
+   "Scourges with Heavy Weapons",
+   "Scourges with Shardcarbines"
+  ],
+  "mot": "sust:1",
+  "port": "T",
+  "nom": "Moisson Contractuelle",
+  "quand": "La cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "Friendly BLADES FOR HIRE/KABAL units’ ranged attacks have [SUSTAINED HITS 1: non-MONSTER/VEHICLE]."
+ },
+ {
+  "detach": "Kabalite Cartel",
+  "kw": [
+   "Archon",
+   "Court of the Archon",
+   "Hand of the Archon",
+   "Kabalite Warriors",
+   "Lady Malys",
+   "Ravager",
+   "Reaper",
+   "Drazhar",
+   "Incubi",
+   "Mandrakes",
+   "Scourges with Heavy Weapons",
+   "Scourges with Shardcarbines"
+  ],
+  "mot": "sust:1",
+  "nom": "Contrat — Semer la Peur et la Terreur",
+  "quand": "Ce contrat est en cours, et la cible est INFANTERIE ou MONTÉE",
+  "texte": "Sow Fear and Terror Contract — Ability: Each time a KABAL or BLADES FOR HIRE model in this unit makes an attack that targets an INFANTRY or MOUNTED unit, that attack has the [sustained hits 1] ability."
+ },
+ {
+  "detach": "Kabalite Cartel",
+  "kw": [
+   "Archon",
+   "Court of the Archon",
+   "Hand of the Archon",
+   "Kabalite Warriors",
+   "Lady Malys",
+   "Ravager",
+   "Reaper",
+   "Drazhar",
+   "Incubi",
+   "Mandrakes",
+   "Scourges with Heavy Weapons",
+   "Scourges with Shardcarbines"
+  ],
+  "mot": "lethal",
+  "nom": "Contrat — Démonstration de Force",
+  "quand": "Ce contrat est en cours, et la cible est MONSTRE ou VÉHICULE",
+  "texte": "Show of Strength Contract — Ability: Each time a KABAL or BLADES FOR HIRE model in this unit makes an attack that targets a MONSTER or VEHICLE unit, that attack has the [lethal hits] ability."
+ },
+ {
+  "detach": "Reaper’s Wager",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Compétition Impitoyable",
+  "quand": "Ton unité gagne ou perd le pari — dans les deux cas",
+  "texte": "Each time a DRUKHARI or HARLEQUINS model from your army makes an attack, if that model’s unit is winning the wager, re-roll a Hit roll of 1. If that model’s unit is losing the wager, re-roll a Hit roll of 1 and re-roll a Wound roll of 1 instead."
+ },
+ {
+  "detach": "Reaper’s Wager",
+  "kw": [],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Compétition Impitoyable — pari perdu",
+  "quand": "Ton unité perd le pari",
+  "texte": "If that model’s unit is losing the wager, re-roll a Hit roll of 1 and re-roll a Wound roll of 1 instead."
+ },
+ {
+  "detach": "Skysplinter Assault",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Pluie de Cruauté",
+  "quand": "L'unité a débarqué d'un TRANSPORT ce tour",
+  "texte": "Each time a Drukhari unit from your army disembarks from a Transport, until the end of the turn: ▪ Ranged weapons equipped by models in that disembarking unit have the [ignores cover] ability."
+ },
+ {
+  "detach": "Skysplinter Assault",
+  "kw": [],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Pluie de Cruauté — [LANCE]",
+  "quand": "L'unité a débarqué d'un TRANSPORT ce tour, et elle a chargé",
+  "texte": "▪ Melee weapons equipped by models in that disembarking unit have the [lance] ability. ([LANCE] : +1 pour blesser quand l'unité a chargé.)"
+ },
+ {
+  "detach": "Spectacle of Spite",
+  "kw": [
+   "Hellions",
+   "Lelith Hesperax",
+   "Reavers",
+   "Succubus",
+   "Wyches"
+  ],
+  "champ": "atkMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Drogue de Combat — Adrénaline",
+  "quand": "L'Adrénaline est active ce round",
+  "texte": "1. Adrenalight Add 1 to the Attacks characteristic of melee weapons equipped by Wych Cult models from your army."
+ },
+ {
+  "detach": "Spectacle of Spite",
+  "kw": [
+   "Hellions",
+   "Lelith Hesperax",
+   "Reavers",
+   "Succubus",
+   "Wyches"
+  ],
+  "champ": "strMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Drogue de Combat — Lotus Funèbre",
+  "quand": "Le Lotus Funèbre est actif ce round",
+  "texte": "5. Grave Lotus Add 1 to the Strength characteristic of melee weapons equipped by WYCH CULT models from your army."
+ },
+ {
+  "detach": "Spectacle of Spite",
+  "kw": [
+   "Hellions",
+   "Lelith Hesperax",
+   "Reavers",
+   "Succubus",
+   "Wyches"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Drogue de Combat — Serpentin",
+  "quand": "Le Serpentin est actif ce round — la CC améliorée est comptée comme +1 au jet",
+  "texte": "3. Serpentin Improve the Weapon Skill characteristic of melee weapons equipped by WYCH CULT models from your army by 1."
+ },
+ {
+  "detach": "Spectacle of Spite",
+  "kw": [
+   "Hellions",
+   "Lelith Hesperax",
+   "Reavers",
+   "Succubus",
+   "Wyches"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Drogue de Combat — Esprit-Écharde",
+  "quand": "L'Esprit-Écharde est actif ce round — la CT améliorée est comptée comme +1 au jet",
+  "texte": "6. Splintermind Improve the Leadership characteristic of WYCH CULT models from your army by 1, and improve the Ballistic Skill characteristic of ranged weapons equipped by WYCH CULT models from your army by 1."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Distillers of Fear",
+  "detach": "Covenite Coterie",
+  "pc": 2,
+  "ph": "C",
+  "unites": [
+   "Cronos",
+   "Grotesques",
+   "Haemonculus",
+   "Talos",
+   "Urien Rakarth",
+   "Wracks"
+  ],
+  "sauf": [],
+  "aide": "[BLESSURES DÉVASTATRICES] — contre une unité sous le choc",
+  "effet": {
+   "dev": true
+  }
+ },
+ {
+  "nom": "Planned Strikes",
+  "detach": "Exhibition of Slaughter",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Hellions",
+   "Lelith Hesperax",
+   "Reavers",
+   "Succubus",
+   "Wyches"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] au corps à corps",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Killers from the Dark Spires",
+  "detach": "Kabalite Agonysts",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Kabalite Warriors"
+  ],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] sur les armes de tir",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Making a Point",
+  "detach": "Kabalite Cartel",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Kabalite Warriors",
+   "Hand of the Archon"
+  ],
+  "sauf": [],
+  "aide": "CT améliorée de 1 (comptée comme +1 au jet) et +1 en PA",
+  "effet": {
+   "hitMod": 1,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Tailored Toxins",
+  "detach": "Kabalite Cartel",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Archon",
+   "Court of the Archon",
+   "Hand of the Archon",
+   "Kabalite Warriors",
+   "Lady Malys",
+   "Ravager",
+   "Reaper",
+   "Drazhar",
+   "Incubi",
+   "Mandrakes",
+   "Scourges with Heavy Weapons",
+   "Scourges with Shardcarbines"
+  ],
+  "sauf": [],
+  "aide": "touches critiques sur 5+ — contre ton unité Contrat",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Taken Alive",
+  "detach": "Kabalite Cartel",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour toucher",
+  "effet": {
+   "hitMod": 1
+  }
+ },
+ {
+  "nom": "Dark Harvest",
+  "detach": "Realspace Raiders",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] au corps à corps — deux unités de Wracks, ou une autre",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Instinctive Spite",
+  "detach": "Realspace Raiders",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour toucher — contre une cible sous la moitié de son effectif",
+  "effet": {
+   "hitMod": 1
+  }
+ },
+ {
+  "nom": "Instinctive Spite — 1 jeton de Douleur",
+  "detach": "Realspace Raiders",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour toucher et +1 pour blesser — cible sous la moitié, et tu as dépensé 1 jeton",
+  "effet": {
+   "hitMod": 1,
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Malicious Frenzy",
+  "detach": "Reaper’s Wager",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] — si tu choisis celle-ci",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Malicious Frenzy — Touches Soutenues",
+  "detach": "Reaper’s Wager",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] — si tu choisis celle-ci",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Skyborne Annihilation",
+  "detach": "Skysplinter Assault",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] sur les armes de tir — l'unité a débarqué ce tour",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Skyborne Annihilation — Kabalites",
+  "detach": "Skysplinter Assault",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Kabalite Warriors",
+   "Hand of the Archon"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 2] sur les armes de tir — Guerriers Kabalites ou Main de l'Archonte",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "2"
+  }
+ },
+ {
+  "nom": "Deadly Debut",
+  "detach": "Spectacle of Spite",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] au corps à corps — l'unité a chargé ce tour",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Deadly Debut — Wyches",
+  "detach": "Spectacle of Spite",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Wyches"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] et +1 en PA au corps à corps — l'unité a chargé ce tour",
+  "effet": {
+   "lethal": true,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Salting the Wound",
+  "detach": "Tools of Torment",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Cronos",
+   "Talos"
+  ],
+  "sauf": [],
+  "aide": "[BLESSURES DÉVASTATRICES] — contre une unité sous le choc",
+  "effet": {
+   "dev": true
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -1089,9 +1788,6 @@ const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "drukhari",

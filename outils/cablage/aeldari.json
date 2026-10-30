@@ -1,0 +1,1007 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — AELDARI",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-aeldari.js, qui est réécrit",
+    "à chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "LA RÈGLE D'ARMÉE. « Battle Focus » et ses Manœuvres Agiles déplacent,",
+    "elles ne frappent pas : rien à câbler.",
+    "",
+    "LES POUVOIRS ET LES AURAS. Guide, Doom, le Héraut d'Ynnead, les",
+    "cristaux des War Walkers, la Toile de Lhykhis, la Fureur du Vide de",
+    "Kharseth valent pour toute l'armée contre UNE cible : AURAS_ARMEE, à",
+    "déclarer, dès que la source est dans la liste.",
+    "",
+    "LES DÉTACHEMENTS. Deux jouent d'office (OCTROIS_DETACH) : les",
+    "Touches Soutenues des Montés et Véhicules Harlequins du Serpent’s",
+    "Brood. Les autres posent une condition, ou un choix : AURAS_ARMEE avec",
+    "`detach`.",
+    "",
+    "RESTE DEHORS : les relances UNIQUES (Crystal Matrix, Soulsight du",
+    "Warhost blindé), les relances de dégâts, les caractéristiques fixées",
+    "(Doom Inescapable, Hand of Asuryan), les bonus qui dépendent du nombre",
+    "de psykers ou de plateformes alentour (Psychic Communion, Sonic",
+    "Destruction), « Seer’s Eye » (le moteur ne sait ignorer que les malus de touche), [PRÉCISION], [LANCE], [ASSAUT], et toute la défense",
+    "(Molten Form, Wave Serpent Shield, Forewarned, Lightning-Fast",
+    "Reactions…). Les malus infligés à l'adversaire (Misfortune) aussi."
+  ],
+  "APTIS_UNITE": {
+    "Corsair Voidreavers": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Pillards du Vide",
+        "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+      }
+    ],
+    "Windriders": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Mort Rapide",
+        "texte": "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1."
+      }
+    ],
+    "Warlock Skyrunners": [
+      {
+        "mot": "ignorescover",
+        "nom": "Runes de Bataille (Psychique)",
+        "texte": "Weapons equipped by models in this unit have the [IGNORES COVER] ability."
+      }
+    ],
+    "Clanblade": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Lame des Clans",
+        "texte": "This unit’s melee attacks have [SUSTAINED HITS 1]."
+      }
+    ],
+    "Troupe Master": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Faveur de Cegorach",
+        "texte": "Each time this model makes a melee attack you can re-roll a Hit roll of 1 and add 1 to the Wound roll."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Faveur de Cegorach",
+        "texte": "Each time this model makes a melee attack you can re-roll a Hit roll of 1 and add 1 to the Wound roll."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Crimson Hunter": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "vs": [
+          "vol"
+        ],
+        "port": "T",
+        "nom": "Chasseur Céleste",
+        "texte": "Each time this model makes a ranged attack that targets a unit that can Fly, add 1 to the Hit roll and add 1 to the Wound roll."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "vs": [
+          "vol"
+        ],
+        "port": "T",
+        "nom": "Chasseur Céleste",
+        "texte": "Each time this model makes a ranged attack that targets a unit that can Fly, add 1 to the Hit roll and add 1 to the Wound roll."
+      }
+    ],
+    "Nightwing": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "vs": [
+          "vol"
+        ],
+        "port": "T",
+        "nom": "Intercepteur",
+        "texte": "Each time this model makes a ranged attack that targets a unit that can Fly, add 1 to the Hit roll."
+      }
+    ],
+    "Phoenix": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "sauf": [
+          "vol"
+        ],
+        "port": "T",
+        "nom": "Passe de Mitraillage",
+        "texte": "Each time this model makes a ranged attack that targets a unit that cannot FLY, add 1 to the Hit roll."
+      }
+    ],
+    "Fire Dragons": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "port": "T",
+        "nom": "Destruction Assurée",
+        "texte": "In your Shooting phase, each time a model in this unit makes a ranged attack that targets a Monster or Vehicle unit, you can re-roll the Hit roll, you can re-roll the Wound roll and you can re-roll the Damage roll. (La relance des dégâts n'est pas simulée.)"
+      },
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "port": "T",
+        "nom": "Destruction Assurée",
+        "texte": "In your Shooting phase, each time a model in this unit makes a ranged attack that targets a Monster or Vehicle unit, you can re-roll the Hit roll, you can re-roll the Wound roll and you can re-roll the Damage roll. (La relance des dégâts n'est pas simulée.)"
+      }
+    ],
+    "Jain Zar": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "vs": [
+          "perso"
+        ],
+        "nom": "Tempête de Silence",
+        "texte": "Each time this model makes an attack that targets a Character unit, you can re-roll the Wound roll."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Illic Nightspear": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "nom": "Porteur de la Vraie Mort",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, you can re-roll the Wound roll."
+      }
+    ],
+    "Karandras": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Chasseur des Ombres",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Hit roll."
+      }
+    ],
+    "Irillyth": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Faucheur d'Âmes",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Hit roll"
+      }
+    ],
+    "Ynnari Archon": [
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Suzerain",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, re-roll a Wound roll of 1."
+      }
+    ],
+    "Ynnari Succubus": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Tempête de Lames",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+      }
+    ],
+    "Prince Yriel": [
+      {
+        "mot": "sust:1",
+        "nom": "Héros Pirate",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, that attack has the [Sustained Hits 1] ability and add 1 to the Hit roll."
+      },
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Héros Pirate",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, that attack has the [Sustained Hits 1] ability and add 1 to the Hit roll."
+      }
+    ],
+    "Clanblade": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Lame des Clans",
+        "texte": "This unit’s melee attacks have [SUSTAINED HITS 1]."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Baharroth": [
+      {
+        "champ": "critH",
+        "val": "tous",
+        "port": "T",
+        "nom": "Cri du Vent",
+        "quand": "Baharroth a été placé sur le champ de bataille ce tour",
+        "texte": "Each time this model is set-up on the battlefield, until the end of the turn, each time this model makes a ranged attack, a successful unmodified Hit roll scores a Critical Hit."
+      }
+    ],
+    "Corsair Voidreavers": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Pillards du Vide — sur objectif",
+        "quand": "La cible est à portée d'un pion d'objectif",
+        "texte": "If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Hit roll instead."
+      }
+    ],
+    "Corsair Voidscarred": [
+      {
+        "mot": "lethal",
+        "nom": "Pillards Pirates",
+        "quand": "La cible est l'unité désignée en début de bataille",
+        "texte": "At the start of the battle, select one unit from your opponent’s army. Each time a model in this unit makes an attack that targets that unit, that attack has the [LETHAL HITS] and [PRECISION] abilities."
+      },
+      {
+        "mot": "ignoresCover",
+        "port": "T",
+        "nom": "Faolchú",
+        "quand": "L'unité compte le Faolchú",
+        "texte": "Ranged weapons equipped by models in the bearer’s unit have the [IGNORES COVER] ability."
+      }
+    ],
+    "Death Jester": [
+      {
+        "mot": "ignoresCover",
+        "port": "T",
+        "nom": "Amusement Cruel — couvert",
+        "quand": "Tu choisis [IGNORE LE COUVERT] pour le Canon Hurleur",
+        "texte": "In your Shooting phase, each time this model is selected to shoot, select one of the abilities below. Until the end of the phase, this model’s Shrieker Cannon has that ability: ■ [IGNORES COVER] ■ [PRECISION] ■ [SUSTAINED HITS 3]"
+      },
+      {
+        "mot": "sust:3",
+        "port": "T",
+        "nom": "Amusement Cruel — Touches Soutenues 3",
+        "quand": "Tu choisis [TOUCHES SOUTENUES 3] pour le Canon Hurleur",
+        "texte": "In your Shooting phase, each time this model is selected to shoot, select one of the abilities below. Until the end of the phase, this model’s Shrieker Cannon has that ability: ■ [IGNORES COVER] ■ [PRECISION] ■ [SUSTAINED HITS 3]"
+      }
+    ],
+    "Karandras": [
+      {
+        "champ": "critH",
+        "val": 4,
+        "port": "C",
+        "nom": "Assaut Soutenu",
+        "quand": "Karandras a chargé ce tour",
+        "texte": "Each time this model makes a melee attack, if it made a Charge move this turn, a successful unmodified Hit roll of 4+ scores a Critical Hit"
+      }
+    ],
+    "Striking Scorpions": [
+      {
+        "champ": "critH",
+        "val": 5,
+        "port": "C",
+        "nom": "Mandilasers",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "Each time a model in this unit makes a melee attack, if it made a Charge move this turn, an unmodified Hit roll of 5+ scores a Critical Hit."
+      }
+    ],
+    "Troupe": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Danse de Mort — Prouesse du Héros",
+        "quand": "Tu choisis la Prouesse du Héros ce combat",
+        "texte": "■ Hero's Prowess: Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Danse de Mort — Fléau du Scélérat",
+        "quand": "Tu choisis le Fléau du Scélérat ce combat",
+        "texte": "■ Villain's Doom: Each time a model in this unit makes an attack, add 1 to the Wound roll."
+      }
+    ],
+    "Windriders": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Mort Rapide — cible la plus proche",
+        "quand": "La cible est la cible éligible la plus proche",
+        "texte": "If the target of that attack is the closest eligible target, you can re-roll the Hit roll instead."
+      }
+    ],
+    "Wraithlord": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Héros du Destin",
+        "quand": "La cible porte le mot-clé choisi en début de bataille",
+        "texte": "At the start of the battle, select one of the following keywords: Infantry, Monster, Mounted, Vehicle. Each time this model makes an attack that targets a unit with the selected keyword, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
+      },
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Héros du Destin",
+        "quand": "La cible porte le mot-clé choisi en début de bataille",
+        "texte": "At the start of the battle, select one of the following keywords: Infantry, Monster, Mounted, Vehicle. Each time this model makes an attack that targets a unit with the selected keyword, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
+      }
+    ],
+    "Wraithguard": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Guidage Psychique",
+        "quand": "L'unité est à 12\" d'un PSYKER aeldari ami",
+        "texte": "While this unit is within 12\" of one or more friendly Aeldari Psyker models, models in this unit have a Leadership characteristic of 6+ and each time a model in this unit makes an attack, add 1 to the Hit roll."
+      }
+    ],
+    "Wraithblades": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Guidage Psychique",
+        "quand": "L'unité est à 12\" d'un PSYKER aeldari ami",
+        "texte": "While this unit is within 12\" of one or more friendly Aeldari Psyker models, models in this unit have a Leadership characteristic of 6+ and each time a model in this unit makes an attack, add 1 to the Hit roll."
+      }
+    ],
+    "Solitaire": [
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Blitz",
+        "quand": "Le Blitz est utilisé ce tour (une fois par bataille)",
+        "texte": "Once per battle, in your Movement phase, before this model makes a Normal move it can use this ability. If it does, until the end of the turn, add 2D6\" to this model’s Move characteristic and add 3 to the Attacks characteristic of this model’s Solitaire weapons."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "source": "Farseer",
+      "kw": [],
+      "nom": "Guide (Psychique)",
+      "quand": "La cible a été désignée par le Prophète ce tour",
+      "texte": "At the end of your Movement phase, select one enemy unit within 18\" of and visible to this model. Until the start of your next Command phase, each time a friendly Aeldari model makes an attack that targets that enemy unit, add 1 to the Hit roll."
+    },
+    {
+      "champ": "wndMod",
+      "val": 1,
+      "source": "Eldrad Ulthran",
+      "kw": [],
+      "nom": "Malédiction (Psychique)",
+      "quand": "La cible a été désignée par Eldrad ce tour",
+      "texte": "At the end of your Movement phase, select one enemy unit within 18\" of and visible to this model. Until the start of your next Command phase, each time a friendly Aeldari model makes an attack that targets that enemy unit, add 1 to the Wound roll"
+    },
+    {
+      "champ": "rrW",
+      "val": "ones",
+      "source": "Yvraine",
+      "kw": [],
+      "port": "C",
+      "nom": "Héraut d'Ynnead",
+      "quand": "La cible a été désignée par Yvraine ce combat",
+      "texte": "At the start of the Fight phase, select one enemy unit within Engagement Range of this model. Until the end of the phase, each time a friendly AELDARI model makes an attack that targets that unit, you can re-roll a Wound roll of 1."
+    },
+    {
+      "champ": "rrW",
+      "val": "failed",
+      "source": "Falcon",
+      "kw": [],
+      "port": "T",
+      "nom": "Appui-Feu",
+      "quand": "L'unité a débarqué du Falcon ce tour, et vise l'unité qu'il a touchée",
+      "texte": "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the turn, each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll"
+    },
+    {
+      "champ": "critH",
+      "val": 5,
+      "source": "Lhykhis",
+      "kw": [],
+      "nom": "Toile Murmurante",
+      "quand": "La cible a été touchée par Lhykhis ce tour",
+      "texte": "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the turn, each time a friendly Aeldari model makes an attack that targets that unit, an unmodified Hit roll of 5+ scores a Critical Hit."
+    },
+    {
+      "champ": "apMod",
+      "val": 1,
+      "source": "War Walkers",
+      "kw": [],
+      "port": "T",
+      "nom": "Ciblage Cristallin",
+      "quand": "La cible a été touchée par les War Walkers cette phase",
+      "texte": "In your Shooting phase, after this unit has shot, select one enemy unit hit by one or more of those attacks. Until the end of the phase, each time a friendly Aeldari unit makes an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1. Each unit can only be selected for that ability once per turn."
+    },
+    {
+      "champ": "strMod",
+      "val": 1,
+      "source": "Kharseth",
+      "kw": [],
+      "nom": "Fureur du Vide (Psychique)",
+      "quand": "La cible est « déchirée » par Kharseth ce tour",
+      "texte": "In your Shooting phase, after this model’s unit has shot, select one enemy unit hit by one or more attacks made with this model’s Dread of the Deep Void. Until the end of the turn, that unit is riven. Each time an Aeldari model from your army makes an attack that targets a riven unit, add 1 to the Strength characteristic of that attack."
+    },
+    {
+      "champ": "rrW",
+      "val": "failed",
+      "source": "Ynnari Archon",
+      "kw": [
+        "Ynnari Archon",
+        "Ynnari Incubi",
+        "Ynnari Kabalite Warriors"
+      ],
+      "nom": "Suzerain — sous l'effectif",
+      "quand": "L'unité est menée par l'Archonte, et sous son Effectif de Départ",
+      "texte": "While that unit is below its Starting Strength, each time a model in that unit makes an attack, you can re-roll the Wound roll instead."
+    },
+    {
+      "champ": "rrH",
+      "val": "ones",
+      "detach": "Aspect Host",
+      "kw": [
+        "Dark Reapers",
+        "Dire Avengers",
+        "Fire Dragons",
+        "Howling Banshees",
+        "Shining Spears",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Warp Spiders",
+        "Avatar of Khaine"
+      ],
+      "nom": "Voie du Guerrier — touche",
+      "quand": "Tu choisis la relance des 1 pour toucher pour cette phase",
+      "texte": "▪ Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+    },
+    {
+      "champ": "rrW",
+      "val": "ones",
+      "detach": "Aspect Host",
+      "kw": [
+        "Dark Reapers",
+        "Dire Avengers",
+        "Fire Dragons",
+        "Howling Banshees",
+        "Shining Spears",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Warp Spiders",
+        "Avatar of Khaine"
+      ],
+      "nom": "Voie du Guerrier — blessure",
+      "quand": "Tu choisis la relance des 1 pour blesser pour cette phase",
+      "texte": "▪ Each time a model in this unit makes an attack, re-roll a Wound roll of 1."
+    },
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "detach": "Guardian Battlehost",
+      "kw": [
+        "Dire Avengers",
+        "Guardian Defenders",
+        "Storm Guardians",
+        "D-Cannon Platform",
+        "Shadow Weaver Platform",
+        "Vibro Cannon Platform",
+        "War Walkers"
+      ],
+      "nom": "Défendre à Tout Prix",
+      "quand": "L'unité et/ou la cible sont à portée d'un objectif",
+      "texte": "Each time a Dire Avenger, Guardian, Support Weapon or War Walker model from your army makes an attack, if that model’s unit and/or the target unit are within range of one or more objective markers, add 1 to the Hit roll."
+    },
+    {
+      "mot": "sust:1",
+      "detach": "Serpent’s Brood",
+      "kw": [],
+      "nom": "Bienfaits de la Couvée — débarquement",
+      "quand": "L'unité HARLEQUINS a débarqué d'un TRANSPORT ce tour",
+      "texte": "Each time a Harlequins unit from your army disembarks from a Transport, until the end of the turn, that unit’s weapons have the [SUSTAINED HITS 1] ability."
+    },
+    {
+      "champ": "hitMod",
+      "val": 1,
+      "detach": "Spirit Conclave",
+      "kw": [
+        "Hemlock Wraithfighter",
+        "Phantom Titan",
+        "Revenant Titan",
+        "Skathach Wraithknight",
+        "Wraithblades",
+        "Wraithguard",
+        "Wraithknight",
+        "Wraithknight with Ghostglaive",
+        "Wraithlord",
+        "Wraithseer"
+      ],
+      "nom": "Bergers des Morts",
+      "quand": "La cible porte un jeton Mort Vengeresse",
+      "texte": "Each time a Wraith Construct model from your army makes an attack that targets a unit with one or more Vengeful Dead tokens, add 1 to the Hit roll and add 1 to the Wound roll."
+    },
+    {
+      "champ": "wndMod",
+      "val": 1,
+      "detach": "Spirit Conclave",
+      "kw": [
+        "Hemlock Wraithfighter",
+        "Phantom Titan",
+        "Revenant Titan",
+        "Skathach Wraithknight",
+        "Wraithblades",
+        "Wraithguard",
+        "Wraithknight",
+        "Wraithknight with Ghostglaive",
+        "Wraithlord",
+        "Wraithseer"
+      ],
+      "nom": "Bergers des Morts",
+      "quand": "La cible porte un jeton Mort Vengeresse",
+      "texte": "Each time a Wraith Construct model from your army makes an attack that targets a unit with one or more Vengeful Dead tokens, add 1 to the Hit roll and add 1 to the Wound roll."
+    }
+  ],
+  "OCTROIS_DETACH": {
+    "Serpent’s Brood": [
+      {
+        "mot": "sust:1",
+        "qui": "unite",
+        "kw": [
+          "Skyweavers",
+          "Starweaver",
+          "Voidweaver"
+        ],
+        "nom": "Bienfaits de la Couvée",
+        "texte": "Weapons equipped by Harlequins Mounted and Harlequins Vehicle models from your army have the [SUSTAINED HITS 1] ability."
+      }
+    ]
+  },
+  "STRAT_SIMU": [
+    {
+      "nom": "Preternatural Precision",
+      "detach": "Aspect Host",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Dark Reapers",
+        "Dire Avengers",
+        "Fire Dragons",
+        "Howling Banshees",
+        "Shining Spears",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Warp Spiders"
+      ],
+      "sauf": [],
+      "aide": "une aptitude au choix : [TOUCHES SOUTENUES 1] — ou deux avec un jeton de Sanctuaire",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Preternatural Precision — Touches Fatales",
+      "detach": "Aspect Host",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Dark Reapers",
+        "Dire Avengers",
+        "Fire Dragons",
+        "Howling Banshees",
+        "Shining Spears",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Warp Spiders"
+      ],
+      "sauf": [],
+      "aide": "une aptitude au choix : [TOUCHES FATALES]",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Preternatural Precision — Ignore le Couvert",
+      "detach": "Aspect Host",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Dark Reapers",
+        "Dire Avengers",
+        "Fire Dragons",
+        "Howling Banshees",
+        "Shining Spears",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Warp Spiders"
+      ],
+      "sauf": [],
+      "aide": "une aptitude au choix : [IGNORE LE COUVERT]",
+      "effet": {
+        "ignoresCover": true
+      }
+    },
+    {
+      "nom": "Warrior Focus",
+      "detach": "Aspect Host",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Dark Reapers",
+        "Dire Avengers",
+        "Fire Dragons",
+        "Howling Banshees",
+        "Shining Spears",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Warp Spiders",
+        "Avatar of Khaine"
+      ],
+      "sauf": [],
+      "aide": "ignore les malus de CT/CC, de Force, de PA, de dégâts et de touche",
+      "effet": {
+        "ignoreMalus": true
+      }
+    },
+    {
+      "nom": "Outcast Ambush",
+      "detach": "Corsair Coterie",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Rangers",
+        "Shroud Runners"
+      ],
+      "sauf": [],
+      "aide": "[IGNORE LE COUVERT] et +1 en PA — le [TIR RAPIDE 1] ajouté n'est pas simulé",
+      "effet": {
+        "ignoresCover": true,
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Pirates’ Due",
+      "detach": "Corsair Coterie",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des 1 pour blesser",
+      "effet": {
+        "rrW": "ones"
+      }
+    },
+    {
+      "nom": "Pirates’ Due — Anhrathe sur objectif",
+      "detach": "Corsair Coterie",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Corsair Cloud Dancer Band",
+        "Corsair Reaver Band",
+        "Corsair Skyreavers",
+        "Corsair Voidreavers",
+        "Corsair Voidscarred",
+        "Kharseth",
+        "Prince Yriel",
+        "Starfangs"
+      ],
+      "sauf": [],
+      "aide": "relance TOTALE des blessures — unité ANHRATHE, cible à portée d'un objectif",
+      "effet": {
+        "rrW": "failed"
+      }
+    },
+    {
+      "nom": "Emissaries of Ynnead",
+      "detach": "Devoted of Ynnead",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Autarch",
+        "Autarch Wayleaper",
+        "Bonesinger",
+        "Corsair Reaver Band",
+        "Corsair Skyreavers",
+        "Corsair Voidreavers",
+        "Corsair Voidscarred",
+        "D-Cannon Platform",
+        "Dark Reapers",
+        "Dire Avengers",
+        "Farseer",
+        "Fire Dragons",
+        "Guardian Defenders",
+        "Howling Banshees",
+        "Rangers",
+        "Shadow Spectres",
+        "Shadow Weaver Platform",
+        "Spiritseer",
+        "Storm Guardians",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "The Visarch",
+        "Vibro Cannon Platform",
+        "Warlock",
+        "Warlock Conclave",
+        "Warp Spiders",
+        "Wraithblades",
+        "Wraithguard",
+        "Ynnari Archon",
+        "Ynnari Incubi",
+        "Ynnari Kabalite Warriors",
+        "Ynnari Succubus",
+        "Ynnari Wyches",
+        "Yvraine"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour toucher",
+      "effet": {
+        "rrH": "ones"
+      }
+    },
+    {
+      "nom": "Emissaries of Ynnead — sous l'effectif",
+      "detach": "Devoted of Ynnead",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Autarch",
+        "Autarch Wayleaper",
+        "Bonesinger",
+        "Corsair Reaver Band",
+        "Corsair Skyreavers",
+        "Corsair Voidreavers",
+        "Corsair Voidscarred",
+        "D-Cannon Platform",
+        "Dark Reapers",
+        "Dire Avengers",
+        "Farseer",
+        "Fire Dragons",
+        "Guardian Defenders",
+        "Howling Banshees",
+        "Rangers",
+        "Shadow Spectres",
+        "Shadow Weaver Platform",
+        "Spiritseer",
+        "Storm Guardians",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "The Visarch",
+        "Vibro Cannon Platform",
+        "Warlock",
+        "Warlock Conclave",
+        "Warp Spiders",
+        "Wraithblades",
+        "Wraithguard",
+        "Ynnari Archon",
+        "Ynnari Incubi",
+        "Ynnari Kabalite Warriors",
+        "Ynnari Succubus",
+        "Ynnari Wyches",
+        "Yvraine"
+      ],
+      "sauf": [],
+      "aide": "relance TOTALE des touches — ton unité est sous son Effectif de Départ",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "Soulsight",
+      "detach": "Devoted of Ynnead",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] et [IGNORE LE COUVERT] sur les armes de tir",
+      "effet": {
+        "lethal": true,
+        "ignoresCover": true
+      }
+    },
+    {
+      "nom": "No Prey Too Big",
+      "detach": "Eldritch Raiders",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Corsair Cloud Dancer Band",
+        "Corsair Reaver Band",
+        "Corsair Skyreavers",
+        "Corsair Voidreavers",
+        "Corsair Voidscarred",
+        "Kharseth",
+        "Prince Yriel",
+        "Starfangs",
+        "Rangers",
+        "Shroud Runners"
+      ],
+      "sauf": [],
+      "aide": "+1 pour blesser — la Force est inférieure à l'Endurance de la cible",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Ruthless Killers",
+      "detach": "Eldritch Raiders",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Corsair Voidscarred"
+      ],
+      "sauf": [],
+      "aide": "+1 aux Dégâts",
+      "effet": {
+        "dmgMod": 1
+      }
+    },
+    {
+      "nom": "Warding Salvoes",
+      "detach": "Guardian Battlehost",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Dire Avengers",
+        "Guardian Defenders",
+        "Storm Guardians"
+      ],
+      "sauf": [],
+      "aide": "relance des blessures ratées — cible à portée d'un objectif",
+      "effet": {
+        "rrW": "failed"
+      }
+    },
+    {
+      "nom": "Fate Inescapable",
+      "detach": "Seer Council",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Amallyn Shadowguide",
+        "Asurmen",
+        "Autarch",
+        "Autarch Wayleaper",
+        "Baharroth",
+        "Bonesinger",
+        "Corsair Reaver Band",
+        "Corsair Skyreavers",
+        "Corsair Voidreavers",
+        "Corsair Voidscarred",
+        "D-Cannon Platform",
+        "Dark Reapers",
+        "Dire Avengers",
+        "Eldrad Ulthran",
+        "Farseer",
+        "Fire Dragons",
+        "Fuegan",
+        "Guardian Defenders",
+        "Howling Banshees",
+        "Illic Nightspear",
+        "Irillyth",
+        "Jain Zar",
+        "Karandras",
+        "Kharseth",
+        "Lhykhis",
+        "Maugan Ra",
+        "Prince Yriel",
+        "Rangers",
+        "Shadow Spectres",
+        "Shadow Weaver Platform",
+        "Spiritseer",
+        "Storm Guardians",
+        "Striking Scorpions",
+        "Swooping Hawks",
+        "Vibro Cannon Platform",
+        "Warlock",
+        "Warlock Conclave",
+        "Warp Spiders"
+      ],
+      "sauf": [],
+      "aide": "[IGNORE LE COUVERT] — l'amélioration de PA sur blessure critique n'est pas simulée",
+      "effet": {
+        "ignoresCover": true
+      }
+    },
+    {
+      "nom": "Blades from Beyond",
+      "detach": "Spirit Conclave",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Wraithblades",
+        "Wraithlord",
+        "Wraithknight",
+        "Wraithknight with Ghostglaive"
+      ],
+      "sauf": [],
+      "aide": "[BLESSURES DÉVASTATRICES] au corps à corps",
+      "effet": {
+        "dev": true
+      }
+    },
+    {
+      "nom": "Blitzing Firepower",
+      "detach": "Warhost",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] — cible à 12\" ou moins",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Blitzing Firepower — arme déjà Soutenue",
+      "detach": "Warhost",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "touches critiques sur 5+ — l'arme a déjà [TOUCHES SOUTENUES], cible à 12\" ou moins",
+      "effet": {
+        "critH": 5
+      }
+    },
+    {
+      "nom": "Death from on High",
+      "detach": "Windrider Host",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Autarch Skyrunner",
+        "Clanblade",
+        "Corsair Cloud Dancer Band",
+        "Dragon Knights",
+        "Farseer Skyrunner",
+        "Leystalker",
+        "Shining Spears",
+        "Shroud Runners",
+        "Stonesinger",
+        "Warlock Skyrunners",
+        "Windriders"
+      ],
+      "sauf": [],
+      "aide": "relance des blessures ratées — l'unité est arrivée de Réserve ce tour",
+      "effet": {
+        "rrW": "failed"
+      }
+    },
+    {
+      "nom": "Focused Firepower",
+      "detach": "Windrider Host",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Autarch Skyrunner",
+        "Clanblade",
+        "Corsair Cloud Dancer Band",
+        "Dragon Knights",
+        "Farseer Skyrunner",
+        "Leystalker",
+        "Shining Spears",
+        "Shroud Runners",
+        "Stonesinger",
+        "Warlock Skyrunners",
+        "Windriders"
+      ],
+      "sauf": [],
+      "aide": "+1 en PA",
+      "effet": {
+        "apMod": 1
+      }
+    }
+  ]
+}
