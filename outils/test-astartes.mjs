@@ -96,6 +96,17 @@ T('SW — et Unbridled Feroicity', r.strats, v => v.includes('Unbridled Feroicit
 r = await sim(2, 'C');
 T('SW — pas aux Chasseurs Gris', r.conds, v => !v.includes('Hurlement de Guerre (Meneur)') && !v.includes('Tueurs Légendaires'));
 
+/* ---- 4 bis. un stratagème du Codex réservé à un mot-clé, joué par une fiche
+   propre au chapitre : le groupe est calculé sur les fiches du chapitre ---- */
+await ouvre('spacewolves', 'Tacticus Attack Force', [u(1, 'Grey Hunters', 10), u(2, 'Thunderwolf Cavalry', 3)]);
+r = await sim(1, 'C');
+T('SW — les Chasseurs Gris, TACTICUS, reçoivent Relentless Assault', r.strats, v => v.includes('Relentless Assault'));
+r = await sim(2, 'C');
+T('SW — pas la Cavalerie Loup-Tonnerre, qui ne l\'est pas', r.strats, v => !v.includes('Relentless Assault'));
+await ouvre('darkangels', 'Terminator Storm Force', [u(1, 'Deathwing Knights', 5)]);
+r = await sim(1, 'T');
+T('DA — les Deathwing Knights, TERMINATOR, reçoivent Merciless Veterans', r.strats, v => v.includes('Merciless Veterans'));
+
 /* ---- 5. Deathwatch : les munitions des Kill Teams ---- */
 await ouvre('deathwatch', 'Black Spear Task Force', [u(1, 'Fortis Kill Team', 5), u(2, 'Redemptor Dreadnought', 1)]);
 r = await sim(1, 'T');

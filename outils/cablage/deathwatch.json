@@ -174,15 +174,7 @@
     {
       "detach": "Black Spear Task Force",
       "kw": [
-        "Deathwatch Terminator Squad",
-        "Deathwatch Veterans",
-        "Decimus Kill Team",
-        "Fortis Kill Team",
-        "Indomitor Kill Team",
-        "Spectrus Kill Team",
-        "Talonstrike Kill Team",
-        "Watch Captain Artemis",
-        "Watch Master"
+        "kill team"
       ],
       "mot": "sust",
       "nom": "Tactiques Furor",
@@ -192,15 +184,7 @@
     {
       "detach": "Black Spear Task Force",
       "kw": [
-        "Deathwatch Terminator Squad",
-        "Deathwatch Veterans",
-        "Decimus Kill Team",
-        "Fortis Kill Team",
-        "Indomitor Kill Team",
-        "Spectrus Kill Team",
-        "Talonstrike Kill Team",
-        "Watch Captain Artemis",
-        "Watch Master"
+        "kill team"
       ],
       "mot": "lethal",
       "nom": "Tactiques Malleus",
@@ -215,15 +199,7 @@
       "pc": 1,
       "ph": "T",
       "unites": [
-        "Deathwatch Terminator Squad",
-        "Deathwatch Veterans",
-        "Decimus Kill Team",
-        "Fortis Kill Team",
-        "Indomitor Kill Team",
-        "Spectrus Kill Team",
-        "Talonstrike Kill Team",
-        "Watch Captain Artemis",
-        "Watch Master"
+        "kill team"
       ],
       "sauf": [],
       "aide": "relance des 1 pour blesser et [IGNORE LE COUVERT]",
@@ -238,15 +214,7 @@
       "pc": 1,
       "ph": "T",
       "unites": [
-        "Deathwatch Terminator Squad",
-        "Deathwatch Veterans",
-        "Decimus Kill Team",
-        "Fortis Kill Team",
-        "Indomitor Kill Team",
-        "Spectrus Kill Team",
-        "Talonstrike Kill Team",
-        "Watch Captain Artemis",
-        "Watch Master"
+        "kill team"
       ],
       "sauf": [],
       "aide": "[ANTI-non-VÉHICULE 4+] : blessure critique sur 4+ — contre une cible qui n'est pas un VÉHICULE",
@@ -260,15 +228,7 @@
       "pc": 1,
       "ph": "T",
       "unites": [
-        "Deathwatch Terminator Squad",
-        "Deathwatch Veterans",
-        "Decimus Kill Team",
-        "Fortis Kill Team",
-        "Indomitor Kill Team",
-        "Spectrus Kill Team",
-        "Talonstrike Kill Team",
-        "Watch Captain Artemis",
-        "Watch Master"
+        "kill team"
       ],
       "sauf": [],
       "aide": "+1 en Force (et +6\" de portée)",

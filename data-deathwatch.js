@@ -2175,7 +2175,125 @@ const KW = {
   "Lieutenant with Combi-weapon",
   "Techmarine",
   "Watch Master"
- ]
+ ],
+ "gravis": [
+  "Aggressor Squad",
+  "Apothecary Biologis",
+  "Captain in Gravis Armour",
+  "Decimus Kill Team",
+  "Eradicator Squad with Heavy Bolters",
+  "Eradicator Squad with Melta Rifles",
+  "Heavy Intercessor Squad",
+  "Inceptor Squad",
+  "Indomitor Kill Team"
+ ],
+ "tacticus": [
+  "Ancient",
+  "Apothecary",
+  "Assault Intercessor Squad",
+  "Assault Intercessors with Jump Packs",
+  "Bladeguard Ancient",
+  "Bladeguard Veteran Squad",
+  "Captain",
+  "Captain with Jump Pack",
+  "Chaplain",
+  "Chaplain with Jump Pack",
+  "Company Heroes",
+  "Decimus Kill Team",
+  "Desolation Squad",
+  "Fortis Kill Team",
+  "Hellblaster Squad",
+  "Infernus Squad",
+  "Intercessor Squad",
+  "Judiciar",
+  "Librarian",
+  "Lieutenant",
+  "Sternguard Veteran Squad",
+  "Techmarine",
+  "Vanguard Veteran Squad with Jump Packs"
+ ],
+ "terminator": [
+  "Ancient in Terminator Armour",
+  "Captain in Terminator Armour",
+  "Chaplain in Terminator Armour",
+  "Deathwatch Terminator Squad",
+  "Librarian in Terminator Armour"
+ ],
+ "phobos": [
+  "Captain in Phobos Armour",
+  "Eliminator Squad",
+  "Incursor Squad",
+  "Infiltrator Squad",
+  "Invictor Tactical Warsuit",
+  "Librarian in Phobos Armour",
+  "Lieutenant in Phobos Armour",
+  "Lieutenant with Combi-weapon",
+  "Reiver Squad",
+  "Spectrus Kill Team"
+ ],
+ "dreadnought": [
+  "Ballistus Dreadnought",
+  "Brutalis Dreadnought",
+  "Dreadnought",
+  "Redemptor Dreadnought",
+  "Venerable Dreadnought"
+ ],
+ "mounted": [
+  "Captain on Bike",
+  "Chaplain on Bike",
+  "Invader ATVs",
+  "Outrider Squad",
+  "Scout Bike Squad"
+ ],
+ "walker": [
+  "Ballistus Dreadnought",
+  "Brutalis Dreadnought",
+  "Dreadnought",
+  "Invictor Tactical Warsuit",
+  "Redemptor Dreadnought",
+  "Venerable Dreadnought"
+ ],
+ "fly": [
+  "Assault Intercessors with Jump Packs",
+  "Captain with Jump Pack",
+  "Chaplain with Jump Pack",
+  "Corvus Blackstar",
+  "Inceptor Squad",
+  "Land Speeder",
+  "Storm Speeder Hailstrike",
+  "Storm Speeder Hammerstrike",
+  "Storm Speeder Thunderstrike",
+  "Stormhawk Interceptor",
+  "Stormraven Gunship",
+  "Stormtalon Gunship",
+  "Talonstrike Kill Team",
+  "Thunderhawk Gunship",
+  "Vanguard Veteran Squad with Jump Packs"
+ ],
+ "dedicated transport": [
+  "Drop Pod",
+  "Impulsor",
+  "Razorback",
+  "Relic Razorback",
+  "Rhino"
+ ],
+ "fortification": [
+  "Hammerfall Bunker"
+ ],
+ "kill team": [
+  "Deathwatch Terminator Squad",
+  "Deathwatch Veterans",
+  "Decimus Kill Team",
+  "Fortis Kill Team",
+  "Indomitor Kill Team",
+  "Spectrus Kill Team",
+  "Talonstrike Kill Team",
+  "Watch Captain Artemis",
+  "Watch Master"
+ ],
+ "death company": [],
+ "deathwing": [],
+ "ravenwing": []
 };
 
 /* SOCLES : le relevé du Base Size Guide, rapproché des noms de fiche.
@@ -2936,52 +3054,7 @@ const AURAS_ARMEE = [
  {
   "source": "Dreadnought",
   "kw": [
-   "Aggressor Squad",
-   "Ancient",
-   "Ancient in Terminator Armour",
-   "Apothecary",
-   "Apothecary Biologis",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain in Gravis Armour",
-   "Captain in Phobos Armour",
-   "Captain in Terminator Armour",
-   "Captain with Jump Pack",
-   "Centurion Assault Squad",
-   "Centurion Devastator Squad",
-   "Chaplain",
-   "Chaplain in Terminator Armour",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Eliminator Squad",
-   "Eradicator Squad with Heavy Bolters",
-   "Eradicator Squad with Melta Rifles",
-   "Heavy Intercessor Squad",
-   "Hellblaster Squad",
-   "Inceptor Squad",
-   "Incursor Squad",
-   "Infernus Squad",
-   "Infiltrator Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Librarian in Phobos Armour",
-   "Librarian in Terminator Armour",
-   "Lieutenant",
-   "Lieutenant in Phobos Armour",
-   "Lieutenant with Combi-weapon",
-   "Reiver Squad",
-   "Scout Squad",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Terminator Assault Squad",
-   "Terminator Squad",
-   "Vanguard Veteran Squad",
-   "Vanguard Veteran Squad with Jump Packs"
+   "infantry"
   ],
   "champ": "rrH",
   "val": "ones",
@@ -2992,52 +3065,7 @@ const AURAS_ARMEE = [
  {
   "source": "Venerable Dreadnought",
   "kw": [
-   "Aggressor Squad",
-   "Ancient",
-   "Ancient in Terminator Armour",
-   "Apothecary",
-   "Apothecary Biologis",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain in Gravis Armour",
-   "Captain in Phobos Armour",
-   "Captain in Terminator Armour",
-   "Captain with Jump Pack",
-   "Centurion Assault Squad",
-   "Centurion Devastator Squad",
-   "Chaplain",
-   "Chaplain in Terminator Armour",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Eliminator Squad",
-   "Eradicator Squad with Heavy Bolters",
-   "Eradicator Squad with Melta Rifles",
-   "Heavy Intercessor Squad",
-   "Hellblaster Squad",
-   "Inceptor Squad",
-   "Incursor Squad",
-   "Infernus Squad",
-   "Infiltrator Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Librarian in Phobos Armour",
-   "Librarian in Terminator Armour",
-   "Lieutenant",
-   "Lieutenant in Phobos Armour",
-   "Lieutenant with Combi-weapon",
-   "Reiver Squad",
-   "Scout Squad",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Terminator Assault Squad",
-   "Terminator Squad",
-   "Vanguard Veteran Squad",
-   "Vanguard Veteran Squad with Jump Packs"
+   "infantry"
   ],
   "champ": "rrH",
   "val": "ones",
@@ -3057,13 +3085,7 @@ const AURAS_ARMEE = [
  {
   "detach": "Gravis Linebreaker Force",
   "kw": [
-   "Aggressor Squad",
-   "Apothecary Biologis",
-   "Captain in Gravis Armour",
-   "Eradicator Squad with Heavy Bolters",
-   "Eradicator Squad with Melta Rifles",
-   "Heavy Intercessor Squad",
-   "Inceptor Squad"
+   "gravis"
   ],
   "champ": "hitMod",
   "val": 1,
@@ -3075,15 +3097,7 @@ const AURAS_ARMEE = [
  {
   "detach": "Phobos Shock Force",
   "kw": [
-   "Captain in Phobos Armour",
-   "Eliminator Squad",
-   "Incursor Squad",
-   "Infiltrator Squad",
-   "Invictor Tactical Warsuit",
-   "Librarian in Phobos Armour",
-   "Lieutenant in Phobos Armour",
-   "Lieutenant with Combi-weapon",
-   "Reiver Squad"
+   "phobos"
   ],
   "champ": "rrW",
   "val": "ones",
@@ -3105,15 +3119,7 @@ const AURAS_ARMEE = [
  {
   "detach": "Black Spear Task Force",
   "kw": [
-   "Deathwatch Terminator Squad",
-   "Deathwatch Veterans",
-   "Decimus Kill Team",
-   "Fortis Kill Team",
-   "Indomitor Kill Team",
-   "Spectrus Kill Team",
-   "Talonstrike Kill Team",
-   "Watch Captain Artemis",
-   "Watch Master"
+   "kill team"
   ],
   "mot": "sust",
   "nom": "Tactiques Furor",
@@ -3123,15 +3129,7 @@ const AURAS_ARMEE = [
  {
   "detach": "Black Spear Task Force",
   "kw": [
-   "Deathwatch Terminator Squad",
-   "Deathwatch Veterans",
-   "Decimus Kill Team",
-   "Fortis Kill Team",
-   "Indomitor Kill Team",
-   "Spectrus Kill Team",
-   "Talonstrike Kill Team",
-   "Watch Captain Artemis",
-   "Watch Master"
+   "kill team"
   ],
   "mot": "lethal",
   "nom": "Tactiques Malleus",
@@ -3146,10 +3144,7 @@ const OCTROIS_DETACH = {
    "val": "ones",
    "qui": "unite",
    "kw": [
-    "Ballistus Dreadnought",
-    "Brutalis Dreadnought",
-    "Redemptor Dreadnought",
-    "Venerable Dreadnought"
+    "dreadnought"
    ],
    "nom": "Vengeance Endurante",
    "texte": "Friendly Adeptus Astartes Dreadnought units can re-roll hit rolls of 1."
@@ -3237,13 +3232,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Aggressor Squad",
-   "Apothecary Biologis",
-   "Captain in Gravis Armour",
-   "Eradicator Squad with Heavy Bolters",
-   "Eradicator Squad with Melta Rifles",
-   "Heavy Intercessor Squad",
-   "Inceptor Squad"
+   "gravis"
   ],
   "sauf": [],
   "aide": "[TOUCHES FATALES]",
@@ -3257,13 +3246,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Aggressor Squad",
-   "Apothecary Biologis",
-   "Captain in Gravis Armour",
-   "Eradicator Squad with Heavy Bolters",
-   "Eradicator Squad with Melta Rifles",
-   "Heavy Intercessor Squad",
-   "Inceptor Squad"
+   "gravis"
   ],
   "sauf": [],
   "aide": "[TOUCHES FATALES]",
@@ -3277,10 +3260,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Ballistus Dreadnought",
-   "Brutalis Dreadnought",
-   "Redemptor Dreadnought",
-   "Venerable Dreadnought"
+   "dreadnought"
   ],
   "sauf": [],
   "aide": "[TOUCHES FATALES]",
@@ -3294,10 +3274,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Ballistus Dreadnought",
-   "Brutalis Dreadnought",
-   "Redemptor Dreadnought",
-   "Venerable Dreadnought"
+   "dreadnought"
   ],
   "sauf": [],
   "aide": "[TOUCHES SOUTENUES 1] au lieu des Touches Fatales",
@@ -3312,25 +3289,14 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "T",
   "unites": [
-   "Astraeus",
-   "Firestrike Servo-Turrets",
-   "Gladiator Lancer",
-   "Gladiator Reaper",
-   "Gladiator Valiant",
-   "Invader ATVs",
-   "Land Raider",
-   "Land Raider Crusader",
-   "Land Raider Excelsior",
-   "Land Raider Redeemer",
-   "Predator Annihilator",
-   "Predator Destructor",
-   "Repulsor",
-   "Repulsor Executioner",
-   "Rhino Primaris",
-   "Vindicator",
-   "Whirlwind"
+   "vehicle"
   ],
-  "sauf": [],
+  "sauf": [
+   "walker",
+   "fly",
+   "dedicated transport",
+   "fortification"
+  ],
   "aide": "[TOUCHES FATALES] — contre un MONSTRE ou un VÉHICULE seulement",
   "effet": {
    "lethal": true
@@ -3342,25 +3308,14 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Astraeus",
-   "Firestrike Servo-Turrets",
-   "Gladiator Lancer",
-   "Gladiator Reaper",
-   "Gladiator Valiant",
-   "Invader ATVs",
-   "Land Raider",
-   "Land Raider Crusader",
-   "Land Raider Excelsior",
-   "Land Raider Redeemer",
-   "Predator Annihilator",
-   "Predator Destructor",
-   "Repulsor",
-   "Repulsor Executioner",
-   "Rhino Primaris",
-   "Vindicator",
-   "Whirlwind"
+   "vehicle"
   ],
-  "sauf": [],
+  "sauf": [
+   "walker",
+   "fly",
+   "dedicated transport",
+   "fortification"
+  ],
   "aide": "ignore les modificateurs de touche et de blessure, jusqu'à ta prochaine phase de Commandement",
   "effet": {
    "ignoreMalus": true
@@ -3372,15 +3327,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Captain in Phobos Armour",
-   "Eliminator Squad",
-   "Incursor Squad",
-   "Infiltrator Squad",
-   "Invictor Tactical Warsuit",
-   "Librarian in Phobos Armour",
-   "Lieutenant in Phobos Armour",
-   "Lieutenant with Combi-weapon",
-   "Reiver Squad"
+   "phobos"
   ],
   "sauf": [],
   "aide": "+1 en Force et [TOUCHES FATALES] — l'unité est cachée",
@@ -3395,15 +3342,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Captain in Phobos Armour",
-   "Eliminator Squad",
-   "Incursor Squad",
-   "Infiltrator Squad",
-   "Invictor Tactical Warsuit",
-   "Librarian in Phobos Armour",
-   "Lieutenant in Phobos Armour",
-   "Lieutenant with Combi-weapon",
-   "Reiver Squad"
+   "phobos"
   ],
   "sauf": [],
   "aide": "+1 en Force et [TOUCHES FATALES] — l'unité est cachée",
@@ -3418,27 +3357,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Ancient",
-   "Apothecary",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain with Jump Pack",
-   "Chaplain",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Hellblaster Squad",
-   "Infernus Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Lieutenant",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Vanguard Veteran Squad with Jump Packs"
+   "tacticus"
   ],
   "sauf": [],
   "aide": "[TOUCHES SOUTENUES 1] — contre ni MONSTRE ni VÉHICULE",
@@ -3453,27 +3372,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Ancient",
-   "Apothecary",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain with Jump Pack",
-   "Chaplain",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Hellblaster Squad",
-   "Infernus Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Lieutenant",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Vanguard Veteran Squad with Jump Packs"
+   "tacticus"
   ],
   "sauf": [],
   "aide": "[TOUCHES FATALES] — contre un MONSTRE ou un VÉHICULE",
@@ -3487,27 +3386,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Ancient",
-   "Apothecary",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain with Jump Pack",
-   "Chaplain",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Hellblaster Squad",
-   "Infernus Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Lieutenant",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Vanguard Veteran Squad with Jump Packs"
+   "tacticus"
   ],
   "sauf": [],
   "aide": "[TOUCHES SOUTENUES 1] — contre ni MONSTRE ni VÉHICULE",
@@ -3522,27 +3401,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "TC",
   "unites": [
-   "Ancient",
-   "Apothecary",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain with Jump Pack",
-   "Chaplain",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Hellblaster Squad",
-   "Infernus Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Lieutenant",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Vanguard Veteran Squad with Jump Packs"
+   "tacticus"
   ],
   "sauf": [],
   "aide": "[TOUCHES FATALES] — contre un MONSTRE ou un VÉHICULE",
@@ -3556,27 +3415,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "T",
   "unites": [
-   "Ancient",
-   "Apothecary",
-   "Assault Intercessor Squad",
-   "Assault Intercessors with Jump Packs",
-   "Bladeguard Ancient",
-   "Bladeguard Veteran Squad",
-   "Captain",
-   "Captain with Jump Pack",
-   "Chaplain",
-   "Chaplain with Jump Pack",
-   "Company Heroes",
-   "Desolation Squad",
-   "Hellblaster Squad",
-   "Infernus Squad",
-   "Intercessor Squad",
-   "Judiciar",
-   "Librarian",
-   "Lieutenant",
-   "Sternguard Veteran Squad",
-   "Techmarine",
-   "Vanguard Veteran Squad with Jump Packs"
+   "tacticus"
   ],
   "sauf": [],
   "aide": "[IGNORE LE COUVERT] — l'unité est engagée, armes sans [EXPLOSION]",
@@ -3590,12 +3429,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "T",
   "unites": [
-   "Ancient in Terminator Armour",
-   "Captain in Terminator Armour",
-   "Chaplain in Terminator Armour",
-   "Librarian in Terminator Armour",
-   "Terminator Assault Squad",
-   "Terminator Squad"
+   "terminator"
   ],
   "sauf": [],
   "aide": "[TOUCHES FATALES] et [TOUCHES SOUTENUES 1]",
@@ -3611,15 +3445,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "T",
   "unites": [
-   "Deathwatch Terminator Squad",
-   "Deathwatch Veterans",
-   "Decimus Kill Team",
-   "Fortis Kill Team",
-   "Indomitor Kill Team",
-   "Spectrus Kill Team",
-   "Talonstrike Kill Team",
-   "Watch Captain Artemis",
-   "Watch Master"
+   "kill team"
   ],
   "sauf": [],
   "aide": "relance des 1 pour blesser et [IGNORE LE COUVERT]",
@@ -3634,15 +3460,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "T",
   "unites": [
-   "Deathwatch Terminator Squad",
-   "Deathwatch Veterans",
-   "Decimus Kill Team",
-   "Fortis Kill Team",
-   "Indomitor Kill Team",
-   "Spectrus Kill Team",
-   "Talonstrike Kill Team",
-   "Watch Captain Artemis",
-   "Watch Master"
+   "kill team"
   ],
   "sauf": [],
   "aide": "[ANTI-non-VÉHICULE 4+] : blessure critique sur 4+ — contre une cible qui n'est pas un VÉHICULE",
@@ -3656,15 +3474,7 @@ const STRAT_SIMU = [
   "pc": 1,
   "ph": "T",
   "unites": [
-   "Deathwatch Terminator Squad",
-   "Deathwatch Veterans",
-   "Decimus Kill Team",
-   "Fortis Kill Team",
-   "Indomitor Kill Team",
-   "Spectrus Kill Team",
-   "Talonstrike Kill Team",
-   "Watch Captain Artemis",
-   "Watch Master"
+   "kill team"
   ],
   "sauf": [],
   "aide": "+1 en Force (et +6\" de portée)",
