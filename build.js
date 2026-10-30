@@ -12,7 +12,7 @@ const fs=require('fs'), zlib=require('zlib'), crypto=require('crypto'), terser=r
    data-<faction>.js s'y enregistre, et tout le reste lit les tables que
    l'adaptateur a mises en service. Une faction de plus, c'est une ligne
    de plus ici, une dans sw.js et une balise dans index.html. */
-const SOURCES=['index.html','data.js','data-necrons.js','data-custodes.js','data-astra.js','data-worldeaters.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
+const SOURCES=['index.html','data.js','data-necrons.js','data-custodes.js','data-astra.js','data-worldeaters.js','data-sororitas.js','data-mechanicus.js','data-titanicus.js','data-aeldari.js','data-drukhari.js','data-agents.js','data-chevaliers.js','data-greyknights.js','data-spacemarines.js','data-blacktemplars.js','data-bloodangels.js','data-darkangels.js','data-deathwatch.js','data-spacewolves.js','data-csm.js','data-deathguard.js','data-thousandsons.js','data-emperorschildren.js','data-demons.js','data-chevalierschaos.js','data-orks.js','data-tau.js','data-tyranides.js','data-gsc.js','data-votann.js','engine.js','app.js','roster.js','layouts.js','plateau.js'];
 /* les memes, moins la page : c'est ce qui part chez terser, dans cet
    ordre. Derive de SOURCES pour que les deux listes ne divergent pas. */
 const JS=SOURCES.filter(f=>f.endsWith('.js'));

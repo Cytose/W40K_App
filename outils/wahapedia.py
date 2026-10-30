@@ -46,7 +46,16 @@ RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOSSIER = os.environ.get('WAHAPEDIA', os.path.join(RACINE, 'build', 'wahapedia'))
 
 # Le code de faction de Wahapedia, pour chaque clé du registre de data.js.
-CODES = {'necrons': 'NEC', 'astra': 'AM', 'worldeaters': 'WE', 'custodes': 'AC'}
+CODES = {'necrons': 'NEC', 'astra': 'AM', 'worldeaters': 'WE',
+         'custodes': 'AC', 'sororitas': 'AS', 'mechanicus': 'AdM',
+         'titanicus': 'TL', 'aeldari': 'AE', 'drukhari': 'DRU',
+         'agents': 'AoI', 'chevaliers': 'QI', 'greyknights': 'GK',
+         'spacemarines': 'SM', 'blacktemplars': 'SM', 'bloodangels': 'SM',
+         'darkangels': 'SM', 'deathwatch': 'SM', 'spacewolves': 'SM',
+         'csm': 'CSM', 'deathguard': 'DG', 'thousandsons': 'TS',
+         'emperorschildren': 'EC', 'demons': 'CD', 'chevalierschaos': 'QT',
+         'orks': 'ORK', 'tau': 'TAU', 'tyranides': 'TYR', 'gsc': 'GC',
+         'votann': 'LoV'}
 
 # Les quatre familles de stratagèmes. C'est une liste close et c'est une
 # étiquette d'interface, pas une règle : la traduire ne risque rien, et
@@ -123,6 +132,11 @@ def sections(html):
        collés à la section qu'ils suivent plutôt que d'être perdus."""
     m = list(re.finditer(r'<b>\s*(WHEN|TARGET|EFFECT|RESTRICTIONS?)\s*:\s*</b>', html or '',
                          re.I))
+    if not m:
+        # Une poignée de stratagèmes n'a pas ses intertitres en gras —
+        # « WHEN: … TARGET: … » en texte nu. Sans eux on ne les reconnaît
+        # qu'en capitales, pour ne pas couper sur un « when » ordinaire.
+        m = list(re.finditer(r'\b(WHEN|TARGET|EFFECT|RESTRICTIONS?)\s*:', html or ''))
     if not m: return '', '', propre(html), ''
     part = {}
     for i, x in enumerate(m):
@@ -216,6 +230,23 @@ def reglesDetachement(faction):
         else:
             out[k] = (nom, txt)
     return out
+
+def regleArmee(faction):
+    """(nom, texte) de la règle d'armée : l'aptitude de type « Faction »
+       que portent le plus de fiches de la faction. None sans export."""
+    code = CODES.get(faction)
+    if not code or not dispo(): return None
+    fiches = {x.get('id') for x in enregistrements('Datasheets.csv')
+              if x.get('faction_id') == code}
+    noms = {x.get('id'): x for x in enregistrements('Abilities.csv')}
+    compte = {}
+    for x in enregistrements('Datasheets_abilities.csv'):
+        if x.get('datasheet_id') not in fiches or x.get('type') != 'Faction': continue
+        a = noms.get(x.get('ability_id'))
+        if a: compte[a['id']] = compte.get(a['id'], 0) + 1
+    if not compte: return None
+    a = noms[max(compte, key=compte.get)]
+    return (titre(a.get('name')), propre(a.get('description')))
 
 def optimisations(faction):
     """{ nom d'optimisation (clé) : texte }."""

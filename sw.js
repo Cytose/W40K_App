@@ -1,6 +1,6 @@
 /* Service worker — cache app shell pour usage hors-ligne */
-const CACHE = "w40k-app-v2";
-const ASSETS = ["./", "./index.html", "./data.js", "./data-necrons.js", "./data-custodes.js", "./data-astra.js", "./data-worldeaters.js", "./engine.js", "./app.js", "./roster.js", "./layouts.js", "./plateau.js", "./manifest.json", "./icon.svg"];
+const CACHE = "w40k-app-v3";
+const ASSETS = ["./", "./index.html", "./data.js", "./data-necrons.js", "./data-custodes.js", "./data-astra.js", "./data-worldeaters.js", "./data-sororitas.js", "./data-mechanicus.js", "./data-titanicus.js", "./data-aeldari.js", "./data-drukhari.js", "./data-agents.js", "./data-chevaliers.js", "./data-greyknights.js", "./data-spacemarines.js", "./data-blacktemplars.js", "./data-bloodangels.js", "./data-darkangels.js", "./data-deathwatch.js", "./data-spacewolves.js", "./data-csm.js", "./data-deathguard.js", "./data-thousandsons.js", "./data-emperorschildren.js", "./data-demons.js", "./data-chevalierschaos.js", "./data-orks.js", "./data-tau.js", "./data-tyranides.js", "./data-gsc.js", "./data-votann.js", "./engine.js", "./app.js", "./roster.js", "./layouts.js", "./plateau.js", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

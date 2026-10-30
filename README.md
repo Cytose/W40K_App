@@ -1,8 +1,12 @@
 # Nécron — aide de jeu
 
 Simulateur de séquence d'attaque, constructeur de liste et comparateur d'unités
-pour **Warhammer 40 000, 11e édition**. Quatre factions : **Nécrons**,
-**Adeptus Custodes**, **Astra Militarum**, **World Eaters**.
+pour **Warhammer 40 000, 11e édition**. Les 29 factions du Base Size Guide.
+Les **Nécrons** sont relus à la main sur les documents officiels ;
+**Adeptus Custodes**, **Astra Militarum** et **World Eaters** ont un
+simulateur câblé en partie ; les 25 autres sont générées depuis BSData, le
+Munitorum et Wahapedia, et le simulateur tourne sur leurs caractéristiques
+nues.
 
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
@@ -127,7 +131,7 @@ Le sélecteur de faction, caché tant qu'il n'y en a qu'une, apparaît tout seul
 
 `node build.js` remplit `dist/` avec deux choses distinctes :
 
-- **le site** — `index.html`, `data.js`, les quatre `data-<faction>.js`,
+- **le site** — `index.html`, `data.js`, les `data-<faction>.js`,
   `engine.js`, `app.js`, `roster.js`, `layouts.js`, `plateau.js`, `sw.js`,
   `manifest.json`, `icon.svg`, les sources telles quelles, un fichier par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
 - **le fichier autonome** — `dist/W40K_App.html`, l'application repliée
