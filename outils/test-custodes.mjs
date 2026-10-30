@@ -42,8 +42,8 @@ await p.evaluate(() => {
   localStorage.clear();
   localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v: 1, actif: 'cust', listes: [
     { id: 'cust', nom: 'Garde du Trône', faction: 'custodes', cap: 2000, nextId: 4,
-      detach: ['Shield Host'], fd: '', units: [
-        { id: 1, name: 'Custodian Guard', size: 5, lo: [], chars: [], sel: true, grp: '', enh: null },
+      detach: ['Lions of the Emperor'], fd: '', units: [
+        { id: 1, name: 'Custodian Guard Sodality', size: 3, lo: [], chars: [], sel: true, grp: '', enh: null },
         { id: 2, name: 'Allarus Custodians', size: 3, lo: [], chars: [], sel: true, grp: '', enh: null },
         { id: 3, name: 'Vertus Praetors', size: 3, lo: [], chars: [], sel: true, grp: '', enh: null }
       ] }
@@ -52,40 +52,40 @@ await p.evaluate(() => {
 await p.reload(); await p.waitForTimeout(1400);
 
 T('la faction custodes est en service', await p.evaluate(() => FACTION_ACTIVE), 'custodes');
-T('sa table est chargée', await p.evaluate(() => UNITS.length), 31);
+T('sa table est chargée', await p.evaluate(() => UNITS.length), 36);
 const stock = await p.evaluate(() =>
   JSON.parse(localStorage.getItem('mathhammer.lists.v1')).listes[0].units.map(u => u.name));
 T('les trois unités ont survécu à la relecture', stock,
-  ['Custodian Guard', 'Allarus Custodians', 'Vertus Praetors']);
+  ['Custodian Guard Sodality', 'Allarus Custodians', 'Vertus Praetors']);
 
 /* ---- le total de points, calculé par l'application ---- */
-/* Custodian Guard ×5 = 215, Allarus ×3 = 165, Vertus Praetors ×3 : on
+/* Custodian Guard Sodality ×3 = 240, Allarus ×3 = 165, Vertus Praetors ×3 : on
    ne fige pas le troisième, on demande à la table ce qu'elle en dit et
    on vérifie que l'écran affiche la somme. C'est l'écran qu'on éprouve,
    pas le Munitorum. */
 const pts = await p.evaluate(() => {
-  const somme = [['Custodian Guard', 5], ['Allarus Custodians', 3], ['Vertus Praetors', 3]]
+  const somme = [['Custodian Guard Sodality', 3], ['Allarus Custodians', 3], ['Vertus Praetors', 3]]
     .reduce((a, [n, t]) => a + ptsPour(UNITS.find(u => u[0] === n), t, 1), 0);
   const b = document.querySelector('#ptsbar .c .v');
   return { attendu: somme, affiche: b ? b.textContent.trim() : '—' };
 });
-T('le prix des Gardes Custodiens ×5', await p.evaluate(() =>
-  ptsPour(UNITS.find(u => u[0] === 'Custodian Guard'), 5, 1)), 215);
+T('le prix des Gardes Custodiens ×3', await p.evaluate(() =>
+  ptsPour(UNITS.find(u => u[0] === 'Custodian Guard Sodality'), 3, 1)), 240);
 T("l'écran affiche le total de la liste", pts.affiche, v => v.startsWith(String(pts.attendu)));
 
 /* le seuil de réquisition : la 4e copie coûte plus cher, et l'application
    le sait déjà lire — c'est le même mécanisme que les Destroyers Lokhust */
 T('le barème monte au 4e exemplaire', await p.evaluate(() => {
-  const u = UNITS.find(x => x[0] === 'Custodian Guard');
-  return [ptsPour(u, 5, 1), ptsPour(u, 5, 4)];
+  const u = UNITS.find(x => x[0] === 'Custodian Guard Sodality');
+  return [ptsPour(u, 3, 1), ptsPour(u, 3, 4)];
 }), v => v[1] > v[0]);
 
 /* ---- le simulateur tourne sur ces profils ---- */
 await p.evaluate(() => document.querySelector('[data-s="scSim"]').click());
 await p.waitForTimeout(700);
 const simu = await p.evaluate(() => {
-  const u = UNITS.find(x => x[0] === 'Custodian Guard');
-  const w = WEAPONS.filter(x => x[0] === 'Custodian Guard');
+  const u = UNITS.find(x => x[0] === 'Custodian Guard Sodality');
+  const w = WEAPONS.filter(x => x[0] === 'Custodian Guard Sodality');
   /* la lance gardienne de cinq Gardes Custodiens, en corps a corps,
      contre un Space Marine : A5 CT2+ F7 PA2 D2, cible E4 Svg3+ PV2 */
   /* on part de l'état par défaut de l'écran : le moteur attend une
@@ -101,9 +101,9 @@ const simu = await p.evaluate(() => {
            touches: lance && lance.hits, blessures: lance && lance.wounds,
            degats: lance && lance.rawDmg };
 });
-T('les Gardes Custodiens ont leurs 5 profils d\'arme', simu.armes, 5);
-T('leur profil est celui de la fiche (M6 E6 Svg2+ Inv4++ PV3 CO2)',
-  simu.profil, [6, 6, 2, 4, 3, 2]);
+T('les Gardes Custodiens ont leurs 2 profils d\'arme', simu.armes, 2);
+T('leur profil est celui de la fiche (M8 E7 Svg2+ Inv4++ PV5 CO3)',
+  simu.profil, [8, 7, 2, 4, 5, 3]);
 T('le moteur rend ses espérances sur un profil custodes',
   simu.champs, v => v.includes('hits') && v.includes('wounds') && v.includes('rawDmg'));
 /* Le moteur est déjà éprouvé ailleurs : ce qu'on vérifie ici, c'est que
@@ -117,7 +117,7 @@ T('et font des dégâts', simu.degats, v => v > 0);
 
 /* ---- la fiche d'unité s'ouvre, avec ses aptitudes ---- */
 const fiche = await p.evaluate(() => {
-  const a = APTITUDES['Custodian Guard'] || [];
+  const a = APTITUDES['Custodian Guard Sodality'] || [];
   return { n: a.length, noms: a.map(x => x[0]), texte: (a[0] || ['', ''])[1].slice(0, 40) };
 });
 T('la fiche porte ses aptitudes', fiche.n, v => v >= 2);
@@ -126,21 +126,21 @@ T('avec un texte, en anglais, et sans balisage BSData',
   fiche.texte, v => v.length > 10 && !/\*\*|\^\^/.test(v));
 
 /* ---- les socles, depuis le Base Size Guide ---- */
-T('les 31 fiches ont leur socle', await p.evaluate(() => Object.keys(SOCLES).length), 31);
-T('le Garde Custodien est sur un 40 mm', await p.evaluate(() => SOCLES['Custodian Guard']), '40');
+T('les 36 fiches ont leur socle', await p.evaluate(() => Object.keys(SOCLES).length), 36);
+T('le Garde Custodien est sur un 40 mm', await p.evaluate(() => SOCLES['Custodian Guard Sodality']), '40');
 T('le Prétorien Vertus sur un ovale 75x42',
   await p.evaluate(() => SOCLES['Vertus Praetors']), '75x42');
 T('BASES est reconstruit depuis eux, ovale compris',
-  await p.evaluate(() => [Object.keys(BASES).length, BASES['Vertus Praetors']]), [31, '75×42']);
+  await p.evaluate(() => [Object.keys(BASES).length, BASES['Vertus Praetors']]), [36, '75×42']);
 
 /* ---- les stratagèmes, depuis l'export de Wahapedia ---- */
 /* Ils étaient vides à la livraison de la faction : ni BSData ni le
    Munitorum ne les portent. Ils viennent maintenant de l'export du
    site — quarante-cinq de détachement, onze de base — et l'onglet
    n'affiche que ceux des détachements retenus par la liste. */
-T('les 9 détachements ont leurs stratagèmes', await p.evaluate(() =>
+T('les 13 détachements ont leurs stratagèmes', await p.evaluate(() =>
   [STRATS.filter(x => x[1] !== 'Core').length,
-   new Set(STRATS.filter(x => x[1] !== 'Core').map(x => x[1])).size]), [45, 9]);
+   new Set(STRATS.filter(x => x[1] !== 'Core').map(x => x[1])).size]), [41, 13]);
 T('plus les stratagèmes de base', await p.evaluate(() =>
   STRATS.filter(x => x[1] === 'Core').length), 11);
 T('l\'onglet en dessine ceux du détachement retenu, et les rangs de base',
@@ -148,7 +148,7 @@ T('l\'onglet en dessine ceux du détachement retenu, et les rangs de base',
     const h = document.getElementById('stratList');
     return [h.querySelectorAll('.strat').length,
             [...h.querySelectorAll('.stratsep')].map(x => x.textContent)];
-  }), v => v[0] === 17 && v[1].length === 2 && v[1][1] === 'Stratagèmes de base');
+  }), v => v[0] === 14 && v[1].length === 2 && v[1][1] === 'Stratagèmes de base');
 T('un stratagème dit quand, sur quoi et ce qu\'il fait', await p.evaluate(() => {
   const x = STRATS.find(s => s[0] === 'Vengeful Retaliation') || STRATS[0];
   return [x[3] > 0, x[4].length > 10, x[6].length > 10, /<|&[a-z]+;/.test(x[4] + x[5] + x[6])];
@@ -166,9 +166,9 @@ const n = await p.locator('[data-pose]').count();
 for (let i = 0; i < n; i++) { await p.locator('[data-pose]').nth(i).click({ force: true }); await p.waitForTimeout(250); }
 const plateau = await p.evaluate(() => window.PLATEAU && window.PLATEAU.etat());
 T('le Plateau propose de poser les trois unités', n, 3);
-T('et pose leurs 11 figurines, chacune sur son socle',
-  plateau && plateau.figurines, 5 + 3 + 3);
-T('dessinées à l\'écran', await p.locator('#mapSvg [data-unite]').count(), 11);
+T('et pose leurs 9 figurines, chacune sur son socle',
+  plateau && plateau.figurines, 3 + 3 + 3);
+T('dessinées à l\'écran', await p.locator('#mapSvg [data-unite]').count(), 9);
 
 /* ---- retour aux Nécrons : rien n'a bougé de leur côté ---- */
 const retour = await p.evaluate(() => {

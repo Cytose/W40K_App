@@ -297,7 +297,7 @@ await p.evaluate(() => {
     { id:'n', nom:'N', faction:'necrons', cap:2000, detach:[], fd:'', nextId:9,
       units:[{ id:1, name:'Immortals', size:10, lo:[], chars:[], sel:true, grp:'', enh:null }] },
     { id:'c', nom:'C', faction:'custodes', cap:2000, detach:[], fd:'', nextId:9,
-      units:[{ id:1, name:'Agamatus Custodians', size:3, lo:[], chars:[], sel:true, grp:'', enh:null }] }
+      units:[{ id:1, name:'Allarus Custodians', size:3, lo:[], chars:[], sel:true, grp:'', enh:null }] }
   ]}));
 });
 await p.goto(base); await p.waitForTimeout(1100);
@@ -308,8 +308,8 @@ const cartes = await p.evaluate(() => ({
   noms: [...document.querySelectorAll('.lcard .li i')].map(e => e.textContent)
 }));
 T('la faction en service est celle de la liste ouverte', cartes.service, 'necrons');
-T('la liste nécrone est chiffrée', cartes.pts[0], 140);
-T('celle d\'une autre faction aussi, et pas à zéro', cartes.pts[1], 225);
+T('la liste nécrone est chiffrée', cartes.pts[0], 130);
+T('celle d\'une autre faction aussi, et pas à zéro', cartes.pts[1], 270);
 T('chaque carte dit de quelle armée elle est',
   cartes.noms.map(t => t.split(' · ')[0]), ['Nécrons', 'Adeptus Custodes']);
 

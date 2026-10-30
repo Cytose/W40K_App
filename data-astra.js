@@ -52,17 +52,17 @@ const UNITS = [
   ["Baneblade",12,13,2,0,24,[1],[[1, {"1": 415}], [2, {"1": 450}]],0,"",0,"",8,"7+"],
   ["Banehammer",12,13,2,0,24,[1],[[1, {"1": 385}], [2, {"1": 420}]],0,"",0,"",8,"7+"],
   ["Banesword",12,13,2,0,24,[1],[[1, {"1": 415}], [2, {"1": 450}]],0,"",0,"",8,"7+"],
-  ["Basilisk",10,9,3,0,11,[1],[[1, {"1": 115}], [2, {"1": 135}]],0,"",0,"",3,"7+"],
-  ["Bullgryn Squad",6,6,3,0,3,[3, 6],[[1, {"3": 90, "6": 200}], [2, {"3": 105, "6": 215}]],0,"",0,"",1,"7+"],
+  ["Basilisk",10,9,3,0,11,[1],[[1, {"1": 115}], [3, {"1": 145}]],0,"",0,"",3,"7+"],
+  ["Bullgryn Squad",6,6,3,0,3,[3, 6],[[1, {"3": 90, "6": 200}], [3, {"3": 120, "6": 230}]],0,"",0,"",1,"7+"],
   ["Cadian Castellan",6,3,5,5,4,[1],{"1": 55},0,"Meneur",0,"",1,"7+"],
   ["Cadian Command Squad",6,3,5,0,3,[5],{"5": 60},0,"Meneur",0,"",1,"7+"],
   ["Cadian Heavy Weapons Squad",6,3,5,0,2,[3],{"3": 65},0,"",0,"",2,"7+"],
   ["Cadian Recon Squad",6,3,5,0,1,[10],{"10": 80},0,"",0,"",1,"7+"],
-  ["Cadian Shock Troops",6,3,5,0,1,[10, 20],{"10": 75, "20": 145},0,"",0,"",2,"7+"],
+  ["Cadian Shock Troops",6,3,5,0,1,[10, 20],{"10": 70, "20": 145},0,"",0,"",2,"7+"],
   ["Carnodon",12,10,2,0,12,[1],{"1": 160},0,"",1,"",3,"7+"],
   ["Catachan Command Squad",6,3,5,0,3,[5],{"5": 60},0,"Meneur",0,"",1,"7+"],
-  ["Catachan Heavy Weapons Squad",6,3,5,0,2,[3],{"3": 65},0,"",0,"",2,"7+"],
-  ["Catachan Jungle Fighters",6,3,5,0,1,[10, 20],{"10": 75, "20": 145},0,"",0,"",2,"7+"],
+  ["Catachan Heavy Weapons Squad",6,3,5,0,2,[3],{"3": 70},0,"",0,"",2,"7+"],
+  ["Catachan Jungle Fighters",6,3,5,0,1,[10, 20],{"10": 70, "20": 135},0,"",0,"",2,"7+"],
   ["Centaur Light Carrier",10,7,3,0,7,[1],{"1": 40},0,"",1,"",1,"7+"],
   ["Centaur RSV",12,7,3,0,10,[1],[[1, {"1": 65}], [4, {"1": 75}]],0,"",0,"",2,"7+"],
   ["Chimera",10,9,3,0,11,[1],[[1, {"1": 75}], [4, {"1": 85}]],0,"",0,"",2,"7+"],
@@ -70,14 +70,14 @@ const UNITS = [
   ["Commissar",6,3,5,5,3,[1],{"1": 30},0,"Meneur",0,"",1,"6+"],
   ["Commissar Graves",12,8,3,4,12,[1],{"1": 125},0,"",0,"",5,"6+"],
   ["Commissar Graves on Foot",6,3,4,5,4,[1],{"1": 65},0,"Meneur",0,"",1,"6+"],
-  ["Commissar Yarrick",6,4,4,4,5,[1],{"1": 120},0,"Meneur",0,"",1,"6+"],
+  ["Commissar Yarrick",6,4,4,4,5,[1],{"1": 110},0,"Meneur",0,"",1,"6+"],
   ["Crassus",10,11,2,0,18,[1],{"1": 180},0,"",1,"",5,"7+"],
   ["Cyclops Demolition Vehicle",8,4,3,0,4,[1],[[1, {"1": 40}], [3, {"1": 45}]],0,"",0,"",0,"8+"],
   ["Death Korps Grenadier Squad",6,3,4,0,2,[10],{"10": 110},0,"",1,"",2,"7+"],
-  ["Death Korps of Krieg",6,3,5,0,1,[10, 20],{"10": 75, "20": 145},0,"",0,"",2,"7+"],
+  ["Death Korps of Krieg",6,3,5,0,1,[10, 20],{"10": 70, "20": 135},0,"",0,"",2,"7+"],
   ["Death Rider Commissar",12,4,4,5,4,[1],{"1": 35},0,"Meneur",1,"",1,"6+"],
   ["Death Riders",10,4,4,0,2,[5, 10],{"5": 60, "10": 110},0,"",0,"",1,"7+"],
-  ["Deathstrike",10,10,3,0,11,[1],[[1, {"1": 125}], [2, {"1": 135}]],0,"",0,"",3,"7+"],
+  ["Deathstrike",10,10,3,0,11,[1],[[1, {"1": 125}], [3, {"1": 145}]],0,"",0,"",3,"7+"],
   ["Dominus Armoured Siege Bombard",9,13,2,0,20,[1],{"1": 325},0,"",1,"",8,"7+"],
   ["Doomhammer",12,13,2,0,24,[1],[[1, {"1": 380}], [2, {"1": 410}]],0,"",0,"",8,"7+"],
   ["Earthshaker Carriage Battery",4,7,4,0,6,[1],{"1": 120},0,"",1,"",2,"7+"],
@@ -93,24 +93,24 @@ const UNITS = [
   ["Heavy Quad Launcher Team",4,5,3,0,4,[1],{"1": 50},0,"",1,"",2,"7+"],
   ["Hell's Last",6,3,5,5,3,[5],{"5": 80},0,"Meneur",1,"",1,"7+"],
   ["Hellhammer",12,13,2,0,24,[1],[[1, {"1": 385}], [2, {"1": 415}]],0,"",0,"",8,"7+"],
-  ["Hellhound",10,10,2,0,11,[1],[[1, {"1": 125}], [3, {"1": 135}]],0,"",0,"",3,"7+"],
+  ["Hellhound",10,10,2,0,11,[1],[[1, {"1": 115}], [3, {"1": 125}]],0,"",0,"",3,"7+"],
   ["Hippogriff AFV",12,8,3,0,7,[1, 2],{"1": 70, "2": 140},0,"",0,"",2,"7+"],
   ["Hydra",10,9,3,0,11,[1],{"1": 90},0,"",0,"",3,"7+"],
   ["Hydra Platform",0,8,3,0,8,[1],{"1": 95},0,"",1,"",2,"7+"],
   ["Kasrkin",6,3,4,0,1,[10],[[1, {"10": 105}], [3, {"10": 120}]],0,"",0,"",1,"7+"],
   ["Krieg Combat Engineers",6,3,4,0,1,[5, 10],[[1, {"5": 65, "10": 95}], [3, {"5": 75, "10": 105}]],0,"",0,"",1,"7+"],
   ["Krieg Command Squad",6,3,5,0,3,[6],{"6": 60},0,"Meneur",0,"",1,"6+"],
-  ["Krieg Heavy Weapons Squad",6,3,5,0,1,[4],{"4": 60},0,"",0,"",1,"7+"],
-  ["Leman Russ Battle Tank",10,11,2,0,13,[1],[[1, {"1": 185}], [3, {"1": 195}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Commander",10,11,2,0,13,[1],[[1, {"1": 215}], [3, {"1": 230}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Demolisher",10,11,2,0,13,[1],[[1, {"1": 180}], [3, {"1": 190}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Eradicator",10,11,2,0,13,[1],[[1, {"1": 170}], [3, {"1": 180}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Executioner",10,11,2,0,13,[1],[[1, {"1": 170}], [3, {"1": 180}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Exterminator",10,11,2,0,13,[1],[[1, {"1": 180}], [3, {"1": 190}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Punisher",10,11,2,0,13,[1],[[1, {"1": 150}], [3, {"1": 160}]],0,"",0,"",3,"7+"],
-  ["Leman Russ Vanquisher",10,11,2,0,13,[1],[[1, {"1": 150}], [3, {"1": 160}]],0,"",0,"",3,"7+"],
-  ["Lord Marshal Dreir",10,4,4,4,6,[1],{"1": 75},0,"Meneur",0,"",2,"7+"],
-  ["Lord Solar Leontus",12,4,3,4,8,[1],{"1": 130},0,"Meneur",0,"",2,"6+"],
+  ["Krieg Heavy Weapons Squad",6,3,5,0,1,[4],{"4": 70},0,"",0,"",1,"7+"],
+  ["Leman Russ Battle Tank",10,11,2,0,13,[1],[[1, {"1": 160}], [3, {"1": 175}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Commander",10,11,2,0,13,[1],[[1, {"1": 195}], [3, {"1": 210}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Demolisher",10,11,2,0,13,[1],[[1, {"1": 160}], [3, {"1": 175}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Eradicator",10,11,2,0,13,[1],[[1, {"1": 145}], [3, {"1": 160}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Executioner",10,11,2,0,13,[1],[[1, {"1": 145}], [3, {"1": 160}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Exterminator",10,11,2,0,13,[1],[[1, {"1": 160}], [3, {"1": 175}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Punisher",10,11,2,0,13,[1],[[1, {"1": 130}], [3, {"1": 145}]],0,"",0,"",3,"7+"],
+  ["Leman Russ Vanquisher",10,11,2,0,13,[1],[[1, {"1": 130}], [3, {"1": 145}]],0,"",0,"",3,"7+"],
+  ["Lord Marshal Dreir",10,4,4,4,6,[1],{"1": 70},0,"Meneur",0,"",2,"7+"],
+  ["Lord Solar Leontus",12,4,3,4,8,[1],{"1": 120},0,"Meneur",0,"",2,"6+"],
   ["Macharius",9,13,2,0,20,[1],{"1": 310},0,"",1,"",8,"7+"],
   ["Macharius Omega",9,13,2,0,20,[1],{"1": 310},0,"",1,"",8,"7+"],
   ["Macharius Vanquisher",9,13,2,0,20,[1],{"1": 285},0,"",1,"",8,"7+"],
@@ -119,7 +119,7 @@ const UNITS = [
   ["Malcador Annihilator",10,11,2,0,18,[1],{"1": 270},0,"",1,"",5,"7+"],
   ["Malcador Defender",10,11,2,0,18,[1],{"1": 310},0,"",1,"",5,"7+"],
   ["Malcador Infernus",10,11,2,0,18,[1],{"1": 235},0,"",1,"",5,"7+"],
-  ["Manticore",10,10,3,0,11,[1],[[1, {"1": 150}], [2, {"1": 170}]],0,"",0,"",3,"7+"],
+  ["Manticore",10,10,3,0,11,[1],[[1, {"1": 150}], [3, {"1": 180}]],0,"",0,"",3,"7+"],
   ["Manticore Platform",0,8,3,0,8,[1],{"1": 95},0,"",1,"",2,"7+"],
   ["Marauder Bomber",0,10,2,0,20,[1],{"1": 345},0,"",1,"",0,"7+"],
   ["Marauder Destroyer",0,10,2,0,20,[1],{"1": 375},0,"",1,"",0,"7+"],
@@ -171,7 +171,7 @@ const UNITS = [
   ["Vendetta Gunship",14,10,2,0,14,[1],{"1": 255},0,"",1,"",0,"7+"],
   ["Voss-pattern Lightning",0,9,3,0,14,[1],{"1": 130},0,"",1,"",0,"7+"],
   ["Vulture Gunship",14,10,2,0,14,[1],{"1": 225},0,"",1,"",0,"7+"],
-  ["Wyvern",10,9,3,0,11,[1],[[1, {"1": 95}], [2, {"1": 115}]],0,"",0,"",3,"7+"],
+  ["Wyvern",10,9,3,0,11,[1],[[1, {"1": 95}], [3, {"1": 125}]],0,"",0,"",3,"7+"],
   ["‘Iron Hand’ Straken",6,3,3,4,4,[1],{"1": 55},0,"Meneur",1,"",1,"7+"]
 ];
 
@@ -1330,7 +1330,7 @@ const APTITUDES = {
    "In your Shooting phase, just after selecting a target for this model’s tremor cannon, the target unit and every other enemy Infantry unit within 3\" of that unit must take a Battle-shock test."
   ],
   [
-   "Transport",
+   "Banehammer",
    "This model has a transport capacity of 26 Astra Militarum Infantry models. Each Ogryn model takes up the space of 3 models. It cannot transport Artillery models."
   ],
   [
@@ -1442,10 +1442,6 @@ const APTITUDES = {
    "*This unit can have up to two Leader units attached to it, provided no more than one of those units is a Command Squad unit. If it does, and this Bodyguard unit is destroyed, the Leader units attached to it become separate units, with their original Starting Strengths.*"
   ],
   [
-   "Vox-caster",
-   "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP"
-  ],
-  [
    "Sharp Eyes, Light Fingers",
    "RATLINGS unit only. When this unit is selected to shoot, enemy units have +6\" detection range until this unit has shot."
   ],
@@ -1464,6 +1460,10 @@ const APTITUDES = {
   [
    "Long-range Scout",
    "SCOUT SENTINEL unit only. This unit has Infiltrators."
+  ],
+  [
+   "Vox-caster",
+   "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP"
   ]
  ],
  "Catachan Jungle Fighters": [
@@ -1476,10 +1476,6 @@ const APTITUDES = {
    "*This unit can have up to two Leader units attached to it, provided no more than one of those units is a Command Squad unit. If it does, and this Bodyguard unit is destroyed, the Leader units attached to it become separate units, with their original Starting Strengths.*"
   ],
   [
-   "Vox-caster",
-   "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP"
-  ],
-  [
    "Sharp Eyes, Light Fingers",
    "RATLINGS unit only. When this unit is selected to shoot, enemy units have +6\" detection range until this unit has shot."
   ],
@@ -1498,6 +1494,10 @@ const APTITUDES = {
   [
    "Long-range Scout",
    "SCOUT SENTINEL unit only. This unit has Infiltrators."
+  ],
+  [
+   "Vox-caster",
+   "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP"
   ]
  ],
  "Chimera": [
@@ -1550,14 +1550,6 @@ const APTITUDES = {
    "*This unit can have up to two Leader units attached to it, provided no more than one of those units is a Command Squad unit. If it does, and this Bodyguard unit is destroyed, the Leader units attached to it become separate units, with their original Starting Strengths.*"
   ],
   [
-   "Death Korps of Krieg Medi-pack",
-   "At the start of your Command phase, if the bearer’s unit is below its Starting Strength, you can return up to D3 destroyed Death Korps Troopers to this unit (if this unit contains two models equipped with a Death Korps medi-pack, return up to D3+1 destroyed Death Korps Troopers to this unit instead)."
-  ],
-  [
-   "Vox-caster",
-   "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP"
-  ],
-  [
    "Sharp Eyes, Light Fingers",
    "RATLINGS unit only. When this unit is selected to shoot, enemy units have +6\" detection range until this unit has shot."
   ],
@@ -1576,6 +1568,14 @@ const APTITUDES = {
   [
    "Long-range Scout",
    "SCOUT SENTINEL unit only. This unit has Infiltrators."
+  ],
+  [
+   "Death Korps of Krieg Medi-pack",
+   "At the start of your Command phase, if the bearer’s unit is below its Starting Strength, you can return up to D3 destroyed Death Korps Troopers to this unit (if this unit contains two models equipped with a Death Korps medi-pack, return up to D3+1 destroyed Death Korps Troopers to this unit instead)."
+  ],
+  [
+   "Vox-caster",
+   "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP"
   ]
  ],
  "Deathstrike": [
@@ -1794,20 +1794,20 @@ const APTITUDES = {
  ],
  "Militarum Tempestus Command Squad": [
   [
-   "Medi-pack",
-   "At the start of your Command phase, if the bearer's unit is below its Starting Strength, you can return up to D3 destroyed Tempestus Scions models to this unit."
-  ],
-  [
-   "Command Rod",
-   "While the bearer is leading a unit, that unit can be affected by up to two different Orders at the same time."
-  ],
-  [
    "Leader",
    "This unit can be attached to the following unit:\n- Tempestus Scions"
   ],
   [
    "Tempestor Prime",
    "While this unit contains a Tempestor Prime, ranged weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+  ],
+  [
+   "Medi-pack",
+   "At the start of your Command phase, if the bearer's unit is below its Starting Strength, you can return up to D3 destroyed Tempestus Scions models to this unit."
+  ],
+  [
+   "Command Rod",
+   "While the bearer is leading a unit, that unit can be affected by up to two different Orders at the same time."
   ],
   [
    "Regimental Standard",
@@ -1895,7 +1895,7 @@ const APTITUDES = {
   ],
   [
    "Attachés",
-   "At the start of the Declare Battle Formations step, this unit must join one Command Squad unit from your army (a Command Squad unit cannot have more than one Regimental Attaché unit joined to it). For the rest of the battle, every model in this unit counts as part of that Command Squad unit, and its Starting Strength is increased accordingly. If it is not possible to join a Regimental Attaché unit to a Command Squad in this way, it does not take part in the battle and counts as having been destroyed.\n\n\nWhile this unit is joined to a unit, it can embark within any Transport that unit can embark within."
+   "At the start of the Declare Battle Formations step, this unit must join one Command Squad unit from your army (a Command Squad unit cannot have more than one Regimental Attaché unit joined to it). For the rest of the battle, every model in this unit counts as part of that Command Squad unit, and its Starting Strength is increased accordingly. If it is not possible to join a Regimental Attaché unit to a Command Squad in this way, it does not take part in the battle and counts as having been destroyed.\n\nWhile this unit is joined to a unit, it can embark within any Transport that unit can embark within."
   ],
   [
    "Artillery Commander",
@@ -2968,16 +2968,16 @@ const APTITUDES = {
  ],
  "Cadian Recon Squad": [
   [
+   "Independent Operatives",
+   "Each time an Order is issued to this unit, that Order affects this unit until a new Order is issued to this unit, or until this unit becomes Battle-shocked, or until the battle ends (whichever happens first)."
+  ],
+  [
    "Vox-caster",
    "Each time you target the bearer’s unit with a Stratagem, roll one D6, adding 1 to the result if there are one or more friendly Officer models within 6\": on a 5+, you gain 1CP."
   ],
   [
    "Vox-relay beacon",
    "At the start of the battle, you can set up one Vox-relay Beacon token for this unit anywhere on the battlefield that is not in your opponent’s deployment zone. While a friendly Astra Militarum Regiment unit is within 6\" of that token, Officer units from your army can issue orders to that Regiment unit as if the Officer unit was within 6\" of it. At the end of every phase, If an enemy unit is within 1\" of a Vox-relay Beacon token you set up, that token is removed from the battlefield."
-  ],
-  [
-   "Independent Operatives",
-   "Each time an Order is issued to this unit, that Order affects this unit until a new Order is issued to this unit, or until this unit becomes Battle-shocked, or until the battle ends (whichever happens first)."
   ],
   [
    "Signal Flares",
@@ -2995,17 +2995,17 @@ const DETACHMENTS = [
   ["Combined Arms",2,"","Born Soldiers","Each time a model in a Regiment unit from your army makes a ranged attack that targets a visible unit (excluding MONSTERS and VEHICLES), that attack has the [LETHAL HITS] ability. Each time a model in a Squadron unit from your army makes a ranged attack that targets a visible MONSTER or VEHICLE unit, that attack has the [LETHAL HITS] ability.","",0,"","Take and Hold"],
   ["Designation Force",1,"Recon","Designated Targets","Friendly SCOUT SENTINEL/ASTRA MILITARUM INFANTRY SMOKE units have the following ability: Signal Flares: In your Shooting phase, this unit can select one visible enemy unit within 12\". That enemy unit is designated: ▪ While a unit is designated, that unit has +3\" detection range. This detachment has the RECON tag and cannot be taken with another RECON detachment.","",0,"","Reconnaissance"],
   ["Grizzled Company",3,"Abhuman","Ruthless Discipline","Add 1 to the number of Orders each Astra Militarum Officer model from your army can issue, as stated on their datasheet. While an ASTRA MILITARUM unit from your army is affected by an Order, each time a model in that unit makes an attack, re-roll a Hit roll of 1.","",0,"","Priority Assets"],
-  ["Hammer Of The Emperor",2,"","Iron Tread","Each time a Squadron unit from your army Advances, do not make an Advance roll for it; until the end of the phase, add 6\" to the Move characteristic of models in that unit, and when making that Advance move, that unit can move within Engagement Range of enemy models but cannot end that move within Engagement Range of enemy models.","",0,"","Purge the Foe"],
+  ["Hammer of the Emperor",2,"","Iron Tread","Each time a Squadron unit from your army Advances, do not make an Advance roll for it; until the end of the phase, add 6\" to the Move characteristic of models in that unit, and when making that Advance move, that unit can move within Engagement Range of enemy models but cannot end that move within Engagement Range of enemy models.","",0,"","Purge the Foe"],
   ["Mechanised Assault",2,"","Armoured Fist","Each time an ASTRA MILITARUM model from your army makes a ranged attack in a turn in which it disembarked from a Transport, add 1 to the Wound roll.","",0,"","Reconnaissance"],
-  ["Recon Element",3,"Recon","Masters of Camouflage","Astra Militarum Walker and Regiment units from your army have the Benefit of Cover. While such a unit has the Benefit of Cover for any other reason, improve the Save characteristic of that unit by 1 (to a maximum of 3+).","",0,"","Reconnaissance"],
-  ["Siege Regiment",2,"","Artillery Support","At the start of the battle round, select one of the following types of artillery support. ▪ Creeping Barrage: Roll one D6 for each enemy unit that is more than 12\" from every model from your army that is on the battlefield: On a 5+, until the end of the battle round, that unit is shaken. While a unit is shaken, subtract 2\" from its Move characteristic and subtract 2 from Charge rolls made for it. The maximum number of units that can be shaken by this rule in each battle round depends on the battle size, as shown below. ▪ Incendiary Bombardment: Select a number of enemy units more than 12\" from every model from your army that is on the battlefield. Until the end of the battle round, those enemy units are scattered. While a unit is scattered, it cannot have the Benefit of Cover. The maximum number of units you can select in this way depends on the battle size, as shown below. ▪ Smoke Shells: Select a number of units from your army. Until the end of the battle round, those units have the Stealth ability. BATTLE SIZEMAXIMUM NUMBER OF UNITSIncursion2Strike Force3Onslaught4","",0,"","Disruption"],
+  ["Recon Element",2,"Recon","Masters of Camouflage","Friendly ASTRA MILITARUM units (excluding TITANIC units) have Stealth.","",0,"","Reconnaissance"],
+  ["Siege Regiment",2,"","Artillery Support","At the start of the battle round, select one of the following types of artillery support. ▪ Creeping Barrage: Roll one D6 for each enemy unit that is more than 12\" from every model from your army that is on the battlefield: On a 5+, until the end of the battle round, that unit is shaken. While a unit is shaken, subtract 2\" from its Move characteristic and subtract 2 from Charge rolls made for it. The maximum number of units that can be shaken by this rule in each battle round depends on the battle size, as shown below. ▪ Incendiary Bombardment: Select a number of enemy units more than 12\" from every model from your army that is on the battlefield. Until the end of the battle round, those enemy units are scattered. While a unit is scattered, it cannot have the Benefit of Cover. The maximum number of units you can select in this way depends on the battle size, as shown below. ▪ Smoke Shells: Select a number of units from your army. Until the end of the battle round, those units have the Stealth ability. The maximum number of units you can select in this way depends on the battle size, as shown below. BATTLE SIZEMAXIMUM NUMBER OF UNITSIncursion2Strike Force3Onslaught4","",0,"","Disruption"],
   ["Steel Hammer",2,"","Ceaseless Cannonade","Each time an Astra Militarum Titanic or Astra Militarum Squadron unit from your army is selected to shoot, models in that unit can target enemy units within Engagement Range of that unit (including with Blast weapons), provided no other friendly units are also within Engagement Range of that enemy unit. When doing so, such models do not suffer the penalty to their Hit rolls for being within Engagement Range of one or more enemy units (excluding attacks made with Indirect Fire weapons). KEYWORDS In the Muster Armies step, you can select one or more ASTRA MILITARUM TITANIC units from your army to gain the CHARACTER keyword. Designer’s Note: This means that the selected units can be given Enhancements, and one of them can be selected as your WARLORD.","",0,"","Purge the Foe"]
 ];
 
 /* ENHANCEMENTS : [nom, coût, détachement, texte, cible] */
 const ENHANCEMENTS = [
   ["Exemplar of Duty (Upgrade)",10,"Abhuman Auxiliaries","COMMISSAR model only. This model has Feel No Pain 4+.",null],
-  ["Sharp Eyes (Upgrade)",10,"Abhuman Auxiliaries","",null],
+  ["Sharp Eyes (Upgrade)",10,"Abhuman Auxiliaries","RATLINGS unit only. When this unit is selected to shoot, enemy units have +6\" detection range until this unit has shot.",null],
   ["Exemplary Officer",20,"Armoured Infantry","Infantry Officer model only. Each time the bearer issues an Order to its own unit, you can select up to two other Platoon units within 3\" of the bearer’s unit. That Order is also issued to each of those units.",null],
   ["Grand Strategist",25,"Armoured Infantry","Officer model only. In your Command phase, the bearer can issue one additional Order.",null],
   ["Master Manoeuvrist",15,"Armoured Infantry","Infantry Officer model only. At the end of your opponent’s Fight phase, if the bearer’s unit is not within Engagement Range of one or more enemy units and every model in that unit is within 3\" of an Astra Militarum Transport from your army, it can embark within that Transport.",null],
@@ -3022,10 +3022,10 @@ const ENHANCEMENTS = [
   ["Aquilan Eye",20,"Grizzled Company","Astra Militarum Officer model only. Each time you select an Order for the bearer to issue, you can select the Order below:\n\nTarget Weak Spot (Order): Each time a model in this unit makes a ranged attack that targets an enemy unit within 12\", improve the Armour Penetration characteristic of that attack by 1.",null],
   ["Laud Hailer",10,"Grizzled Company","Astra Militarum Officer model only. Each time you select a unit for this Officer model to issue an Order to, that unit can be within 12\" instead of within 6\".",null],
   ["Spec Ops Veteran",15,"Grizzled Company","Astra Militarum Infantry Officer model only. Each time you select an Order for the bearer to issue, you can select the Order below:\n\nMove to the Shadows (Order): Each time a ranged attack targets this unit, until those attacks are resolved, models in this unit have the Stealth ability.",null],
-  ["Calm Under Fire",15,"Hammer Of The Emperor","Vehicle Officer model only. Once per turn, after the bearer issues an Order to a Squadron unit from your army, it can issue the same Order to another Squadron unit from your army.",null],
-  ["Indomitable Steed",15,"Hammer Of The Emperor","Vehicle Officer model only. The bearer has the Feel No Pain 6+ ability.",null],
-  ["Regimental Banner",20,"Hammer Of The Emperor","Add 1 to the Objective Control characteristic of models in the bearer’s unit.",null],
-  ["Veteran Crew",20,"Hammer Of The Emperor","Vehicle Officer model only. Each time a model in the bearer's unit makes a ranged attack, re-roll a Hit roll of 1.",null],
+  ["Calm Under Fire",15,"Hammer of the Emperor","Vehicle Officer model only. Once per turn, after the bearer issues an Order to a Squadron unit from your army, it can issue the same Order to another Squadron unit from your army.",null],
+  ["Indomitable Steed",15,"Hammer of the Emperor","Vehicle Officer model only. The bearer has the Feel No Pain 6+ ability.",null],
+  ["Regimental Banner",20,"Hammer of the Emperor","Add 1 to the Objective Control characteristic of models in the bearer’s unit.",null],
+  ["Veteran Crew",20,"Hammer of the Emperor","Vehicle Officer model only. Each time a model in the bearer's unit makes a ranged attack, re-roll a Hit roll of 1.",null],
   ["Bold Leadership",25,"Mechanised Assault","Infantry Officer model only. If you control an objective marker at the end of your Command phase, and the bearer's unit (or any Transport it is embarked within) is within range of that objective marker, that objective marker remains under your control, even if you have no models within range of it, until your opponent controls it at the start or end of any turn.",null],
   ["Sacred Unguents",10,"Mechanised Assault","Astra Militarum Tech-Priest Enginseer model only. At the start of your Shooting phase, select one Transport from your army (excluding Aircraft and Titanic units) within 3\" of the bearer. Until the end of the phase, each time that Transport makes an attack, you can re-roll the Hit roll.",null],
   ["Smoke Grenades",10,"Mechanised Assault","Infantry Officer model only. The bearer's unit has the Benefit of Cover and the Stealth ability while the bearer's unit is wholly within 3\" of one or more friendly Transport models.",null],
@@ -3074,12 +3074,12 @@ const STRATS = [
   ["Purging Fire","Grizzled Company","",1,"Your Shooting phase.","One ASTRA MILITARUM unit from your army affected by an Order that has not been selected to shoot this phase.","If your unit is within range of an objective marker, until the end of the phase, ranged weapons equipped by models in your unit have the [LETHAL HITS] ability.",""],
   ["Snap to It","Grizzled Company","",1,"Start of any phase.","One Astra Militarum Officer unit from your army.","Your unit’s OFFICER model can issue 1 Order as if it were your Command phase.",""],
   ["Veteran Sharpshooters","Grizzled Company","",1,"Your Shooting phase.","One ASTRA MILITARUM unit from your army that has not been selected to shoot this phase.","Until the end of the phase, ranged weapons equipped by models in your unit have the [IGNORES COVER] ability.",""],
-  ["Ablative Plating","Hammer Of The Emperor","Équipement",2,"Your opponent’s Shooting phase, just after an enemy unit has selected its targets.","One Astra Militarum Vehicle unit from your army that was selected as the target of one or more of the attacking unit’s attacks.","Until the end of the phase, each time an attack is allocated to your unit, subtract 1 from the Damage characteristic of that attack.",""],
-  ["Blazing Advance","Hammer Of The Emperor","Tactique de Bataille",1,"Your Movement phase, just after a Squadron unit from your army Advances.","That SQUADRON unit.","Until the end of the turn, your unit is eligible to shoot in a turn in which it Advanced.",""],
-  ["Crash Through","Hammer Of The Emperor","Ruse Stratégique",1,"Your Movement phase or your Charge phase.","One Astra Militarum Vehicle unit from your army that has not been selected to move or charge this phase.","Until the end of the phase, each time your unit makes a Normal, Advance or Charge move, it can move horizontally through terrain features as if they were not there.",""],
-  ["Final Hour","Hammer Of The Emperor","Fait Épique",1,"Your Command phase.","One Squadron unit from your army that is Below Half-strength (excluding Officer units).","Until the end of the battle round, ranged weapons equipped by models in your unit (excluding [ONE SHOT] weapons) have the [HAZARDOUS] ability, and each time a model in your unit makes a ranged attack, you can ignore any or all modifiers to that attack’s Ballistic Skill characteristic and to the Hit roll.",""],
-  ["Furious Cannonade","Hammer Of The Emperor","Tactique de Bataille",1,"Your Shooting phase.","One Squadron unit from your army that has not been selected to shoot this phase.","Until the end of the phase, each time a model in your unit makes an attack that targets a unit within 12\", improve the Armour Penetration characteristic of that attack by 1.",""],
-  ["Tactical Withdrawal","Hammer Of The Emperor","Ruse Stratégique",1,"Your Movement phase, just after a Squadron unit from your army Falls Back.","That SQUADRON unit.","Until the end of the turn, your unit is eligible to shoot in a turn in which it Fell Back.",""],
+  ["Ablative Plating","Hammer of the Emperor","Équipement",2,"Your opponent’s Shooting phase, just after an enemy unit has selected its targets.","One Astra Militarum Vehicle unit from your army that was selected as the target of one or more of the attacking unit’s attacks.","Until the end of the phase, each time an attack is allocated to your unit, subtract 1 from the Damage characteristic of that attack.",""],
+  ["Blazing Advance","Hammer of the Emperor","Tactique de Bataille",1,"Your Movement phase, just after a Squadron unit from your army Advances.","That SQUADRON unit.","Until the end of the turn, your unit is eligible to shoot in a turn in which it Advanced.",""],
+  ["Crash Through","Hammer of the Emperor","Ruse Stratégique",1,"Your Movement phase or your Charge phase.","One Astra Militarum Vehicle unit from your army that has not been selected to move or charge this phase.","Until the end of the phase, each time your unit makes a Normal, Advance or Charge move, it can move horizontally through terrain features as if they were not there.",""],
+  ["Final Hour","Hammer of the Emperor","Fait Épique",1,"Your Command phase.","One Squadron unit from your army that is Below Half-strength (excluding Officer units).","Until the end of the battle round, ranged weapons equipped by models in your unit (excluding [ONE SHOT] weapons) have the [HAZARDOUS] ability, and each time a model in your unit makes a ranged attack, you can ignore any or all modifiers to that attack’s Ballistic Skill characteristic and to the Hit roll.",""],
+  ["Furious Cannonade","Hammer of the Emperor","Tactique de Bataille",1,"Your Shooting phase.","One Squadron unit from your army that has not been selected to shoot this phase.","Until the end of the phase, each time a model in your unit makes an attack that targets a unit within 12\", improve the Armour Penetration characteristic of that attack by 1.",""],
+  ["Tactical Withdrawal","Hammer of the Emperor","Ruse Stratégique",1,"Your Movement phase, just after a Squadron unit from your army Falls Back.","That SQUADRON unit.","Until the end of the turn, your unit is eligible to shoot in a turn in which it Fell Back.",""],
   ["Clear and Secure","Mechanised Assault","Tactique de Bataille",1,"Your Shooting phase.","One ASTRA MILITARUM unit from your army that disembarked from a Transport this turn and has not been selected to shoot this phase.","Until the end of the phase, each time a model in your unit makes an attack that targets a unit within range of an objective marker, you can re-roll the Hit roll and you can re-roll the Wound roll.",""],
   ["Hasty Extraction","Mechanised Assault","Tactique de Bataille",1,"Your opponent’s Charge phase, after an enemy unit has selected targets for its charge but before it makes a Charge move.","One Astra Militarum Infantry unit from your army that was selected as a target of that charge.","Provided your unit is not within Engagement Range of one or more enemy units and every model in your unit is within 3\" of an AsTRA Militarum Transport from your army, it can embark within that TRANSPORT.",""],
   ["Move Out","Mechanised Assault","Ruse Stratégique",1,"End of your opponent’s turn.","One ASTRA MILITARUM unit from your army.","Provided your unit is not within Engagement Range of one or more enemy units and every model in your unit is within 3\" of an Astra Militarum Transport from your army, it can embark within that TRANSPORT.",""],
@@ -3805,7 +3805,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "Final Hour",
-  "detach": "Hammer Of The Emperor",
+  "detach": "Hammer of the Emperor",
   "pc": 1,
   "ph": "T",
   "unites": [],
@@ -3817,7 +3817,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "Furious Cannonade",
-  "detach": "Hammer Of The Emperor",
+  "detach": "Hammer of the Emperor",
   "pc": 1,
   "ph": "TC",
   "unites": [],

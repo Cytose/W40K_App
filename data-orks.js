@@ -4024,7 +4024,7 @@ const TRANSPORTS = {
 const FACTION = [
  [
   "Waaagh!",
-  "Friendly ORKS with this ability can:\n- Re-roll advance rolls.\n- Become riled up, as stated in other rules.\nWhile a unit is riled up:\n    - That unit has 5+ InSv.\n    - That unit's ranged attacks have [ASSAULT].\n    - When that unit is selected to make an advance move, that advance move does not prevent that unit from being eligible to declare a charge."
+  "Friendly ORKS units with this ability can: ▪ Re-roll advance rolls. ▪ Become riled up, as stated in other rules. While a unit is riled up: ▪ That unit has 5+ InSv. ▪ That unit’s ranged attacks have [ASSAULT]. ▪ When that unit is selected to make an advance move, that advance move does not prevent that unit from being eligible to declare a charge. War Cry (Once per battle, per army): At the start of the Command phase, you can use this ability. If you do, friendly ORKS units with the Waaagh! ability are riled up until the end of the next turn."
  ]
 ];
 

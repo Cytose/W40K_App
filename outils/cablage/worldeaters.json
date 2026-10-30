@@ -254,27 +254,27 @@
       "aide": "ignore les malus de CT/CC et de jets de touche et de blessure",
       "effet": { "ignoreMalus": true } },
 
-    { "nom": "A Trophy for the Throne", "detach": "Butchers Of Khorne", "pc": 1, "ph": "TC",
+    { "nom": "A Trophy for the Throne", "detach": "Butchers of Khorne", "pc": 1, "ph": "TC",
       "unites": [], "sauf": [],
       "aide": "+1 pour blesser — contre MONSTRE ou VÉHICULE seulement",
       "effet": { "wndMod": 1 } },
 
-    { "nom": "Focused Ferocity", "detach": "Butchers Of Khorne", "pc": 1, "ph": "C",
+    { "nom": "Focused Ferocity", "detach": "Butchers of Khorne", "pc": 1, "ph": "C",
       "unites": [], "sauf": [],
       "aide": "+1 attaque à chaque arme de corps à corps",
       "effet": { "atkMod": 1 } },
 
-    { "nom": "Bloody Vengeance", "detach": "Cult Of Blood", "pc": 1, "ph": "TC",
+    { "nom": "Bloody Vengeance", "detach": "Cult of Blood", "pc": 1, "ph": "TC",
       "unites": ["Jakhals", "Goremongers"], "sauf": [],
       "aide": "relance des touches ratées contre l'unité qui a détruit ton Monstre ou ton Titanesque",
       "effet": { "rrH": "failed" } },
 
-    { "nom": "Fail Not the Blood God", "detach": "Cult Of Blood", "pc": 1, "ph": "C",
+    { "nom": "Fail Not the Blood God", "detach": "Cult of Blood", "pc": 1, "ph": "C",
       "unites": ["Jakhals", "Goremongers"], "sauf": [],
       "aide": "relance des 1 pour toucher",
       "effet": { "rrH": "ones" } },
 
-    { "nom": "Fail Not the Blood God — près d'un Monstre", "detach": "Cult Of Blood", "pc": 1, "ph": "C",
+    { "nom": "Fail Not the Blood God — près d'un Monstre", "detach": "Cult of Blood", "pc": 1, "ph": "C",
       "unites": ["Jakhals", "Goremongers"], "sauf": [],
       "aide": "relance TOTALE des touches — l'unité est à 6\" d'un MONSTRE ami, ou à 9\" d'un TITANESQUE",
       "effet": { "rrH": "failed" } },

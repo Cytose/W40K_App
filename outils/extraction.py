@@ -147,6 +147,23 @@ def chargeCablage(faction):
 # ------------------------------------------------------------------
 ALIAS_SOCLE = {
     'worldeaters': {'Chaos Terminators': 'Terminator Squad'},
+    # Le codex custodes d'octobre 2026 a renommé ses escouades ; le guide
+    # porte encore les anciens noms. Mêmes figurines, même socle — sauf
+    # Gyrfalcon et Sentinel Guard, rapprochés de la moto Vertus et du
+    # Garde Custodien par déduction : à confirmer sur un guide plus récent.
+    'custodes': {'Custodian Guard Sodality': 'Custodian Guard',
+                 'Custodian Guard Sodality with Adrasite Spears': 'Custodian Guard',
+                 'Custodian Guard Sodality with Pyrithite Spears': 'Custodian Guard',
+                 'Sentinel Guard Sodality': 'Custodian Guard',
+                 'Sagittarum Custodians Sodality': 'Sagittarum Custodians',
+                 'Aquilon Terminators with Solarite Power Gauntlets': 'Aquilon Custodians',
+                 'Aquilon Terminators with Solarite Power Talons': 'Aquilon Custodians',
+                 'Caladius Annihilator Grav-tank': 'Caladius Grav-tank',
+                 'Gyrfalcon Jetbike Sodality': 'Vertus Praetors',
+                 'Prosecutor Squad': 'Prosecutors', 'Vigilator Squad': 'Vigilators',
+                 'Witchseeker Squad': 'Witchseekers',
+                 'Venatari with Kinetic Destroyers': 'Venatari Custodians',
+                 'Venatari with Verutum Lances': 'Venatari Custodians'},
     'sororitas': {'Immolator': 'Immolator [Adepta_Sororitas]'},
     'aeldari': {'War Walkers': 'War Walker', 'Starfangs': 'Starfang'},
     'spacemarines': {'Eradicator Squad with Melta Rifles': 'Eradicator Squad',
@@ -908,16 +925,29 @@ def extrait(faction):
     # « Voix du Commandement » de l'Astra Militarum n'est liée que par
     # ses officiers, et le comptage la manquait.
     # ------------------------------------------------------------------
+    entetes = FACTIONS[faction].get('guide') or []
+    if isinstance(entetes, str): entetes = [entetes]
+    def nommee(t):
+        t = t.upper().replace('’', "'")
+        return any(e.replace('’', "'") in t[:80] for e in entetes[:1])
+
     faction_regle = []
     for c in cats:
         for r in (c.get('sharedRules') or []):
             t = texteRegle(r)
-            if re.match(r'if your army faction is', t, re.I):
+            # La bibliothèque aeldari porte Battle Focus, que les Drukhari
+            # lisent aussi : la règle doit nommer la faction elle-même.
+            if re.match(r'if your army faction is', t, re.I) and nommee(t):
                 faction_regle = [[r.get('name') or '', t]]
                 break
         if faction_regle: break
 
-    # à défaut : la règle partagée que la moitié des fiches lient
+    # à défaut : Wahapedia, qui range la règle d'armée parmi les
+    # aptitudes de type « Faction » de chaque fiche
+    if not faction_regle:
+        faction_regle = [list(r) for r in wahapedia.regleArmee(faction)]
+
+    # à défaut encore : la règle partagée que la moitié des fiches lient
     liees = {}
     for f, arbre in LF:
         vus = set()
@@ -930,12 +960,6 @@ def extrait(faction):
         if n >= max(3, len(UNITS) // 2):
             r = idx.get(tid)
             if r: faction_regle = [[r.get('name') or '', texteRegle(r)]]
-
-    # à défaut encore : Wahapedia, qui range la règle d'armée parmi les
-    # aptitudes de type « Faction » de chaque fiche
-    if not faction_regle:
-        r = wahapedia.regleArmee(faction)
-        if r: faction_regle = [list(r)]
 
     # ------------------------------------------------------------------
     # LES PROFILS DÉGRADÉS

@@ -232,10 +232,13 @@ def reglesDetachement(faction):
     return out
 
 def regleArmee(faction):
-    """(nom, texte) de la règle d'armée : l'aptitude de type « Faction »
-       que portent le plus de fiches de la faction. None sans export."""
+    """[(nom, texte)] des règles d'armée : les aptitudes de type « Faction »
+       que porte au moins un tiers des fiches, la plus portée d'abord. Les
+       Custodes en ont deux — Aegis of the Emperor et Martial Ka'tah — et
+       ne garder que la première perdait celle qu'on joue à chaque combat.
+       Liste vide sans export."""
     code = CODES.get(faction)
-    if not code or not dispo(): return None
+    if not code or not dispo(): return []
     fiches = {x.get('id') for x in enregistrements('Datasheets.csv')
               if x.get('faction_id') == code}
     noms = {x.get('id'): x for x in enregistrements('Abilities.csv')}
@@ -244,9 +247,11 @@ def regleArmee(faction):
         if x.get('datasheet_id') not in fiches or x.get('type') != 'Faction': continue
         a = noms.get(x.get('ability_id'))
         if a: compte[a['id']] = compte.get(a['id'], 0) + 1
-    if not compte: return None
-    a = noms[max(compte, key=compte.get)]
-    return (titre(a.get('name')), propre(a.get('description')))
+    seuil = max(compte.values()) and len(fiches) / 3
+    retenues = sorted((k for k, n in compte.items() if n >= seuil),
+                      key=lambda k: -compte[k])
+    return [(titre(noms[k].get('name')), propre(noms[k].get('description')))
+            for k in retenues]
 
 def optimisations(faction):
     """{ nom d'optimisation (clé) : texte }."""

@@ -234,12 +234,12 @@
       "aide": "[IGNORE LE COUVERT] sur les armes de tir",
       "effet": { "ignoresCover": true } },
 
-    { "nom": "Final Hour", "detach": "Hammer Of The Emperor", "pc": 1, "ph": "T",
+    { "nom": "Final Hour", "detach": "Hammer of the Emperor", "pc": 1, "ph": "T",
       "unites": [], "sauf": [],
       "aide": "ignore les malus de CT et de jet de touche — au prix de [HASARDEUX] sur les armes",
       "effet": { "ignoreMalus": true } },
 
-    { "nom": "Furious Cannonade", "detach": "Hammer Of The Emperor", "pc": 1, "ph": "TC",
+    { "nom": "Furious Cannonade", "detach": "Hammer of the Emperor", "pc": 1, "ph": "TC",
       "unites": [], "sauf": [],
       "aide": "+1 en PA — cible à 12\" ou moins",
       "effet": { "apMod": 1 } },

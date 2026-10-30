@@ -43,32 +43,32 @@ const UNITS = [
   ["Bloodcrushers",10,7,3,5,4,[3, 6],[[1, {"3": 95, "6": 190}], [3, {"3": 115, "6": 210}]],0,"",0,"",2,"7+"],
   ["Bloodletters",8,4,7,5,1,[10],{"10": 90},0,"",0,"",1,"7+"],
   ["Bloodthirster",12,11,3,4,18,[1],[[1, {"1": 320}], [3, {"1": 335}]],0,"",0,"",5,"6+"],
-  ["Chaos Land Raider",10,12,2,0,16,[1],[[1, {"1": 220}], [3, {"1": 240}]],0,"",0,"",5,"6+"],
+  ["Chaos Land Raider",10,12,2,0,16,[1],[[1, {"1": 200}], [3, {"1": 220}]],0,"",0,"",5,"6+"],
   ["Chaos Predator Annihilator",10,10,3,0,11,[1],[[1, {"1": 130}], [3, {"1": 140}]],0,"",0,"",3,"6+"],
   ["Chaos Predator Destructor",10,10,3,0,11,[1],[[1, {"1": 130}], [3, {"1": 140}]],0,"",0,"",3,"6+"],
   ["Chaos Rhino",12,9,3,0,10,[1],[[1, {"1": 75}], [4, {"1": 85}]],0,"",0,"",2,"6+"],
   ["Chaos Spawn",10,5,4,0,4,[2],{"2": 95},0,"",0,"",1,"7+"],
-  ["Chaos Terminators",7,5,2,4,3,[5, 10],[[1, {"5": 165, "10": 330}], [3, {"5": 175, "10": 340}]],0,"",0,"",1,"6+"],
+  ["Chaos Terminators",7,6,2,4,3,[5, 10],[[1, {"5": 175, "10": 350}], [3, {"5": 185, "10": 360}]],0,"",0,"",1,"6+"],
   ["Daemon Prince of Khorne",10,10,2,4,10,[1],{"1": 200},0,"",0,"",3,"6+"],
   ["Daemon Prince of Khorne with wings",14,9,2,4,10,[1],{"1": 170},0,"",0,"",3,"6+"],
   ["Defiler",14,11,3,5,18,[1],[[1, {"1": 270}], [2, {"1": 310}]],0,"",0,"",5,"6+"],
-  ["Eightbound",10,6,3,5,3,[3, 6],[[1, {"3": 125, "6": 255}], [3, {"3": 140, "6": 270}]],0,"",0,"",1,"6+"],
-  ["Exalted Eightbound",10,6,3,5,3,[3, 6],[[1, {"3": 130, "6": 265}], [3, {"3": 145, "6": 280}]],0,"",0,"",1,"6+"],
+  ["Eightbound",10,6,3,5,3,[3, 6],[[1, {"3": 125, "6": 250}], [3, {"3": 140, "6": 265}]],0,"",0,"",1,"6+"],
+  ["Exalted Eightbound",10,6,3,5,3,[3, 6],[[1, {"3": 130, "6": 260}], [3, {"3": 145, "6": 275}]],0,"",0,"",1,"6+"],
   ["Flesh Hounds",12,4,7,5,2,[5, 10],{"5": 75, "10": 150},0,"",0,"",1,"7+"],
   ["Forgefiend",10,10,3,5,12,[1],[[1, {"1": 140}], [3, {"1": 155}]],0,"",0,"",3,"6+"],
-  ["Goremongers",9,4,6,0,1,[8],{"8": 75},0,"",0,"",1,"7+"],
+  ["Goremongers",9,4,6,0,1,[8],{"8": 70},0,"",0,"",1,"7+"],
   ["Helbrute",9,9,2,0,8,[1],{"1": 120},0,"",0,"",3,"6+"],
   ["Heldrake",12,9,3,5,12,[1],{"1": 175},0,"",0,"",0,"6+"],
-  ["Jakhals",7,4,6,0,1,[10, 20],{"10": 65, "20": 130},0,"",0,"",1,"7+"],
-  ["Khorne Berzerkers",8,4,3,0,2,[10, 20],{"10": 170, "20": 330},0,"",0,"",2,"6+"],
+  ["Jakhals",7,4,6,0,1,[10, 20],{"10": 65, "20": 120},0,"",0,"",1,"7+"],
+  ["Khorne Berzerkers",8,5,3,0,2,[10, 20],{"10": 170, "20": 330},0,"",0,"",2,"6+"],
   ["Khorne Lord of Skulls",12,13,3,5,24,[1],[[1, {"1": 505}], [2, {"1": 535}]],0,"",0,"",8,"6+"],
-  ["Khârn the Betrayer",8,4,3,4,5,[1],{"1": 115},0,"Meneur",0,"",1,"6+"],
+  ["Khârn the Betrayer",8,5,3,4,5,[1],{"1": 115},0,"Meneur",0,"",1,"6+"],
   ["Lord Invocatus",10,6,3,4,8,[1],{"1": 100},0,"Meneur",0,"",2,"6+"],
   ["Lord on Juggernaut",10,6,3,4,7,[1],{"1": 95},0,"Meneur",0,"",2,"6+"],
-  ["Master of Executions",8,4,3,0,4,[1],{"1": 60},0,"Meneur",0,"",1,"6+"],
+  ["Master of Executions",8,5,3,0,4,[1],{"1": 60},0,"Meneur",0,"",1,"6+"],
   ["Maulerfiend",12,10,3,5,12,[1],[[1, {"1": 140}], [3, {"1": 150}]],0,"",0,"",3,"6+"],
   ["Skarbrand",10,11,3,4,20,[1],{"1": 315},0,"",0,"",5,"6+"],
-  ["Slaughterbound",10,6,3,5,6,[1],{"1": 100},0,"Meneur",0,"",1,"6+"]
+  ["Slaughterbound",10,6,3,5,6,[1],{"1": 90},0,"Meneur",0,"",1,"6+"]
 ];
 
 /* WEAPONS : [unité, arme, "T"|"C", A, CT/CC, F, PA, D, drapeaux, portée] */
@@ -85,33 +85,33 @@ const WEAPONS = [
   ["Bloodthirster","➤ Axe of Khorne - sweep","C","16",2,8,2,"1","","càc"],
   ["Bloodthirster","➤ Great axe of Khorne - strike","C","7",2,16,4,"D6+2","","càc"],
   ["Bloodthirster","➤ Great axe of Khorne - sweep","C","14",2,10,2,"2","","càc"],
-  ["Chaos Land Raider","Combi-bolter","T","2",4,4,0,"1","rf:4","24\""],
-  ["Chaos Land Raider","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
+  ["Chaos Land Raider","Combi-bolter","T","2",4,5,1,"1","rf:4","24\""],
+  ["Chaos Land Raider","Combi-weapon","T","1",4,5,1,"1","anti:4:inf dev rf:1","24\""],
   ["Chaos Land Raider","Havoc launcher","T","D6",4,5,0,"1","blast","48\""],
   ["Chaos Land Raider","Soulshatter lascannon","T","2",4,12,3,"D6+1","rf:2","48\""],
   ["Chaos Land Raider","Twin heavy bolter","T","3",4,5,1,"2","rf:2 sust:1 twin","36\""],
   ["Chaos Land Raider","Armoured tracks","C","9",3,8,0,"1","","càc"],
-  ["Chaos Predator Annihilator","Combi-bolter","T","2",4,4,0,"1","rf:4","24\""],
-  ["Chaos Predator Annihilator","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
+  ["Chaos Predator Annihilator","Combi-bolter","T","2",4,5,1,"1","rf:4","24\""],
+  ["Chaos Predator Annihilator","Combi-weapon","T","1",4,5,1,"1","anti:4:inf dev rf:1","24\""],
   ["Chaos Predator Annihilator","Havoc launcher","T","D6",4,5,0,"1","blast","48\""],
   ["Chaos Predator Annihilator","Heavy bolter","T","3",4,5,1,"2","rf:2 sust:1","36\""],
   ["Chaos Predator Annihilator","Lascannon","T","1",4,12,3,"D6+1","","48\""],
   ["Chaos Predator Annihilator","Predator twin lascannon","T","1",4,14,3,"D6+1","rf:2 twin","48\""],
   ["Chaos Predator Annihilator","Armoured tracks","C","6",3,6,0,"1","","càc"],
-  ["Chaos Predator Destructor","Combi-bolter","T","2",4,4,0,"1","rf:4","24\""],
-  ["Chaos Predator Destructor","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
+  ["Chaos Predator Destructor","Combi-bolter","T","2",4,5,1,"1","rf:4","24\""],
+  ["Chaos Predator Destructor","Combi-weapon","T","1",4,5,1,"1","anti:4:inf dev rf:1","24\""],
   ["Chaos Predator Destructor","Havoc launcher","T","D6",4,5,0,"1","blast","48\""],
   ["Chaos Predator Destructor","Heavy bolter","T","3",4,5,1,"2","rf:2 sust:1","36\""],
   ["Chaos Predator Destructor","Lascannon","T","1",4,12,3,"D6+1","","48\""],
   ["Chaos Predator Destructor","Predator autocannon","T","4",4,9,1,"3","rf:6","48\""],
   ["Chaos Predator Destructor","Armoured tracks","C","6",3,6,0,"1","","càc"],
-  ["Chaos Rhino","Combi-bolter","T","2",4,4,0,"1","rf:4","24\""],
-  ["Chaos Rhino","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
+  ["Chaos Rhino","Combi-bolter","T","2",4,5,1,"1","rf:4","24\""],
+  ["Chaos Rhino","Combi-weapon","T","1",4,5,1,"1","anti:4:inf dev rf:1","24\""],
   ["Chaos Rhino","Havoc launcher","T","D6",4,5,0,"1","blast","48\""],
   ["Chaos Rhino","Armoured tracks","C","6",3,6,0,"1","","càc"],
   ["Chaos Spawn","Hideous Mutations","C","D6+4",4,5,1,"2","","càc"],
-  ["Chaos Terminators","Combi-bolter","T","2",4,4,0,"1","rf:4","24\""],
-  ["Chaos Terminators","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
+  ["Chaos Terminators","Combi-bolter","T","2",4,5,1,"1","rf:4","24\""],
+  ["Chaos Terminators","Combi-weapon","T","1",4,5,1,"1","anti:4:inf dev rf:1","24\""],
   ["Chaos Terminators","Heavy flamer","T","D6",0,5,1,"1","ignorescover torrent","12\""],
   ["Chaos Terminators","Reaper autocannon","T","4",4,7,1,"1","dev rf:2 sust:1","36\""],
   ["Chaos Terminators","Accursed weapon","C","4",3,5,2,"1","","càc"],
@@ -148,7 +148,7 @@ const WEAPONS = [
   ["Goremongers","Blood harpoon","T","1",4,5,1,"2","assault sust:D3","18\""],
   ["Goremongers","Chainblade","C","3",4,3,0,"1","lance","càc"],
   ["Goremongers","Close combat weapon","C","2",4,3,0,"1","","càc"],
-  ["Helbrute","Combi-bolter","T","2",4,4,0,"1","rf:4","24\""],
+  ["Helbrute","Combi-bolter","T","2",4,5,1,"1","rf:4","24\""],
   ["Helbrute","Heavy flamer","T","D6",0,5,1,"1","ignorescover torrent","12\""],
   ["Helbrute","Multi-melta","T","2",4,9,4,"D6","melta:2 rf:1","18\""],
   ["Helbrute","Plasma cannon","T","D3",4,8,3,"3","blast hazardous rf:D3","36\""],
@@ -169,10 +169,10 @@ const WEAPONS = [
   ["Jakhals","Mauler chainblade","C","3",5,4,1,"2","","càc"],
   ["Jakhals","Paired manglers","C","4",4,4,0,"1","","càc"],
   ["Jakhals","Skullsmasher and mangler","C","2",4,4,1,"2","","càc"],
-  ["Khorne Berzerkers","Bolt pistol","T","1",4,4,0,"1","pistol","12\""],
+  ["Khorne Berzerkers","Bolt pistol","T","1",4,5,1,"1","pistol","12\""],
   ["Khorne Berzerkers","➤ Plasma pistol - standard","T","1",4,7,2,"1","pistol","12\""],
   ["Khorne Berzerkers","➤ Plasma pistol - supercharge","T","1",4,8,3,"2","hazardous pistol","12\""],
-  ["Khorne Berzerkers","Chainblade","C","4",3,4,1,"1","","càc"],
+  ["Khorne Berzerkers","Chainblade","C","4",3,5,1,"1","","càc"],
   ["Khorne Berzerkers","Khornate eviscerator","C","3",3,8,2,"2","","càc"],
   ["Khorne Lord of Skulls","Daemongore cannon","T","D6",4,14,4,"D6+2","blast rf:3","18\""],
   ["Khorne Lord of Skulls","Gorestorm cannon","T","D6+3",4,10,2,"3","blast rf:3","24\""],
@@ -184,14 +184,14 @@ const WEAPONS = [
   ["Khârn the Betrayer","➤ Plasma pistol - standard","T","1",3,7,2,"1","pistol","12\""],
   ["Khârn the Betrayer","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous pistol","12\""],
   ["Khârn the Betrayer","Gorechild","C","8",2,7,2,"3","","càc"],
-  ["Lord Invocatus","Bolt pistol","T","1",2,4,0,"1","pistol","12\""],
+  ["Lord Invocatus","Bolt pistol","T","1",2,5,1,"1","pistol","12\""],
   ["Lord Invocatus","Bladed horn","C","4",3,6,1,"2","extra lance","càc"],
   ["Lord Invocatus","Coward's Bane","C","7",2,6,2,"2","dev","càc"],
   ["Lord on Juggernaut","➤ Plasma pistol - standard","T","1",3,7,2,"1","pistol","12\""],
   ["Lord on Juggernaut","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous pistol","12\""],
   ["Lord on Juggernaut","Bladed horn","C","4",3,6,1,"2","extra lance","càc"],
   ["Lord on Juggernaut","Exalted chainblade","C","7",2,6,1,"2","","càc"],
-  ["Master of Executions","Bolt pistol","T","1",3,4,0,"1","pistol","12\""],
+  ["Master of Executions","Bolt pistol","T","1",3,5,1,"1","pistol","12\""],
   ["Master of Executions","Axe of dismemberment","C","5",2,7,2,"2","dev precision","càc"],
   ["Maulerfiend","Magma cutter","T","2",4,9,4,"D6","melta:2 rf:1","6\""],
   ["Maulerfiend","Lasher tendrils","C","6",3,7,1,"1","extra","càc"],
@@ -287,7 +287,7 @@ const APTITUDES = {
   ],
   [
    "The Betrayer",
-   "At the end of your Charge phase, if this model is leading a unit and that unit is not within Engagement Range of one or more enemy units, you must take a Leadership test for this model. If that test is failed, one Bodyguard model of your choice in that unit is destroyed."
+   "At the end of your Charge phase, if this unit is on the battlefield, is unengaged, and contains a bodyguard model, this unit makes a leadership roll: \n- If that leadership roll is failed, one bodyguard model in this unit is destroyed."
   ],
   [
    "Berserker Frenzy",
@@ -295,7 +295,7 @@ const APTITUDES = {
   ],
   [
    "Leader",
-   "This model can be attached to the following unit: Khorne Berzerkers"
+   "This model can be attached to the following unit: KHORNE BERZERKERS"
   ],
   [
    "Blessings of Khorne",
@@ -305,7 +305,7 @@ const APTITUDES = {
  "Lord Invocatus": [
   [
    "Leader",
-   "This model can be attached to the following units: Eightbound, Exalted Eightbound, Khorne Berzerkers"
+   "This model can be attached to the following units: EIGHTBOUND, EXALTED EIGHTBOUND, KHORNE BERZERKERS"
   ],
   [
    "Fire Riders",
@@ -363,7 +363,7 @@ const APTITUDES = {
   ],
   [
    "Leader",
-   "This model can be attached to the following units: Eightbound, Exalted Eightbound, Khorne Berzerkers"
+   "This model can be attached to the following units: EIGHTBOUND, EXALTED EIGHTBOUND, KHORNE BERZERKERS"
   ],
   [
    "Blessings of Khorne",
@@ -373,7 +373,7 @@ const APTITUDES = {
  "Master of Executions": [
   [
    "Leader",
-   "This model can be attached to the following unit: Khorne Berzerkers"
+   "This model can be attached to the following unit: KHORNE BERZERKERS"
   ],
   [
    "A Worthy Skull",
@@ -392,6 +392,10 @@ const APTITUDES = {
   [
    "Blood Surge",
    "In your opponent’s Shooting phase, when an enemy unit has shot, if a model in this unit was destroyed as a result of those attacks, this unit can make a surge move of up to D6+2\"."
+  ],
+  [
+   "Murderous Charge",
+   "If this unit made a charge move this turn, this unit’s melee attacks have +1 S."
   ],
   [
    "Icon of Khorne",
@@ -633,7 +637,7 @@ const APTITUDES = {
   ],
   [
    "Leader",
-   "This model can be attached to the following units: Eightbound, Exalted Eightbound"
+   "This model can be attached to the following units: EIGHTBOUND, EXALTED EIGHTBOUND"
   ],
   [
    "Lord of the Eightbound",
@@ -715,14 +719,14 @@ const APTITUDES = {
 /* DETACHMENTS : [nom, PD, tag unique, nom de la règle, texte, octroi,
    0, nom français, Disposition de Force] */
 const DETACHMENTS = [
-  ["Berzerker Warband",3,"","Relentless Rage","Each time a World Eaters unit from your army makes a Charge move, until the end of the turn, add 1 to the Attacks characteristic and add 2 to the Strength characteristic of melee weapons equipped by models in that unit.","",0,"","Purge the Foe"],
+  ["Berzerker Warband",2,"","Relentless Rage","Friendly WORLD EATERS units’ melee attacks have +1 A.","",0,"","Purge the Foe"],
   ["Brazen Engines",1,"","Rampaging Terrors","Friendly DAEMON VEHICLE units have the following ability: Terror of Khorne: At the start of the Fight phase, you can select one enemy unit engaged with this unit. That enemy unit makes a battle-shock roll, with -1 to that battle-shock roll. You cannot select the same enemy unit for this effect more than once per phase. This detachment has the ONSLAUGHT tag and cannot be taken with another ONSLAUGHT detachment.","",0,"","Disruption"],
-  ["Butchers Of Khorne",1,"","Adamantine Avalanche","At the start of the Fight phase, if a friendly TERMINATOR SQUAD unit is engaged, make a Blessings of Khorne roll and use the results to activate one Blessing of Khorne. Until the end of the phase, that Blessing of Khorne is active for friendly TERMINATOR SQUAD units in addition to any other Blessings of Khorne that are currently active.","",0,"","Take and Hold"],
-  ["Cult Of Blood",2,"","Idols of Khorne","At the start of your Command phase, you can select one of the Idols of Khorne abilities listed below. Until the start of your next Command phase, that ability is active and its effects apply to all World Eaters Titanic and World Eaters Monster units from your army. You can only select each Idols of Khorne ability once per battle. Idol of Infinite Rage (Aura) While a friendly Jakhals or Goremongers unit is within 6\" of this model (or within 9\" if this model is TITANIC), each time a model in that unit makes an attack, add 1 to the Hit roll and add 1 to the Wound roll. Idol of Burning Wrath (Aura) While a friendly JAKHALS or GOREMONGERS unit is within 6\" of this model (or within 9\" if this model is TITANIC), add 1\" to the Move characteristic of models in that unit and add 1 to Advance and Charge rolls made for that unit. Idol of Blessed Blood (Aura) While a friendly JAKHALS or GOREMONGERS unit is within 6\" of this model (or within 9\" if this model is TITANIC), models in that unit have a 4+ invulnerable save. KEYWORDS JAKHALS and GOREMONGERS units from your army have the BATTLELINE keyword.","",0,"","Priority Assets"],
+  ["Butchers of Khorne",1,"","Adamantine Avalanche","At the start of the Fight phase, if a friendly TERMINATOR SQUAD unit is engaged, make a Blessings of Khorne roll and use the results to activate one Blessing of Khorne. Until the end of the phase, that Blessing of Khorne is active for friendly TERMINATOR SQUAD units in addition to any other Blessings of Khorne that are currently active.","",0,"","Take and Hold"],
+  ["Cult of Blood",2,"","Idols of Khorne","At the start of your Command phase, you can select one of the Idols of Khorne abilities listed below. Until the start of your next Command phase, that ability is active and its effects apply to all World Eaters Titanic and World Eaters Monster units from your army. You can only select each Idols of Khorne ability once per battle. Idol of Infinite Rage (Aura) While a friendly Jakhals or Goremongers unit is within 6\" of this model (or within 9\" if this model is TITANIC), each time a model in that unit makes an attack, add 1 to the Hit roll and add 1 to the Wound roll. Idol of Burning Wrath (Aura) While a friendly JAKHALS or GOREMONGERS unit is within 6\" of this model (or within 9\" if this model is TITANIC), add 1\" to the Move characteristic of models in that unit and add 1 to Advance and Charge rolls made for that unit. Idol of Blessed Blood (Aura) While a friendly JAKHALS or GOREMONGERS unit is within 6\" of this model (or within 9\" if this model is TITANIC), models in that unit have a 4+ invulnerable save. KEYWORDS JAKHALS and GOREMONGERS units from your army have the BATTLELINE keyword.","",0,"","Priority Assets"],
   ["Goretrack Onslaught",2,"","Rush to the Fray","Each time a World Eaters unit from your army disembarks from a Transport, until the end of the turn, add 1 to Charge rolls made for that unit and that unit’s melee weapons have the [lance] ability.","",0,"","Take and Hold"],
   ["Khorne Daemonkin",2,"","Blood Tithe","Each time a Blood Legions or World Eaters unit from your army destroys an enemy unit, roll one D6: on a 3+, you gain 1 Blood Tithe point (BTP). At the start of the Command phase, you can spend one or more of your BTP to activate one of the following abilities until the end of the battle: ▪ Enraged Abjuration [2BTP] BLOOD LEGIONS and WORLD EATERS models from your army have the Feel No Pain 5+ ability against Psychic Attacks and mortal wounds. ▪ Daemonic Rage [3BTP] Melee weapons equipped by BLOOD LEGIONS units from your army have the [lance] ability. ▪ Boon of Blood [4BTP] BLOOD LEGIONS units from your army have a 4+ invulnerable save. ▪ Might of Khorne [5BTP] BLOOD LEGIONS units from your army gain the Blessings of Khorne ability. RESTRICTIONS You can include the Blood Legions units in your army. The combined points cost of such units you can include in your army is: Incursion: Up to 500 pts Strike Force: Up to 1000 pts Onslaught: Up to 1500 pts No BLOOD LEGIONS model from your army can be your WARLORD.","",0,"","Reconnaissance"],
   ["Possessed Slaughterband",2,"","Brazen Fury","WORLD EATERS POSSESSED units from your army have the following ability: Brazen Fury: In your opponent’s Shooting phase, when an enemy unit has shot, if a model in this unit was destroyed as a result of those attacks, this unit can make a surge move of up to D6\". That surge move is a Brazen Fury move.","",0,"","Purge the Foe"],
-  ["Vessels Of Wrath",1,"","Wrath of Khorne","When a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) is selected to fight, that unit's CHARACTER models' melee attacks can have: \n- [CLEAVE 1]. \n- Or: +1 AP.","",0,"","Priority Assets"]
+  ["Vessels of Wrath",1,"","Wrath of Khorne","When a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) is selected to fight, that unit's CHARACTER models' melee attacks can have: \n- [CLEAVE 1]. \n- Or: +1 AP.","",0,"","Priority Assets"]
 ];
 
 /* ENHANCEMENTS : [nom, coût, détachement, texte, cible] */
@@ -733,12 +737,12 @@ const ENHANCEMENTS = [
   ["Helm of Brazen Ire",30,"Berzerker Warband","Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack.",null],
   ["Murder-forged Entity (Upgrade)",15,"Brazen Engines","WORLD EATERS VEHICLE unit only. This unit has DAEMON",null],
   ["Talons of Butchery (Upgrade)",20,"Brazen Engines","MAULERFIEND unit only. This unit’s Maulerfiend Fists have [CLEAVE 2].",null],
-  ["Gore-stained Veterans (Upgrade)",20,"Butchers Of Khorne","TERMINATOR SQUAD unit only. This unit’s melee attacks have +1 WS.",null],
-  ["Sanctified in Slaughter (Upgrade)",15,"Butchers Of Khorne","TERMINATOR SQUAD unit only. This unit has +1 OC.",null],
-  ["Brazen Form",25,"Cult Of Blood","Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability.",null],
-  ["Butcher Lord",10,"Cult Of Blood","The bearer has the Infiltrators ability.",null],
-  ["Chosen of the Blood God",15,"Cult Of Blood","Add 3\" to the range of the bearer's Aura abilities.",null],
-  ["Strategic Slaughter",20,"Cult Of Blood","After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves.",null],
+  ["Gore-stained Veterans (Upgrade)",20,"Butchers of Khorne","TERMINATOR SQUAD unit only. This unit’s melee attacks have +1 WS.",null],
+  ["Sanctified in Slaughter (Upgrade)",15,"Butchers of Khorne","TERMINATOR SQUAD unit only. This unit has +1 OC.",null],
+  ["Brazen Form",25,"Cult of Blood","Add 1 to the bearer's Toughness characteristic and the bearer has the Feel No Pain 5+ ability.",null],
+  ["Butcher Lord",10,"Cult of Blood","The bearer has the Infiltrators ability.",null],
+  ["Chosen of the Blood God",15,"Cult of Blood","Add 3\" to the range of the bearer's Aura abilities.",null],
+  ["Strategic Slaughter",20,"Cult of Blood","After both players have deployed their armies, select up to 3 Jakhals and/or Goremongers units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves.",null],
   ["Aggressive Deployment",20,"Goretrack Onslaught","In the Declare Battle Formations step, if the bearer starts the battle embarked within a Dedicated Transport, that Dedicated Transport has the Scouts 9\" ability.",null],
   ["Infernal Infusion",25,"Goretrack Onslaught","Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer's unit has the Fights First ability.",null],
   ["Murderous Onslaught",5,"Goretrack Onslaught","If the bearer's unit disembarked from a Transport this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer's unit.",null],
@@ -751,8 +755,8 @@ const ENHANCEMENTS = [
   ["Killing Clarity",15,"Possessed Slaughterband","Each time the bearer's unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP.",null],
   ["Malicious Vigour",30,"Possessed Slaughterband","Each time the bearer's unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved.",null],
   ["Violent Demise",10,"Possessed Slaughterband","The bearer's Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability.",null],
-  ["Archslaughterer",30,"Vessels Of Wrath","(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn.",null],
-  ["Gateways to Glory",10,"Vessels Of Wrath","This model has: \n- MOBILE. \n- +1 to charge rolls.",null]
+  ["Archslaughterer",30,"Vessels of Wrath","(Once per battle, per army) In your Command phase, you can use this ability. If you do, every Blessing of Khorne is active for this unit until the start of your next turn.",null],
+  ["Gateways to Glory",10,"Vessels of Wrath","This model has: \n- MOBILE. \n- +1 to charge rolls.",null]
 ];
 
 /* STRATS : [nom, détachement, famille, PC, quand, cible, effet,
@@ -767,18 +771,18 @@ const STRATS = [
   ["Apoplectic Clarity","Brazen Engines","",1,"Your Shooting phase or the Fight phase, when a friendly DAEMON VEHICLE unit is selected to attack.","That DAEMON VEHICLE unit.","Your unit’s attacks can ignore modifiers to: ▪ BS. ▪ WS. ▪ Hit rolls and wound rolls.",""],
   ["Goaded to Fury","Brazen Engines","",1,"Your opponent’s Shooting phase, when an enemy unit that targeted a friendly unengaged DAEMON VEHICLE unit (excluding TITANIC units) has shot.","That DAEMON VEHICLE unit.","Your unit can make a surge move of up to D6\".",""],
   ["Trail of Destruction","Brazen Engines","",1,"Your Movement phase, when a friendly DAEMON VEHICLE unit is selected to move.","That DAEMON VEHICLE unit.","Your unit has MOBILE.",""],
-  ["A Trophy for the Throne","Butchers Of Khorne","",1,"Fight phase, when a friendly TERMINATOR SQUAD unit is selected to fight.","That TERMINATOR SQUAD unit.","Your unit’s attacks that target a MONSTER/VEHICLE unit have +1 to wound rolls.",""],
-  ["Focused Ferocity","Butchers Of Khorne","",1,"Fight phase, when a friendly TERMINATOR SQUAD unit is selected to fight.","That TERMINATOR SQUAD unit.","Your unit’s melee attacks have +1 A.",""],
-  ["Wrath Beyond Reason","Butchers Of Khorne","",2,"Your opponent’s Shooting Phase, when an enemy unit targets a friendly TERMINATOR SQUAD unit.","That TERMINATOR SQUAD unit.","Ranged attacks that target your unit have -1 D until that enemy unit has attacked.",""],
-  ["Bloodthirsty Horde","Cult Of Blood","Tactique de Bataille",1,"Fight phase.","One Jakhals or Goremongers unit from your army that has not been selected to fight this phase and is within Engagement Range of one or more enemy units.","Until the end of the phase, each time your unit is selected to fight, when determining which models in it are eligible to fight, any models in your unit that are within 3\" of one or more enemy models are eligible to fight. When resolving those attacks, such models can target one of those enemy units that is within 3\" of them and within Engagement Range of their unit.",""],
-  ["Bloody Vengeance","Cult Of Blood","Fait Épique",1,"Any phase.","One World Eaters Monster or World Eaters Titanic unit from your army that was just destroyed by an enemy unit. You can use this Stratagem on that unit even though it was just destroyed.","Until the end of the battle, each time a model in a Jakhals or Goremongers unit from your army makes an attack that targets the enemy unit that just destroyed your unit, you can re-roll the Hit roll.",""],
-  ["Brazen Idol","Cult Of Blood","Fait Épique",2,"Your Command phase.","One World Eaters Monster or World Eaters Titanic unit from your army.","Select the Idol of Infinite Rage, Idol of Burning Wrath or Idol of Blessed Blood. Until the start of your next Command phase, that Idols of Khorne ability is active for your unit instead of any other Idols of Khorne ability that is active for your army, even if you have already selected that ability this battle.","You can only use this Stratagem once per battle."],
-  ["Drawn to the Slaughter","Cult Of Blood","Ruse Stratégique",2,"Any phase.","One Jakhals unit from your army that was just destroyed. You can use this Stratagem on that unit even though it was just destroyed.","Add a new unit to your army identical to your destroyed unit, in Strategic Reserves, at its Starting Strength.","This Stratagem cannot be used to return destroyed Character units to Attached units. You can only use this Stratagem once per battle."],
-  ["Fail Not the Blood God","Cult Of Blood","Ruse Stratégique",1,"Fight phase.","One Jakhals or Goremongers unit from your army.","Until the end of the phase, each time a model in your unit makes an attack, re-roll a Hit roll of 1. If that model’s unit is within 6\" of one or more friendly World Eaters Monster units, or within 9\" of one or more friendly World Eaters Titanic units, you can re-roll the Hit roll instead.",""],
-  ["In the Shadow of Brass Idols","Cult Of Blood","Ruse Stratégique",1,"Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.","One Jakhals or Goremongers unit from your army that was selected as the target as one or more of the attacking unit’s attacks.","Until the end of the phase, models in your unit have the Feel No Pain 6+ ability. If your unit is within 6\" of one or more friendly World Eaters Monster units, or within 9\" of one or more friendly World Eaters Titanic units, your unit has the Feel No Pain 5+ ability instead.",""],
+  ["A Trophy for the Throne","Butchers of Khorne","",1,"Fight phase, when a friendly TERMINATOR SQUAD unit is selected to fight.","That TERMINATOR SQUAD unit.","Your unit’s attacks that target a MONSTER/VEHICLE unit have +1 to wound rolls.",""],
+  ["Focused Ferocity","Butchers of Khorne","",1,"Fight phase, when a friendly TERMINATOR SQUAD unit is selected to fight.","That TERMINATOR SQUAD unit.","Your unit’s melee attacks have +1 A.",""],
+  ["Wrath Beyond Reason","Butchers of Khorne","",2,"Your opponent’s Shooting Phase, when an enemy unit targets a friendly TERMINATOR SQUAD unit.","That TERMINATOR SQUAD unit.","Ranged attacks that target your unit have -1 D until that enemy unit has attacked.",""],
+  ["Bloodthirsty Horde","Cult of Blood","Tactique de Bataille",1,"Fight phase.","One Jakhals or Goremongers unit from your army that has not been selected to fight this phase and is within Engagement Range of one or more enemy units.","Until the end of the phase, each time your unit is selected to fight, when determining which models in it are eligible to fight, any models in your unit that are within 3\" of one or more enemy models are eligible to fight. When resolving those attacks, such models can target one of those enemy units that is within 3\" of them and within Engagement Range of their unit.",""],
+  ["Bloody Vengeance","Cult of Blood","Fait Épique",1,"Any phase.","One World Eaters Monster or World Eaters Titanic unit from your army that was just destroyed by an enemy unit. You can use this Stratagem on that unit even though it was just destroyed.","Until the end of the battle, each time a model in a Jakhals or Goremongers unit from your army makes an attack that targets the enemy unit that just destroyed your unit, you can re-roll the Hit roll.",""],
+  ["Brazen Idol","Cult of Blood","Fait Épique",2,"Your Command phase.","One World Eaters Monster or World Eaters Titanic unit from your army.","Select the Idol of Infinite Rage, Idol of Burning Wrath or Idol of Blessed Blood. Until the start of your next Command phase, that Idols of Khorne ability is active for your unit instead of any other Idols of Khorne ability that is active for your army, even if you have already selected that ability this battle.","You can only use this Stratagem once per battle."],
+  ["Drawn to the Slaughter","Cult of Blood","Ruse Stratégique",2,"Any phase.","One Jakhals unit from your army that was just destroyed. You can use this Stratagem on that unit even though it was just destroyed.","Add a new unit to your army identical to your destroyed unit, in Strategic Reserves, at its Starting Strength.","This Stratagem cannot be used to return destroyed Character units to Attached units. You can only use this Stratagem once per battle."],
+  ["Fail Not the Blood God","Cult of Blood","Ruse Stratégique",1,"Fight phase.","One Jakhals or Goremongers unit from your army.","Until the end of the phase, each time a model in your unit makes an attack, re-roll a Hit roll of 1. If that model’s unit is within 6\" of one or more friendly World Eaters Monster units, or within 9\" of one or more friendly World Eaters Titanic units, you can re-roll the Hit roll instead.",""],
+  ["In the Shadow of Brass Idols","Cult of Blood","Ruse Stratégique",1,"Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.","One Jakhals or Goremongers unit from your army that was selected as the target as one or more of the attacking unit’s attacks.","Until the end of the phase, models in your unit have the Feel No Pain 6+ ability. If your unit is within 6\" of one or more friendly World Eaters Monster units, or within 9\" of one or more friendly World Eaters Titanic units, your unit has the Feel No Pain 5+ ability instead.",""],
   ["Aggressive Disembarkation","Goretrack Onslaught","Ruse Stratégique",1,"Your Movement phase.","One World Eaters Rhino model from your army that has not been selected to move this phase.","One WORLD EATERS unit embarked within your RHINO can disembark. When doing so, models in that unit can be set up anywhere on the battlefield wholly within 6\" of your RHINO and can be set up within Engagement Range of one or more enemy units.",""],
   ["Endless Pursuit of Violence","Goretrack Onslaught","Ruse Stratégique",1,"End of the Fight phase.","One World Eaters Infantry unit from your army and one friendly Transport that it is able to embark within.","If your WORLD EATERS INFANTRY unit is wholly within 6\" of that TRANSPORT, it can embark within it.",""],
-  ["Full-Throttle Assault","Goretrack Onslaught","Ruse Stratégique",1,"Your Movement phase.","One World Eaters Rhino model from your army that has not been selected to move this phase.","Until the end of the phase, each time a WORLD EATERS unit disembarks from that model after it has made a Normal move, that unit is still eligible to declare a charge this turn.",""],
+  ["Full-Throttle Assault","Goretrack Onslaught","Ruse Stratégique",1,"Your Movement phase.","One World Eaters Rhino model from your army that has not been selected to move this phase.","Until the end of the phase, each time a WORLD EATERS unit disembarks from that model after it has made a Normal move, that unit makes an assault disembark move (Core Rules, 18.06) for that disembarkation.",""],
   ["Fury Unleashed","Goretrack Onslaught","Ruse Stratégique",1,"Your opponent’s Shooting phase, just after an enemy unit has shot.","One WORLD EATERS RHINO model from your army that has one or more wounds remaining and was hit by one or more of the attacking unit’s attacks.","One KHORNE BERZERKERS unit embarked within your model can make a disembark move and then make a surge move of up to D6+2\".","A unit cannot be targeted by this Stratagem and the Unrelenting Advance Stratagem in the same phase."],
   ["Smash Through","Goretrack Onslaught","Ruse Stratégique",1,"Your Movement phase.","One World Eaters Vehicle model from your army that has not been selected to move this phase.","Until the end of the phase, each time your unit makes a Normal or Advance move, it can move horizontally through terrain features.",""],
   ["Unrelenting Advance","Goretrack Onslaught","Ruse Stratégique",1,"Your opponent’s Shooting phase, just after an enemy unit has shot.","One World Eaters Vehicle model from your army that was hit by one or more of the attacking unit’s attacks.","Your model can make a Normal move of up to 6\".","A unit cannot be targeted by this Stratagem and the Fury Unleashed Stratagem in the same phase."],
@@ -794,9 +798,9 @@ const STRATS = [
   ["Immortal Fury","Possessed Slaughterband","Tactique de Bataille",2,"Fight phase, just after an enemy unit has selected its targets.","One World Eaters Possessed unit from your army that was selected as the target of one or more of the attacking unit’s attacks.","Until the end of the phase, each time a model in your unit is destroyed, if that model has not fought this phase, do not remove it from play. The destroyed model can fight after the attacking model’s unit has finished making its attacks, and is then removed from play.",""],
   ["Rapid Manifestation","Possessed Slaughterband","Ruse Stratégique",1,"Your Movement phase.","One Exalted Eightbound unit from your army that is arriving using the Deep Strike ability this phase.","Your unit can be set up anywhere on the battlefield that is more than 6\" horizontally away from all enemy units.","A unit targeted with this Stratagem is not eligible to declare a charge in the same turn."],
   ["Warp Stalkers","Possessed Slaughterband","Ruse Stratégique",1,"Your Movement phase or your Charge phase.","One World Eaters Possessed unit from your army that has not been selected to move or declare a charge this phase.","Until the end of the phase, each time a model in your unit makes a Normal, Advance, Fall Back or Charge move, it can move through enemy models (excluding MONSTERS and VEHICLES). When doing so, it can move within Engagement Range of such models but, unless that move was a Charge move, it cannot end that move within Engagement Range of them, and any Desperate Escape test is automatically passed.",""],
-  ["Aspire to Infamy","Vessels Of Wrath","",1,"Fight phase, when a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) is selected to fight.","That WORLD EATERS CHARACTER unit.","Your unit’s CHARACTER models’ melee attacks have: ▪ +1 A. ▪ +2 S.",""],
-  ["Punish the Craven","Vessels Of Wrath","",1,"Your opponent’s Movement phase, when a unit is selected to make a fall-back move, if that unit is engaged with a friendly WORLD EATERS CHARACTER unit.","That WORLD EATERS CHARACTER unit.","When an enemy unit engaged with your unit is selected to make a fall-back move, that enemy unit must use the desperate escape mode. If that enemy unit is battle-shocked, -1 from those hazard rolls.",""],
-  ["Scorn the Witch","Vessels Of Wrath","",1,"Any phase, when a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) suffers a mortal wound.","That WORLD EATERS CHARACTER unit.","Your unit has Feel No Pain 4+ against mortal wounds.",""],
+  ["Aspire to Infamy","Vessels of Wrath","",1,"Fight phase, when a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) is selected to fight.","That WORLD EATERS CHARACTER unit.","Your unit’s CHARACTER models’ melee attacks have: ▪ +1 A. ▪ +2 S.",""],
+  ["Punish the Craven","Vessels of Wrath","",1,"Your opponent’s Movement phase, when a unit is selected to make a fall-back move, if that unit is engaged with a friendly WORLD EATERS CHARACTER unit.","That WORLD EATERS CHARACTER unit.","When an enemy unit engaged with your unit is selected to make a fall-back move, that enemy unit must use the desperate escape mode. If that enemy unit is battle-shocked, -1 from those hazard rolls.",""],
+  ["Scorn the Witch","Vessels of Wrath","",1,"Any phase, when a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) suffers a mortal wound.","That WORLD EATERS CHARACTER unit.","Your unit has Feel No Pain 4+ against mortal wounds.",""],
   ["Command Re-Roll","Core","Tactique de Bataille",1,"Any phase, just after you make an Advance roll, a Charge roll, a Desperate Escape test or a Hazardous test for a unit from your army, or a Hit roll, a Wound roll, a Damage roll or a saving throw for a model in that unit, or a roll to determine the number of attacks made with a weapon equipped by a model in that unit. If you are using fast dice rolling, this Stratagem can still be used after rolling multiple rolls or saving throws at once.","That unit or model from your army.","You re-roll that roll, test or saving throw. If you are using fast dice rolling, select one of those rolls or saving throws to re-roll.",""],
   ["Counter-Offensive","Core","Ruse Stratégique",2,"Fight phase, just after an enemy unit has fought.","One unit from your army that is within Engagement Range of one or more enemy units and that has not already been selected to fight this phase.","Your unit fights next.",""],
   ["Epic Challenge","Core","Fait Épique",1,"Fight phase, when a CHARACTER unit from your army that is within Engagement Range of one or more Attached units is selected to fight.","One CHARACTER model in your unit.","Until the end of the phase, all melee attacks made by that model have the [PRECISION] ability.",""],
@@ -1145,7 +1149,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "A Trophy for the Throne",
-  "detach": "Butchers Of Khorne",
+  "detach": "Butchers of Khorne",
   "pc": 1,
   "ph": "TC",
   "unites": [],
@@ -1157,7 +1161,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "Focused Ferocity",
-  "detach": "Butchers Of Khorne",
+  "detach": "Butchers of Khorne",
   "pc": 1,
   "ph": "C",
   "unites": [],
@@ -1169,7 +1173,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "Bloody Vengeance",
-  "detach": "Cult Of Blood",
+  "detach": "Cult of Blood",
   "pc": 1,
   "ph": "TC",
   "unites": [
@@ -1184,7 +1188,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "Fail Not the Blood God",
-  "detach": "Cult Of Blood",
+  "detach": "Cult of Blood",
   "pc": 1,
   "ph": "C",
   "unites": [
@@ -1199,7 +1203,7 @@ const STRAT_SIMU = [
  },
  {
   "nom": "Fail Not the Blood God — près d'un Monstre",
-  "detach": "Cult Of Blood",
+  "detach": "Cult of Blood",
   "pc": 1,
   "ph": "C",
   "unites": [

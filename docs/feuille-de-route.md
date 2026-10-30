@@ -3824,9 +3824,29 @@ catalogues : la première lue l'emporte, et l'extracteur nomme celles qu'il
 écarte. Wahapedia range leurs stratagèmes sous le code `SM` ; ne sont
 gardés que ceux des détachements que le Munitorum leur reconnaît.
 
-**Les quatre factions déjà livrées n'ont pas été régénérées.** La table
-nécrone est tenue à la main, et une régénération des trois autres sur les
-sources du jour est un chantier à part, à relire.
+**Les quatre factions d'origine, remises à jour.** Kévin a relevé que
+les points et les profils de son armée étaient faux : elles dataient
+d'août, extraites sur un Munitorum antérieur. Confrontées au Munitorum
+v1.6 du 22/10/2026 : 16 coûts nécrons, 22 de l'Astra, 7 coûts et 4 profils
+World Eaters, et pour les Custodes un **nouveau codex** — 18 coûts,
+17 profils, neuf escouades renommées (Custodian Guard devient Custodian
+Guard Sodality, Prosecutors devient Prosecutor Squad…), sept détachements
+remplacés. Custodes, Astra et World Eaters sont régénérés ; leur câblage
+suit, à la casse près des noms de détachement (« Hammer of the Emperor »,
+le Munitorum ne met plus de capitale à « of »). **Les Nécrons ne
+reçoivent que leurs points** : leurs profils sont relus à la main, et la
+seule différence de profil relevée — l'invulnérable des Lychguard, qui ne
+vient que du bouclier — est une limite de l'extracteur, pas une erreur de
+la table.
+
+Une liste sauvegardée avant la mise à jour garde les anciens noms : une
+unité custodes renommée, ou un détachement dont la casse a changé, n'y
+est plus retrouvé. Il faut la refaire.
+
+`npm run custodes` et `npm run factions` suivent les nouvelles valeurs.
+Les socles custodes passent par une table d'alias, le guide portant
+encore les anciens noms ; Gyrfalcon et Sentinel Guard y sont rapprochés
+par déduction.
 
 Ce qui reste ouvert, et que `npm run livrees` montre :
 
