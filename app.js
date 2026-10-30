@@ -669,7 +669,7 @@ const borne1 = v => Math.max(-1, Math.min(1, v));
 function condPour(p){
   if(!atkUnit || !atkUnit.conditions) return [];
   return atkUnit.conditions.filter(c => condOn[c.id] &&
-    (!c.sur || c.sur === p.porteur) && (!c.arme || c.arme === p.label));
+    (!c.sur || c.sur === p.porteur) && (!c.arme || c.arme === p.arme));
 }
 function profilPourMoteur(p){
   const q = Object.assign({}, p, {

@@ -361,6 +361,25 @@ T('une règle d\'armée sans source est proposée', regles, v => v.includes('Ess
 T('une règle du détachement retenu aussi', regles, v => v.includes('Essai retenu'));
 T('pas celle d\'un détachement non retenu', regles, v => !v.includes('Essai absent'));
 
+/* « Les PERSONNAGES de l'unité seulement » : qui:"figurine" pose une
+   condition par membre qui porte le mot-clé, pas une pour le groupe. */
+await p.evaluate(() => {
+  localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v:1, actif:'q', listes:[
+    { id:'q', nom:'Q', faction:'custodes', cap:2000, detach:[], fd:'', nextId:9,
+      units:[{ id:1, name:'Custodian Guard Sodality', size:3, lo:[], sel:true, grp:'', enh:null,
+               chars:[{ name:'Shield-Captain', lo:[] }] }] }
+  ]}));
+});
+await p.goto(base); await p.waitForTimeout(1100);
+const parFig = await p.evaluate(() => {
+  const n = AURAS_ARMEE.length;
+  AURAS_ARMEE.push({ nom:'Essai perso', qui:'figurine', kw:['character'], quand:'', texte:'', champ:'hitMod', val:1 });
+  const c = window.ROSTER.simUnite(1, 'C').conditions.filter(x => x.nom === 'Essai perso').map(x => x.sur);
+  AURAS_ARMEE.length = n;
+  return c;
+});
+T('une règle « figurine » ne vaut que pour le personnage du groupe', parFig, ['Shield-Captain']);
+
 console.log('\n════ CONFORME ════'); ok.forEach(x => console.log('  ✓ ' + x));
 console.log('\n════ ÉCARTS ════'); console.log(ko.length ? ko.map(x => '  ✗ ' + x).join('\n') : '  (aucun)');
 console.log('\n════ ERREURS JS ════'); console.log(errs.length ? [...new Set(errs)].join('\n') : '  aucune');

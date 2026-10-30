@@ -322,9 +322,19 @@ function conditionsDe(ru, ph){
        TITANESQUES. Sans cette ligne, un Monolithe recevrait des
        Touches Soutenues qu'il n'a pas. */
     if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
-    out.push({ id: "aura|" + auraCle(a) + "|" + i, sur: "", nom: a.nom,
-               quand: a.quand, texte: a.texte, arme: a.arme,
-               champ: a.champ, mot: a.mot, val: a.val });
+    const cond = { nom: a.nom, quand: a.quand, texte: a.texte, arme: a.arme,
+                   champ: a.champ, mot: a.mot, val: a.val };
+    /* `qui: "figurine"` : la regle ne vaut que pour les figurines qui
+       portent un des `kw` (« les PERSONNAGES de l'unite »), pas pour
+       tout le groupe — un Shield-Captain qui mene une escouade ne lui
+       donne pas son bonus. Une condition par membre concerne. */
+    if(a.qui === "figurine" && a.kw && a.kw.length){
+      [ru.name].concat(ru.chars.map(c => c.name))
+        .filter(n => a.kw.some(k => porteMot(k, n)))
+        .forEach(n => out.push(Object.assign({ id: "aura|" + auraCle(a) + "|" + i + "|" + n, sur: n }, cond)));
+      return;
+    }
+    out.push(Object.assign({ id: "aura|" + auraCle(a) + "|" + i, sur: "" }, cond));
   });
 
   /* le malus des figurines abimees : un etat de partie, jamais un
@@ -1404,6 +1414,9 @@ function weaponProfile(unitName, w, bearers, ru){
   const f = parseFlags(ru ? drapeauxAvecOctrois(ru, porteur, w) : w[8]);
   const p = Object.assign({}, tgtFields(), {
     label: (ru ? "" : "") + w[1],
+    /* le nom nu de l'arme : label devient « Arme ×N » ou « Perso — Arme »,
+       et une condition limitee a une arme se compare a celui-ci */
+    arme: w[1],
     kind: w[2],
     attacks: scaleDice(w[3], bearers),
     bs: w[4], str: w[5], ap: w[6], dmg: w[7],
