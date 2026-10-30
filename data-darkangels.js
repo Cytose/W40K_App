@@ -2483,6 +2483,147 @@ const KW = {
   "Ravenwing Command Squad",
   "Ravenwing Talonmaster",
   "Techmarine"
+ ],
+ "gravis": [
+  "Aggressor Squad",
+  "Apothecary Biologis",
+  "Captain in Gravis Armour",
+  "Eradicator Squad with Heavy Bolters",
+  "Eradicator Squad with Melta Rifles",
+  "Heavy Intercessor Squad",
+  "Inceptor Squad"
+ ],
+ "tacticus": [
+  "Ancient",
+  "Apothecary",
+  "Asmodai",
+  "Assault Intercessor Squad",
+  "Assault Intercessors with Jump Packs",
+  "Azrael",
+  "Bladeguard Ancient",
+  "Bladeguard Veteran Squad",
+  "Captain",
+  "Captain with Jump Pack",
+  "Chaplain",
+  "Chaplain with Jump Pack",
+  "Company Heroes",
+  "Desolation Squad",
+  "Ezekiel",
+  "Hellblaster Squad",
+  "Infernus Squad",
+  "Inner Circle Companions",
+  "Intercessor Squad",
+  "Judiciar",
+  "Lazarus",
+  "Librarian",
+  "Lieutenant",
+  "Sternguard Veteran Squad",
+  "Techmarine",
+  "Vanguard Veteran Squad with Jump Packs"
+ ],
+ "terminator": [
+  "Ancient in Terminator Armour",
+  "Belial",
+  "Captain in Terminator Armour",
+  "Chaplain in Terminator Armour",
+  "Deathwing Command Squad",
+  "Deathwing Knights",
+  "Deathwing Strikemaster",
+  "Deathwing Terminator Squad",
+  "Librarian in Terminator Armour",
+  "Terminator Assault Squad",
+  "Terminator Squad"
+ ],
+ "phobos": [
+  "Captain in Phobos Armour",
+  "Eliminator Squad",
+  "Incursor Squad",
+  "Infiltrator Squad",
+  "Invictor Tactical Warsuit",
+  "Librarian in Phobos Armour",
+  "Lieutenant in Phobos Armour",
+  "Lieutenant with Combi-weapon",
+  "Reiver Squad"
+ ],
+ "dreadnought": [
+  "Ballistus Dreadnought",
+  "Brutalis Dreadnought",
+  "Dreadnought",
+  "Redemptor Dreadnought",
+  "Venerable Dreadnought"
+ ],
+ "mounted": [
+  "Captain on Bike",
+  "Chaplain on Bike",
+  "Invader ATVs",
+  "Outrider Squad",
+  "Ravenwing Black Knights",
+  "Ravenwing Command Squad",
+  "Sammael",
+  "Scout Bike Squad"
+ ],
+ "walker": [
+  "Ballistus Dreadnought",
+  "Brutalis Dreadnought",
+  "Dreadnought",
+  "Invictor Tactical Warsuit",
+  "Redemptor Dreadnought",
+  "Venerable Dreadnought"
+ ],
+ "fly": [
+  "Assault Intercessors with Jump Packs",
+  "Captain with Jump Pack",
+  "Chaplain with Jump Pack",
+  "Inceptor Squad",
+  "Land Speeder",
+  "Land Speeder Vengeance",
+  "Nephilim Jetfighter",
+  "Ravenwing Dark Talon",
+  "Ravenwing Darkshroud",
+  "Ravenwing Talonmaster",
+  "Sammael",
+  "Storm Speeder Hailstrike",
+  "Storm Speeder Hammerstrike",
+  "Storm Speeder Thunderstrike",
+  "Stormhawk Interceptor",
+  "Stormraven Gunship",
+  "Stormtalon Gunship",
+  "Thunderhawk Gunship",
+  "Vanguard Veteran Squad with Jump Packs"
+ ],
+ "dedicated transport": [
+  "Drop Pod",
+  "Impulsor",
+  "Razorback",
+  "Relic Razorback",
+  "Rhino"
+ ],
+ "fortification": [
+  "Hammerfall Bunker"
+ ],
+ "kill team": [],
+ "death company": [],
+ "deathwing": [
+  "Asmodai",
+  "Azrael",
+  "Belial",
+  "Deathwing Command Squad",
+  "Deathwing Knights",
+  "Deathwing Strikemaster",
+  "Deathwing Terminator Squad",
+  "Ezekiel",
+  "Inner Circle Companions",
+  "Lazarus"
+ ],
+ "ravenwing": [
+  "Land Speeder Vengeance",
+  "Nephilim Jetfighter",
+  "Ravenwing Black Knights",
+  "Ravenwing Command Squad",
+  "Ravenwing Dark Talon",
+  "Ravenwing Darkshroud",
+  "Ravenwing Talonmaster",
+  "Sammael"
  ]
 };
 
@@ -2611,11 +2752,1103 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Sternguard Veteran Squad": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Focalisation Sternguard",
+   "texte": "This unit's ranged attacks can re-roll hit rolls of 1"
+  }
+ ],
+ "Desolation Squad": [
+  {
+   "mot": "ignorescover",
+   "port": "T",
+   "nom": "Optiques de Visée",
+   "texte": "This unit's ranged attacks that target a visible enemy unit have [IGNORES COVER]"
+  }
+ ],
+ "Centurion Devastator Squad": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "port": "T",
+   "nom": "Protocoles Décimateurs",
+   "texte": "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "Asmodai": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Exemple de Haine",
+   "texte": "This unit's melee attacks can re-roll hit rolls."
+  }
+ ],
+ "Azrael": [
+  {
+   "mot": "sust:1",
+   "nom": "Suprême Grand Maître",
+   "texte": "This unit's attacks have [SUSTAINED HITS 1]."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Intercessor Squad": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Discipline du Bolter",
+   "quand": "L'unité, ou sa cible, est à portée d'un objectif",
+   "texte": "In your Shooting phase, if any of the following apply, this unit's ranged attacks have +1 to hit rolls: ▪ This unit is within range of an objective. ▪ The target of that attack is within range of an objective."
+  }
+ ],
+ "Assault Intercessor Squad": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Intercession Ciblée",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "If this unit made a charge move this turn, this unit's melee attacks have +1 S and AP."
+  },
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Intercession Ciblée — PA",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "If this unit made a charge move this turn, this unit's melee attacks have +1 S and AP."
+  }
+ ],
+ "Bladeguard Veteran Squad": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Bladeguard — en attaque",
+   "quand": "L'option offensive est choisie ce tour (une fois par tour)",
+   "texte": "(Once per turn, per unit): In the Fight phase, when this unit is selected to fight or when an enemy unit targets this unit, you can select one of the following: ▪ This unit’s melee attacks have +1 to hit rolls. ▪ Or: Attacks that target this unit have -1 to hit rolls."
+  }
+ ],
+ "Vanguard Veteran Squad with Jump Packs": [
+  {
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Assaut des Vétérans",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "If this unit made a charge move this turn, this unit's melee attacks have +1A"
+  }
+ ],
+ "Vanguard Veteran Squad": [
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Assaut des Vétérans",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time this unit ends a Charge move, until the end of the turn, melee weapons equipped by models in this unit have the [LETHAL HITS] ability."
+  }
+ ],
+ "Aggressor Squad": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "nom": "Puissance de Feu Rapprochée",
+   "quand": "La cible est à 9\" ou moins",
+   "texte": "This unit's attacks that target an enemy unit within 9\" of this unit have +1S"
+  }
+ ],
+ "Terminator Assault Squad": [
+  {
+   "mot": "sust",
+   "port": "C",
+   "nom": "Assaut Terminatus",
+   "quand": "L'unité a chargé ce tour, et la cible va avec l'arme : griffes éclair contre ni MONSTRE ni VÉHICULE, marteaux tonnerre contre MONSTRE ou VÉHICULE",
+   "texte": "If this unit made a charge move this turn, this unit's: ▪ Lightning Claws weapons have [SUSTAINED HITS 1: NON-MONSTER/VEHICLE] ▪ Thunder Hammer weapons have [SUSTAINED HITS 1: MONSTER/VEHICLE]."
+  }
+ ],
+ "Terminator Squad": [
+  {
+   "champ": "apMod",
+   "val": 1,
+   "nom": "Fureur du Premier",
+   "quand": "La cible est à 9\" ou moins",
+   "texte": "This unit's attacks that target a unit within 9\" of this unit have +1 AP."
+  }
+ ],
+ "Invictor Tactical Warsuit": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Exo-armure d'Assaut",
+   "quand": "La cible est sa marque",
+   "texte": "This unit's attacks that target this unit's mark can re-roll wound rolls of 1."
+  }
+ ],
+ "Ballistus Dreadnought": [
+  {
+   "mot": "sust",
+   "port": "T",
+   "nom": "Frappe Ballistus",
+   "quand": "La cible est à 24\" ou moins",
+   "texte": "This unit's ranged attacks that target an enemy unit within 24\" of this unit have [SUSTAINED HITS 1]"
+  }
+ ],
+ "Outrider Squad": [
+  {
+   "mot": "sust",
+   "port": "C",
+   "nom": "Assaut à Pleins Gaz",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "If this unit made a charge move this turn, this unit's: ▪ Thunder Hammer weapons have +1 to hit rolls and [SUSTAINED HITS 1]. ▪ Other melee weapons have +1 D and [SUSTAINED HITS 1]."
+  },
+  {
+   "champ": "dmgMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Assaut à Pleins Gaz — +1 D",
+   "quand": "L'unité a chargé ce tour, armes autres que les marteaux tonnerre",
+   "texte": "Other melee weapons have +1 D and [SUSTAINED HITS 1]."
+  },
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Assaut à Pleins Gaz — marteaux",
+   "quand": "L'unité a chargé ce tour, avec les marteaux tonnerre",
+   "texte": "Thunder Hammer weapons have +1 to hit rolls and [SUSTAINED HITS 1]."
+  }
+ ],
+ "Inceptor Squad": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Descente Météorique",
+   "quand": "L'unité est arrivée sur la table ce tour",
+   "texte": "If this unit made an ingress move this turn, this unit's ranged attacks have +1 to hit rolls."
+  }
+ ],
+ "Storm Speeder Hammerstrike": [
+  {
+   "mot": "sust",
+   "port": "T",
+   "nom": "Hammerstrike",
+   "quand": "La cible est dans une zone de terrain",
+   "texte": "This unit's ranged attacks that target an enemy unit within a terrain area have [SUSTAINED HITS 1]"
+  }
+ ],
+ "Eliminator Squad": [
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Optiques et Munitions Spéciales",
+   "quand": "L'option Ignore le Couvert est choisie",
+   "texte": "In your Shooting phase, when this unit is selected to shoot, you can select one of the following: ▪ This unit's ranged attacks have [IGNORES COVER]. ▪ Or: Select one enemy unit within 24\" of this unit. That enemy unit has +6\" detection range until this unit has shot."
+  }
+ ],
+ "Gladiator Valiant": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Acquisition de Cible Prioritaire",
+   "quand": "La cible est à 12\" ou moins",
+   "texte": "This unit's ranged attacks that target a unit within 12\" of this unit have +1S"
+  }
+ ],
+ "Land Raider Crusader": [
+  {
+   "mot": "lethal",
+   "port": "T",
+   "nom": "Fureur de l'Esprit de la Machine",
+   "quand": "La cible est à 12\" ou moins",
+   "texte": "This unit's ranged attacks that target a unit within 12\" of this unit have Lethal Hits"
+  }
+ ],
+ "Land Raider Redeemer": [
+  {
+   "mot": "dev",
+   "port": "T",
+   "nom": "Courroux de l'Esprit de la Machine",
+   "quand": "La cible est à 12\" ou moins, et n'est ni MONSTRE ni VÉHICULE",
+   "texte": "This unit’s ranged attacks that target a unit within 12\" of this unit have [Devastating Wounds: non-Monster/vehicle]"
+  }
+ ],
+ "Repulsor Executioner": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Exécuteur",
+   "quand": "La cible n'est pas sous la moitié de son effectif",
+   "texte": "This unit's ranged attacks that target a unit not below half-strength have +1 to hit rolls."
+  }
+ ],
+ "Invader ATVs": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Reconnaissance Agressive",
+   "quand": "Aucune autre unité ennemie n'est à 6\" de la cible",
+   "texte": "In your Shooting phase, this unit's ranged attacks that target an enemy unit that is not within 6\" of any other enemy units have +1 to wound rolls."
+  }
+ ],
+ "Captain": [
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Heure de Gloire",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "(Once per battle, per unit): In the Fight phase, when this unit is selected to fight, you can use this ability. If you do, this model's melee attacks have: ▪ +3 A ▪ [DEVASTATING WOUNDS]."
+  },
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "Heure de Gloire — Blessures Dévastatrices",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "If you do, this model's melee attacks have: ▪ +3 A ▪ [DEVASTATING WOUNDS]."
+  }
+ ],
+ "Centurion Devastator Squad": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "T",
+   "nom": "Protocoles Décimateurs — objectif",
+   "quand": "La cible est à portée d'un objectif",
+   "texte": "If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Ravenwing Black Knights": [
+  {
+   "champ": "critW",
+   "val": 4,
+   "port": "C",
+   "nom": "Chevaliers de Caliban",
+   "quand": "L'unité a chargé ce tour, contre un MONSTRE ou un VÉHICULE ([ANTI-MONSTRE/VÉHICULE 4+])",
+   "texte": "If this unit made a charge move this turn, this unit's melee attacks have [ANTI-MONSTER/VEHICLE 4+]."
+  }
+ ],
+ "Deathwing Strikemaster": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Vaincre l'Ennemi",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack that targets an enemy unit that is Below Half-strength, add 1 to the Hit roll and add 1 to the Wound roll."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Vaincre l'Ennemi — blessure",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack that targets an enemy unit that is Below Half-strength, add 1 to the Hit roll and add 1 to the Wound roll."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Predator Destructor": [
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Destructeur",
+   "texte": "Each time this model makes a ranged attack that targets an Infantry unit, improve the Armour Penetration characteristic of that attack by 1.",
+   "vs": [
+    "inf"
+   ]
+  }
+ ],
+ "Stormhawk Interceptor": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Intercepteur",
+   "texte": "Each time this model makes a ranged attack that targets a unit that can Fly, add 1 to the Hit roll",
+   "vs": [
+    "vol"
+   ]
+  }
+ ],
+ "Stormtalon Gunship": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Mitraillage",
+   "texte": "Each time this model makes a ranged attack that targets a unit that cannot Fly, add 1 to the Hit roll.",
+   "sauf": [
+    "vol"
+   ]
+  }
+ ],
+ "Storm Speeder Thunderstrike": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Thunderstrike",
+   "texte": "This unit's ranged attacks that target a Monster/Vehicle unit have +1 to wound rolls.",
+   "vs": [
+    "mon",
+    "veh"
+   ]
+  }
+ ],
+ "Gladiator Reaper": [
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Moisson Comptée",
+   "texte": "This unit's ranged attacks that target a unit (excluding Monster/Vehicle units) have +1 AP.",
+   "sauf": [
+    "mon",
+    "veh"
+   ]
+  }
+ ],
+ "Centurion Assault Squad": [
+  {
+   "mot": "sust:2",
+   "port": "C",
+   "nom": "Protocoles Annihilateurs",
+   "texte": "Melee weapons equipped by models in this unit have the [SUSTAINED HITS 2] ability when targeting Monster, Vehicle or Fortification units",
+   "vs": [
+    "mon",
+    "veh"
+   ]
+  }
+ ],
+ "Belial": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Grand Maître de la Deathwing",
+   "texte": "This unit's attacks that target an enemy Character unit have +1 to wound rolls.",
+   "vs": [
+    "perso"
+   ]
+  }
+ ],
+ "Inner Circle Companions": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Inimitié pour l'Indigne",
+   "texte": "This unit's attacks that target a Character unit have +1 to hit rolls.",
+   "vs": [
+    "perso"
+   ]
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Asmodai": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Exemple de Haine",
+   "texte": "This unit's melee attacks can re-roll hit rolls."
+  }
+ ],
+ "Azrael": [
+  {
+   "mot": "sust:1",
+   "nom": "Suprême Grand Maître",
+   "texte": "This unit's attacks have [SUSTAINED HITS 1]."
+  }
+ ],
+ "Deathwing Strikemaster": [
+  {
+   "mot": "lethal",
+   "nom": "Précision Tactique",
+   "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Chaplain",
+  "kw": [
+   "Chaplain"
+  ],
+  "nom": "Litanie de Haine (Meneur)",
+  "quand": "L'unité est menée par Chaplain, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
+  "texte": "This unit's melee attacks have [LANCE]",
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C"
+ },
+ {
+  "source": "Chaplain in Terminator Armour",
+  "kw": [
+   "Chaplain in Terminator Armour"
+  ],
+  "nom": "Litanie de Haine (Meneur)",
+  "quand": "L'unité est menée par Chaplain in Terminator Armour, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
+  "texte": "This unit's melee attacks have [LANCE]",
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C"
+ },
+ {
+  "source": "Chaplain on Bike",
+  "kw": [
+   "Chaplain on Bike"
+  ],
+  "nom": "Litanie de Haine (Meneur)",
+  "quand": "L'unité est menée par Chaplain on Bike, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
+  "texte": "This unit's melee attacks have [LANCE]",
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C"
+ },
+ {
+  "source": "Chaplain with Jump Pack",
+  "kw": [
+   "Chaplain with Jump Pack"
+  ],
+  "nom": "Litanie de Haine (Meneur)",
+  "quand": "L'unité est menée par Chaplain with Jump Pack, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
+  "texte": "This unit's melee attacks have [LANCE]",
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C"
+ },
+ {
+  "source": "Chaplain on Bike",
+  "kw": [
+   "Chaplain on Bike"
+  ],
+  "nom": "Catéchisme du Feu (Meneur)",
+  "quand": "L'unité est menée par Chaplain on Bike, et la cible est celle qu'il a désignée",
+  "texte": "In your Shooting phase, when this unit is selected to shoot, you can select one visible enemy unit. This unit's ranged attacks that target that unit have [DEVASTATING WOUNDS].",
+  "mot": "dev",
+  "port": "T"
+ },
+ {
+  "source": "Chaplain with Jump Pack",
+  "kw": [
+   "Chaplain with Jump Pack"
+  ],
+  "nom": "Exhortation de Rage (Meneur)",
+  "quand": "L'unité est menée par Chaplain with Jump Pack, et elle est à la moitié de son effectif ou moins",
+  "texte": "While this unit is at or below half-strength, this unit's melee attacks can re-roll wound rolls.",
+  "champ": "rrW",
+  "val": "failed",
+  "port": "C"
+ },
+ {
+  "source": "Lieutenant",
+  "kw": [
+   "Lieutenant"
+  ],
+  "nom": "Précision Tactique (Meneur)",
+  "quand": "L'unité est menée par Lieutenant, et la cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE].",
+  "mot": "lethal"
+ },
+ {
+  "source": "Lieutenant in Phobos Armour",
+  "kw": [
+   "Lieutenant in Phobos Armour"
+  ],
+  "nom": "Précision Tactique (Meneur)",
+  "quand": "L'unité est menée par Lieutenant in Phobos Armour, et la cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE].",
+  "mot": "lethal"
+ },
+ {
+  "source": "Apothecary Biologis",
+  "kw": [
+   "Apothecary Biologis"
+  ],
+  "nom": "Ciblage Vivispectral (Meneur)",
+  "quand": "L'unité est menée par Apothecary Biologis, et la cible n'est pas un VÉHICULE",
+  "texte": "This unit's attacks have [LETHAL HITS: non-VEHICLE].",
+  "mot": "lethal"
+ },
+ {
+  "source": "Librarian in Terminator Armour",
+  "kw": [
+   "Librarian in Terminator Armour"
+  ],
+  "nom": "Puissance des Héros (Meneur)",
+  "quand": "L'unité est menée par Librarian in Terminator Armour, et le test psychique est fait",
+  "texte": "In the Fight phase, if this unit is not battle-shocked, you can make a psychic roll for this unit by rolling one D6. If you do: ▪ On a 1, this unit is battle-shocked. ▪ This unit's melee attacks have +2 S.",
+  "champ": "strMod",
+  "val": 2,
+  "port": "C"
+ },
+ {
+  "source": "Bladeguard Ancient",
+  "kw": [
+   "Bladeguard Ancient"
+  ],
+  "nom": "Hauts Faits de Légende (Meneur)",
+  "quand": "L'unité est menée par Bladeguard Ancient, et elle est à portée d'un objectif",
+  "texte": "While this unit is within range of an objective, this unit's melee attacks have +1 A.",
+  "champ": "atkMod",
+  "val": 1,
+  "port": "C"
+ },
+ {
+  "source": "Incursor Squad",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "port": "T",
+  "nom": "Auspex Divinator (Aura)",
+  "quand": "La cible a été scannée par les Incursors ce tour (à 18\" d'eux)",
+  "texte": "While a unit is scanned, ranged attacks that target that unit can re-roll hit rolls of 1."
+ },
+ {
+  "source": "Infernus Squad",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Débusqués",
+  "quand": "La cible a été touchée par l'Escouade Infernus ce tour",
+  "texte": "In your Shooting phase, when this unit has shot, select one enemy unit hit by those attacks. Friendly ADEPTUS ASTARTES units' ranged attacks that target that enemy unit have [IGNORES COVER]."
+ },
+ {
+  "source": "Storm Speeder Hailstrike",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Hailstrike",
+  "quand": "La cible a été touchée par le Storm Speeder Hailstrike ce tour",
+  "texte": "In your Shooting phase, when this unit has shot, select one enemy unit hit by those attacks. Friendly Adeptus Astartes units' ranged attacks that target that enemy unit have [Ignores Cover]."
+ },
+ {
+  "source": "Storm Speeder Thunderstrike",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Défenses Brisées",
+  "quand": "La cible, MONSTRE ou VÉHICULE, a été touchée par le Storm Speeder Thunderstrike ce tour",
+  "texte": "In your Shooting phase, when this unit has shot, select one enemy Monster/Vehicle unit hit by those attacks. Friendly Adeptus Astartes units' ranged attacks that target that enemy unit have +1 AP."
+ },
+ {
+  "source": "Librarian in Phobos Armour",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Vue de l'Âme",
+  "quand": "Le Lexicanum a réussi son test psychique sur la cible",
+  "texte": "Select one visible enemy unit. Ranged attacks that target that enemy unit have [IGNORES COVER]."
+ },
+ {
+  "source": "Razorback",
+  "kw": [],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Appui-feu",
+  "quand": "L'unité a débarqué de ce Razorback ce tour, et la cible a été touchée par lui",
+  "texte": "In your Shooting phase, after this model has shot, select one enemy unit it scored one or more hits against this phase. Until the end of the phase, each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll."
+ },
+ {
+  "source": "Relic Razorback",
+  "kw": [],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Appui-feu",
+  "quand": "L'unité a débarqué de ce Razorback ce tour, et la cible a été touchée par lui",
+  "texte": "In your Shooting phase, after this model has shot, select one enemy unit it scored one or more hits against this phase. Until the end of the phase, each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll."
+ },
+ {
+  "source": "Dreadnought",
+  "kw": [
+   "infantry"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Sagesse des Anciens (Aura)",
+  "quand": "L'unité, INFANTERIE, est à 6\" du Dreadnought",
+  "texte": "While a friendly Adeptus Astartes Infantry unit is within 6\" of this model, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "source": "Venerable Dreadnought",
+  "kw": [
+   "infantry"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Sagesse des Anciens (Aura)",
+  "quand": "L'unité, INFANTERIE, est à 6\" du Dreadnought",
+  "texte": "While a friendly Adeptus Astartes Infantry unit is within 6\" of this model, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "detach": "Gauntlet Task Force",
+  "kw": [],
+  "mot": "sust",
+  "port": "T",
+  "nom": "Déploiement Combiné",
+  "quand": "L'unité a débarqué ce tour, et la cible est assaillie (touchée par un TRANSPORT ami ce tour)",
+  "texte": "While a unit is assailed, when an ADEPTUS ASTARTES unit that disembarked this turn targets that unit, those attacks have [Sustained Hits 1]."
+ },
+ {
+  "detach": "Gravis Linebreaker Force",
+  "kw": [
+   "gravis"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Forteresse Ambulante",
+  "quand": "L'unité, GRAVIS, a fait un mouvement normal ce tour",
+  "texte": "In a turn a friendly Gravis unit made a normal move, that unit’s ranged attacks: ▪ Do not have [Heavy]. ▪ Have +1 to hit rolls."
+ },
+ {
+  "detach": "Phobos Shock Force",
+  "kw": [
+   "phobos"
+  ],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Embusqués de l'Avant-garde",
+  "quand": "L'unité, PHOBOS, était cachée à la fin de ton mouvement",
+  "texte": "At the end of your Movement phase, if a friendly Phobos unit is hidden, that unit’s attacks can re-roll wound rolls of 1 until the end of the turn."
+ },
+ {
+  "source": "Belial",
+  "kw": [
+   "Belial"
+  ],
+  "nom": "Grand Maître de la Deathwing (Meneur)",
+  "quand": "L'unité est menée par Belial, et la cible est un PERSONNAGE",
+  "texte": "This unit's attacks that target an enemy Character unit have +1 to wound rolls.",
+  "champ": "wndMod",
+  "val": 1
+ },
+ {
+  "source": "Ezekiel",
+  "kw": [
+   "Ezekiel"
+  ],
+  "nom": "Livre du Salut (Meneur)",
+  "quand": "L'unité est menée par Ezekiel",
+  "texte": "This unit's melee attacks have +1 A.",
+  "champ": "atkMod",
+  "val": 1,
+  "port": "C"
+ },
+ {
+  "source": "Ravenwing Talonmaster",
+  "kw": [
+   "Captain on Bike",
+   "Chaplain on Bike",
+   "Invader ATVs",
+   "Land Speeder",
+   "Land Speeder Vengeance",
+   "Nephilim Jetfighter",
+   "Outrider Squad",
+   "Ravenwing Black Knights",
+   "Ravenwing Command Squad",
+   "Ravenwing Dark Talon",
+   "Ravenwing Darkshroud",
+   "Sammael",
+   "Scout Bike Squad",
+   "Storm Speeder Hailstrike",
+   "Storm Speeder Hammerstrike",
+   "Storm Speeder Thunderstrike",
+   "Stormhawk Interceptor",
+   "Stormraven Gunship",
+   "Stormtalon Gunship",
+   "Thunderhawk Gunship"
+  ],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Nulle Part où se Cacher (Aura)",
+  "quand": "L'unité, MONTÉE ou VÉHICULE qui VOLE, est à 6\" du Maître de Talon",
+  "texte": "While a friendly Adeptus Astartes Mounted or Adeptus Astartes Fly Vehicle unit is within 6\" of this model, ranged weapons equipped by models in that unit have the [IGNORES COVER] ability."
+ },
+ {
+  "detach": "Inner Circle Task Force",
+  "kw": [
+   "Ancient in Terminator Armour",
+   "Asmodai",
+   "Azrael",
+   "Belial",
+   "Bladeguard Ancient",
+   "Bladeguard Veteran Squad",
+   "Captain in Terminator Armour",
+   "Chaplain in Terminator Armour",
+   "Deathwing Knights",
+   "Deathwing Terminator Squad",
+   "Ezekiel",
+   "Inner Circle Companions",
+   "Lazarus",
+   "Librarian in Terminator Armour",
+   "Sternguard Veteran Squad",
+   "Terminator Assault Squad",
+   "Terminator Squad",
+   "Vanguard Veteran Squad with Jump Packs"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Cible Jurée",
+  "quand": "L'unité est d'INFANTERIE DEATHWING, et la cible est à portée de l'objectif juré",
+  "texte": "Friendly Deathwing Infantry unit’s attacks that target an enemy unit within range of your vowed objective have +1 to wound rolls."
+ }
+];
+const OCTROIS_DETACH = {
+ "Ironclad Champions": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "qui": "unite",
+   "kw": [
+    "dreadnought"
+   ],
+   "nom": "Vengeance Endurante",
+   "texte": "Friendly Adeptus Astartes Dreadnought units can re-roll hit rolls of 1."
+  }
+ ],
+ "Darkflight Pursuit": [
+  {
+   "mot": "ignorescover",
+   "port": "T",
+   "qui": "unite",
+   "kw": [
+    "Land Speeder",
+    "Land Speeder Vengeance",
+    "Nephilim Jetfighter",
+    "Ravenwing Dark Talon",
+    "Ravenwing Darkshroud",
+    "Sammael",
+    "Storm Speeder Hailstrike",
+    "Storm Speeder Hammerstrike",
+    "Storm Speeder Thunderstrike",
+    "Stormhawk Interceptor",
+    "Stormraven Gunship",
+    "Stormtalon Gunship",
+    "Thunderhawk Gunship"
+   ],
+   "nom": "Vigilance aux Ailes Noires",
+   "texte": "Friendly Ravenwing Fly units’ ranged attacks have [IGNORES COVER]."
+  }
+ ]
+};
+const STRAT_SIMU = [
+ {
+  "nom": "Gene-Wrought Might",
+  "detach": "Assault Brethren",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Gene-Wrought Might — doctrine d'assaut",
+  "detach": "Assault Brethren",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour, et +1 en PA sous la doctrine d'assaut",
+  "effet": {
+   "wndMod": 1,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Storm of Fire",
+  "detach": "Devastator Brethren",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT]",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Storm of Fire — doctrine Devastator",
+  "detach": "Devastator Brethren",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] et +1 en PA sous la doctrine Devastator",
+  "effet": {
+   "ignoresCover": true,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Might of Angels",
+  "detach": "Gladius Task Force",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Storm of Devastation",
+  "detach": "Gladius Task Force",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT]",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Annihilating Force",
+  "detach": "Gravis Linebreaker Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "gravis"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES]",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Annihilating Force",
+  "detach": "Gravis Siege Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "gravis"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES]",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Mercy Is Weakness",
+  "detach": "Ironclad Champions",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "dreadnought"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES]",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Mercy Is Weakness — Touches Soutenues",
+  "detach": "Ironclad Champions",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "dreadnought"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] au lieu des Touches Fatales",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Headhunter Doctrine",
+  "detach": "Ironstorm Spearhead",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "vehicle"
+  ],
+  "sauf": [
+   "walker",
+   "fly",
+   "dedicated transport",
+   "fortification"
+  ],
+  "aide": "[TOUCHES FATALES] — contre un MONSTRE ou un VÉHICULE seulement",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Might of the Machine Spirit",
+  "detach": "Ironstorm Spearhead",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "vehicle"
+  ],
+  "sauf": [
+   "walker",
+   "fly",
+   "dedicated transport",
+   "fortification"
+  ],
+  "aide": "ignore les modificateurs de touche et de blessure, jusqu'à ta prochaine phase de Commandement",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Strike from the Shadows",
+  "detach": "Phobos Shadow Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "phobos"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force et [TOUCHES FATALES] — l'unité est cachée",
+  "effet": {
+   "strMod": 1,
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Strike from the Shadows",
+  "detach": "Phobos Shock Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "phobos"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force et [TOUCHES FATALES] — l'unité est cachée",
+  "effet": {
+   "strMod": 1,
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Relentless Assault",
+  "detach": "Tacticus Attack Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "tacticus"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] — contre ni MONSTRE ni VÉHICULE",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Relentless Assault — MONSTRE ou VÉHICULE",
+  "detach": "Tacticus Attack Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "tacticus"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] — contre un MONSTRE ou un VÉHICULE",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Relentless Assault",
+  "detach": "Tacticus Firestorm Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "tacticus"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] — contre ni MONSTRE ni VÉHICULE",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Relentless Assault — MONSTRE ou VÉHICULE",
+  "detach": "Tacticus Firestorm Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "tacticus"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] — contre un MONSTRE ou un VÉHICULE",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Point-Blank Brutality",
+  "detach": "Tacticus Firestorm Force",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "tacticus"
+  ],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] — l'unité est engagée, armes sans [EXPLOSION]",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Merciless Veterans",
+  "detach": "Terminator Storm Force",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "terminator"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] et [TOUCHES SOUTENUES 1]",
+  "effet": {
+   "lethal": true,
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Relics of the Dark Age",
+  "detach": "Wrath of the Rock",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "infantry",
+   "mounted"
+  ],
+  "sauf": [],
+  "aide": "+2 en Force",
+  "effet": {
+   "strMod": 2
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -2623,11 +3856,6 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "darkangels",

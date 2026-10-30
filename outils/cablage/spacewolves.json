@@ -1,0 +1,431 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — SPACE WOLVES",
+    "",
+    "Écrit à la main, comme celui des Space Marines dont il hérite (clé",
+    "HERITE) : les fiches et les détachements du Codex que ce chapitre",
+    "reprend sont câblés dans spacemarines.json, une seule fois. Ce",
+    "fichier ne porte que ce qui est PROPRE au chapitre.",
+    "",
+    "Les conventions sont celles de spacemarines.json : [LANCE] câblé en",
+    "+1 pour blesser déclaré, règles de meneur conditionnelles dans",
+    "AURAS_ARMEE avec le meneur pour source, règles de détachement",
+    "conditionnelles dans AURAS_ARMEE avec `detach` et sans source.",
+    "",
+    "LA SAGA DU GRAND LOUP dépend de la doctrine active : ses deux effets",
+    "qui touchent le calcul sont deux pastilles déclarées.",
+    "",
+    "CE QUI N'EST PAS CÂBLÉ, en plus de ce qu'en dit spacemarines.json :",
+    "· « re-roll wound rolls of 1 and 2 » (Eye of the Pack) : le moteur ne",
+    "  connaît pas cette relance ; la pastille ne relance que les 1, ce qui",
+    "  sous-estime plutôt que de mentir ;",
+    "· Serment du Tueur d'Ulrik (ignorer les modificateurs) et le Don du Loup",
+    "  de Fer : une condition déclarée ne sait pas poser ce champ ;",
+    "· les règles de défense, d'OC et de mouvement des Loups."
+  ],
+  "HERITE": "spacemarines",
+  "APTIS_UNITE": {
+    "Wulfen": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Totem de Mort",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Wulfen with Storm Shields": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Totem de Mort",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Wolf Guard Battle Leader": [
+      {
+        "mot": "sust:1",
+        "nom": "Férocité Maîtrisée",
+        "texte": "- This unit's attacks have [SUSTAINED HITS 1]. - This unit's attacks that target an enemy unit within 6\" of this unit can re-roll hit rolls of 1."
+      }
+    ],
+    "Ulrik the Slayer": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Lié par Serment",
+        "texte": "This unit's melee attacks have +1 to hit rolls. - Or: This unit's melee attacks that target this unit's slayer's oath have +1 to hit rolls and wound rolls."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Wolf Guard Battle Leader": [
+      {
+        "mot": "sust:1",
+        "nom": "Férocité Maîtrisée",
+        "texte": "- This unit's attacks have [SUSTAINED HITS 1]. - This unit's attacks that target an enemy unit within 6\" of this unit can re-roll hit rolls of 1."
+      }
+    ],
+    "Ulrik the Slayer": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Lié par Serment",
+        "texte": "This unit's melee attacks have +1 to hit rolls. - Or: This unit's melee attacks that target this unit's slayer's oath have +1 to hit rolls and wound rolls."
+      }
+    ],
+    "Canis Wolfborn": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Né des Loups",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Arjac Rockfist": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Champion de la Garde du Roi",
+        "texte": "This model’s attacks that target a Character unit: - Can re-roll hit rolls of 1. - Can re-roll wound rolls of 1.",
+        "vs": [
+          "perso"
+        ]
+      },
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Champion de la Garde du Roi",
+        "texte": "This model’s attacks that target a Character unit: - Can re-roll hit rolls of 1. - Can re-roll wound rolls of 1.",
+        "vs": [
+          "perso"
+        ]
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Cyberwolf": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Curée",
+        "quand": "La cible est sous la moitié de son effectif",
+        "texte": "Each time this model makes an attack that targets an enemy unit that is Below Half-strength, add 1 to the Hit roll and add 1 to the Wound roll."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "nom": "Curée — blessure",
+        "quand": "La cible est sous la moitié de son effectif",
+        "texte": "Each time this model makes an attack that targets an enemy unit that is Below Half-strength, add 1 to the Hit roll and add 1 to the Wound roll."
+      }
+    ],
+    "Grey Hunters": [
+      {
+        "champ": "strMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Chasseurs Rusés",
+        "quand": "L'unité est à portée d'un objectif",
+        "texte": "In the Fight phase, if this unit is within range of an objective, this unit’s melee attacks: - Have +1 S. - Have +1 AP."
+      },
+      {
+        "champ": "apMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Chasseurs Rusés — PA",
+        "quand": "L'unité est à portée d'un objectif",
+        "texte": "In the Fight phase, if this unit is within range of an objective, this unit’s melee attacks: - Have +1 S. - Have +1 AP."
+      }
+    ],
+    "Iron Priest": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "nom": "Jugement de l'Omnimessie",
+        "quand": "La cible est engagée avec un VÉHICULE ami",
+        "texte": "This model's attacks that target an enemy unit engaged with a friendly Space Wolves Vehicle can re-roll wound rolls."
+      }
+    ],
+    "Long Fangs": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Discipline de Tir",
+        "quand": "L'unité est restée immobile avec son chef de meute, contre la cible désignée",
+        "texte": "Each time this unit Remains Stationary, if it includes a Long Fang Pack Leader, you can select one enemy unit that is visible to that model. Until the end of the turn, each time a model in this unit makes a ranged attack that targets that enemy unit, re-roll a Hit roll of 1."
+      }
+    ],
+    "Ragnar Blackmane": [
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "C",
+        "nom": "Soif de Bataille",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn, this model's melee attacks have +2 A."
+      }
+    ],
+    "Skyclaws": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Tête Brûlée",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "Each time this unit makes a Charge move, until the end of the turn, each time a model in this unit makes a melee attack, add 1 to the Hit roll."
+      }
+    ],
+    "Thunderwolf Cavalry": [
+      {
+        "champ": "strMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Charge Tonitruante",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn this units melee attacks have • +1 S • +1 D"
+      },
+      {
+        "champ": "dmgMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Charge Tonitruante — dégâts",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "If this unit made a charge move this turn this units melee attacks have • +1 S • +1 D"
+      }
+    ],
+    "Wolf Guard": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Compagnons Élus",
+        "quand": "Un PERSONNAGE mène l'unité",
+        "texte": "While a CHARACTER model is leading this unit, each time a model in this unit makes an attack, add 1 to the Hit roll."
+      }
+    ],
+    "Wolf Guard Headtakers": [
+      {
+        "mot": "dev",
+        "nom": "Chasseurs de Têtes",
+        "quand": "La cible est leur proie",
+        "texte": "This unit's attacks that target this unit's quarry have [DEVASTATING WOUNDS] and [PRECISION]."
+      }
+    ],
+    "Wulfen Dreadnought": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "port": "C",
+        "nom": "Fureur Violente",
+        "quand": "Il porte deux armes de mêlée ([JUMELÉE])",
+        "texte": "If this model is equipped with two melee weapons, melee attacks made by this unit have [TWIN-LINKED]."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Wolf Guard Battle Leader",
+      "kw": [
+        "Wolf Guard Battle Leader"
+      ],
+      "nom": "Férocité Maîtrisée — relance (Meneur)",
+      "quand": "L'unité est menée par Wolf Guard Battle Leader, et la cible est à 6\" ou moins",
+      "texte": "- This unit's attacks have [SUSTAINED HITS 1]. - This unit's attacks that target an enemy unit within 6\" of this unit can re-roll hit rolls of 1.",
+      "champ": "rrH",
+      "val": "ones"
+    },
+    {
+      "source": "Wolf Guard Battle Leader in Terminator Armour",
+      "kw": [
+        "Wolf Guard Battle Leader in Terminator Armour"
+      ],
+      "nom": "Précision Tactique (Meneur)",
+      "quand": "L'unité est menée par Wolf Guard Battle Leader in Terminator Armour, et la cible n'est ni MONSTRE ni VÉHICULE",
+      "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE].",
+      "mot": "lethal"
+    },
+    {
+      "source": "Wolf Guard Battle Leader on Thunderwolf",
+      "kw": [
+        "Wolf Guard Battle Leader on Thunderwolf"
+      ],
+      "nom": "Précision Tactique (Meneur)",
+      "quand": "L'unité est menée par Wolf Guard Battle Leader on Thunderwolf, et la cible n'est ni MONSTRE ni VÉHICULE",
+      "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE].",
+      "mot": "lethal"
+    },
+    {
+      "source": "Ulrik the Slayer",
+      "kw": [
+        "Ulrik the Slayer"
+      ],
+      "nom": "Lié par Serment — serment (Meneur)",
+      "quand": "L'unité est menée par Ulrik the Slayer, et la cible est le serment du Tueur",
+      "texte": "This unit's melee attacks have +1 to hit rolls. - Or: This unit's melee attacks that target this unit's slayer's oath have +1 to hit rolls and wound rolls.",
+      "champ": "wndMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "source": "Wolf Priest",
+      "kw": [
+        "Wolf Priest"
+      ],
+      "nom": "Litanie de Haine (Meneur)",
+      "quand": "L'unité est menée par Wolf Priest, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
+      "texte": "This unit's melee attacks have [LANCE]",
+      "champ": "wndMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "source": "Harald Deathwolf",
+      "kw": [
+        "Harald Deathwolf"
+      ],
+      "nom": "Seigneur des Loups (Meneur)",
+      "quand": "L'unité est menée par Harald Deathwolf, et elle a chargé ce tour — crocs et griffes seulement",
+      "texte": "While this model is leading a unit, each time that unit makes a Charge move, until the end of the turn, crushing teeth and claws equipped by models in that unit have the [DEVASTATING WOUNDS] ability.",
+      "mot": "dev",
+      "port": "C"
+    },
+    {
+      "source": "Krom Dragongaze",
+      "kw": [
+        "Krom Dragongaze"
+      ],
+      "nom": "Refus de la Défaite (Meneur)",
+      "quand": "L'unité est menée par Krom Dragongaze, et elle est sous son effectif de départ",
+      "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Hit roll if that unit is below its Starting Strength, and add 1 to the Wound roll as well if that unit is Below Half-strength.",
+      "champ": "hitMod",
+      "val": 1
+    },
+    {
+      "source": "Krom Dragongaze",
+      "kw": [
+        "Krom Dragongaze"
+      ],
+      "nom": "Refus de la Défaite — sous la moitié (Meneur)",
+      "quand": "L'unité est menée par Krom Dragongaze, et elle est sous la moitié de son effectif",
+      "texte": "add 1 to the Wound roll as well if that unit is Below Half-strength.",
+      "champ": "wndMod",
+      "val": 1
+    },
+    {
+      "source": "Ragnar Blackmane",
+      "kw": [
+        "Ragnar Blackmane"
+      ],
+      "nom": "Hurlement de Guerre (Meneur)",
+      "quand": "L'unité est menée par Ragnar Blackmane, et ce sont des Griffes Sanglantes",
+      "texte": "While this model is attached to a Blood Claws unit, this unit's melee attacks have +1 S and [SUSTAINED HITS 1].",
+      "champ": "strMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "source": "Ragnar Blackmane",
+      "kw": [
+        "Ragnar Blackmane"
+      ],
+      "nom": "Hurlement de Guerre — Soutenues (Meneur)",
+      "quand": "L'unité est menée par Ragnar Blackmane, et ce sont des Griffes Sanglantes",
+      "texte": "While this model is attached to a Blood Claws unit, this unit's melee attacks have +1 S and [SUSTAINED HITS 1].",
+      "mot": "sust",
+      "port": "C"
+    },
+    {
+      "detach": "Saga of the Beastslayer",
+      "kw": [
+        "Blood Claws",
+        "Thunderwolf Cavalry",
+        "Wulfen",
+        "Wulfen with Storm Shields"
+      ],
+      "mot": "lethal",
+      "nom": "Tueurs Légendaires",
+      "quand": "L'unité est des Griffes Sanglantes, de la Cavalerie Loup-Tonnerre ou des Wulfen, contre un PERSONNAGE, un MONSTRE ou un VÉHICULE",
+      "texte": "Attacks made by friendly Blood Claws/Thunderwolf Cavalry/Wulfen units have [Lethal Hits: Character/Monster/Vehicle]."
+    },
+    {
+      "detach": "Saga of the Great Wolf",
+      "kw": [],
+      "sauf": [
+        "monster",
+        "vehicle"
+      ],
+      "champ": "rrH",
+      "val": "ones",
+      "port": "T",
+      "nom": "Maître des Loups — Œil du Chasseur",
+      "quand": "La doctrine Devastator est active pour l'unité",
+      "texte": "Hunter’s Eye: If the devastator doctrine is active for your unit, your unit’s ranged attacks can re-roll hit rolls of 1."
+    },
+    {
+      "detach": "Saga of the Great Wolf",
+      "kw": [],
+      "sauf": [
+        "monster",
+        "vehicle"
+      ],
+      "mot": "sust",
+      "nom": "Maître des Loups — Frappe Féroce",
+      "quand": "La doctrine tactique est active pour l'unité, et la cible est à 9\" ou moins",
+      "texte": "Ferocious Strike: If the tactical doctrine is active for your unit, your unit’s attacks that target an enemy unit with 9\" have [Sustained Hits 1]."
+    }
+  ],
+  "STRAT_SIMU": [
+    {
+      "nom": "Champion's Guidance",
+      "detach": "Champions of Fenris",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "character"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour toucher et pour blesser",
+      "effet": {
+        "rrH": "ones",
+        "rrW": "ones"
+      }
+    },
+    {
+      "nom": "Unbridled Feroicity",
+      "detach": "Saga of the Beastslayer",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Blood Claws",
+        "Thunderwolf Cavalry",
+        "Wulfen",
+        "Wulfen with Storm Shields"
+      ],
+      "sauf": [],
+      "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Eye of the Pack",
+      "detach": "Saga of the Great Wolf",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "infantry"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 et des 2 pour blesser — seuls les 1 sont comptés, le moteur ne connaît pas mieux",
+      "effet": {
+        "rrW": "ones"
+      }
+    }
+  ]
+}

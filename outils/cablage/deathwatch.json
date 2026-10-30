@@ -1,0 +1,240 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — DEATHWATCH",
+    "",
+    "Écrit à la main, comme celui des Space Marines dont il hérite (clé",
+    "HERITE) : les fiches et les détachements du Codex que ce chapitre",
+    "reprend sont câblés dans spacemarines.json, une seule fois. Ce",
+    "fichier ne porte que ce qui est PROPRE au chapitre.",
+    "",
+    "Les conventions sont celles de spacemarines.json : [LANCE] câblé en",
+    "+1 pour blesser déclaré, règles de meneur conditionnelles dans",
+    "AURAS_ARMEE avec le meneur pour source, règles de détachement",
+    "conditionnelles dans AURAS_ARMEE avec `detach` et sans source.",
+    "",
+    "LES TACTIQUES DE MISSION — la règle du Black Spear Task Force — suivent la",
+    "doctrine active de l'escouade : deux pastilles déclarées, [TOUCHES",
+    "SOUTENUES 1] sous Devastator, [TOUCHES FATALES] sous tactique. La",
+    "troisième donne [PRÉCISION], que le moteur ne connaît pas.",
+    "",
+    "CE QUI N'EST PAS CÂBLÉ, en plus de ce qu'en dit spacemarines.json :",
+    "· les munitions Hellfire donnent [ANTI-non-VÉHICULE 4+] : câblé en",
+    "  blessure critique sur 4+, à ne cocher que contre une cible qui n'est",
+    "  pas un VÉHICULE ;",
+    "· Armour of Contempt et la Téléportation : défense et mouvement."
+  ],
+  "HERITE": "spacemarines",
+  "APTIS_UNITE": {
+    "Deathwatch Veterans": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Mort à l'Étranger",
+        "texte": "This unit's attacks can: - Re-roll hit rolls of 1. - Or: If the target of those attacks does not have IMPERIUM/CHAOS, re-roll hit rolls."
+      }
+    ],
+    "Decimus Kill Team": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Mort à l'Étranger",
+        "texte": "This unit's attacks can: - Re-roll hit rolls of 1. - Or: If the target of those attacks does not have IMPERIUM/CHAOS, re-roll hit rolls."
+      }
+    ],
+    "Watch Captain Artemis": [
+      {
+        "mot": "sust:1",
+        "nom": "Instinct Tactique",
+        "texte": "This unit's attacks have [Sustained Hits 1]."
+      }
+    ],
+    "Corvus Blackstar": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Réseau Auspex",
+        "texte": "Ranged weapons equipped by the bearer have the [IGNORES COVER] ability."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Watch Captain Artemis": [
+      {
+        "mot": "sust:1",
+        "nom": "Instinct Tactique",
+        "texte": "This unit's attacks have [Sustained Hits 1]."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Watch Master": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Maître de Guet",
+        "texte": "This model’s attacks that target a Character unit can: - Re-roll hit rolls of 1. - Re-roll wound rolls of 1.",
+        "vs": [
+          "perso"
+        ]
+      },
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Maître de Guet",
+        "texte": "This model’s attacks that target a Character unit can: - Re-roll hit rolls of 1. - Re-roll wound rolls of 1.",
+        "vs": [
+          "perso"
+        ]
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Deathwatch Veterans": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Mort à l'Étranger — xenos",
+        "quand": "La cible n'est ni IMPERIUM ni CHAOS",
+        "texte": "This unit's attacks can: - Re-roll hit rolls of 1. - Or: If the target of those attacks does not have IMPERIUM/CHAOS, re-roll hit rolls."
+      }
+    ],
+    "Decimus Kill Team": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Mort à l'Étranger — xenos",
+        "quand": "La cible n'est ni IMPERIUM ni CHAOS",
+        "texte": "This unit's attacks can: - Re-roll hit rolls of 1. - Or: If the target of those attacks does not have IMPERIUM/CHAOS, re-roll hit rolls."
+      }
+    ],
+    "Fortis Kill Team": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Doctrines Fortis",
+        "quand": "La cible est sous son effectif de départ",
+        "texte": "This unit's attacks that target a unit - Below starting strength, have +1 to hit rolls. - Or: at or below half-strength have +1 to hit rolls and wound rolls."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "nom": "Doctrines Fortis — sous la moitié",
+        "quand": "La cible est à la moitié de son effectif ou moins",
+        "texte": "This unit's attacks that target a unit - Below starting strength, have +1 to hit rolls. - Or: at or below half-strength have +1 to hit rolls and wound rolls."
+      }
+    ],
+    "Indomitor Kill Team": [
+      {
+        "champ": "strMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Doctrines Indomitor",
+        "quand": "La cible est l'unité ennemie éligible la plus proche",
+        "texte": "- This unit's ranged attacks that target the closest eligible enemy unit, have +1 S. - If this unit made a charge move this turn, this unit's melee attacks have +1 S."
+      },
+      {
+        "champ": "strMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Doctrines Indomitor",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "- This unit's ranged attacks that target the closest eligible enemy unit, have +1 S. - If this unit made a charge move this turn, this unit's melee attacks have +1 S."
+      }
+    ],
+    "Talonstrike Kill Team": [
+      {
+        "champ": "apMod",
+        "val": 1,
+        "nom": "Doctrines Talonstrike",
+        "quand": "L'unité a été posée sur la table ce tour",
+        "texte": "In a turn this unit was set up on the battlefield: - This unit's attacks have +1 AP. - This unit's melee attacks have [LANCE]."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Doctrines Talonstrike — Lance",
+        "quand": "L'unité a été posée sur la table ce tour, et elle a chargé",
+        "texte": "In a turn this unit was set up on the battlefield: - This unit's attacks have +1 AP. - This unit's melee attacks have [LANCE]."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Watch Master",
+      "kw": [
+        "Watch Master"
+      ],
+      "nom": "Proie Purgatus (Meneur)",
+      "quand": "L'unité est menée par Watch Master, et la cible est sa proie",
+      "texte": "This unit’s attacks that target this unit’s hunted unit can re-roll wound rolls of 1.",
+      "champ": "rrW",
+      "val": "ones"
+    },
+    {
+      "detach": "Black Spear Task Force",
+      "kw": [
+        "kill team"
+      ],
+      "mot": "sust",
+      "nom": "Tactiques Furor",
+      "quand": "L'unité est une KILL TEAM, sous la doctrine Devastator",
+      "texte": "Friendly KILL TEAM units with this ability have the following abilities: Furor Tactics: If the devastator doctrine is active for your unit, your unit’s attacks have [SUSTAINED HITS 1]."
+    },
+    {
+      "detach": "Black Spear Task Force",
+      "kw": [
+        "kill team"
+      ],
+      "mot": "lethal",
+      "nom": "Tactiques Malleus",
+      "quand": "L'unité est une KILL TEAM, sous la doctrine tactique",
+      "texte": "Friendly KILL TEAM units with this ability have the following abilities: Malleus Tactics: If the tactical doctrine is active for your unit, your unit’s attacks have [LETHAL HITS]."
+    }
+  ],
+  "STRAT_SIMU": [
+    {
+      "nom": "Dragonfire Rounds",
+      "detach": "Black Spear Task Force",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "kill team"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour blesser et [IGNORE LE COUVERT]",
+      "effet": {
+        "rrW": "ones",
+        "ignoresCover": true
+      }
+    },
+    {
+      "nom": "Hellfire Rounds",
+      "detach": "Black Spear Task Force",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "kill team"
+      ],
+      "sauf": [],
+      "aide": "[ANTI-non-VÉHICULE 4+] : blessure critique sur 4+ — contre une cible qui n'est pas un VÉHICULE",
+      "effet": {
+        "critW": 4
+      }
+    },
+    {
+      "nom": "Kraken Rounds",
+      "detach": "Black Spear Task Force",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "kill team"
+      ],
+      "sauf": [],
+      "aide": "+1 en Force (et +6\" de portée)",
+      "effet": {
+        "strMod": 1
+      }
+    }
+  ]
+}

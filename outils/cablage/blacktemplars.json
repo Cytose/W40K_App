@@ -1,0 +1,287 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — BLACK TEMPLARS",
+    "",
+    "Écrit à la main, comme celui des Space Marines dont il hérite (clé",
+    "HERITE) : les fiches et les détachements du Codex que ce chapitre",
+    "reprend sont câblés dans spacemarines.json, une seule fois. Ce",
+    "fichier ne porte que ce qui est PROPRE au chapitre.",
+    "",
+    "Les conventions sont celles de spacemarines.json : [LANCE] câblé en",
+    "+1 pour blesser déclaré, règles de meneur conditionnelles dans",
+    "AURAS_ARMEE avec le meneur pour source, règles de détachement",
+    "conditionnelles dans AURAS_ARMEE avec `detach` et sans source.",
+    "",
+    "LES VŒUX TEMPLIERS se choisissent au premier round : chacun de ceux qui",
+    "touchent le calcul est une pastille déclarée, avec le vœu dans son",
+    "`quand`. La Ferveur Pieuse du Maréchal (+1 A par unité ennemie à 6\",",
+    "trois au plus) fait trois pastilles qui s'additionnent.",
+    "",
+    "CE QUI N'EST PAS CÂBLÉ, en plus de ce qu'en dit spacemarines.json :",
+    "· les reliques du Temple de Grimaldus autres que l'Eau de la Lustration",
+    "  (+1 en PA) : l'endurance et les jets de charge ne sont pas du calcul",
+    "  d'attaque ;",
+    "· les Vœux de défense et d'objectif."
+  ],
+  "HERITE": "spacemarines",
+  "APTIS_UNITE": {
+    "Chaplain Grimaldus": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "C",
+        "nom": "Litanies du Dévot",
+        "texte": "This unit's melee attacks can re-roll hit rolls."
+      }
+    ],
+    "Marshal": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Exemple Inspirant",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Chaplain Grimaldus": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "C",
+        "nom": "Litanies du Dévot",
+        "texte": "This unit's melee attacks can re-roll hit rolls."
+      }
+    ],
+    "Marshal": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Exemple Inspirant",
+        "texte": "This unit's melee attacks have +1 to hit rolls."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Marshal": [
+      {
+        "champ": "atkMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Ferveur Pieuse",
+        "quand": "Au moins 1 unité ennemie à 6\" du Maréchal",
+        "texte": "When this unit is selected to fight, you can use this ability. If you do, this model's melee attacks have +1 A for each enemy unit within 6\" of this model (to a maximum of +3 A)."
+      },
+      {
+        "champ": "atkMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Ferveur Pieuse — deuxième",
+        "quand": "Au moins 2 unités ennemies à 6\" du Maréchal",
+        "texte": "When this unit is selected to fight, you can use this ability. If you do, this model's melee attacks have +1 A for each enemy unit within 6\" of this model (to a maximum of +3 A)."
+      },
+      {
+        "champ": "atkMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Ferveur Pieuse — troisième",
+        "quand": "Au moins 3 unités ennemies à 6\" du Maréchal",
+        "texte": "When this unit is selected to fight, you can use this ability. If you do, this model's melee attacks have +1 A for each enemy unit within 6\" of this model (to a maximum of +3 A)."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Castellan",
+      "kw": [
+        "Castellan"
+      ],
+      "nom": "Agressivité Véhémente (Meneur)",
+      "quand": "L'unité est menée par Castellan, et l'aptitude est utilisée",
+      "texte": "In the Fight phase, when this unit is selected to fight, you can use this ability. If you do, make a leadership roll for this unit: - This unit's melee attacks can re-roll hit rolls of 1. - Or: If that roll succeeds: This unit's melee attacks: - Can re-roll hit rolls of 1. - Can re-roll wound rolls of 1.",
+      "champ": "rrH",
+      "val": "ones",
+      "port": "C"
+    },
+    {
+      "source": "Castellan",
+      "kw": [
+        "Castellan"
+      ],
+      "nom": "Agressivité Véhémente — Commandement réussi (Meneur)",
+      "quand": "L'unité est menée par Castellan, et le test de Commandement est réussi",
+      "texte": "In the Fight phase, when this unit is selected to fight, you can use this ability. If you do, make a leadership roll for this unit: - This unit's melee attacks can re-roll hit rolls of 1. - Or: If that roll succeeds: This unit's melee attacks: - Can re-roll hit rolls of 1. - Can re-roll wound rolls of 1.",
+      "champ": "rrW",
+      "val": "ones",
+      "port": "C"
+    },
+    {
+      "source": "Chaplain Grimaldus",
+      "kw": [
+        "Chaplain Grimaldus"
+      ],
+      "nom": "Eau de la Lustration (Meneur)",
+      "quand": "L'unité est menée par Chaplain Grimaldus, et c'est la relique choisie ce tour (Cénobytes présents)",
+      "texte": "Water from the Stoup of Elucidation This unit's melee attacks have +1 AP.",
+      "champ": "apMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "source": "High Marshal Helbrecht",
+      "kw": [
+        "High Marshal Helbrecht"
+      ],
+      "nom": "Croisade de Courroux (Meneur)",
+      "quand": "L'unité est menée par High Marshal Helbrecht",
+      "texte": "This unit's melee attacks have: - +1 A. - +1 S.",
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "source": "High Marshal Helbrecht",
+      "kw": [
+        "High Marshal Helbrecht"
+      ],
+      "nom": "Croisade de Courroux — Force (Meneur)",
+      "quand": "L'unité est menée par High Marshal Helbrecht",
+      "texte": "This unit's melee attacks have: - +1 A. - +1 S.",
+      "champ": "strMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "detach": "Marshal's Household",
+      "kw": [
+        "Sword Brethren Squad"
+      ],
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Résolution Ardente",
+      "quand": "L'unité, Frères d'Épée, est à portée d'un objectif",
+      "texte": "In the Fight phase, if a friendly Sword Brethren Squad unit is within range of an objective, that unit’s melee attacks have +1 A."
+    },
+    {
+      "detach": "Vow-Sworn Crusaders",
+      "kw": [],
+      "champ": "wndMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Vœu : Relever Tous les Défis",
+      "quand": "C'est le vœu choisi, et l'Endurance de la cible dépasse la Force de l'attaque",
+      "texte": "At the start of the first battle round, you can select one Vow listed below. That Vow is active for friendly ADEPTUS ASTARTES units until the end of the battle. Accept Any Challenge, No Matter the Odds Friendly melee attacks that target a unit with a T greater than this unit’s S have +1 to wound rolls."
+    },
+    {
+      "detach": "Vow-Sworn Crusaders",
+      "kw": [],
+      "champ": "wndMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Vœu : Abhorrer la Sorcière",
+      "quand": "C'est le vœu choisi, la cible est PSYKER, et l'unité a chargé ce tour ([LANCE])",
+      "texte": "At the start of the first battle round, you can select one Vow listed below. That Vow is active for friendly ADEPTUS ASTARTES units until the end of the battle. Abhor the Witch, Destroy the Witch This unit’s melee attacks that target a PSYKER unit: ▪ Have [PRECISION]. ▪ Have [LANCE]."
+    }
+  ],
+  "STRAT_SIMU": [
+    {
+      "nom": "Avowed Destruction",
+      "detach": "Fist of the God-Emperor",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Crusader Squad"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES]",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Avowed Destruction — Touches Soutenues",
+      "detach": "Fist of the God-Emperor",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Crusader Squad"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] au lieu des Touches Fatales",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Slayers of Abominations",
+      "detach": "Marshal's Household",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Sword Brethren Squad"
+      ],
+      "sauf": [],
+      "aide": "+2 en Force — contre un MONSTRE ou un VÉHICULE seulement",
+      "effet": {
+        "strMod": 2
+      }
+    },
+    {
+      "nom": "Pious Enmity",
+      "detach": "Vow-Sworn Crusaders",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Chaplain",
+        "Chaplain Grimaldus",
+        "Chaplain in Terminator Armour",
+        "Chaplain on Bike",
+        "Chaplain with Jump Pack",
+        "Execrator",
+        "Judiciar"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour toucher",
+      "effet": {
+        "rrH": "ones"
+      }
+    },
+    {
+      "nom": "Pious Enmity — MONSTRE ou VÉHICULE",
+      "detach": "Vow-Sworn Crusaders",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Chaplain",
+        "Chaplain Grimaldus",
+        "Chaplain in Terminator Armour",
+        "Chaplain on Bike",
+        "Chaplain with Jump Pack",
+        "Execrator",
+        "Judiciar"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour toucher et pour blesser — contre un MONSTRE ou un VÉHICULE",
+      "effet": {
+        "rrH": "ones",
+        "rrW": "ones"
+      }
+    },
+    {
+      "nom": "Spoor of the Unholy",
+      "detach": "Vow-Sworn Crusaders",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "ignore les modificateurs de CT/CC et de touche",
+      "effet": {
+        "ignoreMalus": true
+      }
+    }
+  ]
+}
