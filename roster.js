@@ -4354,6 +4354,62 @@ function ouvreFiche(nom){
   openSheet("sheetFiche");
 }
 
+/* ==========================================================
+   L'ECRAN DES FICHES
+   Toutes les unites d'une faction, rangees par categorie, sans
+   avoir a monter une liste pour lire une fiche. La faction se
+   choisit ici sans toucher a la liste ouverte : on bascule le
+   temps du rendu, comme dansSaFaction le fait pour les points.
+   ========================================================== */
+let fxFac = "";
+function renderFiches(){
+  const sel = el("fxFaction"), host = el("fxList");
+  if(!sel || !host) return;
+  if(!fxFac || !FACTIONS[fxFac]) fxFac = R.faction || FACTION_ACTIVE || FACTION_DEFAUT;
+  if(!sel.options.length){
+    listeFactions().slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).forEach(f=>{
+      const o = document.createElement("option");
+      o.value = f.cle; o.textContent = f.nom;
+      sel.appendChild(o);
+    });
+  }
+  sel.value = fxFac;
+  const q = norm(el("fxQ").value.trim());
+  dansSaFaction({faction: fxFac}, ()=>{
+    const retenues = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
+      unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q) ||
+      norm(u[9] || "").includes(q) ||
+      Object.keys(KW).some(k => has(k, u[0]) && norm(k).includes(q)));
+    retenues.sort((x, y) => (x[10] ? 1 : 0) - (y[10] ? 1 : 0) || x[0].localeCompare(y[0], "fr"));
+    const parCat = {};
+    retenues.forEach(u => (parCat[categorie(u[0])] = parCat[categorie(u[0])] || []).push(u));
+    const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+    let h = "";
+    CAT_ORDRE.forEach(cat=>{
+      const lot = parCat[cat];
+      if(!lot || !lot.length) return;
+      h += '<div class="fx-cat"><span>' + cat + '</span><span>' + lot.length + '</span></div><div class="fx-grp">';
+      lot.forEach(u=>{
+        const pmin = ptsPour(u, u[6][0], 1), pmax = ptsPour(u, u[6][u[6].length-1], 1);
+        h += '<button type="button" class="fx-row" data-u="' + esc(u[0]) + '"><span class="n"><b>' + esc(u[0]) + '</b>' +
+          '<span>×' + u[6].join("/") + ' · ' + (pmin === pmax ? pmin + ' pts' : pmin + '–' + pmax + ' pts') +
+          ' · M' + (u[1] || "—") + ' E' + u[2] + ' SV' + u[3] + '+ PV' + u[5] + '</span></span>' +
+          (u[10] ? '<span class="otag">LEGENDS</span>' : '') + '</button>';
+      });
+      h += '</div>';
+    });
+    host.innerHTML = h || '<div class="fx-vide">Aucune unité ne correspond à cette recherche.</div>';
+  });
+}
+if(el("fxFaction")){
+  el("fxFaction").addEventListener("change", e => { fxFac = e.target.value; renderFiches(); });
+  el("fxQ").addEventListener("input", renderFiches);
+  el("fxList").addEventListener("click", e=>{
+    const b = e.target.closest(".fx-row"); if(!b) return;
+    dansSaFaction({faction: fxFac}, ()=> ouvreFiche(b.dataset.u));
+  });
+}
+
 function motsArme(flags){
   const f = parseFlags(flags), k = [];
   if(f.lethal)  k.push("Touches Fatales");
@@ -6189,16 +6245,23 @@ function initDetachSheet(){
    de retour.
    ========================================================== */
 function vaVers(id){
-  el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.s === id));
+  /* le plateau n'a plus d'onglet : il s'ouvre depuis « En partie », qui
+     reste allume tant qu'on y est */
+  const onglet = id === "scMap" ? "scPlay" : id;
+  el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.s === onglet));
   document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("on", sc.id === id));
   window.scrollTo(0,0);
   el("headSum").style.display = (id === "scSim" && el("subAtk").classList.contains("on")) ? "" : "none";
   if(id === "scList") renderList();
   if(id === "scPlay") renderPlay();
+  if(id === "scFiches") renderFiches();
   majRetour();
 }
 el("tabs").querySelectorAll("button").forEach(b=>
   b.addEventListener("click", ()=> vaVers(b.dataset.s)));
+["btnPlateau", "btnMapRetour"].forEach(i=>{
+  if(el(i)) el(i).addEventListener("click", ()=> vaVers(el(i).dataset.s));
+});
 
 /* sous-onglets du simulateur */
 el("simTabs").querySelectorAll("button").forEach(b=>{
