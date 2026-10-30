@@ -669,7 +669,7 @@ const borne1 = v => Math.max(-1, Math.min(1, v));
 function condPour(p){
   if(!atkUnit || !atkUnit.conditions) return [];
   return atkUnit.conditions.filter(c => condOn[c.id] &&
-    (!c.sur || c.sur === p.porteur));
+    (!c.sur || c.sur === p.porteur) && (!c.arme || c.arme === p.label));
 }
 function profilPourMoteur(p){
   const q = Object.assign({}, p, {
@@ -725,7 +725,16 @@ function profilPourMoteur(p){
      en attente et se resout apres la boucle, modificateurs connus. */
   let toutH = false, toutW = false;
   condPour(p).forEach(c=>{
-    if(c.mot) q[c.mot === "sust" ? "sustainedOn" : c.mot] = true;
+    /* « sust » ou « sust:N » : Touches Soutenues N. La forme avec N
+       posait q["sust:1"], que le moteur ne lit pas. */
+    if(c.mot && /^sust(:|$)/.test(c.mot)){
+      const n = c.mot.split(":")[1] || "1";
+      /* une arme deja Soutenue garde son N s'il est meilleur, ou s'il est
+         un de (D3), qu'on ne compare pas a un chiffre */
+      if(!q.sustainedOn || (+q.sustainedN && +n > +q.sustainedN)) q.sustainedN = n;
+      q.sustainedOn = true;
+    }
+    else if(c.mot) q[c.mot] = true;
     else if(c.champ === "critH") { if(c.val === "tous") toutH = true;
                                    else q.critH = Math.min(q.critH, c.val); }
     else if(c.champ === "critW") { if(c.val === "tous") toutW = true;

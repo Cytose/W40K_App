@@ -156,8 +156,13 @@ for (const F of registre) {
         [['APTIS_UNITE', APTIS_UNITE], ['APTIS_COND', APTIS_COND],
          ['APTIS_CIBLE', APTIS_CIBLE], ['AURAS_PERSO', AURAS_PERSO]].forEach(([k, t]) =>
           Object.keys(t || {}).forEach(u => { if (!noms.has(u)) out.push(k + ' → ' + u); }));
+        /* une aura sans source est une règle de détachement (`detach`)
+           ou d'armée (ni l'un ni l'autre) : c'est alors le détachement
+           qui doit exister */
         (AURAS_ARMEE || []).forEach(a => {
-          if (!noms.has(a.source)) out.push('AURAS_ARMEE → ' + a.source);
+          if (a.source && !noms.has(a.source)) out.push('AURAS_ARMEE → ' + a.source);
+          if (!a.source && a.detach && !detach.has(a.detach))
+            out.push('AURAS_ARMEE → détachement ' + a.detach);
         });
         return out;
       })(),

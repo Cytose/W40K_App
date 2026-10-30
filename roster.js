@@ -278,14 +278,31 @@ function supprimeListe(){
    peut pas les deviner : elle les nomme, dit a qui elles s'appliquent,
    et attend que le joueur les declare. Les appliquer d'office ferait
    mentir chaque calcul dans le sens de l'attaquant. */
+/* Une entree d'AURAS_ARMEE vaut-elle pour la liste ouverte ?
+   - `source` : l'aura d'une figurine, qui doit etre dans l'armee ;
+   - `detach` sans source : une regle de detachement, si on l'a retenu ;
+   - ni l'un ni l'autre : une regle d'armee, toujours proposee.
+   Dans les trois cas elle reste a declarer : elle n'est jamais appliquee
+   d'office, sa condition (« si l'unite a charge ») etant un etat de partie. */
+function auraValable(a){
+  if(!R) return false;
+  if(a.source) return R.units.some(x => x.name === a.source ||
+                                        x.chars.some(c => c.name === a.source));
+  if(a.detach) return (R.detach || []).indexOf(a.detach) >= 0;
+  return true;
+}
+function auraCle(a){ return a.source || a.detach || "armee"; }
+
 function conditionsDe(ru, ph){
   const port = (ph === "C") ? "C" : "T";
   const out = [];
   const tbl = (typeof APTIS_COND !== "undefined") ? APTIS_COND : {};
   const ajoute = (fig, a, i)=>{
     if(a.port && a.port !== port) return;
+    /* `arme` suit la condition : sans elle, une aptitude qui ne vaut que
+       pour le canon d'un char s'appliquait a toutes ses armes */
     out.push({ id: fig + "|" + a.nom + "|" + i, sur: fig, nom: a.nom,
-               quand: a.quand, texte: a.texte,
+               quand: a.quand, texte: a.texte, arme: a.arme,
                champ: a.champ, mot: a.mot, val: a.val });
   };
   (tbl[ru.name] || []).forEach((a, i) => ajoute(ru.name, a, i));
@@ -297,9 +314,7 @@ function conditionsDe(ru, ph){
     /* les auras defensives ne retouchent pas les attaques de l'unite
        mais celles qui la visent : elles vivent dans l'onglet Encaisser */
     if(a.sens === "def") return;
-    const presente = R.units.some(x => x.name === a.source ||
-                                       x.chars.some(c => c.name === a.source));
-    if(!presente) return;
+    if(!auraValable(a)) return;
     if(a.port && a.port !== port) return;
     if(a.kw && a.kw.length && !a.kw.some(k => groupeA(ru, k))) return;
     /* certaines auras excluent au lieu d'inclure : la Folie Meurtriere
@@ -307,8 +322,8 @@ function conditionsDe(ru, ph){
        TITANESQUES. Sans cette ligne, un Monolithe recevrait des
        Touches Soutenues qu'il n'a pas. */
     if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
-    out.push({ id: "aura|" + a.source + "|" + i, sur: "", nom: a.nom,
-               quand: a.quand, texte: a.texte,
+    out.push({ id: "aura|" + auraCle(a) + "|" + i, sur: "", nom: a.nom,
+               quand: a.quand, texte: a.texte, arme: a.arme,
                champ: a.champ, mot: a.mot, val: a.val });
   });
 
@@ -1439,6 +1454,10 @@ function weaponProfile(unitName, w, bearers, ru){
       else if(o.champ === "wndMod") p.wndMod = Math.max(-1, Math.min(1, p.wndMod + o.val));
       else if(o.champ === "apMod") p.apMod = (p.apMod || 0) + o.val;
       else if(o.champ === "strMod") p.str = Math.max(1, p.str + o.val);
+      /* le +1 degat des Huit-Enchaines Exaltes passait ici sans rien
+         faire : le profil porte dmgMod et atkMod, le moteur les lit */
+      else if(o.champ === "dmgMod") p.dmgMod = (p.dmgMod || 0) + o.val;
+      else if(o.champ === "atkMod") p.atkMod = (p.atkMod || 0) + o.val;
     });
     /* on garde la trace de qui a donne quoi : un crit 5+ qui apparait
        sans nom ne se verifie pas, et un joueur qui ne peut pas verifier
@@ -1578,11 +1597,10 @@ function defensesDe(ru){
   const armee = (typeof AURAS_ARMEE !== "undefined") ? AURAS_ARMEE : [];
   armee.forEach((a, i)=>{
     if(a.sens !== "def") return;
-    if(!R || !R.units.some(x => x.name === a.source ||
-                                x.chars.some(c => c.name === a.source))) return;
+    if(!auraValable(a)) return;
     if(a.kw && a.kw.length && !a.kw.some(k => groupeA(ru, k))) return;
     if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
-    decl.push({ id:"def|" + a.source + "|" + i, nom:a.nom, source:a.source,
+    decl.push({ id:"def|" + auraCle(a) + "|" + i, nom:a.nom, source:a.source || a.detach || "",
                 quand:a.quand, texte:a.texte, champ:a.champ, val:a.val });
   });
   return { auto:auto, decl:decl };

@@ -333,6 +333,34 @@ T('une unité Legends est signalée non jouable en compétitif', avis,
   v => /Aquila Lander<\/b> : Legends, non jouable en compétitif/.test(v));
 T('une unité ordinaire ne l\'est pas', avis, v => !/Aegis Defence Line/.test(v));
 
+/* ------------------------------------------------------------------
+   LES RÈGLES D'ARMÉE ET DE DÉTACHEMENT À DÉCLARER
+
+   AURAS_ARMEE portait des auras de figurine (`source`). Une règle d'armée
+   ou de détachement conditionnelle — « si l'unité a chargé » — n'a pas de
+   figurine : sans `source`, elle vaut si son `detach` est retenu, et sans
+   l'un ni l'autre, toujours. Elle reste à déclarer, jamais appliquée.
+   ------------------------------------------------------------------ */
+await p.evaluate(() => {
+  localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v:1, actif:'r', listes:[
+    { id:'r', nom:'R', faction:'astra', cap:2000, detach:['Combined Arms'], fd:'', nextId:9,
+      units:[{ id:1, name:'Cadian Shock Troops', size:10, lo:[], chars:[], sel:true, grp:'', enh:null }] }
+  ]}));
+});
+await p.goto(base); await p.waitForTimeout(1100);
+const regles = await p.evaluate(() => {
+  const n = AURAS_ARMEE.length;
+  AURAS_ARMEE.push({ nom:'Essai armée', quand:'toujours', texte:'', champ:'hitMod', val:1 },
+                   { nom:'Essai retenu', detach:'Combined Arms', quand:'', texte:'', champ:'hitMod', val:1 },
+                   { nom:'Essai absent', detach:'Siege Regiment', quand:'', texte:'', champ:'hitMod', val:1 });
+  const c = window.ROSTER.simUnite(1, 'T').conditions.map(x => x.nom);
+  AURAS_ARMEE.length = n;
+  return c;
+});
+T('une règle d\'armée sans source est proposée', regles, v => v.includes('Essai armée'));
+T('une règle du détachement retenu aussi', regles, v => v.includes('Essai retenu'));
+T('pas celle d\'un détachement non retenu', regles, v => !v.includes('Essai absent'));
+
 console.log('\n════ CONFORME ════'); ok.forEach(x => console.log('  ✓ ' + x));
 console.log('\n════ ÉCARTS ════'); console.log(ko.length ? ko.map(x => '  ✗ ' + x).join('\n') : '  (aucun)');
 console.log('\n════ ERREURS JS ════'); console.log(errs.length ? [...new Set(errs)].join('\n') : '  aucune');
