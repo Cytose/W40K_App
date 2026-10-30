@@ -1069,6 +1069,24 @@ const APTIS_UNITE = {
  ]
 };
 const APTIS_COND = {
+ "Sorcerer": [
+  {
+   "psy": true,
+   "champ": "strMod",
+   "val": 3,
+   "nom": "Sorcelleries Tordues — Force",
+   "quand": "Une fois par bataille, au tir ou au combat",
+   "texte": "Once per battle, in your Shooting phase or the Fight phase, this model can use this ability. If it does, until the end of the phase, improve the Strength and Attacks characteristic of Psychic weapons equipped by this model by 3."
+  },
+  {
+   "psy": true,
+   "champ": "atkMod",
+   "val": 3,
+   "nom": "Sorcelleries Tordues — Attaques",
+   "quand": "Une fois par bataille, au tir ou au combat",
+   "texte": "Once per battle, in your Shooting phase or the Fight phase, this model can use this ability. If it does, until the end of the phase, improve the Strength and Attacks characteristic of Psychic weapons equipped by this model by 3."
+  }
+ ],
  "Rubric Marines": [
   {
    "champ": "rrW",
@@ -1177,6 +1195,118 @@ const AURAS_PERSO = {
  ]
 };
 const AURAS_ARMEE = [
+ {
+  "detach": "Grand Coven",
+  "kw": [],
+  "psy": true,
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Maelström Psychique",
+  "quand": "Choisi à ta phase de Commandement (une fois par bataille) — armes psychiques",
+  "texte": "In your Command phase, you can select one of the abilities listed below to take effect until the start of your next Command phase. You can only select each of these abilities once per battle. Psychic Maelstrom: Each time a THOUSAND SONS model from your army makes an attack with a Psychic weapon, add 1 to the Wound roll. Wrath of the Immaterium: Psychic weapons equipped by THOUSAND SONS models from your army have the [devastating wounds] ability."
+ },
+ {
+  "detach": "Grand Coven",
+  "kw": [],
+  "psy": true,
+  "mot": "dev",
+  "nom": "Courroux de l'Immaterium",
+  "quand": "Choisi à ta phase de Commandement (une fois par bataille) — armes psychiques",
+  "texte": "In your Command phase, you can select one of the abilities listed below to take effect until the start of your next Command phase. You can only select each of these abilities once per battle. Psychic Maelstrom: Each time a THOUSAND SONS model from your army makes an attack with a Psychic weapon, add 1 to the Wound roll. Wrath of the Immaterium: Psychic weapons equipped by THOUSAND SONS models from your army have the [devastating wounds] ability."
+ },
+ {
+  "detach": "Grand Coven",
+  "kw": [],
+  "psy": true,
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Devastating Sorcery — touche",
+  "quand": "Stratagème, 2 PC, unité PSYKER — armes psychiques",
+  "texte": "Until the end of the phase, add 9\" to the Range characteristic of Psychic weapons equipped by models in your unit, and each time a model in your unit makes an attack with a Psychic weapon, you can re-roll the Hit roll and you can re-roll the Wound roll."
+ },
+ {
+  "detach": "Grand Coven",
+  "kw": [],
+  "psy": true,
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Devastating Sorcery — blessure",
+  "quand": "Stratagème, 2 PC, unité PSYKER — armes psychiques",
+  "texte": "Until the end of the phase, add 9\" to the Range characteristic of Psychic weapons equipped by models in your unit, and each time a model in your unit makes an attack with a Psychic weapon, you can re-roll the Hit roll and you can re-roll the Wound roll."
+ },
+ {
+  "detach": "Hexwarp Thrallband",
+  "kw": [],
+  "psy": true,
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Flux de Magie — entièrement dedans",
+  "quand": "La figurine est entièrement dans le Flux de Magie — armes psychiques",
+  "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
+ },
+ {
+  "detach": "Warpforged Cabal",
+  "kw": [
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Vindicator",
+   "Defiler",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Maulerfiend",
+   "Sekhetar Robots"
+  ],
+  "champ": "rrH",
+  "val": "un",
+  "nom": "Infusion de Feu Warp — une relance de touche",
+  "quand": "Une seule des trois hors de 6\" d'un PSYKER, les trois à 6\"",
+  "texte": "Each time a Thousand Sons Vehicle unit from your army is selected to shoot or fight, apply one of the following when resolving those attacks: If that VEHICLE unit is within 6\" of one or more friendly Thousand Sons Psyker models, you can re-roll one Hit roll, one Wound roll and one Damage roll. Otherwise, you can re-roll one Hit roll, one Wound roll or one Damage roll."
+ },
+ {
+  "detach": "Warpforged Cabal",
+  "kw": [
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Vindicator",
+   "Defiler",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Maulerfiend",
+   "Sekhetar Robots"
+  ],
+  "champ": "rrW",
+  "val": "un",
+  "nom": "Infusion de Feu Warp — une relance de blessure",
+  "quand": "Une seule des trois hors de 6\" d'un PSYKER, les trois à 6\"",
+  "texte": "Each time a Thousand Sons Vehicle unit from your army is selected to shoot or fight, apply one of the following when resolving those attacks: If that VEHICLE unit is within 6\" of one or more friendly Thousand Sons Psyker models, you can re-roll one Hit roll, one Wound roll and one Damage roll. Otherwise, you can re-roll one Hit roll, one Wound roll or one Damage roll."
+ },
+ {
+  "detach": "Warpforged Cabal",
+  "kw": [
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Vindicator",
+   "Defiler",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Maulerfiend",
+   "Sekhetar Robots"
+  ],
+  "champ": "rrD",
+  "val": "un",
+  "nom": "Infusion de Feu Warp — une relance de dégâts",
+  "quand": "Une seule des trois hors de 6\" d'un PSYKER, les trois à 6\"",
+  "texte": "Each time a Thousand Sons Vehicle unit from your army is selected to shoot or fight, apply one of the following when resolving those attacks: If that VEHICLE unit is within 6\" of one or more friendly Thousand Sons Psyker models, you can re-roll one Hit roll, one Wound roll and one Damage roll. Otherwise, you can re-roll one Hit roll, one Wound roll or one Damage roll."
+ },
  {
   "source": "Sorcerer in Terminator Armour",
   "kw": [],
@@ -1294,7 +1424,18 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
+const OCTROIS_DETACH = {
+ "Hexwarp Thrallband": [
+  {
+   "psy": true,
+   "champ": "rrW",
+   "val": "ones",
+   "kw": [],
+   "nom": "Flux de Magie",
+   "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
+  }
+ ]
+};
 
 enregistreFaction({
   cle : "thousandsons",

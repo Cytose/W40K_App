@@ -192,7 +192,24 @@ const MOTS_CIBLE = [
      jouer. C'est un mot-clé de la cible comme les autres. */
   ["monte", "Monté"],
   ["perso", "Personnage"],
-  ["vol",   "Volant"]
+  ["vol",   "Volant"],
+  /* Ceux-ci manquaient aux factions câblées le 30/10/2026 : l'[ANTI-
+     PSYKER] de Greyfax, le Fléau du Chaos des Chevaliers Gris, les
+     règles contre les DÉMONS, « ni IMPERIUM ni CHAOS » de la Deathwatch,
+     le Stormsurge contre les TITANESQUES, l'Instinct de Nuée, la Terreur
+     Rouge contre les BÊTES, l'Asterius contre les FORTIFICATIONS, et
+     Lucius qui distingue les MARCHEURS des autres VÉHICULES. Le joueur
+     les coche sur la cible ; les archétypes génériques n'en portent
+     aucun. */
+  ["psyker",  "Psyker"],
+  ["chaos",   "Chaos"],
+  ["demon",   "Démon"],
+  ["imperium","Imperium"],
+  ["titan",   "Titanesque"],
+  ["nuee",    "Nuée"],
+  ["bete",    "Bête"],
+  ["fort",    "Fortification"],
+  ["marcheur","Marcheur"]
 ];
 /* Ce que porte chaque archétype générique. Ce sont mes propres
    attributions, pas une source officielle : les archétypes eux-mêmes

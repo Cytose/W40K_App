@@ -303,6 +303,7 @@ function conditionsDe(ru, ph){
        pour le canon d'un char s'appliquait a toutes ses armes */
     out.push({ id: fig + "|" + a.nom + "|" + i, sur: fig, nom: a.nom,
                quand: a.quand, texte: a.texte, arme: a.arme,
+               psy: a.psy, siMot: a.siMot,
                champ: a.champ, mot: a.mot, val: a.val });
   };
   (tbl[ru.name] || []).forEach((a, i) => ajoute(ru.name, a, i));
@@ -323,6 +324,7 @@ function conditionsDe(ru, ph){
        Touches Soutenues qu'il n'a pas. */
     if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
     const cond = { nom: a.nom, quand: a.quand, texte: a.texte, arme: a.arme,
+                   psy: a.psy, siMot: a.siMot,
                    champ: a.champ, mot: a.mot, val: a.val };
     /* `qui: "figurine"` : la regle ne vaut que pour les figurines qui
        portent un des `kw` (« les PERSONNAGES de l'unite »), pas pour
@@ -488,6 +490,10 @@ window.ROSTER = {
          moins bonne l'ameliore. 0 veut dire « aucune ». */
       else if(a.champ === "inv") inv = inv ? Math.min(inv, a.val) : a.val;
     }));
+    /* ce qui protege d'office, hors invulnerable et insensibilite deja
+       lues ci-dessus : -1 pour blesser, degats reduits... (voir
+       defensesDe). Les defenses a declarer restent dans Encaisser. */
+    const dd = cumuleDef({}, defensesDe(ru).auto.filter(a => a.champ !== "inv" && a.champ !== "fnp"));
     /* la Necrodermis et les aptitudes du meme genre retranchent un degat */
     const red = /Necrodermis|Implacable Resilience|Quantum Shielding|-1 D.g.t/i
                   .test(String(u[11] || "")) ? 1 : 0;
@@ -501,7 +507,9 @@ window.ROSTER = {
     return { tough: u[2], sv: u[3], inv: inv, wounds: u[5],
              models: ru.size + ru.chars.length,
              pvPool: pool,
-             fnp: fnp, dmgRed: red };
+             fnp: fnp, dmgRed: Math.max(red, dd.dmgRed),
+             dmgHalf: dd.dmgHalf, defHit: dd.defHit, defWnd: dd.defWnd,
+             defWndFE: dd.defWndFE, svMod: dd.svMod, fnpPsy: dd.fnpPsy };
   },
   /* crochet de verification : le total en points, et le detail unite par
      unite avec le rang de chaque copie */
@@ -1206,7 +1214,7 @@ function octroisArme(ru, porteur, w){
       const ok = o.qui === "figurine"
         ? (!o.kw.length || o.kw.some(k => porteMot(k, fig)))
         : (!o.kw.length || o.kw.some(k => groupeA(ru, k)));
-      if(ok) out.push({ mot:o.mot, champ:o.champ, val:o.val,
+      if(ok) out.push({ psy:o.psy, mot:o.mot, champ:o.champ, val:o.val,
                         nom:o.nom, texte:o.texte, source:nomDetach(dn) });
     });
   });
@@ -1216,7 +1224,8 @@ function octroisArme(ru, porteur, w){
   ru.chars.forEach(c=>{
     (auras[c.name] || []).forEach(a=>{
       if(a.port && a.port !== w[2]) return;
-      out.push({ mot:a.mot, champ:a.champ, val:a.val,
+      if(a.sens === "def") return;
+      out.push({ psy:a.psy, mot:a.mot, champ:a.champ, val:a.val,
                  nom:a.nom, texte:a.texte, source:c.name });
     });
   });
@@ -1228,7 +1237,8 @@ function octroisArme(ru, porteur, w){
   const fiches = (typeof APTIS_UNITE !== "undefined") ? APTIS_UNITE : {};
   (fiches[fig] || []).forEach(a=>{
     if(a.port && a.port !== w[2]) return;
-    out.push({ mot:a.mot, champ:a.champ, val:a.val,
+    if(a.sens === "def") return;
+    out.push({ psy:a.psy, mot:a.mot, champ:a.champ, val:a.val,
                nom:a.nom, texte:a.texte, source:fig });
   });
   /* Et celles dont la condition porte sur la CIBLE. Rien a cocher :
@@ -1245,13 +1255,17 @@ function octroisArme(ru, porteur, w){
        (sauf). Les Destroyers Lourds ont une clause de chaque genre. */
     if(a.vs && !a.vs.some(k => kwC[k])) return;
     if(a.sauf && a.sauf.some(k => kwC[k])) return;
-    out.push({ mot:a.mot, champ:a.champ, val:a.val,
+    out.push({ psy:a.psy, mot:a.mot, champ:a.champ, val:a.val,
                nom:a.nom, texte:a.texte,
                source:(a.source || fig) + " · " +
                       (a.sauf ? "cible ni " + libelleCible(a.sauf).replace(/^cible /, "").replace(" ou ", " ni ")
                               : libelleCible(a.vs)) });
   });
-  return out;
+  /* `psy` : l'octroi ne vaut que pour une arme psychique. Le Grand
+     Coven donne +1 pour blesser aux sorts des Thousand Sons, pas a
+     leurs bolters. */
+  const psychique = !!parseFlags(w[8] || "").psychic;
+  return out.filter(o => !o.psy || psychique);
 }
 /* « Véhicule ou Monstre », pour dire d'ou vient l'octroi */
 function libelleCible(kws){
@@ -1407,7 +1421,7 @@ function tgtFields(){
           fnp:S.fnp, dmgRed:S.dmgRed, cover:S.cover};
 }
 /* « ratés » vaut mieux que « les 1 », qui vaut mieux que rien */
-const RANG_RR = {none:0, ones:1, failed:2};
+const RANG_RR = {none:0, ones:1, deux:2, failed:3};
 const mieuxRr = (a, b) => (RANG_RR[a] || 0) >= (RANG_RR[b] || 0) ? a : b;
 
 function weaponProfile(unitName, w, bearers, ru){
@@ -1431,6 +1445,10 @@ function weaponProfile(unitName, w, bearers, ru){
        joueur doit pouvoir verifier qu'il est bien arrive */
     assault: !!f.assault, heavy: !!f.heavy, pistol: !!f.pistol,
     precision: !!f.precision, oneshot: !!f.oneshot, extra: !!f.extra,
+    /* le genre psychique et la [LANCE] : le catalogue les portait, le
+       moteur les lit depuis le 30/10/2026. ignoreMalus peut arriver par
+       un octroi (le Techmarine). */
+    psychic: !!f.psychic, lance: !!f.lance, ignoreMalus: !!f.ignoreMalus,
     /* Ignore le couvert etait dans le catalogue depuis le debut — six
        armes le portent — mais ne quittait jamais la fiche : le moteur
        accordait le couvert a la cible malgre lui. */
@@ -1463,8 +1481,21 @@ function weaponProfile(unitName, w, bearers, ru){
       /* une relance octroyee ne peut qu'ameliorer celle de l'arme :
          une arme jumelee garde sa relance complete meme si la fiche
          n'offre que les 1 */
+      /* « un » : UNE relance, en plus de la politique de l'arme */
+      else if((o.champ === "rrH" || o.champ === "rrW") && o.val === "un") p[o.champ + "1"] = true;
       else if(o.champ === "rrH") p.rrH = mieuxRr(p.rrH, o.val);
       else if(o.champ === "rrW") p.rrW = mieuxRr(p.rrW, o.val);
+      else if(o.champ === "rrD") p.rrD = (o.val === "tous" || p.rrD === "tous") ? "tous" : o.val;
+      else if(o.champ === "rrA") p.rrA = "tous";
+      else if(o.champ === "toughMod") p.toughMod = (p.toughMod || 0) + o.val;
+      else if(o.champ === "bsMod") p.bsMod = (p.bsMod || 0) + o.val;
+      else if(o.champ === "apCrit") p.apCrit = (p.apCrit || 0) + o.val;
+      else if(o.champ === "anti"){
+        const a = antiDe({anti: o.val});
+        if(antiActif(a, S.kwCible)) p.critW = Math.min(p.critW, a.seuil);
+      }
+      else if(o.champ === "bsSet" || o.champ === "strSet" ||
+              o.champ === "atkSet" || o.champ === "dmgSet") p[o.champ] = o.val;
       else if(o.champ === "hitMod") p.hitMod = Math.max(-1, Math.min(1, p.hitMod + o.val));
       else if(o.champ === "wndMod") p.wndMod = Math.max(-1, Math.min(1, p.wndMod + o.val));
       else if(o.champ === "apMod") p.apMod = (p.apMod || 0) + o.val;
@@ -1600,13 +1631,55 @@ function defCible(){
    proposee et laissee a declarer. L'onglet Attaque lit deja les deux du
    cote de la cible ; sans ceci l'onglet Encaisser repondait autre chose
    sur la meme unite de la meme liste. */
+/* Les champs qu'une defense peut poser. inv, fnp et apMod existaient ;
+   le reste vient du 30/10/2026 (voir engine.js) : -1 pour toucher ou
+   blesser qui l'attaque, -1 seulement si F > E, degats reduits ou
+   divises par deux, armure amelioree, insensibilite au psychique. */
+const CHAMPS_DEF = ["inv","fnp","apMod","dmgRed","dmgHalf","defHit","defWnd",
+                    "defWndFE","svMod","fnpPsy"];
+/* Ce qu'une liste de defenses fait d'un profil de cible. Une meilleure
+   invulnerable ou insensibilite remplace, un malus ou une reduction ne
+   se cumulent pas au-dela de ce que la regle permet : -1 au plus pour
+   toucher et pour blesser, le moteur plafonne ensuite. */
+function cumuleDef(base, liste){
+  const c = Object.assign({ inv:0, fnp:0, apMod:0, dmgRed:0, dmgHalf:0, defHit:0,
+                            defWnd:0, defWndFE:0, svMod:0, fnpPsy:0 }, base);
+  liste.forEach(a=>{
+    const v = a.val;
+    if(a.champ === "inv" || a.champ === "fnp" || a.champ === "fnpPsy")
+      c[a.champ] = c[a.champ] ? Math.min(c[a.champ], v) : v;
+    else if(a.champ === "apMod") c.apMod += v;
+    else if(a.champ === "dmgRed") c.dmgRed = Math.max(c.dmgRed, v);
+    else if(a.champ === "dmgHalf") c.dmgHalf = 1;
+    else if(a.champ === "svMod") c.svMod = Math.max(c.svMod, v);
+    else if(a.champ === "defHit" || a.champ === "defWnd" || a.champ === "defWndFE")
+      c[a.champ] = Math.min(c[a.champ], v === undefined ? -1 : v);
+  });
+  return c;
+}
 function defensesDe(ru){
   const auto = [], decl = [];
   const perso = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
   (ru.chars || []).forEach(c=>{
     (perso[c.name] || []).forEach(a=>{
-      if(a.champ !== "inv" && a.champ !== "fnp") return;
+      /* l'invulnerable et l'insensibilite d'un meneur ont toujours ete des
+         defenses ; une autre aura n'en est une que si elle le dit */
+      if(a.champ !== "inv" && a.champ !== "fnp" &&
+         !(a.sens === "def" && CHAMPS_DEF.indexOf(a.champ) >= 0)) return;
       auto.push({ nom:a.nom, source:c.name, texte:a.texte, champ:a.champ, val:a.val });
+    });
+  });
+  /* L'aptitude de la fiche elle-meme, quand elle protege : l'Ancien
+     Inflexible des Custodes, le Bouclier Praesidium. Elle vaut toujours
+     — c'est la fiche — sauf si elle porte un `quand`, auquel cas elle
+     se declare comme une aura. */
+  const fiches = (typeof APTIS_UNITE !== "undefined") ? APTIS_UNITE : {};
+  [ru.name].concat((ru.chars || []).map(c => c.name)).forEach((nom, n)=>{
+    (fiches[nom] || []).forEach((a, i)=>{
+      if(a.sens !== "def" || CHAMPS_DEF.indexOf(a.champ) < 0) return;
+      const x = { nom:a.nom, source:nom, texte:a.texte, champ:a.champ, val:a.val };
+      if(a.quand) decl.push(Object.assign({ id:"fiche|" + nom + "|" + i, quand:a.quand }, x));
+      else auto.push(x);
     });
   });
   const armee = (typeof AURAS_ARMEE !== "undefined") ? AURAS_ARMEE : [];
@@ -1670,6 +1743,8 @@ function renderDef(){
   };
   prot.auto.forEach(garde);
   prot.decl.forEach(a => { if(defProtOn[a.id]) garde(a); });
+  /* le reste de ce qui protege : tout ce que cumuleDef sait lire */
+  const dDef = cumuleDef({}, prot.auto.concat(prot.decl.filter(a => defProtOn[a.id])));
   const donne = (base, val) => val && val !== base ? ' <em>accordée</em>' : '';
 
   /* une unite mixte n'a pas « un » nombre de PV par figurine : on ecrit
@@ -1735,7 +1810,10 @@ function renderDef(){
     bs: m[2] || 4, str: m[3], ap: m[4], dmg: m[5],
     apMod: dApMod,
     tough: u[2], sv: u[3], inv: dInv, wounds: u[5], pvPool: dPool,
-    models: cible.taille, fnp: dFnp, dmgRed: 0, cover: false,
+    models: cible.taille, fnp: dFnp, dmgRed: dDef.dmgRed, cover: false,
+    dmgHalf: dDef.dmgHalf, defHit: dDef.defHit, defWnd: dDef.defWnd,
+    defWndFE: dDef.defWndFE, svMod: dDef.svMod, fnpPsy: dDef.fnpPsy,
+    psychic: !!f.psychic, lance: !!f.lance,
     torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
     sustainedOn: !!f.sust, sustainedN: f.sust || "1",
     blast: !!f.blast, rapidOn: false, rapidN: 0,
