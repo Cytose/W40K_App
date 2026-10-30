@@ -1315,7 +1315,7 @@ function branche(L, p, bd){
 /* ---------- branchement à la navigation ----------
    vaVers() de roster.js bascule déjà les .screen par leur id ; on
    n'ajoute qu'un rendu au moment où l'axe s'ouvre. */
-const onglet = document.querySelector('#tabs button[data-s="scMap"]');
+const onglet = document.getElementById("btnPlateau");
 if(onglet) onglet.addEventListener("click", renderMap);
 
 /* Les cartes repliables du reste de l'application se replient au clic

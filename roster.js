@@ -4232,91 +4232,182 @@ function motsUtiles(nom){
   return out;
 }
 
+/* La couleur du bandeau de fiche, par faction. Toutes assez sombres pour
+   porter du blanc a 4,5 : 1 au moins ; une faction absente d'ici prend
+   l'ardoise neutre. */
+const COULEUR_FACTION = {
+  aeldari:"#1F5F66", agents:"#3B3F45", astra:"#4E5B31", blacktemplars:"#1E2226",
+  bloodangels:"#7F1D1D", chevaliers:"#2D4C7A", chevalierschaos:"#5A1E1E", csm:"#6B1F24",
+  custodes:"#7F5C10", darkangels:"#1F4A2E", deathguard:"#4F5A27", deathwatch:"#24282C",
+  demons:"#5B2A6E", drukhari:"#3A2F4F", emperorschildren:"#7A2560", greyknights:"#4A5560",
+  gsc:"#4D3A6B", mechanicus:"#8A2A1E", necrons:"#0B5E48", orks:"#3B6421",
+  sororitas:"#7A1E2E", spacemarines:"#1F4E8C", spacewolves:"#3D5C74", tau:"#8A4B12",
+  thousandsons:"#1D5A7A", titanicus:"#6A2A2A", tyranides:"#5E2A6B", votann:"#74461A",
+  worldeaters:"#9B1C1C"
+};
+
 function ouvreFiche(nom){
   const u = unitRow(nom); if(!u) return;
-  el("ficheTitle").textContent = nom;
+  el("ficheTitle").textContent = "Fiche d'unité";
   const host = el("ficheBody");
+  el("sheetFiche").style.setProperty("--fac", COULEUR_FACTION[FACTION_ACTIVE] || "#2A3034");
   const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  let h = "";
+  let h = '<div class="ds">';
 
+  /* le bandeau : nom, puis ce qu'on achete */
   const tailles = u[6], pmin = ptsPour(u, tailles[0], 1),
         pmax = ptsPour(u, tailles[tailles.length-1], 1);
-  h += '<p class="fiche-note">' + categorie(nom) + '  ·  ×' + tailles.join(" / ") +
-       '  ·  ' + (pmin === pmax ? pmin + " pts" : pmin + "–" + pmax + " pts") +
-       (socle(nom) ? '  ·  socle ' + socle(nom) + ' mm' : '') + '</p>';
+  const effectif = tailles.length > 1 ? tailles.join(" ou ") + " figurines" :
+                   tailles[0] + (tailles[0] > 1 ? " figurines" : " figurine");
+  h += '<div class="ds-band"><div class="ds-nom">' + esc(nom) + '</div>' +
+    '<div class="ds-sous">' + esc(factionNom(FACTION_ACTIVE)) + '  ·  ' + categorie(nom) +
+    '  ·  ' + effectif + '  ·  ' + (pmin === pmax ? pmin + " pts" : pmin + " / " + pmax + " pts") +
+    (socle(nom) ? '  ·  socle ' + socle(nom) + ' mm' : '') + '</div></div>';
+
+  /* M E SV PV CD CO, l'ordre des fiches officielles ; l'invulnerable et
+     l'insensible a la douleur sortent de la ligne, comme sur papier */
+  const cel = (v, l) => '<div><i>' + l + '</i><b>' + v + '</b></div>';
+  h += '<div class="ds-stats">' +
+    cel(u[1] ? u[1] + '"' : "—", "M") + cel(u[2], "E") + cel(u[3] + "+", "SV") +
+    cel(u[5], "PV") + cel(u[13] || "—", "CD") + cel(u[12] || 0, "CO") + '</div>';
+  const bouclier = '<svg width="16" height="18" viewBox="0 0 18 20" aria-hidden="true"><path d="M9 1 16 4v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V4Z"/></svg>';
+  const def = [];
+  if(u[4]) def.push('<span class="ds-badge">' + bouclier + 'Invulnérable ' + u[4] + '+</span>');
+  if(u[8]) def.push('<span class="ds-badge">' + bouclier + 'Insensible à la douleur ' + u[8] + '+</span>');
+  h += def.length ? '<div class="ds-def">' + def.join("") + '</div>' :
+                    '<div class="ds-rien">Pas de sauvegarde invulnérable</div>';
+
   /* Prix par palier : le MFM renchérit les copies suivantes, et une fiche
      qui n'annoncerait que la premiere ferait mentir le budget. */
   if(prixEvolue(u)){
-    h += '<p class="fiche-pal"><b>Le prix monte avec le nombre de copies</b>' +
+    h += '<div class="ds-meta"><p class="fiche-pal"><b>Le prix monte avec le nombre de copies</b>' +
       paliersPts(u).map((pl, i, tt)=>{
         const fin = tt[i+1] ? tt[i+1][0] - 1 : 0;
-        const quand = fin === pl[0] ? pl[0] + (pl[0] === 1 ? "\u02b3\u1d49" : "\u1d49") :
-                      fin ? "1\u02b3\u1d49 \u00e0 " + fin + "\u1d49" :
-                      pl[0] + "\u1d49" + " et suivantes";
+        const quand = fin === pl[0] ? pl[0] + (pl[0] === 1 ? "ʳᵉ" : "ᵉ") :
+                      fin ? "1ʳᵉ à " + fin + "ᵉ" :
+                      pl[0] + "ᵉ" + " et suivantes";
         return '<span>' + quand + ' : ' +
-          tailles.map(t => "\u00d7" + t + " " + (pl[1][String(t)] || 0) + " pts").join("  \u00b7  ") +
+          tailles.map(t => "×" + t + " " + (pl[1][String(t)] || 0) + " pts").join("  ·  ") +
           '</span>';
-      }).join("") + '</p>';
+      }).join("") + '</p></div>';
   }
 
-  const cel = (v, l) => '<div><b>' + v + '</b><i>' + l + '</i></div>';
-  h += '<div class="fiche-prof">' +
-    cel(u[1] ? u[1] + '"' : "—", "M") + cel(u[2], "E") +
-    cel(u[3] + "+", "SVG") + cel(u[4] ? u[4] + "++" : "—", "INVU") +
-    cel(u[5], "PV") + cel(u[13] || "—", "CD") + cel(u[12] || 0, "CO") + '</div>';
-
+  /* les armes : l'en-tete du tableau porte le titre, comme sur la fiche */
   const wl = unitWeps(nom);
-  const table = (titre, lot) => {
+  const table = (titre, cc, lot) => {
     if(!lot.length) return "";
-    let t = '<div class="fiche-sec">' + titre + '</div><div class="eqwrap"><table class="arms">' +
-      '<thead><tr><th style="text-align:left">Arme</th><th>Po</th><th>A</th><th>CT</th>' +
-      '<th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
+    let t = '<div class="ds-arm"><table><thead><tr><th>' + titre + '</th><th>Portée</th><th>A</th><th>' +
+      cc + '</th><th>F</th><th>PA</th><th>D</th></tr></thead><tbody>';
     lot.forEach(w => {
       const mots = w[8] ? motsArme(w[8]) : "";
-      t += '<tr><td class="an">' + esc(w[1]) +
-        (mots ? '<span class="n">' + mots + '</span>' : '') + '</td>' +
-        '<td>' + portee(w) + '</td><td>' + w[3] + '</td><td>' + w[4] + '+</td>' +
+      t += '<tr><td>' + esc(w[1]) +
+        (mots ? '<span class="kw">[' + mots.split(" · ").join(", ") + ']</span>' : '') + '</td>' +
+        '<td>' + (w[2] === "C" ? "Mêlée" : portee(w)) + '</td><td>' + w[3] + '</td>' +
+        '<td>' + (w[4] ? w[4] + '+' : 'N/A') + '</td>' +
         '<td>' + w[5] + '</td><td>' + (w[6] ? "-" + w[6] : "0") + '</td><td>' + w[7] + '</td></tr>';
     });
     return t + '</tbody></table></div>';
   };
-  h += table("Tir", wl.filter(w => w[2] === "T"));
-  h += table("Corps à corps", wl.filter(w => w[2] === "C"));
+  h += '<div class="ds-corps"><div class="ds-gauche">';
+  h += table("Armes de tir", "CT", wl.filter(w => w[2] === "T"));
+  h += table("Armes de mêlée", "CC", wl.filter(w => w[2] === "C"));
+  h += '</div><div class="ds-droite">';
 
+  /* les aptitudes : la regle de faction en une ligne, puis celles de l'unite */
   const apts = aptitudesDe(nom);
-  if(apts.length){
-    h += '<div class="fiche-sec">Aptitudes</div>';
-    apts.forEach(a => h += '<div class="fiche-apt"><b>' + esc(a[0]) + '</b><p>' + esc(a[1]) + '</p></div>');
+  const fac = (typeof FACTION !== "undefined" && FACTION.length) ? FACTION : [];
+  if(apts.length || fac.length){
+    h += '<div class="ds-sec">Aptitudes</div><div class="ds-apts">';
+    if(fac.length) h += '<div class="ds-apt"><span class="ds-lbl">Faction :</span> ' +
+      fac.map(f => '<span class="fac">' + esc(f[0]) + '</span>').join(", ") + '</div>';
+    apts.forEach(a => h += '<div class="ds-apt"><b>' + esc(a[0]) + ' :</b> ' + esc(a[1]) + '</div>');
+    h += '</div>';
   }
-  if(u[8]) h += '<div class="fiche-apt"><b>Feel No Pain ' + u[8] + '+</b><p>' +
-    esc(GLOSSAIRE["Feel No Pain"] || "") + '</p></div>';
 
   const tr = transportDe(nom);
-  if(tr) h += '<div class="fiche-sec">Transport</div><div class="fiche-apt"><p>' + esc(tr) + '</p></div>';
+  if(tr) h += '<div class="ds-sec">Transport</div><div class="ds-apts"><div class="ds-apt">' + esc(tr) + '</div></div>';
 
-  if(typeof FACTION !== "undefined" && FACTION.length){
-    h += '<div class="fiche-sec">Règle de faction</div>';
-    FACTION.forEach(f => h += '<div class="fiche-apt"><b>' + esc(f[0]) + '</b><p>' + esc(f[1]) + '</p></div>');
-  }
+  if(u[11]) h += '<div class="ds-sec">Note</div><div class="ds-apts"><div class="ds-apt">' + esc(u[11]) + '</div></div>';
+  h += '</div></div>';
 
+  /* ce que veulent dire les crochets, et le texte de la regle de faction,
+     replies : on les connait, on ne les relit pas a chaque fiche */
+  const glo = motsUtiles(nom);
+  if(fac.length) h += '<details class="ds-glo"><summary>Règle de faction en entier</summary>' +
+    fac.map(f => '<div class="fiche-glo"><b>' + esc(f[0]) + '</b><p>' + esc(f[1]) + '</p></div>').join("") + '</details>';
+  if(glo.length) h += '<details class="ds-glo"><summary>Mots-clés d\'arme expliqués</summary>' +
+    glo.map(k => '<div class="fiche-glo"><b>' + esc(k) + '</b><p>' + esc(GLOSSAIRE[k]) + '</p></div>').join("") + '</details>';
+  if(u[8] && GLOSSAIRE["Feel No Pain"]) h += '<details class="ds-glo"><summary>Insensible à la douleur</summary>' +
+    '<div class="fiche-glo"><p>' + esc(GLOSSAIRE["Feel No Pain"]) + '</p></div></details>';
+
+  /* les mots-cles en pied, comme sur papier */
   const kws = [];
   Object.keys(KW).forEach(k => { if(has(k, nom)) kws.push(k); });
   if(u[9]) kws.unshift(u[9].toLowerCase());
-  if(kws.length) h += '<div class="fiche-sec">Mots-clés</div><div class="fiche-kw">' +
-    kws.map(k => '<span>' + esc(k) + '</span>').join("") + '</div>';
+  const maj = k => k.charAt(0).toUpperCase() + k.slice(1);
+  h += '<div class="ds-pied">' +
+    (kws.length ? '<div><span class="ds-lbl">Mots-clés :</span> <b>' + kws.map(k => esc(maj(k))).join(", ") + '</b></div>' : '') +
+    '<div><span class="ds-lbl">Faction :</span> <b>' + esc(factionNom(FACTION_ACTIVE)) + '</b></div></div>';
 
-  const glo = motsUtiles(nom);
-  if(glo.length){
-    h += '<div class="fiche-sec">Mots-clés d\'arme</div>';
-    glo.forEach(k => h += '<div class="fiche-glo"><b>' + esc(k) + '</b><p>' +
-      esc(GLOSSAIRE[k]) + '</p></div>');
-  }
-
-  if(u[11]) h += '<div class="fiche-sec">Note</div><p class="fiche-note">' + esc(u[11]) + '</p>';
-
-  host.innerHTML = h;
+  host.innerHTML = h + '</div>';
   host.scrollTop = 0;
   openSheet("sheetFiche");
+}
+
+/* ==========================================================
+   L'ECRAN DES FICHES
+   Toutes les unites d'une faction, rangees par categorie, sans
+   avoir a monter une liste pour lire une fiche. La faction se
+   choisit ici sans toucher a la liste ouverte : on bascule le
+   temps du rendu, comme dansSaFaction le fait pour les points.
+   ========================================================== */
+let fxFac = "";
+function renderFiches(){
+  const sel = el("fxFaction"), host = el("fxList");
+  if(!sel || !host) return;
+  if(!fxFac || !FACTIONS[fxFac]) fxFac = R.faction || FACTION_ACTIVE || FACTION_DEFAUT;
+  if(!sel.options.length){
+    listeFactions().slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).forEach(f=>{
+      const o = document.createElement("option");
+      o.value = f.cle; o.textContent = f.nom;
+      sel.appendChild(o);
+    });
+  }
+  sel.value = fxFac;
+  const q = norm(el("fxQ").value.trim());
+  dansSaFaction({faction: fxFac}, ()=>{
+    const retenues = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
+      unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q) ||
+      norm(u[9] || "").includes(q) ||
+      Object.keys(KW).some(k => has(k, u[0]) && norm(k).includes(q)));
+    retenues.sort((x, y) => (x[10] ? 1 : 0) - (y[10] ? 1 : 0) || x[0].localeCompare(y[0], "fr"));
+    const parCat = {};
+    retenues.forEach(u => (parCat[categorie(u[0])] = parCat[categorie(u[0])] || []).push(u));
+    const esc = t => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+    let h = "";
+    CAT_ORDRE.forEach(cat=>{
+      const lot = parCat[cat];
+      if(!lot || !lot.length) return;
+      h += '<div class="fx-cat"><span>' + cat + '</span><span>' + lot.length + '</span></div><div class="fx-grp">';
+      lot.forEach(u=>{
+        const pmin = ptsPour(u, u[6][0], 1), pmax = ptsPour(u, u[6][u[6].length-1], 1);
+        h += '<button type="button" class="fx-row" data-u="' + esc(u[0]) + '"><span class="n"><b>' + esc(u[0]) + '</b>' +
+          '<span>×' + u[6].join("/") + ' · ' + (pmin === pmax ? pmin + ' pts' : pmin + '–' + pmax + ' pts') +
+          ' · M' + (u[1] || "—") + ' E' + u[2] + ' SV' + u[3] + '+ PV' + u[5] + '</span></span>' +
+          (u[10] ? '<span class="otag">LEGENDS</span>' : '') + '</button>';
+      });
+      h += '</div>';
+    });
+    host.innerHTML = h || '<div class="fx-vide">Aucune unité ne correspond à cette recherche.</div>';
+  });
+}
+if(el("fxFaction")){
+  el("fxFaction").addEventListener("change", e => { fxFac = e.target.value; renderFiches(); });
+  el("fxQ").addEventListener("input", renderFiches);
+  el("fxList").addEventListener("click", e=>{
+    const b = e.target.closest(".fx-row"); if(!b) return;
+    dansSaFaction({faction: fxFac}, ()=> ouvreFiche(b.dataset.u));
+  });
 }
 
 function motsArme(flags){
@@ -6154,30 +6245,48 @@ function initDetachSheet(){
    de retour.
    ========================================================== */
 function vaVers(id){
-  el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.s === id));
+  /* le plateau n'a plus d'onglet : il s'ouvre depuis « En partie », qui
+     reste allume tant qu'on y est */
+  const onglet = id === "scMap" ? "scPlay" : id;
+  el("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.s === onglet));
   document.querySelectorAll(".screen").forEach(sc=>sc.classList.toggle("on", sc.id === id));
   window.scrollTo(0,0);
   el("headSum").style.display = (id === "scSim" && el("subAtk").classList.contains("on")) ? "" : "none";
   if(id === "scList") renderList();
   if(id === "scPlay") renderPlay();
+  if(id === "scFiches") renderFiches();
   majRetour();
 }
 el("tabs").querySelectorAll("button").forEach(b=>
   b.addEventListener("click", ()=> vaVers(b.dataset.s)));
-
-/* sous-onglets du simulateur */
-el("simTabs").querySelectorAll("button").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    el("simTabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
-    document.querySelectorAll("#scSim .sub").forEach(v=>v.classList.toggle("on", v.id === b.dataset.v));
-    window.scrollTo(0,0);
-    el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
-    if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
-    if(b.dataset.v === "subGrp"){ syncTarget(); renderGrpList(); }
-    if(b.dataset.v === "subTop"){ syncTarget(); renderTop(); }
-    if(b.dataset.v === "subDef") renderDef();
-  });
+["btnPlateau", "btnMapRetour"].forEach(i=>{
+  if(el(i)) el(i).addEventListener("click", ()=> vaVers(el(i).dataset.s));
 });
+
+/* sous-onglets du simulateur : Attaque, Comparer, Encaisser. Comparer
+   en regroupe trois -- cote a cote, combien il en faut, le palmares --
+   choisis par une rangee de puces juste dessous. */
+const FAMILLE_CMP = ["subCmp", "subGrp", "subTop"];
+let dernierCmp = "subCmp";
+function ouvreSub(v){
+  const cmp = FAMILLE_CMP.indexOf(v) >= 0;
+  if(cmp) dernierCmp = v;
+  el("simTabs").querySelectorAll("button").forEach(x=>
+    x.classList.toggle("on", cmp ? x.dataset.famille === "cmp" : x.dataset.v === v));
+  el("cmpModes").hidden = !cmp;
+  el("cmpModes").querySelectorAll("button").forEach(x=> x.classList.toggle("on", x.dataset.v === v));
+  document.querySelectorAll("#scSim .sub").forEach(x=>x.classList.toggle("on", x.id === v));
+  window.scrollTo(0,0);
+  el("headSum").style.display = (v === "subAtk") ? "" : "none";
+  if(v === "subCmp"){ syncTarget(); renderCmpList(); }
+  if(v === "subGrp"){ syncTarget(); renderGrpList(); }
+  if(v === "subTop"){ syncTarget(); renderTop(); }
+  if(v === "subDef") renderDef();
+}
+el("simTabs").querySelectorAll("button").forEach(b=>
+  b.addEventListener("click", ()=> ouvreSub(b.dataset.famille === "cmp" ? dernierCmp : b.dataset.v)));
+el("cmpModes").querySelectorAll("button").forEach(b=>
+  b.addEventListener("click", ()=> ouvreSub(b.dataset.v)));
 
 /* index <-> editeur */
 function ouvreEditeur(id){

@@ -60,17 +60,17 @@
   --ombre:rgba(22,27,31,.14);
   --voile:rgba(22,27,31,.42);
   --tap:46px; --r:10px;
+  /* les chiffres et titres de fiche : une police etroite du systeme, rien a
+     telecharger -- l'application doit marcher hors ligne */
+  --cond:"Barlow Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif-condensed,Arial,sans-serif;
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:var(--s0);
-  /* Le halo vert et la trame teintaient chaque pixel de la page : c'est ce
-     qui donnait au texte son fond verdatre. La trame reste, en gris et deux
-     fois plus discrete — elle tient l'identite sans peser sur la lecture. */
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='58' viewBox='0 0 34 58'%3E%3Cpath d='M17 0 L34 9.7 L34 29 L17 38.7 L0 29 L0 9.7 Z' fill='none' stroke='%235D656B' stroke-opacity='.045' stroke-width='1'/%3E%3C/svg%3E");
+  /* Fond uni : la trame hexagonale est partie avec la refonte. Une page
+     claire et sans motif, ou seules les fiches portent de la couleur. */
   color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   font-size:15px;line-height:1.45;
@@ -89,12 +89,15 @@ header{
 }
 .hbar{display:flex;align-items:center;gap:10px;padding:9px 12px 7px;max-width:640px;margin:0 auto}
 .mark{flex:0 0 26px;height:26px}
-.logo{font-size:14px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--glow);line-height:1.15}
+.logo{font:700 18px/1.1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--glow);line-height:1.15}
 .logo small{display:block;font-size:9.5px;font-weight:500;letter-spacing:.09em;color:var(--tx3);text-transform:none}
 .hbar .spacer{flex:1}
 /* le retour vit dans l'en-tete collante : il reste sous le pouce ou que
    l'on soit descendu dans la liste, comme Enregistrer */
 .ghost.back{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+/* display:flex l'emportait sur l'attribut hidden : le retour restait
+   affiche sur tous les ecrans */
+.ghost.back[hidden]{display:none}
 /* sur un telephone l'en-tete ne tient pas le nom de l'appli en plus du
    retour : c'est le retour qui compte. Au-dela, les deux tiennent. */
 .hbar.retour .logo{display:none}
@@ -121,19 +124,15 @@ header{
    qui portent, pas la lumiere. */
 .sum.hero .v{color:var(--glow)}
 
-/* ---------- cartes à angles coupés ---------- */
+/* ---------- cartes ---------- */
 .card{
   background:var(--s1);border:1px solid var(--line);margin-top:12px;position:relative;
-  clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  border-radius:10px;
 }
 .card > h2{
-  margin:0;padding:11px 14px 10px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--tx2);display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;
+  margin:0;padding:12px 14px 10px;font:700 14px/1.2 var(--cond);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--tx);display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;
   border-bottom:1px solid var(--line);
-}
-.card > h2::before{
-  content:"";flex:0 0 12px;height:12px;
-  background:linear-gradient(135deg,var(--green) 45%,transparent 45%);
 }
 .card > h2 .chev{margin-left:auto;color:var(--tx3);font-size:11px;transition:transform .18s}
 /* Un reglage d'affichage loge dans l'en-tete d'une carte : la, il ne
@@ -170,7 +169,7 @@ header{
 .chips::-webkit-scrollbar{display:none}
 .chip{
   flex:0 0 auto;min-height:36px;padding:0 13px;border-radius:0;
-  clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
+  border-radius:8px;
   background:var(--s2);border:1px solid var(--line);color:var(--tx2);
   font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;
 }
@@ -199,7 +198,7 @@ input:focus{outline:2px solid var(--glow);outline-offset:-1px}
 .seg{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
 .seg button{
   min-width:40px;height:var(--tap);padding:0 8px;
-  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  border-radius:8px;
   background:var(--s2);border:1px solid var(--line);color:var(--tx2);
   font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;font-family:inherit;cursor:pointer;
 }
@@ -215,7 +214,7 @@ input:focus{outline:2px solid var(--glow);outline-offset:-1px}
 .toggle:first-child{border-top:0}
 .toggle .box{
   flex:0 0 22px;height:22px;border:1.5px solid var(--line);background:var(--s2);
-  clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+  border-radius:8px;
   display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;
 }
 .toggle > input[type=checkbox]{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
@@ -229,7 +228,7 @@ input:focus{outline:2px solid var(--glow);outline-offset:-1px}
 /* ---------- encart profil ---------- */
 .profile{
   margin:10px 0 2px;padding:10px 12px;background:var(--s2);border:1px solid var(--line);
-  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);
+  border-radius:8px;
   font-size:12px;line-height:1.55;color:var(--tx2);
 }
 .profile .stat{font-size:13px;color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
@@ -244,7 +243,7 @@ input:focus{outline:2px solid var(--glow);outline-offset:-1px}
 .fstep{display:flex;align-items:center;gap:10px;padding:7px 0}
 .fstep .fl{flex:0 0 92px;font-size:12.5px;color:var(--tx2)}
 .ftrack{flex:1;height:14px;background:var(--s2);min-width:0;
-  clip-path:polygon(0 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%)}
+  border-radius:8px}
 .fbar{height:100%;background:linear-gradient(90deg,var(--green),var(--glow));transition:width .25s ease}
 .fstep .fv{flex:0 0 64px;text-align:right;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
 .fstep .fv span{font-size:10.5px;font-weight:500;color:var(--tx3);display:block;line-height:1.15}
@@ -257,7 +256,7 @@ svg.chart{display:block;width:100%;height:auto;overflow:visible}
 .gridline{stroke:var(--line);stroke-width:1;opacity:.6}
 .tip{position:fixed;z-index:80;pointer-events:none;opacity:0;transition:opacity .12s;
   background:var(--s3);border:1px solid var(--line-hi);padding:6px 10px;font-size:12px;line-height:1.4;
-  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  border-radius:8px;
   box-shadow:0 8px 24px var(--ombre);white-space:nowrap}
 .tip b{font-variant-numeric:tabular-nums;color:var(--glow)}
 
@@ -272,7 +271,7 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3)
 .kv b{font-variant-numeric:tabular-nums;font-size:14.5px}
 .btn{
   width:100%;min-height:44px;border:1px solid var(--line);background:var(--s2);color:var(--tx2);
-  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);
+  border-radius:8px;
   font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:12px;
 }
 .btn.go{border-color:var(--glow);background:var(--glow-soft);color:var(--glow)}
@@ -297,7 +296,7 @@ input.sheet-search{
 .opt{
   width:100%;text-align:left;display:flex;align-items:center;gap:10px;
   padding:11px 12px;margin-top:6px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  border-radius:8px;
   font-family:inherit;font-size:14.5px;cursor:pointer;
 }
 .opt:active{background:var(--s2)}
@@ -307,20 +306,71 @@ input.sheet-search{
 .opt .o2{display:block;font-size:11.5px;color:var(--tx3);margin-top:2px;font-variant-numeric:tabular-nums}
 .opt .otag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--tx3);
   border:1px solid var(--line);padding:2px 6px}
-/* fiche d'unite : la datasheet, profil, armes, aptitudes, mots-cles */
-.fiche-prof{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--li);
-  border:1px solid var(--li);border-radius:8px;overflow:hidden;margin:6px 0 12px}
-.fiche-prof div{background:var(--s1);padding:7px 2px;text-align:center}
-.fiche-prof b{display:block;font-size:15px;font-weight:800;color:var(--tx1);font-variant-numeric:tabular-nums}
-.fiche-prof i{display:block;font-style:normal;font-size:9px;letter-spacing:.1em;color:var(--tx3);
-  text-transform:uppercase;margin-top:2px}
-.fiche-sec{margin:14px 2px 6px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--glow);font-weight:800}
-.fiche-apt{border-left:2px solid var(--li);padding:2px 0 2px 10px;margin:0 0 10px}
-.fiche-apt b{display:block;font-size:13px;color:var(--tx1);margin-bottom:2px}
-.fiche-apt p{margin:0;font-size:12.5px;line-height:1.5;color:var(--tx2)}
+/* ---------- fiche d'unite ----------
+   L'ordre de lecture est celui des fiches officielles, pour qu'aucun
+   joueur n'ait a reapprendre a lire : nom en bandeau, M E SV PV CD CO
+   dans cet ordre, l'invulnerable a part sous la ligne, armes de tir puis
+   de melee (Portee A CT/CC F PA D, mots-cles d'arme entre crochets),
+   aptitudes Base / Faction / unite, mots-cles en pied. Le visuel, lui,
+   est le notre : un bandeau a la couleur de la faction (--fac, pose par
+   ouvreFiche), tout le reste en blanc. */
+#sheetFiche{--fac:#2A3034}
+#sheetFiche .sheet-list{padding:0 0 calc(20px + env(safe-area-inset-bottom));background:var(--s1)}
+.ds{max-width:920px;margin:0 auto}
+.ds-band{background:var(--fac);color:#FFFFFF;padding:16px 14px 40px}
+.ds-nom{font:700 30px/1.05 var(--cond);letter-spacing:.03em;text-transform:uppercase;font-stretch:condensed}
+.ds-sous{margin-top:6px;font-size:13px;opacity:.92}
+.ds-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:0 12px;margin-top:-28px;max-width:470px}
+.ds-stats div{text-align:center}
+.ds-stats i{display:block;font:600 12px/1 var(--cond);font-style:normal;letter-spacing:.08em;color:#FFFFFF;margin-bottom:4px}
+.ds-stats b{display:block;background:var(--s1);border:2px solid var(--fac);border-radius:6px;padding:8px 0;
+  font:700 22px/1 var(--cond);color:var(--tx);font-variant-numeric:tabular-nums}
+.ds-def{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px 0}
+.ds-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 7px;border:2px solid var(--fac);border-radius:6px;
+  font:700 14px/1.2 var(--cond);letter-spacing:.05em;text-transform:uppercase;color:var(--tx)}
+.ds-badge svg{flex:0 0 auto;fill:var(--fac)}
+.ds-rien{font-size:12px;color:var(--tx3);padding:8px 14px 0}
+.ds-meta{padding:0 14px}
+.ds-sec{margin:16px 0 0;padding:8px 14px;background:#2A3034;color:#FFFFFF;
+  font:700 13px/1 var(--cond);letter-spacing:.1em;text-transform:uppercase}
+.ds-arm{overflow-x:auto}
+.ds-arm table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;table-layout:fixed;min-width:340px}
+/* largeurs fixes : les colonnes du tir et de la melee tombent l'une sous l'autre */
+.ds-arm th:first-child{width:32%}
+.ds-arm th:nth-child(2){width:14%}
+.ds-arm th:last-child{width:14%}
+.ds-arm th{background:#2A3034;color:#FFFFFF;font:600 12px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 4px;text-align:center;white-space:nowrap}
+.ds-arm th:first-child{text-align:left;padding-left:14px;white-space:normal;line-height:1.15}
+.ds-arm td{padding:9px 4px;text-align:center;font-size:15px;font-weight:600;color:var(--tx);border-bottom:1px solid var(--line-soft);white-space:nowrap}
+.ds-arm td:first-child{text-align:left;padding-left:14px;font-size:14px;white-space:normal;min-width:130px}
+.ds-arm td+td,.ds-arm th+th{padding-left:2px;padding-right:2px}
+.ds-arm td:last-child,.ds-arm th:last-child{padding-right:10px}
+.ds-arm tr:nth-child(even) td{background:#F4F6F7}
+.ds-arm .kw{display:block;margin-top:3px;font:600 11.5px/1.3 var(--cond);letter-spacing:.04em;text-transform:uppercase;color:var(--fac)}
+.ds-apts{padding:4px 14px 0}
+.ds-apt{padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:14px;line-height:1.5;color:var(--tx)}
+.ds-apt:last-child{border-bottom:0}
+.ds-apt b{color:var(--tx)}
+.ds-lbl{font:700 13px var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--tx2)}
+.ds-apt .fac{color:var(--fac);font-weight:700}
+.ds-glo summary{cursor:pointer;min-height:44px;display:flex;align-items:center;padding:0 14px;
+  font:700 13px var(--cond);letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);border-top:1px solid var(--line)}
+.ds-glo .fiche-glo{padding:0 14px}
+.ds-pied{margin-top:18px;border-top:3px solid var(--fac);background:#F4F6F7;padding:12px 14px;
+  display:flex;flex-wrap:wrap;gap:6px 28px;font-size:12.5px;line-height:1.45}
+.ds-pied b{color:var(--tx)}
+/* en paysage, comme une fiche imprimee : armes a gauche, aptitudes a droite */
+@media (min-width:860px){
+  .ds-corps{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:0 24px;padding:0 14px}
+  .ds-corps .ds-sec,.ds-corps .ds-arm th:first-child,.ds-corps .ds-arm td:first-child{padding-left:12px}
+  .ds-droite{border-left:1px solid var(--line);padding-left:24px}
+  .ds-droite .ds-apts,.ds-droite .ds-meta{padding-left:0;padding-right:0}
+  .ds-nom{font-size:40px}
+}
 .fiche-kw{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 4px}
 .fiche-kw span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;
-  border:1px solid var(--li);border-radius:99px;color:var(--tx3)}
+  border:1px solid var(--line);border-radius:99px;color:var(--tx3)}
 .pu.tap{cursor:pointer}
 .pu.tap:hover{border-color:var(--glow)}
 .pu.tap>b:after{content:" ⓘ";font-size:10px;color:var(--tx3);font-weight:400}
@@ -575,7 +625,7 @@ pre.listtxt{margin:4px 0 10px;padding:11px 12px;background:var(--s1);border:1px 
 .catbar{display:flex;align-items:center;gap:8px;width:100%;margin:12px 0 2px;padding:8px 10px;
   background:var(--s1);border:1px solid var(--line);color:var(--tx2);font-family:inherit;
   font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+  border-radius:8px}
 .catbar:active{background:var(--s2)}
 .catbar .cchev{flex:0 0 auto;color:var(--glow);font-size:11px;line-height:1}
 .catbar .cnom{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;
@@ -601,19 +651,20 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 /* ---------- sous-onglets d'un axe ---------- */
 .subtabs{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:12px;
   overflow-x:auto;scrollbar-width:none;
-  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+  border-radius:8px}
 .subtabs::-webkit-scrollbar{display:none}
-.subtabs button{flex:1 0 auto;min-width:0;padding:9px 10px;background:var(--s1);border:0;color:var(--tx3);
+.subtabs button{flex:1 0 auto;min-width:0;padding:12px 10px;background:var(--s1);border:0;color:var(--tx3);
   font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap}
 .subtabs button.on{background:var(--glow-soft);color:var(--glow)}
 .sub{display:none}
+#cmpModes{margin-top:10px}
 .sub.on{display:block}
 
 /* ---------- retour vers l'index des listes ---------- */
 .backbar{display:flex;align-items:center;gap:7px;width:100%;margin-top:12px;padding:9px 11px;
   background:var(--s1);border:1px solid var(--line);color:var(--tx2);font-family:inherit;
   font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;
-  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
+  border-radius:8px}
 .backbar .ar{color:var(--glow);font-size:16px;line-height:1}
 .backbar:active{background:var(--s2)}
 /* display:flex l'emportait sur le display:none que [hidden] applique :
@@ -623,7 +674,7 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 /* ---------- repartition des armes ---------- */
 .repart{margin:10px 0 2px;padding:7px 10px;font-size:11.5px;color:var(--tx2);
   background:var(--s2);border:1px solid var(--line);
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+  border-radius:8px}
 .repart b{color:var(--tx);font-variant-numeric:tabular-nums}
 .repart.ok{border-color:var(--acc-bd)}
 .repart.ok b{color:var(--glow)}
@@ -923,7 +974,7 @@ h2 #capCount.on{color:var(--glow)}
   position:relative;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;
   padding:7px 7px 6px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
   font-family:inherit;text-align:left;cursor:pointer;overflow:hidden;
-  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+  border-radius:8px;
 }
 .tile:active{background:var(--s2)}
 .tile .tg{font-size:7.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--glow);
@@ -978,13 +1029,16 @@ h2 #capCount.on{color:var(--glow)}
   .tile{aspect-ratio:auto;min-height:118px}
   .sheet-list,.sheet-head,input.sheet-search,.pickbar,.sheet-tabs{max-width:920px;margin-left:auto;margin-right:auto}
   input.sheet-search{width:calc(100% - 24px)}
+  /* centree par ses marges, une tete de feuille en colonne flex se
+     ratatinait a la largeur de son titre */
+  .sheet-head,.sheet-list{width:100%}
 }
 
 /* ---------- index des listes ---------- */
 .lcard{width:100%;text-align:left;display:flex;align-items:center;gap:11px;margin-top:9px;
   padding:12px;background:var(--s1);border:1px solid var(--line);color:var(--tx);
   font-family:inherit;cursor:pointer;
-  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+  border-radius:8px}
 .lcard:active{background:var(--s2)}
 .lcard.on{border-color:var(--glow)}
 .lcard .li{flex:1;min-width:0}
@@ -1001,12 +1055,12 @@ h2 #capCount.on{color:var(--glow)}
 .lrow .lcard{margin-top:0;flex:1;min-width:0}
 .lmore{flex:0 0 auto;width:42px;background:var(--s1);border:1px solid var(--line);color:var(--tx3);
   font-family:inherit;font-size:19px;font-weight:800;cursor:pointer;line-height:1;
-  clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+  border-radius:8px}
 .lmore:active{background:var(--s2)}
 
 /* ---------- liste en lecture ---------- */
 .pgrp{margin-top:13px;border:1px solid var(--line);background:var(--s1);
-  clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+  border-radius:8px}
 .pgrp h4{margin:0;padding:9px 12px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
   color:var(--glow);font-weight:800;border-bottom:1px solid var(--line)}
 .pgrp .pu{padding:9px 12px;border-top:1px solid var(--line-soft)}
@@ -1022,7 +1076,7 @@ input[type=text]#listName{max-width:none;width:100%;text-align:left;font-size:15
 
 /* ---------- stratagemes ---------- */
 .strat{border:1px solid var(--line);background:var(--s1);margin-top:7px;
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+  border-radius:8px}
 .strat > button{width:100%;display:flex;align-items:center;gap:9px;text-align:left;
   padding:9px 11px;background:transparent;border:0;color:var(--tx);font-family:inherit;
   font-size:13.5px;cursor:pointer}
@@ -1077,7 +1131,29 @@ nav.tabs button{
   font-family:inherit;font-size:9.5px;font-weight:700;letter-spacing:.03em;
   text-transform:uppercase;cursor:pointer;border-top:2px solid transparent;
 }
-nav.tabs button .ti{display:block;font-size:16px;line-height:1.25;margin-bottom:1px}
+nav.tabs button .ti{display:block;margin:0 auto 2px}
+/* l'ecran des fiches : toutes les unites d'une faction, sans passer par une liste */
+.fx-head{position:sticky;top:var(--hautEntete,52px);z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  padding:12px 0 10px;background:var(--s0)}
+.fx-lbl{font:700 13px var(--cond);letter-spacing:.08em;text-transform:uppercase;color:var(--tx2)}
+#fxFaction{flex:1 1 180px;min-height:44px;border:1px solid var(--line-hi);border-radius:8px;background:var(--s1);
+  font:600 15px inherit;font-family:inherit;color:var(--tx);padding:0 10px}
+.fx-q{flex:1 1 100%;min-height:44px;border:1px solid var(--line-hi);border-radius:8px;background:var(--s1);
+  font-size:16px;font-family:inherit;color:var(--tx);padding:0 12px}
+.fx-cat{margin:16px 2px 6px;display:flex;justify-content:space-between;font:700 13px var(--cond);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--tx2)}
+.fx-grp{background:var(--s1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.fx-row{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:8px 14px;border:0;
+  border-top:1px solid var(--line-soft);background:none;text-align:left;font-family:inherit;color:var(--tx);cursor:pointer}
+.fx-row:first-child{border-top:0}
+.fx-row:active{background:var(--s2)}
+.fx-row .n{flex:1;min-width:0}
+.fx-row .n b{display:block;font-size:15px;font-weight:600}
+.fx-row .n span{display:block;font-size:12.5px;color:var(--tx3);margin-top:2px;font-variant-numeric:tabular-nums}
+.fx-row .otag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--tx3);
+  border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.fx-vide{padding:26px 6px;text-align:center;color:var(--tx3);font-size:14px}
+.fx-retour{margin:12px 0 0}
 nav.tabs button.on{color:var(--glow);border-top-color:var(--glow);background:var(--glow-soft)}
 body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 
@@ -1092,7 +1168,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 
 /* ---------- unite de la liste ---------- */
 .runit{background:var(--s1);border:1px solid var(--line);margin-top:10px;padding:11px 12px 12px;
-  clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+  border-radius:8px}
 .runit.sel{border-color:var(--glow)}
 .rhead{display:flex;align-items:flex-start;gap:9px}
 .rhead .rn{flex:1;min-width:0}
@@ -1118,7 +1194,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .membre{flex:1 1 auto;min-width:96px;text-align:left;padding:7px 9px;
   background:var(--s1);border:1px solid var(--line);color:var(--tx2);font-family:inherit;
   cursor:pointer;
-  clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+  border-radius:8px}
 .membre .mn{display:block;font-size:12.5px;font-weight:700;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .membre .ms{display:block;font-size:10px;letter-spacing:.04em;color:var(--tx3);margin-top:2px;
@@ -1129,7 +1205,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 /* ce qu'un personnage apporte a l'unite qu'il mene */
 .aura{margin-top:9px;padding:8px 10px;font-size:11.5px;line-height:1.5;color:var(--tx2);
   background:var(--cyan-bg);border:1px solid var(--cyan-bd);
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+  border-radius:8px}
 .aura b{display:block;color:var(--cyan);font-size:10px;letter-spacing:.08em;
   text-transform:uppercase;margin-bottom:3px}
 .btn.detache{width:100%;margin-top:12px}
@@ -1168,12 +1244,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .addrow button:active{background:var(--s2)}
 .warnbox{margin-top:10px;padding:9px 11px;border:1px solid var(--warn-bd);background:var(--warn-bg);
   font-size:11.5px;line-height:1.5;color:var(--warn-tx2);
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+  border-radius:8px}
 .warnbox b{color:var(--warn-tx)}
 .empty{padding:30px 10px;text-align:center;color:var(--tx3);font-size:13px;line-height:1.6}
 .checkrow{display:flex;align-items:center;gap:10px}
 .cbox{flex:0 0 22px;height:22px;border:1.5px solid var(--line);background:var(--s2);
-  clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+  border-radius:8px;
   display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent}
 .checkrow.on .cbox{background:var(--glow);border-color:var(--glow);color:var(--on-acc)}
 /* ---------- comparateur ---------- */
@@ -1210,7 +1286,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .cmp2 .c2c.b .c2v{color:var(--cyan)}
 .cmp2 .c2v small{font-size:9.5px;font-weight:600;color:var(--tx3);margin-left:2px}
 .cmp2 .c2t{height:10px;background:var(--s2);
-  clip-path:polygon(0 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%)}
+  border-radius:8px}
 .cmp2 .c2f{height:100%;background:linear-gradient(90deg,var(--green),var(--glow))}
 .cmp2 .c2c.b .c2f{background:linear-gradient(90deg,var(--serie2-fonce),var(--serie2))}
 /* combien d'activations il faut : une marche par unité qui tire */
@@ -1232,7 +1308,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 .esc .er.gagne .ek{background:var(--glow-soft);border-color:var(--glow)}
 .esc .er.gagne .ev b{color:var(--glow)}
 .esc .bar{grid-column:1/-1;height:8px;background:var(--s2);margin-top:2px;
-  clip-path:polygon(0 0,100% 0,100% calc(100% - 2px),calc(100% - 2px) 100%,0 100%)}
+  border-radius:8px}
 .esc .bar span{display:block;height:100%;
   background:linear-gradient(90deg,var(--green),var(--glow))}
 /* le palmarès : cent trente-six armes rangées contre une cible */
@@ -1288,7 +1364,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <path d="M16 8 L23 12 L23 20 L16 24 L9 20 L9 12 Z" fill="none" stroke="#0E7A5C" stroke-width="1.2" opacity=".8"/>
       <path d="M16 13 L19 15 L19 18 L16 20 L13 18 L13 15 Z" fill="#0E7A5C"/>
     </svg>
-    <div class="logo">W40K App<small>Nécrons — 40K 11<sup>e</sup> éd.</small></div>
+    <div class="logo">W40K App<small>Warhammer 40 000 — 11<sup>e</sup> éd.</small></div>
     <div class="spacer"></div>
     <button class="ghost back" id="btnBack" type="button" hidden><span class="ar">‹</span><span class="bt">Mes listes</span></button>
     <button class="ghost icon" id="btnFull" type="button" hidden
@@ -1309,10 +1385,15 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </button>
   <div class="subtabs" id="simTabs">
     <button type="button" class="on" data-v="subAtk">Attaque</button>
-    <button type="button" data-v="subCmp">Comparer</button>
-    <button type="button" data-v="subGrp">Combien il en faut</button>
-    <button type="button" data-v="subTop">Palmarès</button>
+    <button type="button" data-v="subCmp" data-famille="cmp">Comparer</button>
     <button type="button" data-v="subDef">Encaisser</button>
+  </div>
+  <!-- les trois facons de comparer : cote a cote, combien il en faut,
+       le palmares de la faction. Elles partagent la meme cible. -->
+  <div class="chips tight" id="cmpModes" hidden>
+    <button type="button" class="chip on" data-v="subCmp">Côte à côte</button>
+    <button type="button" class="chip" data-v="subGrp">Combien il en faut</button>
+    <button type="button" class="chip" data-v="subTop">Palmarès</button>
   </div>
   <div class="sub on" id="subAtk">
 
@@ -1776,6 +1857,10 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <span class="lb1"><span class="lbk">Liste en service</span><span class="lbn" id="lnPlay">—</span></span>
     <span class="lbp" id="lpPlay"></span><span class="lba">›</span>
   </button>
+  <button class="listebar" id="btnPlateau" type="button" data-s="scMap">
+    <span class="lb1"><span class="lbk">La table</span><span class="lbn">Plateau, décors et objectifs</span></span>
+    <span class="lba">›</span>
+  </button>
   <div id="gbar"></div>
   <div class="phasebar" id="gphases"></div>
   <div class="gavance" id="gavance"></div>
@@ -1824,16 +1909,26 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </section>
 </div>
 
+<div class="screen" id="scFiches">
+  <div class="fx-head">
+    <label class="fx-lbl" for="fxFaction">Faction</label>
+    <select id="fxFaction"></select>
+    <input type="search" id="fxQ" class="fx-q" placeholder="Chercher une unité, une arme, un mot-clé" autocomplete="off">
+  </div>
+  <div id="fxList"></div>
+</div>
+
 <div class="screen" id="scMap">
+  <button class="ghost back fx-retour" id="btnMapRetour" type="button" data-s="scPlay"><span class="ar">‹</span><span class="bt">En partie</span></button>
   <div id="mapBody"></div>
 </div>
 </main>
 
 <nav class="tabs" id="tabs">
-  <button type="button" class="on" data-s="scList"><span class="ti">☷</span>Listes</button>
-  <button type="button" data-s="scSim"><span class="ti">◈</span>Simulateur</button>
-  <button type="button" data-s="scPlay"><span class="ti">⚔</span>En partie</button>
-  <button type="button" data-s="scMap"><span class="ti">▦</span>Plateau</button>
+  <button type="button" class="on" data-s="scList"><svg class="ti" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 6h14M4 11h14M4 16h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Listes</button>
+  <button type="button" data-s="scFiches"><svg class="ti" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="4" y="3" width="14" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 8h8M7 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Fiches</button>
+  <button type="button" data-s="scSim"><svg class="ti" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="3.5" width="15" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="14" cy="14" r="1.4" fill="currentColor"/><circle cx="11" cy="11" r="1.4" fill="currentColor"/></svg>Simuler</button>
+  <button type="button" data-s="scPlay"><svg class="ti" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 3v16M4 7l7-4 7 4M4 15l7 4 7-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>En partie</button>
 </nav>
 
 <div class="tip" id="tip"></div>
