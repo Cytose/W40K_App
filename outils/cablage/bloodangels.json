@@ -1,0 +1,319 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — BLOOD ANGELS",
+    "",
+    "Écrit à la main, comme celui des Space Marines dont il hérite (clé",
+    "HERITE) : les fiches et les détachements du Codex que ce chapitre",
+    "reprend sont câblés dans spacemarines.json, une seule fois. Ce",
+    "fichier ne porte que ce qui est PROPRE au chapitre.",
+    "",
+    "Les conventions sont celles de spacemarines.json : [LANCE] câblé en",
+    "+1 pour blesser déclaré, règles de meneur conditionnelles dans",
+    "AURAS_ARMEE avec le meneur pour source, règles de détachement",
+    "conditionnelles dans AURAS_ARMEE avec `detach` et sans source.",
+    "",
+    "LA RAGE NOIRE se lit telle que le catalogue l'écrit : la relance des 1",
+    "en mêlée pour la Compagnie de la Mort du codex, la relance TOTALE pour",
+    "les trois fiches Legends qui portent encore le texte de la 10e.",
+    "",
+    "CE QUI N'EST PAS CÂBLÉ, en plus de ce qu'en dit spacemarines.json :",
+    "· Une Mort Honorable au Combat donne [TOUCHES SOUTENUES 2] sous la",
+    "  moitié de l'effectif : une condition déclarée ne sait poser que",
+    "  « Soutenues 1 ». Seul le premier palier est câblé ;",
+    "· les insensibilités et le -1 aux dégâts de Lemartes : la défense se",
+    "  lit sur la cible ; l'insensibilité 5+ des Prêtres Sanguiniens Legends",
+    "  qui mènent une unité est, elle, comptée d'office (AURAS_PERSO)."
+  ],
+  "HERITE": "spacemarines",
+  "APTIS_UNITE": {
+    "Death Company Captain": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Death Company Captain with Jump Pack": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      },
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Perdu dans la Fureur",
+        "texte": "This unit's melee attacks have [SUSTAINED HITS 1]."
+      }
+    ],
+    "Death Company Dreadnought": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Death Company Dreadnought with Magna-Grapple": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Rage Noire",
+        "texte": "Each time a model in this unit makes an attack, you can re-roll the Hit roll."
+      }
+    ],
+    "Death Company Marines": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Death Company Marines with Boltguns": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Death Company Marines with Boltguns and Jump Packs": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Rage Noire",
+        "texte": "Each time a model in this unit makes an attack, you can re-roll the Hit roll."
+      }
+    ],
+    "Death Company Marines with Jump Packs": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Tycho the Lost": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Rage Noire",
+        "texte": "Each time a model in this unit makes an attack, you can re-roll the Hit roll."
+      }
+    ],
+    "Lemartes": [
+      {
+        "mot": "lethal",
+        "port": "C",
+        "nom": "Fureur Déchaînée",
+        "texte": "This unit's melee attacks have [LETHAL HITS]."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Death Company Captain": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      }
+    ],
+    "Death Company Captain with Jump Pack": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "C",
+        "nom": "Rage Noire",
+        "texte": "This unit's melee attacks can re-roll hit rolls of 1."
+      },
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Perdu dans la Fureur",
+        "texte": "This unit's melee attacks have [SUSTAINED HITS 1]."
+      }
+    ],
+    "Lemartes": [
+      {
+        "mot": "lethal",
+        "port": "C",
+        "nom": "Fureur Déchaînée",
+        "texte": "This unit's melee attacks have [LETHAL HITS]."
+      }
+    ],
+    "Brother Corbulo": [
+      {
+        "champ": "fnp",
+        "val": 5,
+        "nom": "Prêtre Sanguinien",
+        "texte": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability."
+      }
+    ],
+    "Sanguinary Priest with Jump Pack": [
+      {
+        "champ": "fnp",
+        "val": 5,
+        "nom": "Prêtre Sanguinien",
+        "texte": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability"
+      },
+      {
+        "champ": "apMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Calice de Sang",
+        "texte": "While this model is leading a unit, improve the Armour Penetration characteristic of melee weapons equipped by models in that unit by 1."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Blood Angels Captain": [
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Heure de Gloire",
+        "quand": "L'aptitude est déclenchée — une fois par bataille",
+        "texte": "(Once per battle, per unit): In the Fight phase, when this unit is selected to fight, you can use this ability. If you do, this model's melee attacks have: ▪ +3 A ▪ [DEVASTATING WOUNDS]."
+      },
+      {
+        "mot": "dev",
+        "port": "C",
+        "nom": "Heure de Gloire — Blessures Dévastatrices",
+        "quand": "L'aptitude est déclenchée — une fois par bataille",
+        "texte": "(Once per battle, per unit): In the Fight phase, when this unit is selected to fight, you can use this ability. If you do, this model's melee attacks have: ▪ +3 A ▪ [DEVASTATING WOUNDS]."
+      }
+    ],
+    "Death Company Marines": [
+      {
+        "mot": "sust",
+        "nom": "Une Mort Honorable au Combat",
+        "quand": "L'unité est sous son effectif de départ",
+        "texte": "This unit's attacks: - Have [SUSTAINED HITS 1], if this unit is below starting strength. - Or: have [SUSTAINED HITS 2], if this unit is below half-strength."
+      }
+    ],
+    "Death Company Marines with Boltguns": [
+      {
+        "mot": "sust",
+        "nom": "Une Mort Honorable au Combat",
+        "quand": "L'unité est sous son effectif de départ",
+        "texte": "Each time a model in this unit makes an attack, that attack has the [SUSTAINED HITS 1] ability if this unit is below its Starting Strength, or the [SUSTAINED HITS 2] ability if this unit is Below Half-strength."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Astorath",
+      "kw": [
+        "Astorath"
+      ],
+      "nom": "Masse Funeste (Meneur)",
+      "quand": "L'unité est menée par Astorath, et elle a chargé ce tour, contre ni MONSTRE ni VÉHICULE",
+      "texte": "If this unit made a charge move this turn, this unit's melee attacks have [DEVASTATING WOUNDS:non-MONSTER/VEHICLE]",
+      "mot": "dev",
+      "port": "C"
+    },
+    {
+      "source": "Brother Corbulo",
+      "kw": [
+        "Brother Corbulo"
+      ],
+      "nom": "Le Graal Rouge (Meneur)",
+      "quand": "L'unité est menée par Brother Corbulo",
+      "texte": "While this model is leading a unit, add 1 to the Attacks characteristic of melee weapons equipped by models in that unit.",
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C"
+    }
+  ],
+  "OCTROIS_DETACH": {
+    "Angelic Inheritors": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "qui": "unite",
+        "kw": [
+          "character"
+        ],
+        "nom": "L'Héritage de l'Ange",
+        "texte": "Friendly Blood Angels Character units: ▪ Can re-roll hit rolls of 1. ▪ Can re-roll wound rolls of 1."
+      },
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "qui": "unite",
+        "kw": [
+          "character"
+        ],
+        "nom": "L'Héritage de l'Ange",
+        "texte": "Friendly Blood Angels Character units: ▪ Can re-roll hit rolls of 1. ▪ Can re-roll wound rolls of 1."
+      }
+    ]
+  },
+  "STRAT_SIMU": [
+    {
+      "nom": "Focused Fury",
+      "detach": "Angelic Inheritors",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES]",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Focused Fury — PERSONNAGE",
+      "detach": "Angelic Inheritors",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "character"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] et [LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour — l'unité est un PERSONNAGE",
+      "effet": {
+        "lethal": true,
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Strike Now for Glory",
+      "detach": "Angelic Inheritors",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1]",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Death Begets Vengeance",
+      "detach": "Wrath of the Doomed",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "death company"
+      ],
+      "sauf": [],
+      "aide": "+1 pour blesser — contre l'unité haïe, qui a détruit une unité de la Compagnie de la Mort",
+      "effet": {
+        "wndMod": 1
+      }
+    }
+  ]
+}
