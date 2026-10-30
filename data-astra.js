@@ -3683,6 +3683,137 @@ const AURAS_ARMEE = [
   "nom": "Reconnaissance Audacieuse",
   "quand": "La cible est l'unité désignée par les Sentinelles ce tour",
   "texte": "At the start of your Shooting phase, select one enemy unit within 18\" of and visible to this unit. Until the end of the phase, each time a friendly Astra Militarum model makes an attack that targets that unit, re-roll a Hit roll of 1."
+ },
+ {
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Ordre : Baïonnette au Canon !",
+  "quand": "L'unité est sous l'Ordre « Baïonnette au Canon ! »",
+  "texte": "Improve the Weapon Skill characteristic of melee weapons equipped by models in this unit by 1. (Rendu par +1 au jet de touche.)"
+ },
+ {
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Ordre : En Joue !",
+  "quand": "L'unité est sous l'Ordre « En Joue ! »",
+  "texte": "Improve the Ballistic Skill characteristic of ranged weapons equipped by models in this unit by 1. (Rendu par +1 au jet de touche.)"
+ },
+ {
+  "kw": [],
+  "champ": "atkMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Ordre : Premier Rang, Feu ! Second Rang, Feu !",
+  "quand": "L'unité est sous l'Ordre « Premier Rang, Feu ! » — armes [TIR RAPIDE] seulement : décoche les autres profils",
+  "texte": "Improve the Attacks characteristic of Rapid Fire weapons equipped by models in this unit by 1."
+ },
+ {
+  "detach": "Grizzled Company",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Discipline Impitoyable",
+  "quand": "L'unité est sous un Ordre",
+  "texte": "While an ASTRA MILITARUM unit from your army is affected by an Order, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "detach": "Combined Arms",
+  "kw": [
+   "Armoured Sentinels",
+   "Artillery Team",
+   "Attilan Rough Riders",
+   "Cadian Heavy Weapons Squad",
+   "Cadian Recon Squad",
+   "Cadian Shock Troops",
+   "Catachan Heavy Weapons Squad",
+   "Catachan Jungle Fighters",
+   "Death Korps of Krieg",
+   "Death Riders",
+   "Field Ordnance Battery",
+   "Kasrkin",
+   "Krieg Combat Engineers",
+   "Krieg Heavy Weapons Squad",
+   "Scout Sentinels",
+   "Sly Marbo",
+   "Tempestus Aquilons",
+   "Tempestus Scions"
+  ],
+  "mot": "lethal",
+  "port": "T",
+  "nom": "Soldats-Nés — Régiment",
+  "quand": "La cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "Each time a model in a Regiment unit from your army makes a ranged attack that targets a visible unit (excluding MONSTERS and VEHICLES), that attack has the [LETHAL HITS] ability."
+ },
+ {
+  "detach": "Combined Arms",
+  "kw": [
+   "Armoured Sentinels",
+   "Basilisk",
+   "Centaur RSV",
+   "Chimera",
+   "Commissar Graves",
+   "Deathstrike",
+   "Hellhound",
+   "Hippogriff AFV",
+   "Hydra",
+   "Leman Russ Battle Tank",
+   "Leman Russ Commander",
+   "Leman Russ Demolisher",
+   "Leman Russ Eradicator",
+   "Leman Russ Executioner",
+   "Leman Russ Exterminator",
+   "Leman Russ Punisher",
+   "Leman Russ Vanquisher",
+   "Manticore",
+   "Rogal Dorn Battle Tank",
+   "Rogal Dorn Commander",
+   "Scout Sentinels",
+   "Taurox",
+   "Taurox Prime",
+   "Wyvern"
+  ],
+  "mot": "lethal",
+  "port": "T",
+  "nom": "Soldats-Nés — Escadron",
+  "quand": "La cible est un MONSTRE ou un VÉHICULE",
+  "texte": "Each time a model in a Squadron unit from your army makes a ranged attack that targets a visible MONSTER or VEHICLE unit, that attack has the [LETHAL HITS] ability."
+ },
+ {
+  "detach": "Mechanised Assault",
+  "kw": [],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Poing Blindé",
+  "quand": "L'unité a débarqué d'un TRANSPORT ce tour",
+  "texte": "Each time an ASTRA MILITARUM model from your army makes a ranged attack in a turn in which it disembarked from a Transport, add 1 to the Wound roll."
+ },
+ {
+  "detach": "Bridgehead Strike",
+  "kw": [
+   "Militarum Tempestus Command Squad",
+   "Tempestus Aquilons",
+   "Tempestus Scions"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Purge de la Zone de Feu",
+  "quand": "L'unité a été placée ce tour, et ton Seigneur de Guerre est un OFFICIER MILITARUM TEMPESTUS",
+  "texte": "When a friendly MILITARUM TEMPESTUS unit is selected to shoot, if that unit was set up this turn, that unit’s ranged attacks have +1 to hit rolls."
+ },
+ {
+  "detach": "Siege Regiment",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Bombardement Incendiaire",
+  "quand": "Ce soutien est choisi ce round, et la cible est dispersée",
+  "texte": "Until the end of the battle round, those enemy units are scattered. While a unit is scattered, it cannot have the Benefit of Cover."
  }
 ];
 const STRAT_SIMU = [

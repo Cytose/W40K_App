@@ -1005,11 +1005,473 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Brother-Captain": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Œil du Jugement (Psychique)",
+   "texte": "Each time this model makes an attack, you can re-roll the Wound roll."
+  }
+ ],
+ "Purifier Squad": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Sainteté du Dessein",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Wound roll of 1."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Purifier Squad": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Sainteté du Dessein — objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "If the target is within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Grand Master": [
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Puissance de Titan (Psychique)",
+   "quand": "Déclenchée ce tour — une fois par bataille",
+   "texte": "Once per battle, at the start of the Fight phase: add 3 to the Attacks characteristic of melee weapons equipped by this model."
+  },
+  {
+   "champ": "strMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Puissance de Titan — la Force",
+   "quand": "Déclenchée ce tour — une fois par bataille",
+   "texte": "... and add 3 to the Strength characteristic."
+  }
+ ],
+ "Paladin Squad": [
+  {
+   "champ": "dmgMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Assaut Accordé (Psychique)",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time this unit makes a Charge move, until the end of the turn, add 1 to the Damage characteristic of melee weapons equipped by Paladin Squad models in this unit."
+  }
+ ],
+ "Brotherhood Champion": [
+  {
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Exemple Inspirant",
+   "quand": "Le Champion a déjà détruit un PERSONNAGE au Combat (+1 par personnage : cocher une fois)",
+   "texte": "Each time this model destroys a Character model in the Fight phase, until the end of the battle, add 1 to the Attacks characteristic of its Nemesis force weapon."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Castellan Crowe": [
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Prescience (Psychique)",
+   "texte": "Each time this model makes an attack that targets a Character unit, you can re-roll the Hit roll."
+  }
+ ],
+ "Grand Master in Nemesis Dreadknight": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Vague de Courroux (Psychique)",
+   "texte": "Each time this model makes a melee attack that targets a Monster or Vehicle unit, you can re-roll the Hit roll."
+  },
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Vague de Courroux (Psychique)",
+   "texte": "... you can re-roll the Wound roll (and the Damage roll, which is not simulated)."
+  }
+ ],
+ "Stormhawk Interceptor": [
+  {
+   "vs": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Intercepteur",
+   "texte": "Each time this model makes a ranged attack that targets a unit that can Fly, add 1 to the Hit roll."
+  }
+ ],
+ "Stormtalon Gunship": [
+  {
+   "sauf": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Mitraillage",
+   "texte": "Each time this model makes a ranged attack that targets a unit that cannot Fly, add 1 to the Hit roll."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Brother-Captain": [
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Main de Fer (Psychique)",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [LETHAL HITS] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "detach": "Warpbane Task Force",
+  "kw": [],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Terre Consacrée — entièrement dedans",
+  "quand": "L'unité est entièrement dans ta Terre Consacrée",
+  "texte": "If that unit is wholly within your army’s Hallowed Ground, you can re-roll the Hit roll instead."
+ },
+ {
+  "detach": "Argent Assault",
+  "kw": [
+   "Paladin Squad"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Champions Intrépides",
+  "quand": "La Force de l'attaque est inférieure à l'Endurance de la cible",
+  "texte": "When a friendly PALADIN SQUAD unit is selected to fight, if the S of those attacks is lower than the T of the target, those attacks have +1 to wound rolls."
+ },
+ {
+  "detach": "Banishers",
+  "kw": [],
+  "mot": "sust",
+  "port": "C",
+  "nom": "Force Canalisée — Touches Soutenues",
+  "quand": "Test de Commandement réussi, ce choix retenu — armes [PSYCHIQUE] seulement",
+  "texte": "If that Leadership test is passed: melee weapons with the [psychic] ability also have the [sustained hits 1] ability."
+ },
+ {
+  "detach": "Banishers",
+  "kw": [],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Force Canalisée — Touches Fatales",
+  "quand": "Test de Commandement réussi, ce choix retenu — armes [PSYCHIQUE] seulement",
+  "texte": "If that Leadership test is passed: melee weapons with the [psychic] ability also have the [LETHAL HITS] ability."
+ },
+ {
+  "detach": "Brotherhood Strike",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Fureur de Titan",
+  "quand": "L'unité est arrivée en Frappe en Profondeur ce tour",
+  "texte": "Each time a unit from your army is set up using the Deep Strike ability, until the end of the turn, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "detach": "Brotherhood Strike",
+  "kw": [],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Fureur de Titan",
+  "quand": "L'unité est arrivée en Frappe en Profondeur ce tour",
+  "texte": "... and re-roll a Wound roll of 1."
+ },
+ {
+  "source": "Brotherhood Techmarine",
+  "kw": [
+   "Grand Master in Nemesis Dreadknight",
+   "Grey Knights Thunderhawk Gunship",
+   "Land Raider",
+   "Land Raider Crusader",
+   "Land Raider Redeemer",
+   "Nemesis Dreadknight",
+   "Razorback",
+   "Rhino",
+   "Stormhawk Interceptor",
+   "Stormraven Gunship",
+   "Stormtalon Gunship",
+   "Venerable Dreadnought"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Bénédiction de l'Omnimessie",
+  "quand": "Le VÉHICULE a été béni par le Techmarine à ta phase de Commandement",
+  "texte": "Until the start of your next Command phase, each time that Vehicle model makes an attack, add 1 to the Hit roll."
+ },
+ {
+  "source": "Venerable Dreadnought",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Guidance des Anciens (Psychique)",
+  "quand": "La cible a été touchée par le Venerable Dreadnought cette phase",
+  "texte": "Each time a Grey Knights model from your army makes an attack which targets that unit, add 1 to the Hit roll."
+ },
+ {
+  "source": "Razorback",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "nom": "Concentration du Feu",
+  "quand": "L'unité a débarqué du Razorback ce tour, et la cible a été touchée par lui",
+  "texte": "Each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1."
+ }
+];
+const OCTROIS_DETACH = {
+ "Warpbane Task Force": [
+  {
+   "qui": "unite",
+   "kw": [],
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Terre Consacrée",
+   "texte": "Each time a model in a GREY KNIGHTS unit from your army makes a ranged attack that targets a visible target or makes a melee attack, re-roll a Hit roll of 1."
+  },
+  {
+   "qui": "unite",
+   "kw": [
+    "Purifier Squad"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Terre Consacrée — Purificateurs",
+   "texte": "If that unit is a PURIFIER SQUAD, you can re-roll the Hit roll instead."
+  }
+ ]
+};
+const STRAT_SIMU = [
+ {
+  "nom": "Aggressive Anticipation",
+  "detach": "Augurium Task Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Brother-Captain",
+   "Brotherhood Champion",
+   "Brotherhood Chaplain",
+   "Brotherhood Librarian",
+   "Brotherhood Techmarine",
+   "Brotherhood Terminator Squad",
+   "Castellan Crowe",
+   "Grand Master",
+   "Grand Master Voldus",
+   "Grand Master in Nemesis Dreadknight",
+   "Interceptor Squad",
+   "Nemesis Dreadknight",
+   "Paladin Squad",
+   "Purgation Squad",
+   "Purifier Squad",
+   "Strike Squad",
+   "Venerable Dreadnought"
+  ],
+  "sauf": [],
+  "aide": "relance des touches",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Appointed Hour",
+  "detach": "Augurium Task Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Brother-Captain",
+   "Brotherhood Champion",
+   "Brotherhood Chaplain",
+   "Brotherhood Librarian",
+   "Brotherhood Techmarine",
+   "Brotherhood Terminator Squad",
+   "Castellan Crowe",
+   "Grand Master",
+   "Grand Master Voldus",
+   "Grand Master in Nemesis Dreadknight",
+   "Interceptor Squad",
+   "Nemesis Dreadknight",
+   "Paladin Squad",
+   "Purgation Squad",
+   "Purifier Squad",
+   "Strike Squad",
+   "Venerable Dreadnought"
+  ],
+  "sauf": [],
+  "aide": "touches critiques sur 5+",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Chaos Bane",
+  "detach": "Banishers",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Brother-Captain",
+   "Brotherhood Champion",
+   "Brotherhood Chaplain",
+   "Brotherhood Librarian",
+   "Brotherhood Techmarine",
+   "Brotherhood Terminator Squad",
+   "Castellan Crowe",
+   "Grand Master",
+   "Grand Master Voldus",
+   "Grand Master in Nemesis Dreadknight",
+   "Interceptor Squad",
+   "Nemesis Dreadknight",
+   "Paladin Squad",
+   "Purgation Squad",
+   "Purifier Squad",
+   "Strike Squad",
+   "Venerable Dreadnought"
+  ],
+  "sauf": [],
+  "aide": "[ANTI-CHAOS 4+] : blessures critiques sur 4+ — contre une unité du CHAOS seulement",
+  "effet": {
+   "critW": 4
+  }
+ },
+ {
+  "nom": "Purgation Pattern",
+  "detach": "Brotherhood Strike",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] — l'unité est arrivée en Frappe en Profondeur ce tour",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Truesilver Channelling",
+  "detach": "Brotherhood Strike",
+  "pc": 2,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[BLESSURES DÉVASTATRICES] — armes [PSYCHIQUE] seulement",
+  "effet": {
+   "dev": true
+  }
+ },
+ {
+  "nom": "Focused Immolation",
+  "detach": "Fires of Purgation",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Purgation Squad"
+  ],
+  "sauf": [],
+  "aide": "[BLESSURES DÉVASTATRICES] et [TOUCHES SOUTENUES 1] contre l'unité désignée",
+  "effet": {
+   "dev": true,
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Giants of the Battlefield",
+  "detach": "Hallowed Conclave",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Brother-Captain",
+   "Brotherhood Chaplain",
+   "Brotherhood Librarian",
+   "Brotherhood Terminator Squad",
+   "Grand Master",
+   "Grand Master Voldus",
+   "Paladin Squad"
+  ],
+  "sauf": [],
+  "aide": "+1 attaque en mêlée",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Blades from the Beyond",
+  "detach": "Immaterial Interdiction",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Interceptor Squad"
+  ],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité ayant chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Abominus-Class Targets",
+  "detach": "Sanctic Spearhead",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour blesser — contre MONSTRE ou VÉHICULE",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Sanctified Kill Zone",
+  "detach": "Warpbane Task Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des 1 pour blesser — l'unité est entièrement dans la Terre Consacrée",
+  "effet": {
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Sanctified Kill Zone — Purificateurs",
+  "detach": "Warpbane Task Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Purifier Squad"
+  ],
+  "sauf": [],
+  "aide": "relance des blessures — Purificateurs entièrement dans la Terre Consacrée",
+  "effet": {
+   "rrW": "failed"
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -1017,11 +1479,6 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "greyknights",

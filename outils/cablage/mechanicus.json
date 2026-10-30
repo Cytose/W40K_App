@@ -1,0 +1,958 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — ADEPTUS MECHANICUS",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-mechanicus.js, qui est",
+    "réécrit à chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "LA RÈGLE D'ARMÉE. Les Doctrina Imperatives se choisissent par round :",
+    "trois conditions déclarées, sans `source` ni `detach`, limitées aux",
+    "fiches qui portent l'aptitude. « Améliorer la CT/CC de 1 » est rendu",
+    "par +1 au jet de touche — identique tant qu'aucun autre modificateur ne",
+    "joue, et prudent sinon. [LOURD] de l'Impératif Protecteur n'est pas",
+    "repris : son +1 suit la case « immobile » de l'écran, qu'une condition",
+    "ne peut pas poser. Le -1 pour toucher défensif du Protecteur non plus.",
+    "",
+    "CE QUI RESTE DEHORS. Haloscreed Battle Clade (Endurance, Discrétion),",
+    "Rad-Zone Corps (blessures mortelles), Cohort Cybernetica et Acquisitus",
+    "(mouvement, CO). Les -1 pour blesser défensifs (Electro-Infusion,",
+    "Baleful Halo). Les relances de DÉGÂTS (Threat-Cogitation Targeters).",
+    "« Auto-Divinatory Targeting » fixe la CT à 3+ : ce n'est pas un",
+    "modificateur, il dépend de la CT de départ de chaque arme.",
+    "",
+    "STRAT_SIMU : dix-huit pastilles. « Unshackled Wrath » en fait trois —",
+    "Soutenues, Fatales, ou les deux avec [DANGEREUX], qu'on ne simule pas."
+  ],
+  "APTIS_UNITE": {
+    "Kataphron Breachers": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Commandement de Brèche",
+        "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Kataphron Breachers": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Commandement de Brèche — Ligne",
+        "quand": "L'unité est à 6\" d'une unité de LIGNE amie",
+        "texte": "While this unit is within 6\" of one or more friendly Adeptus Mechanicus Battleline units, you can re-roll the Hit roll instead."
+      }
+    ],
+    "Pteraxii Sterylizors": [
+      {
+        "arme": "Phosphor torch",
+        "champ": "rrW",
+        "val": "ones",
+        "port": "T",
+        "nom": "Conflagration Brûlante",
+        "quand": "La cible est à portée d'un pion d'objectif",
+        "texte": "Each time a model in this unit makes an attack with a phosphor torch that targets an enemy unit within range of an objective marker, re-roll a Wound roll of 1."
+      },
+      {
+        "arme": "Phosphor torch",
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Conflagration Brûlante — Ligne",
+        "quand": "Cible sur objectif, et l'unité à 6\" d'une unité de LIGNE amie",
+        "texte": "If this unit is also within 6\" of one or more friendly Adeptus Mechanicus Battleline units, you can re-roll the Wound roll instead."
+      }
+    ],
+    "Sydonian Dragoons with radium jezzails": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Chasseurs Concentrés",
+        "quand": "La cible est l'unité désignée en début de bataille",
+        "texte": "Each time a model in this unit makes an attack that targets that unit, you can re-roll the Hit roll."
+      }
+    ],
+    "Kastelan Robots": [
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "T",
+        "nom": "Protocole Protecteur",
+        "quand": "Menés par un Cybernetica Datasmith, en Protocole Protecteur",
+        "texte": "Add 2 to the Attacks characteristic of ranged weapons equipped by Kastelan Robot models in that unit."
+      },
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "C",
+        "nom": "Protocole Conquérant",
+        "quand": "Menés par un Cybernetica Datasmith, en Protocole Conquérant",
+        "texte": "Add 2 to the Attacks characteristic of melee weapons equipped by Kastelan Robot models in that unit."
+      }
+    ],
+    "Tech-Priest Enginseer": [
+      {
+        "arme": "Omnissian axe",
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Vengeance pour l'Omnimessie",
+        "quand": "Un VÉHICULE ami a été détruit à 12\" (hache A 3 → 6)",
+        "texte": "If a friendly Adeptus Mechanicus Vehicle model is destroyed within 12\" of this model, this model’s Omnissian axe has an Attacks characteristic of 6."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Archaeopter Stratoraptor": [
+      {
+        "sauf": [
+          "vol"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Mitraillage",
+        "texte": "Each time this model makes a ranged attack that targets an enemy unit (excluding units that can Fly), add 1 to the Hit roll."
+      }
+    ],
+    "Skorpius Disintegrator": [
+      {
+        "vs": [
+          "inf"
+        ],
+        "arme": "Belleros energy cannon",
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Salves Brûlantes",
+        "texte": "Each time this model makes an attack with a belleros energy cannon that targets an Infantry unit, add 1 to the Hit roll."
+      },
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "arme": "Ferrumite cannon",
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Salves Brûlantes",
+        "texte": "Each time this model makes an attack with a ferrumite cannon that targets a Monster or Vehicle unit, add 1 to the Hit roll."
+      }
+    ],
+    "Sydonian Skatros": [
+      {
+        "vs": [
+          "inf"
+        ],
+        "arme": "Radium Jezzail",
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Œil Achilléen",
+        "texte": "Each time this model makes an attack with a radium jezzail that targets an Infantry unit, you can re-roll the Wound roll."
+      },
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "arme": "Skatros transuranic arquebus",
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Œil Achilléen",
+        "texte": "Each time this model makes an attack with a Skatros transuranic arquebus that targets a Monster or Vehicle unit, you can re-roll the Wound roll."
+      }
+    ],
+    "Hastarii Exterminators": [
+      {
+        "sauf": [
+          "mon",
+          "veh"
+        ],
+        "arme": "➤ Eradication caster - dissipated",
+        "mot": "sust:1",
+        "port": "T",
+        "nom": "Augures de Ciblage Large Spectre",
+        "texte": "Each time a model in this unit makes an attack with an eradication caster that targets a unit (excluding Monster and Vehicle units), that attack has the [SUSTAINED HITS 1] ability."
+      },
+      {
+        "sauf": [
+          "mon",
+          "veh"
+        ],
+        "arme": "➤ Eradication caster - focused",
+        "mot": "sust:1",
+        "port": "T",
+        "nom": "Augures de Ciblage Large Spectre",
+        "texte": "Each time a model in this unit makes an attack with an eradication caster that targets a unit (excluding Monster and Vehicle units), that attack has the [SUSTAINED HITS 1] ability."
+      }
+    ],
+    "Hastarii Fusiliers": [
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "arme": "Neutron fusil",
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Casques de Visée Monoculaires",
+        "texte": "Each time a model in this unit makes an attack with a neutron fusil against a Monster or Vehicle unit, that attack has the [IGNORES COVER] ability."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Skitarii Marshal": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Édit de Contrôle",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, you can re-roll the Hit roll."
+      }
+    ],
+    "Tech-Priest Manipulus": [
+      {
+        "mot": "lethal",
+        "nom": "Champ Galvanique",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [Lethal Hits] ability."
+      }
+    ],
+    "Tech-Priest Dominus": [
+      {
+        "champ": "fnp",
+        "val": 5,
+        "nom": "Seigneur du Culte des Machines",
+        "texte": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability (4+ for Electro-Priests)."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "kw": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Cybernetica Datasmith",
+        "Fulgurite Electro-Priests",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Kastelan Robots",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Servitor Battleclade",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Impératif Protecteur",
+      "quand": "L'Impératif Protecteur est actif ce round",
+      "texte": "Improve the Ballistic Skill characteristic of ranged weapons equipped by models in this unit by 1. (Rendu par +1 au jet de touche ; [LOURD] n'est pas repris.)"
+    },
+    {
+      "kw": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Cybernetica Datasmith",
+        "Fulgurite Electro-Priests",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Kastelan Robots",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Servitor Battleclade",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Impératif Conquérant",
+      "quand": "L'Impératif Conquérant est actif ce round",
+      "texte": "Improve the Weapon Skill characteristic of melee weapons equipped by models in this unit by 1. (Rendu par +1 au jet de touche.)"
+    },
+    {
+      "kw": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Cybernetica Datasmith",
+        "Fulgurite Electro-Priests",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Kastelan Robots",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Servitor Battleclade",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "champ": "apMod",
+      "val": 1,
+      "nom": "Impératif Conquérant — Ligne",
+      "quand": "L'Impératif Conquérant est actif, et l'unité est de LIGNE ou à 6\" d'une unité de LIGNE amie",
+      "texte": "Each time a model in this unit makes an attack, if this unit has the BATTLELINE keyword and/or it is within 6\" of one or more friendly ADEPTUS MECHANICUS BATTLELINE units, improve the Armour Penetration characteristic of that attack by 1."
+    },
+    {
+      "detach": "Data-Psalm Conclave",
+      "kw": [
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Fulgurite Electro-Priests",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Servitor Battleclade",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "champ": "apMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Procession Panégyrique",
+      "quand": "Bénédiction choisie en début de bataille, et la cible est à mi-portée",
+      "texte": "Each time a CULT MECHANICUS model from your army makes a ranged attack that targets a unit within half range, improve the Armour Penetration characteristic of that attack by 1."
+    },
+    {
+      "detach": "Data-Psalm Conclave",
+      "kw": [
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Fulgurite Electro-Priests",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Servitor Battleclade",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Citation en Sauvagerie",
+      "quand": "Bénédiction choisie en début de bataille, et l'unité a chargé ce tour",
+      "texte": "If that unit made a Charge move this turn, add 1 to the Attacks characteristic of melee weapons equipped by models in that unit."
+    },
+    {
+      "detach": "Data-Psalm Conclave",
+      "kw": [
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Fulgurite Electro-Priests",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Servitor Battleclade",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "champ": "strMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Citation en Sauvagerie — la Force",
+      "quand": "Bénédiction choisie en début de bataille, et l'unité a chargé ce tour",
+      "texte": "... and add 1 to the Strength characteristic."
+    },
+    {
+      "detach": "Eradication Cohort",
+      "kw": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "champ": "rrH",
+      "val": "ones",
+      "nom": "Impératif Meurtrier — Protecteur",
+      "quand": "L'Impératif Protecteur est actif",
+      "texte": "If the Protector Imperative is active for that unit, re-roll a Hit roll of 1."
+    },
+    {
+      "detach": "Eradication Cohort",
+      "kw": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "champ": "rrW",
+      "val": "ones",
+      "nom": "Impératif Meurtrier — Conquérant",
+      "quand": "L'Impératif Conquérant est actif",
+      "texte": "If the Conqueror Imperative is active for that unit, re-roll a Wound roll of 1."
+    },
+    {
+      "detach": "Explorator Maniple",
+      "kw": [],
+      "champ": "rrW",
+      "val": "ones",
+      "nom": "L'Acquisition à Tout Prix",
+      "quand": "L'unité ou la cible est à portée de l'objectif d'Acquisition",
+      "texte": "If that model’s unit is within range of your Acquisition objective marker, or if the target of that attack is, re-roll a Wound roll of 1."
+    },
+    {
+      "detach": "Lords of the Forge",
+      "kw": [
+        "Belisarius Cawl",
+        "Cybernetica Datasmith",
+        "Servitor Battleclade",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "sens": "def",
+      "champ": "inv",
+      "val": 4,
+      "nom": "Manteaux de Guerre — invulnérable",
+      "quand": "Toujours, pour les TECH-PRIESTS",
+      "texte": "Friendly TECH-PRIEST models have 4+ InSv."
+    },
+    {
+      "detach": "Lords of the Forge",
+      "kw": [
+        "Belisarius Cawl",
+        "Cybernetica Datasmith",
+        "Servitor Battleclade",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "sens": "def",
+      "champ": "fnp",
+      "val": 5,
+      "nom": "Manteaux de Guerre — insensibilité",
+      "quand": "Toujours, pour les TECH-PRIESTS",
+      "texte": "Friendly TECH-PRIEST models have Feel No Pain 5+."
+    },
+    {
+      "source": "Belisarius Cawl",
+      "kw": [],
+      "champ": "rrH",
+      "val": "failed",
+      "nom": "Invocation de la Vengeance Machinique (Aura)",
+      "quand": "Cawl a choisi ce cantique, et la cible est la cible de la Vengeance Machinique",
+      "texte": "Each time a model in a friendly Adeptus Mechanicus unit makes an attack that targets your Machine Vengeance target, you can re-roll the Hit roll."
+    },
+    {
+      "source": "Skorpius Dunerider",
+      "kw": [],
+      "champ": "rrW",
+      "val": "failed",
+      "nom": "Soutien de Feu",
+      "quand": "L'unité a débarqué du Skorpius Dunerider ce tour, et la cible a été touchée par lui",
+      "texte": "Each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll."
+    },
+    {
+      "source": "Onager Dunecrawler",
+      "kw": [
+        "battleline"
+      ],
+      "sens": "def",
+      "champ": "inv",
+      "val": 4,
+      "nom": "Champ de Force Emanatus (Aura)",
+      "quand": "L'unité de LIGNE est entièrement à 6\" de l'Onager, contre une attaque de tir",
+      "texte": "While a friendly Adeptus Mechanicus Battleline model is wholly within 6\" of this model, that Battleline model has a 4+ invulnerable save against ranged attacks."
+    }
+  ],
+  "OCTROIS_DETACH": {
+    "Luminen Auto-Choir": [
+      {
+        "qui": "unite",
+        "kw": [
+          "Corpuscarii Electro-Priests"
+        ],
+        "mot": "lethal",
+        "port": "T",
+        "nom": "Cantiques Cyber-Statiques",
+        "texte": "Friendly CORPUSCARII units’ ranged attacks have [LETHAL HITS]."
+      }
+    ]
+  },
+  "STRAT_SIMU": [
+    {
+      "nom": "Defect Scrutiny",
+      "detach": "Cohort Acquisitus",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[IGNORE LE COUVERT] contre l'unité désignée près d'une unité RECON AUGURY",
+      "effet": {
+        "ignoresCover": true
+      }
+    },
+    {
+      "nom": "Machine Spirit Resurgent",
+      "detach": "Cohort Cybernetica",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Cybernetica Datasmith",
+        "Ironstrider Ballistarii",
+        "Kastelan Robots",
+        "Onager Dunecrawler",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances"
+      ],
+      "sauf": [],
+      "aide": "relance des touches — l'unité est sous son effectif de départ",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "Machine Spirit Resurgent — sous la moitié",
+      "detach": "Cohort Cybernetica",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Cybernetica Datasmith",
+        "Ironstrider Ballistarii",
+        "Kastelan Robots",
+        "Onager Dunecrawler",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances"
+      ],
+      "sauf": [],
+      "aide": "relance des touches et des blessures — l'unité est sous la moitié de son effectif",
+      "effet": {
+        "rrH": "failed",
+        "rrW": "failed"
+      }
+    },
+    {
+      "nom": "Machine Superiority",
+      "detach": "Cohort Cybernetica",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Cybernetica Datasmith",
+        "Ironstrider Ballistarii",
+        "Kastelan Robots",
+        "Onager Dunecrawler",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances"
+      ],
+      "sauf": [],
+      "aide": "ignore les modificateurs de caractéristiques et de jets",
+      "effet": {
+        "ignoreMalus": true
+      }
+    },
+    {
+      "nom": "Chant of the Remorseless Fist",
+      "detach": "Data-Psalm Conclave",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Belisarius Cawl",
+        "Corpuscarii Electro-Priests",
+        "Fulgurite Electro-Priests",
+        "Kataphron Breachers",
+        "Kataphron Destroyers",
+        "Servitor Battleclade",
+        "Tech-Priest Dominus",
+        "Tech-Priest Enginseer",
+        "Tech-Priest Manipulus",
+        "Technoarcheologist",
+        "Thulia Ghuld"
+      ],
+      "sauf": [],
+      "aide": "+1 pour blesser en mêlée",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Servo-Driven Charge",
+      "detach": "Eradication Cohort",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Unshackled Wrath — Touches Soutenues",
+      "detach": "Eradication Cohort",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] au tir",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "Unshackled Wrath — Touches Fatales",
+      "detach": "Eradication Cohort",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] au tir",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Unshackled Wrath — les deux",
+      "detach": "Eradication Cohort",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] et [TOUCHES FATALES] — avec [DANGEREUX], non simulé",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1",
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Auto-Oracular Retrieval",
+      "detach": "Explorator Maniple",
+      "pc": 2,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 pour blesser — cible sur l'objectif d'Acquisition, l'unité a débarqué ce tour",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Eradication Protocols",
+      "detach": "Haloscreed Battle Clade",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des 1 pour blesser",
+      "effet": {
+        "rrW": "ones"
+      }
+    },
+    {
+      "nom": "Eradication Protocols — HALO OVERRIDE",
+      "detach": "Haloscreed Battle Clade",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des 1 pour blesser et pour toucher — unité HALO OVERRIDE",
+      "effet": {
+        "rrW": "ones",
+        "rrH": "ones"
+      }
+    },
+    {
+      "nom": "Targeting Override",
+      "detach": "Haloscreed Battle Clade",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "touches critiques sur 5+",
+      "effet": {
+        "critH": 5
+      }
+    },
+    {
+      "nom": "Echoes of the Conduit Wars",
+      "detach": "Luminen Auto-Choir",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Corpuscarii Electro-Priests",
+        "Fulgurite Electro-Priests"
+      ],
+      "sauf": [],
+      "aide": "relance des 1 pour toucher et pour blesser — cible à portée d'un objectif",
+      "effet": {
+        "rrH": "ones",
+        "rrW": "ones"
+      }
+    },
+    {
+      "nom": "Lethal Dosage",
+      "detach": "Rad-Zone Corps",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] au tir",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Pre-Calibrated Purge Solution",
+      "detach": "Rad-Zone Corps",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des touches — cible dans la zone de déploiement adverse",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "Binharic Offence",
+      "detach": "Skitarii Hunter Cohort",
+      "pc": 2,
+      "ph": "TC",
+      "unites": [
+        "Archaeopter Fusilave",
+        "Archaeopter Stratoraptor",
+        "Archaeopter Transvector",
+        "Hastarii Exterminators",
+        "Hastarii Fusiliers",
+        "Ironstrider Ballistarii",
+        "Onager Dunecrawler",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Skitarii Marshal",
+        "Skitarii Rangers",
+        "Skitarii Vanguard",
+        "Skorpius Disintegrator",
+        "Skorpius Dunerider",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "sauf": [],
+      "aide": "+1 en PA — deux unités SKITARII sur la même cible",
+      "effet": {
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Isolate and Destroy",
+      "detach": "Skitarii Hunter Cohort",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Ironstrider Ballistarii",
+        "Pteraxii Skystalkers",
+        "Pteraxii Sterylizors",
+        "Serberys Raiders",
+        "Serberys Sulphurhounds",
+        "Sicarian Infiltrators",
+        "Sicarian Ruststalkers",
+        "Sydonian Dragoons with radium jezzails",
+        "Sydonian Dragoons with taser lances",
+        "Sydonian Skatros"
+      ],
+      "sauf": [],
+      "aide": "+1 pour blesser — aucune autre unité ennemie à 6\" de la cible",
+      "effet": {
+        "wndMod": 1
+      }
+    }
+  ]
+}

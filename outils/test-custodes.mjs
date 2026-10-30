@@ -154,10 +154,13 @@ T('un stratagème dit quand, sur quoi et ce qu\'il fait', await p.evaluate(() =>
   return [x[3] > 0, x[4].length > 10, x[6].length > 10, /<|&[a-z]+;/.test(x[4] + x[5] + x[6])];
 }), [true, true, true, false]);
 
-/* ---- les trous qui restent se traversent sans casser ---- */
-T('et les tables du simulateur aussi', await p.evaluate(() =>
+/* ---- le câblage du simulateur, tenu dans outils/cablage/custodes.json ----
+   Huit fiches à conditions, dix-huit entrées d'armée (ka'tah, auras,
+   détachements), et aucun octroi d'office : toutes les règles de
+   détachement custodes dépendent d'un fait de table. */
+T('et les tables du simulateur sont câblées', await p.evaluate(() =>
   [Object.keys(APTIS_COND).length, AURAS_ARMEE.length, Object.keys(OCTROIS_DETACH).length]),
-  [0, 0, 0]);
+  [8, 18, 0]);
 
 /* le Plateau lit SOCLES : il pose maintenant sur les vrais socles */
 await p.evaluate(() => document.querySelector('[data-s="scMap"]')?.click());
