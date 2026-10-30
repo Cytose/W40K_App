@@ -156,8 +156,13 @@ for (const F of registre) {
         [['APTIS_UNITE', APTIS_UNITE], ['APTIS_COND', APTIS_COND],
          ['APTIS_CIBLE', APTIS_CIBLE], ['AURAS_PERSO', AURAS_PERSO]].forEach(([k, t]) =>
           Object.keys(t || {}).forEach(u => { if (!noms.has(u)) out.push(k + ' → ' + u); }));
+        /* une aura sans source est une règle de détachement (`detach`)
+           ou d'armée (ni l'un ni l'autre) : c'est alors le détachement
+           qui doit exister */
         (AURAS_ARMEE || []).forEach(a => {
-          if (!noms.has(a.source)) out.push('AURAS_ARMEE → ' + a.source);
+          if (a.source && !noms.has(a.source)) out.push('AURAS_ARMEE → ' + a.source);
+          if (!a.source && a.detach && !detach.has(a.detach))
+            out.push('AURAS_ARMEE → détachement ' + a.detach);
         });
         return out;
       })(),
@@ -185,7 +190,8 @@ for (const F of registre) {
 
          · un détachement mal orthographié — la pastille ne paraît
            jamais, parce que roster.js filtre sur R.detach ;
-         · une unité qui n'existe pas dans `unites` — même effet ;
+         · une unité qui n'existe pas dans `unites` — même effet ; un
+           groupe de KW (gravis, tacticus…) y vaut une liste de fiches ;
          · un mot-clé absent de KW dans `sauf` — porteMot() retombe
            alors sur une comparaison de NOMS, et l'exclusion ne joue
            plus ;
@@ -196,7 +202,7 @@ for (const F of registre) {
       simuDetachOrphelins: [...new Set(STRAT_SIMU.filter(x => !detach.has(x.detach))
         .map(x => x.nom + ' → ' + x.detach))],
       simuUnitesOrphelines: [...new Set(STRAT_SIMU.flatMap(x =>
-        (x.unites || []).filter(u => !noms.has(u)).map(u => x.nom + ' → ' + u)))],
+        (x.unites || []).filter(u => !noms.has(u) && !KW[u]).map(u => x.nom + ' → ' + u)))],
       simuMotsOrphelins: [...new Set(STRAT_SIMU.flatMap(x =>
         (x.sauf || []).filter(k => !KW[k]).map(k => x.nom + ' → ' + k)))],
       simuChampsInconnus: [...new Set(STRAT_SIMU.flatMap(x =>

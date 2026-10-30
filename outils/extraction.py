@@ -127,13 +127,63 @@ TABLES_CABLEES = ['APTIS_UNITE', 'APTIS_COND', 'APTIS_CIBLE', 'AURAS_PERSO',
                   'MOMENTS_ARMEE', 'COMPO', 'ROLES_UNITE', 'ARMEMENT', 'GRPN',
                   'RETINUE', 'KW']
 
-def chargeCablage(faction):
+# Les six genres que KW porte toujours, déduits de la catégorie
+GENRES_KW = {'vehicle': 'Véhicule', 'monster': 'Monstre',
+             'battleline': 'Battleline', 'epic': 'Epic Hero',
+             'infantry': 'Infanterie', 'character': 'Personnage'}
+
+def chargeCablage(faction, unites=None, detachements=None):
     """Le cablage tenu a la main pour cette faction. Les cles commencant
-       par _ sont des commentaires : le JSON n'en a pas."""
+       par _ sont des commentaires : le JSON n'en a pas.
+
+       "HERITE": "spacemarines" reprend d'abord le cablage de cette
+       faction-la — un chapitre joue les fiches du Codex Space Marines —
+       filtré sur les unités et détachements que la faction porte
+       vraiment, puis pose le sien par-dessus : une entrée d'unité du
+       chapitre remplace celle du Codex, une liste s'y ajoute."""
     chemin = os.path.join(CABLAGE, faction + '.json')
     if not os.path.exists(chemin): return {}
     d = json.load(open(chemin, encoding='utf-8'))
-    return {k: v for k, v in d.items() if not k.startswith('_')}
+    propre = {k: v for k, v in d.items() if not k.startswith('_') and k != 'HERITE'}
+    if not d.get('HERITE'): return propre
+    base = filtreCablage(chargeCablage(d['HERITE'], unites, detachements),
+                         unites, detachements)
+    for k, v in propre.items():
+        if isinstance(v, dict): base[k] = dict(base.get(k, {}), **v)
+        elif k == 'KW_MOTS': base[k] = sorted(set(base.get(k, [])) | set(v))
+        else: base[k] = list(base.get(k, [])) + list(v)
+    return base
+
+def filtreCablage(cab, unites, detachements):
+    """Ce qui, d'un câblage hérité, vise des unités ou des détachements
+       que la faction n'a pas, n'a rien à y faire : npm run livrees le
+       compterait comme orphelin."""
+    if unites is None: return cab
+    detachements = detachements or set()
+    # un `unites` hérité mêle des noms de fiche et des groupes de KW :
+    # on garde les groupes, et les fiches que la faction porte
+    groupes = set(GENRES_KW) | set(cab.get('KW_MOTS', [])) | set(cab.get('KW', {}))
+    out = {}
+    for k, v in cab.items():
+        if k == 'OCTROIS_DETACH':
+            out[k] = {d: x for d, x in v.items() if d in detachements}
+        elif k in ('KW', 'KW_MOTS'):
+            out[k] = v
+        elif isinstance(v, dict):
+            out[k] = {u: x for u, x in v.items() if u in unites}
+        else:
+            def garde(a):
+                if not isinstance(a, dict): return True
+                if a.get('source'): return a['source'] in unites
+                det = a.get('detach')
+                return not det or det == 'Core' or det in detachements
+            def taille(a):
+                if not isinstance(a, dict) or not a.get('unites'): return a
+                u = [n for n in a['unites'] if n in unites or n in groupes]
+                # une liste vidée viserait TOUTES les unités : l'entrée part
+                return dict(a, unites=u) if u else None
+            out[k] = [b for b in (taille(a) for a in v if garde(a)) if b is not None]
+    return out
 
 # ------------------------------------------------------------------
 # LES NOMS QUE LE GUIDE N'ÉCRIT PAS COMME LES AUTRES SOURCES
@@ -733,6 +783,7 @@ def extrait(faction):
         MU[cle(u.get('name'))] = u
 
     UNITS, WEAPONS, CAT, APTITUDES, ATTACH, TRANSPORTS = [], [], [], {}, {}, {}
+    MOTS = {}   # fiche → ses mots-clés BSData, en minuscules
     sansPrix, multiProfil, horsMFM, doublons = [], [], [], []
     vues = set()
 
@@ -749,6 +800,7 @@ def extrait(faction):
                                                     and 'name' in x and x.get('type') is None)]
             mots += [c.get('name') for c in n.get('categoryLinks', []) or []]
         mots = [m for m in mots if m]
+        MOTS[nom] = {m.strip().lower() for m in mots}
 
         # Une fiche absente du Munitorum ne se joue pas : elle n'a pas de
         # prix. Ce sont les entrées de modes annexes — le Crucible ouvre
@@ -912,9 +964,7 @@ def extrait(faction):
 
     # KW : ce dont une règle de détachement a besoin pour désigner un genre
     KW = {}
-    for genre, fr in [('vehicle', 'Véhicule'), ('monster', 'Monstre'),
-                      ('battleline', 'Battleline'), ('epic', 'Epic Hero'),
-                      ('infantry', 'Infanterie'), ('character', 'Personnage')]:
+    for genre, fr in GENRES_KW.items():
         KW[genre] = sorted(n for n, c in CAT if c == fr)
 
     # ------------------------------------------------------------------
@@ -1000,11 +1050,21 @@ def extrait(faction):
     WEAPONS.sort(key=lambda x: (x[0], x[2] != 'T', x[1]))
     CAT.sort(key=lambda x: x[0])
 
+    # Les groupes que le câblage demande en plus des six genres — GRAVIS,
+    # TACTICUS, TERMINATOR… —, calculés sur les fiches de CETTE faction :
+    # hérités du Codex, ils prennent les Grey Hunters chez les Space Wolves.
+    # Un KW écrit à la main dans le câblage s'y ajoute.
+    CAB = chargeCablage(faction, {u[0] for u in UNITS}, {d[0] for d in DETACHMENTS})
+    for m in CAB.pop('KW_MOTS', []):
+        KW[m] = sorted(u[0] for u in UNITS if m.lower() in MOTS.get(u[0], ()))
+    KW.update(CAB.pop('KW', {}))
+
     T = dict(UNITS=UNITS, WEAPONS=WEAPONS, CAT=CAT, ATTACH=ATTACH,
              APTITUDES=APTITUDES, DETACHMENTS=DETACHMENTS,
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
              FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES,
-             STRATS=STRATS, CABLAGE=chargeCablage(faction))
+             STRATS=STRATS,
+             CABLAGE=CAB)
     stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM, doublons=doublons,
                  multiProfil=multiProfil, sansSocle=sansSocle,
                  guide=len(guide), waha=waha)
