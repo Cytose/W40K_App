@@ -1,0 +1,764 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — EMPIRE T'AU",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-tau.js, qui est réécrit à",
+    "chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "LA RÈGLE D'ARMÉE, ET L'APPROXIMATION QU'ELLE DEMANDE. « Pour le Bien",
+    "Suprême » améliore la CT de 1. Le simulateur ne retouche pas la",
+    "caractéristique, seulement le jet : la CT améliorée est comptée comme",
+    "+1 au jet de touche. Les deux donnent le même résultat sauf quand un",
+    "autre +1 au jet s'y ajoute — le plafond à +1 coupe alors le second, et",
+    "le chiffre est un peu en dessous de la vérité, jamais au-dessus. Sans",
+    "cette règle, une armée T'au ne se mesure pas : l'approximation vaut",
+    "mieux que l'absence, et elle est dite dans `quand`.",
+    "Même traitement pour l'Équipe de Pathfinders et « Coordinate to Engage ».",
+    "",
+    "Kauyon et Mont'ka dépendent du round de bataille : déclarés.",
+    "",
+    "RESTE DEHORS : la défense (Drones de Garde, Enforcer, Ghostkeel,",
+    "Aun'va, Counterfire Defence Systems…) ; les relances UNIQUES du",
+    "« Targeting Array » (le moteur ne connaît que les 1 et les ratés) ;",
+    "« Crack Shot » (une PA sur blessure critique) ; [PRÉCISION], [LANCE] ;",
+    "la portée allongée d'Experimental Prototype Cadre ; « Titan Hunter »",
+    "(TITANESQUE n'est pas un mot-clé de cible connu) ; Aun'shi, dont les",
+    "trois postures ne visent que son arme Fidelity."
+  ],
+  "APTIS_UNITE": {
+    "Crisis Fireknife Battlesuits": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Fireknife",
+        "texte": "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Hammerhead Gunship": [
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Chasseur de Blindés",
+        "texte": "Each time this model makes an attack that targets a MONSTER or VEHICLE, add 1 to the Hit roll."
+      }
+    ],
+    "Longstrike": [
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Chasseur de Blindés",
+        "texte": "Each time this model makes an attack that targets a MONSTER or VEHICLE, add 1 to the Hit roll."
+      }
+    ],
+    "Sky Ray Gunship": [
+      {
+        "vs": [
+          "vol"
+        ],
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Traqueur de Vélocité",
+        "texte": "Each time this model makes an attack with a ranged weapon that targets a unit that can FLY, you can re-roll the Hit roll."
+      }
+    ],
+    "Razorshark Strike Fighter": [
+      {
+        "sauf": [
+          "vol"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Chasseur d'Attaque au Sol",
+        "texte": "Each time this model makes a ranged attack that targets an enemy unit that cannot FLY, add 1 to the Hit roll."
+      }
+    ],
+    "Crisis Sunforge Battlesuits": [
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Sunforge",
+        "texte": "Each time a model in this unit makes a ranged attack that targets a MONSTER or VEHICLE unit, you can re-roll the Wound roll and you can re-roll the Damage roll. (La relance des dégâts n'est pas simulée.)"
+      }
+    ],
+    "Crisis Starscythe Battlesuits": [
+      {
+        "sauf": [
+          "mon",
+          "veh"
+        ],
+        "champ": "apMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Starscythe",
+        "texte": "Each time a model in this unit makes a ranged attack (excluding attacks that target MONSTERS and VEHICLES), improve the Armour Penetration characteristic of that attack by 1."
+      }
+    ],
+    "Shas'o R'alai": [
+      {
+        "vs": [
+          "perso"
+        ],
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Assassin",
+        "texte": "Each time this model makes an attack that targets a Character unit, you can re-roll the Hit roll."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Commander in Crisis Battlesuit": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Commandeur Crisis",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a ranged attack, re-roll a Hit roll of 1."
+      }
+    ],
+    "Cadre Fireblade": [
+      {
+        "champ": "atkMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Tir de Salve",
+        "texte": "While this model is leading a unit, add 1 to the Attacks characteristic of ranged weapons equipped by models in that unit."
+      }
+    ],
+    "Darkstrider": [
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Analyseur Structurel",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a ranged attack, add 1 to the Wound roll."
+      }
+    ],
+    "Kroot Flesh Shaper": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Boucherie Rituelle",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Crisis Fireknife Battlesuits": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Fireknife — cible intacte",
+        "quand": "La cible est à son Effectif de Départ",
+        "texte": "If that attack targets a unit that is at its Starting Strength, you can re-roll the Hit roll instead."
+      }
+    ],
+    "Breacher Team": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Brèche et Nettoyage",
+        "quand": "La cible est à portée d'un pion d'objectif",
+        "texte": "Each time a model in this unit makes a ranged attack that targets an enemy unit within range of an objective marker, you can re-roll the Wound roll."
+      }
+    ],
+    "Firesight Team": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Ciblage Précis",
+        "quand": "La cible est une unité Repérée",
+        "texte": "Each time a model in this unit makes an attack that targets a Spotted unit, you can re-roll the Hit roll."
+      }
+    ],
+    "Pathfinder Team": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Cible Transmise",
+        "quand": "La cible est leur unité Repérée — la CT améliorée est comptée comme +1 au jet",
+        "texte": "Each time a model in this unit makes an attack that targets their Spotted unit, improve the Ballistic Skill characteristic of that attack by 1 and that attack has the [IGNORES COVER] ability."
+      },
+      {
+        "mot": "ignoresCover",
+        "nom": "Cible Transmise",
+        "quand": "La cible est leur unité Repérée",
+        "texte": "Each time a model in this unit makes an attack that targets their Spotted unit, improve the Ballistic Skill characteristic of that attack by 1 and that attack has the [IGNORES COVER] ability."
+      }
+    ],
+    "Vespid Stingwings": [
+      {
+        "mot": "ignoresCover",
+        "port": "T",
+        "nom": "Drone de Surveillance",
+        "quand": "Le drone est utilisé (une fois par bataille)",
+        "texte": "Once per battle, when the bearer’s unit is selected to shoot, until the end of the phase, ranged weapons equipped by models in this unit have the [IGNORES COVER] ability."
+      }
+    ],
+    "Riptide Battlesuit": [
+      {
+        "mot": "dev",
+        "port": "T",
+        "nom": "Charge Nova",
+        "quand": "La Charge Nova est utilisée (une fois par bataille) — sur l'arme choisie",
+        "texte": "Once per battle, when this unit is selected to shoot in your Shooting phase, select one ranged weapon equipped by this model. Until the end of the phase, that weapon has the [DEVASTATING WOUNDS] ability."
+      }
+    ],
+    "Stormsurge": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Tueur de Titans",
+        "quand": "La cible est TITANESQUE ou IMPOSANTE",
+        "texte": "Each time this model makes a ranged attack that targets a TITANIC or TOWERING unit, you can re-roll the Hit roll."
+      }
+    ],
+    "Kroot Farstalkers": [
+      {
+        "mot": "lethal",
+        "nom": "Chasseurs de Primes",
+        "quand": "La cible est l'unité désignée en début de bataille",
+        "texte": "At the start of the battle, select one unit from your opponent’s army. Each time a model in this unit makes an attack that targets that unit, that attack has the [LETHAL HITS] and [PRECISION] abilities."
+      },
+      {
+        "mot": "ignoresCover",
+        "port": "T",
+        "nom": "Pech'ra",
+        "quand": "L'unité compte le Pech'ra",
+        "texte": "Ranged weapons equipped by the bearer’s unit have the [IGNORES COVER] ability."
+      }
+    ],
+    "Ta'unar Supremacy Armour": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Frappe Coordonnée",
+        "quand": "Le Ta'unar est Guidé, et vise son unité Repérée",
+        "texte": "While this model is a Guided unit, each time it makes an attack that targets its Spotted unit, re-roll a Hit roll of 1."
+      }
+    ],
+    "The Twin Lance": [
+      {
+        "mot": "sust:1",
+        "port": "T",
+        "nom": "Exemples du Mont'ka",
+        "quand": "La cible est la cible éligible la plus proche",
+        "texte": "Each time a model in this unit makes a ranged attack that targets the closest eligible target, that attack has the [SUSTAINED HITS 1] and [IGNORES COVER] abilities."
+      },
+      {
+        "mot": "ignoresCover",
+        "port": "T",
+        "nom": "Exemples du Mont'ka",
+        "quand": "La cible est la cible éligible la plus proche",
+        "texte": "Each time a model in this unit makes a ranged attack that targets the closest eligible target, that attack has the [SUSTAINED HITS 1] and [IGNORES COVER] abilities."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "kw": [],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Pour le Bien Suprême",
+      "quand": "L'unité est Guidée et vise l'unité Repérée — la CT améliorée est comptée comme +1 au jet",
+      "texte": "Until the end of the phase, each time a model from your army in a Guided unit makes an attack that targets a Spotted unit, improve the Ballistic Skill characteristic of that attack by 1…"
+    },
+    {
+      "kw": [],
+      "mot": "ignoresCover",
+      "port": "T",
+      "nom": "Pour le Bien Suprême — MARQUEUR",
+      "quand": "L'unité est Guidée, et la cible a été Repérée par un observateur MARQUEUR",
+      "texte": "…and, if the Spotted unit was marked by an Observer unit that has the Markerlight keyword, that attack has the [IGNORES COVER] ability."
+    },
+    {
+      "source": "Commander Shadowsun",
+      "kw": [],
+      "champ": "rrH",
+      "val": "ones",
+      "port": "T",
+      "nom": "Héroïne de l'Empire (Aura)",
+      "quand": "L'unité est à 6\" de Shadowsun",
+      "texte": "While a friendly T’au Empire unit is within 6\" of this model, each time a model in that unit makes a ranged attack, re-roll a Hit roll of 1."
+    },
+    {
+      "source": "Commander Farsight",
+      "kw": [
+        "Commander Farsight",
+        "Crisis Battlesuits",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Starscythe Battlesuits",
+        "Crisis Sunforge Battlesuits"
+      ],
+      "champ": "wndMod",
+      "val": 1,
+      "nom": "La Voie de la Lame Courte",
+      "quand": "L'unité est menée par Farsight, et la cible est à 9\" ou moins",
+      "texte": "While this model is leading a unit, each time a model in that unit makes an attack that targets an enemy unit within 9\", add 1 to the Wound roll."
+    },
+    {
+      "source": "Stealth Battlesuits",
+      "kw": [],
+      "champ": "rrH",
+      "val": "ones",
+      "port": "T",
+      "nom": "Observateurs Avancés",
+      "quand": "Les Stealth sont observateurs, l'unité est Guidée et vise leur unité Repérée",
+      "texte": "Each time this unit is an Observer unit, until the end of the phase, each time a ranged attack is made by a model in a Guided unit that targets their Spotted unit, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
+    },
+    {
+      "source": "Stealth Battlesuits",
+      "kw": [],
+      "champ": "rrW",
+      "val": "ones",
+      "port": "T",
+      "nom": "Observateurs Avancés",
+      "quand": "Les Stealth sont observateurs, l'unité est Guidée et vise leur unité Repérée",
+      "texte": "Each time this unit is an Observer unit, until the end of the phase, each time a ranged attack is made by a model in a Guided unit that targets their Spotted unit, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
+    },
+    {
+      "source": "Tetras",
+      "kw": [],
+      "champ": "rrH",
+      "val": "failed",
+      "nom": "Marqueurs Haute Intensité",
+      "quand": "Les Tetras sont observateurs, l'unité est leur Guidée et vise leur unité Repérée",
+      "texte": "Each time this unit is an Observer unit, until the end of the phase, each time a model in its Guided unit makes an attack that targets their Spotted unit, you can re-roll the Hit roll."
+    },
+    {
+      "source": "Shas'o R'alai",
+      "kw": [],
+      "champ": "rrW",
+      "val": "ones",
+      "port": "T",
+      "nom": "Drones Marqueurs Lumière-Noire",
+      "quand": "R'alai est observateur (deux fois par bataille), l'unité est Guidée et vise son unité Repérée",
+      "texte": "Twice per battle, when this unit is an Observer unit, until the end of the phase, each time a ranged attack is made by a model in their Guided unit that targets their Spotted unit, re-roll a Wound roll of 1."
+    },
+    {
+      "source": "Longstrike",
+      "kw": [
+        "Hammerhead Gunship"
+      ],
+      "mot": "lethal",
+      "port": "T",
+      "nom": "Combinaison de Pilote XV02",
+      "quand": "Ce Hammerhead a été désigné par Longstrike ce tour",
+      "texte": "In your Command phase, you can select one friendly HAMMERHEAD GUNSHIP unit within 12\". Until the start of your next Command phase, ranged weapons equipped by models in that unit have the [LETHAL HITS] ability."
+    },
+    {
+      "source": "Manta",
+      "kw": [],
+      "champ": "rrW",
+      "val": "failed",
+      "port": "T",
+      "nom": "Déploiement Agressif",
+      "quand": "L'unité a débarqué de la Manta ce tour, et vise l'unité qu'elle a touchée",
+      "texte": "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the phase, each time a friendly model that disembarked from this TRANSPORT this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll."
+    },
+    {
+      "source": "Great Knarloc",
+      "kw": [
+        "Great Knarloc",
+        "Knarloc Riders",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Hounds",
+        "Kroot Lone-spear",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Krootox Rampagers",
+        "Krootox Riders"
+      ],
+      "mot": "sust:1",
+      "port": "T",
+      "nom": "Harnais de Portage (Aura)",
+      "quand": "L'unité KROOT est à 3\" du Grand Knarloc",
+      "texte": "While a friendly KROOT unit is within 3\" of the bearer, ranged weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+    },
+    {
+      "source": "Kroot Lone-spear",
+      "kw": [
+        "Great Knarloc",
+        "Knarloc Riders",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Hounds",
+        "Kroot Lone-spear",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Krootox Rampagers",
+        "Krootox Riders"
+      ],
+      "champ": "rrH",
+      "val": "failed",
+      "nom": "Reconnaissance Avancée",
+      "quand": "La cible a été touchée par le Lone-spear ce tour",
+      "texte": "Each time this model makes a ranged attack that hits an enemy unit, until the end of the turn, each time another KROOT model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll."
+    },
+    {
+      "detach": "Kauyon",
+      "kw": [],
+      "mot": "sust:1",
+      "port": "T",
+      "nom": "Chasseur Patient",
+      "quand": "Rounds de bataille 3, 4 et 5",
+      "texte": "During the third, fourth and fifth battle rounds, ranged weapons equipped by T’au Empire models from your army have the [SUSTAINED HITS 1] ability."
+    },
+    {
+      "detach": "Kauyon",
+      "kw": [],
+      "mot": "ignoreMalus",
+      "port": "T",
+      "nom": "Chasseur Patient — Guidé",
+      "quand": "Rounds 3 à 5, l'unité est Guidée et vise l'unité Repérée",
+      "texte": "During the third, fourth and fifth battle rounds, while a unit is a Guided unit (see For the Greater Good), each time a ranged attack is made by a model in that unit that targets a Spotted unit, you can ignore any or all modifiers to that attack’s Ballistic skill characteristics and/or all modifiers to the Hit roll."
+    },
+    {
+      "detach": "Mont’ka",
+      "kw": [],
+      "mot": "lethal",
+      "port": "T",
+      "nom": "Coup Fatal",
+      "quand": "Rounds de bataille 1, 2 et 3, et l'unité est Guidée",
+      "texte": "During the first, second and third battle rounds, while a unit is a Guided unit, its ranged weapons have the [LETHAL HITS] ability."
+    },
+    {
+      "detach": "Kroot Hunting Pack",
+      "kw": [
+        "Great Knarloc",
+        "Knarloc Riders",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Hounds",
+        "Kroot Lone-spear",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Krootox Rampagers",
+        "Krootox Riders"
+      ],
+      "champ": "hitMod",
+      "val": 1,
+      "nom": "Instincts de Chasseur",
+      "quand": "La cible est sous son Effectif de Départ",
+      "texte": "Each time a Kroot model from your army makes an attack, add 1 to the Hit roll if the target of that attack is below its Starting Strength…"
+    },
+    {
+      "detach": "Kroot Hunting Pack",
+      "kw": [
+        "Great Knarloc",
+        "Knarloc Riders",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Hounds",
+        "Kroot Lone-spear",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Krootox Rampagers",
+        "Krootox Riders"
+      ],
+      "champ": "wndMod",
+      "val": 1,
+      "nom": "Instincts de Chasseur — sous la moitié",
+      "quand": "La cible est sous la moitié de son effectif",
+      "texte": "…and add 1 to the Wound roll as well if the target of that attack is Below Half-strength."
+    },
+    {
+      "detach": "Kroot Hunting Pack",
+      "sens": "def",
+      "kw": [
+        "Great Knarloc",
+        "Knarloc Riders",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Hounds",
+        "Kroot Lone-spear",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Krootox Rampagers",
+        "Krootox Riders"
+      ],
+      "champ": "inv",
+      "val": 5,
+      "nom": "Combattants d'Escarmouche",
+      "quand": "Contre une attaque de TIR (6+ au corps à corps)",
+      "texte": "Kroot models from your army have a 6+ invulnerable save against melee attacks and a 5+ invulnerable save against ranged attacks."
+    },
+    {
+      "detach": "Retaliation Cadre",
+      "kw": [
+        "Broadside Battlesuits",
+        "Commander Farsight",
+        "Commander Shadowsun",
+        "Commander in Coldstar Battlesuit",
+        "Commander in Crisis Battlesuit",
+        "Commander in Enforcer Battlesuit",
+        "Crisis Battlesuits",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Starscythe Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Ghostkeel Battlesuit",
+        "Riptide Battlesuit",
+        "Stealth Battlesuits",
+        "The Twin Lance",
+        "XV9 Hazard Battlesuits"
+      ],
+      "champ": "strMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Héros Liés",
+      "quand": "La cible est à 12\" ou moins",
+      "texte": "Each time a T’au Empire Battlesuit model from your army makes a ranged attack that targets a unit within 12\", improve the Strength characteristic of that attack by 1."
+    },
+    {
+      "detach": "Retaliation Cadre",
+      "kw": [
+        "Broadside Battlesuits",
+        "Commander Farsight",
+        "Commander Shadowsun",
+        "Commander in Coldstar Battlesuit",
+        "Commander in Crisis Battlesuit",
+        "Commander in Enforcer Battlesuit",
+        "Crisis Battlesuits",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Starscythe Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Ghostkeel Battlesuit",
+        "Riptide Battlesuit",
+        "Stealth Battlesuits",
+        "The Twin Lance",
+        "XV9 Hazard Battlesuits"
+      ],
+      "champ": "apMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Héros Liés — 8\"",
+      "quand": "La cible est à 8\" ou moins",
+      "texte": "If that attack targets a unit within 8\", improve the Armour Penetration characteristic of that attack by 1 as well."
+    }
+  ],
+  "STRAT_SIMU": [
+    {
+      "nom": "Guided by Unity",
+      "detach": "Auxiliary Cadre",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] — cible à 9\" d'une unité KROOT ou VESPIDE amie (pas pour elles)",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "A Tempting Trap",
+      "detach": "Kauyon",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 pour blesser — cible à portée de ton objectif Piège",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Coordinate to Engage",
+      "detach": "Kauyon",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "CT améliorée de 1 contre la cible Repérée — comptée comme +1 au jet",
+      "effet": {
+        "hitMod": 1
+      }
+    },
+    {
+      "nom": "Coordinate to Engage — MARQUEUR",
+      "detach": "Kauyon",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "CT +1 (comptée comme +1 au jet) et [IGNORE LE COUVERT] — l'observateur est MARQUEUR",
+      "effet": {
+        "hitMod": 1,
+        "ignoresCover": true
+      }
+    },
+    {
+      "nom": "Point-Blank Ambush",
+      "detach": "Kauyon",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 en PA — cible à 9\" ou moins",
+      "effet": {
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "A Trap Well Laid",
+      "detach": "Kroot Hunting Pack",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [
+        "Great Knarloc",
+        "Knarloc Riders",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Hounds",
+        "Kroot Lone-spear",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Krootox Rampagers",
+        "Krootox Riders"
+      ],
+      "sauf": [],
+      "aide": "+1 en PA contre l'unité touchée par l'unité KROOT désignée",
+      "effet": {
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Combat Debarkation",
+      "detach": "Mont’ka",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Breacher Team",
+        "Cadre Fireblade",
+        "Commander Shadowsun",
+        "Darkstrider",
+        "Ethereal",
+        "Firesight Team",
+        "Kroot Carnivores",
+        "Kroot Farstalkers",
+        "Kroot Flesh Shaper",
+        "Kroot Trail Shaper",
+        "Kroot War Shaper",
+        "Pathfinder Team",
+        "Stealth Battlesuits",
+        "Strike Team",
+        "Vespid Stingwings"
+      ],
+      "sauf": [],
+      "aide": "relance des blessures ratées — l'unité a débarqué ce tour, contre l'ennemi le plus proche",
+      "effet": {
+        "rrW": "failed"
+      }
+    },
+    {
+      "nom": "Focused Fire",
+      "detach": "Mont’ka",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 en PA — deux unités visent la même cible, et elle seule",
+      "effet": {
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Pinpoint Counter-Offensive",
+      "detach": "Mont’ka",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des touches ratées — contre l'unité qui a détruit la tienne",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "The Arro’kon Protocol",
+      "detach": "Retaliation Cadre",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Broadside Battlesuits",
+        "Commander Farsight",
+        "Commander Shadowsun",
+        "Commander in Coldstar Battlesuit",
+        "Commander in Crisis Battlesuit",
+        "Commander in Enforcer Battlesuit",
+        "Crisis Battlesuits",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Starscythe Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Ghostkeel Battlesuit",
+        "Riptide Battlesuit",
+        "Stealth Battlesuits",
+        "The Twin Lance",
+        "XV9 Hazard Battlesuits"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] — la cible compte 6 figurines ou plus",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "The Arro’kon Protocol — 11 figurines ou plus",
+      "detach": "Retaliation Cadre",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Broadside Battlesuits",
+        "Commander Farsight",
+        "Commander Shadowsun",
+        "Commander in Coldstar Battlesuit",
+        "Commander in Crisis Battlesuit",
+        "Commander in Enforcer Battlesuit",
+        "Crisis Battlesuits",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Starscythe Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Ghostkeel Battlesuit",
+        "Riptide Battlesuit",
+        "Stealth Battlesuits",
+        "The Twin Lance",
+        "XV9 Hazard Battlesuits"
+      ],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 2] — la cible compte 11 figurines ou plus",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "2"
+      }
+    }
+  ]
+}

@@ -1557,11 +1557,619 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Genestealers": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Prédateur d'Avant-garde",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "Hyperadapted Raveners": [
+  {
+   "mot": "sust:1",
+   "nom": "Envahisseur Alpha",
+   "texte": "Weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Tyranid Prime with Lash Whip": [
+  {
+   "mot": "sust:1",
+   "nom": "Guerrier Alpha",
+   "texte": "Weapons equipped by models in this model’s unit have the [SUSTAINED HITS 1] ability."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Genestealers": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Prédateur d'Avant-garde — sur objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "If the target is within range of one or more objective markers, re-roll a Wound roll 1 as well."
+  }
+ ],
+ "Psychophage": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Frénésie Vorace",
+   "quand": "La cible est sous son Effectif de Départ",
+   "texte": "Each time this model makes a melee attack that targets a unit that is below its Starting Strength, add 1 to the Hit roll."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Frénésie Vorace — sous la moitié",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "If that target is also Below Half strength, add 1 to the Wound roll as well."
+  }
+ ],
+ "Hierophant": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Bête Apex",
+   "quand": "La cible est sous le choc",
+   "texte": "Each time this model makes an attack that targets a unit that is Battle-shocked, add 1 to the Hit roll."
+  }
+ ],
+ "Malanthrope": [
+  {
+   "mot": "sust:1",
+   "port": "C",
+   "nom": "Adaptation à la Proie — Touches Soutenues",
+   "quand": "Tu choisis [TOUCHES SOUTENUES 1] ce combat",
+   "texte": "Each time this model's unit is selected to fight, select one of the following abilities to apply to all melee weapons equipped by models in that unit until the end of the phase: - [SUSTAINED HITS 1] - [LANCE] - [LETHAL HITS]"
+  },
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Adaptation à la Proie — Touches Fatales",
+   "quand": "Tu choisis [TOUCHES FATALES] ce combat",
+   "texte": "Each time this model's unit is selected to fight, select one of the following abilities to apply to all melee weapons equipped by models in that unit until the end of the phase: - [SUSTAINED HITS 1] - [LANCE] - [LETHAL HITS]"
+  }
+ ],
+ "Norn Assimilator": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Dessein Unique",
+   "quand": "La cible est l'unité désignée au premier round",
+   "texte": "Select one enemy unit. Until the end of the battle, each time this model makes an attack that targets that unit you can re-roll the Hit roll and you can re-roll the Wound roll"
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Dessein Unique",
+   "quand": "La cible est l'unité désignée au premier round",
+   "texte": "Select one enemy unit. Until the end of the battle, each time this model makes an attack that targets that unit you can re-roll the Hit roll and you can re-roll the Wound roll"
+  }
+ ],
+ "Norn Emissary": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Dessein Unique",
+   "quand": "La cible est l'unité désignée au premier round",
+   "texte": "Select one enemy unit. Until the end of the battle, each time this model makes an attack that targets that unit you can re-roll the Hit roll and you can re-roll the Wound roll"
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Dessein Unique",
+   "quand": "La cible est l'unité désignée au premier round",
+   "texte": "Select one enemy unit. Until the end of the battle, each time this model makes an attack that targets that unit you can re-roll the Hit roll and you can re-roll the Wound roll"
+  }
+ ],
+ "The Red Terror": [
+  {
+   "arme": "Gaping maw",
+   "champ": "critW",
+   "val": "tous",
+   "port": "C",
+   "nom": "Avaler Tout Rond",
+   "quand": "La cible est INFANTERIE, MONTÉE ou BÊTE — gueule béante seulement",
+   "texte": "Each time an attack with this model’s gaping maw targets an Infantry, Mounted or Beasts unit, each successful unmodified Wound roll is a Critical Wound."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Hive Crone": [
+  {
+   "vs": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Prédateur Aérien",
+   "texte": "Each time this model makes a ranged attack that targets a unit that can FLY, add 1 to the Hit roll."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Broodlord": [
+  {
+   "mot": "dev",
+   "nom": "Perspicacité Vicieuse",
+   "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Old One Eye": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Chef Alpha",
+   "texte": "While this model is leading a unit, each time a model in that unit makes an attack, you can re-roll the Hit roll."
+  }
+ ],
+ "Neurotyrant": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Fouet Nodal",
+   "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Hit roll."
+  }
+ ],
+ "Tyranid Prime with Lash Whip": [
+  {
+   "mot": "sust:1",
+   "nom": "Guerrier Alpha",
+   "texte": "Weapons equipped by models in this model’s unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Winged Tyranid Prime": [
+  {
+   "mot": "sust:1",
+   "nom": "Guerrier Alpha",
+   "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "kw": [],
+  "champ": "strMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Synapse",
+  "quand": "L'unité est à portée de Synapse (6\" d'une figurine SYNAPSE amie)",
+  "texte": "While a TYRANIDS unit from your army is within Synapse Range of your army: ▪ Each time a model in that unit makes a melee attack, add 1 to the Strength characteristic of that attack."
+ },
+ {
+  "source": "Tervigon",
+  "kw": [
+   "Termagants"
+  ],
+  "mot": "lethal",
+  "port": "T",
+  "nom": "Progénitrice de Couvée (Aura, Psychique)",
+  "quand": "Les Termagants sont à 6\" du Tervigon",
+  "texte": "While a friendly TERMAGANTS unit is within 6\" of this model, ranged weapons equipped by models in that unit have the [LETHAL HITS] ability."
+ },
+ {
+  "source": "Hive Tyrant",
+  "kw": [],
+  "mot": "lethal",
+  "port": "T",
+  "nom": "Assaut (Aura, Psychique)",
+  "quand": "L'unité est à 6\" du Tyran des Ruches",
+  "texte": "While a friendly TYRANIDS unit is within 6\" of this model, ranged weapons equipped by models in that unit have the [ASSAULT] and [LETHAL HITS] abilities."
+ },
+ {
+  "source": "Neurotyrant",
+  "kw": [
+   "Neurotyrant",
+   "Neurogaunts",
+   "Tyrant Guard",
+   "Zoanthropes"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Fouet Nodal — cible sous le choc",
+  "quand": "L'unité est menée par le Neurotyran, et la cible est sous le choc",
+  "texte": "If the target is Battle-shocked, add 1 to the Wound roll as well."
+ },
+ {
+  "source": "Exocrine",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "port": "T",
+  "nom": "Ciblage Symbiotique",
+  "quand": "La cible a été touchée par l'Exocrine cette phase",
+  "texte": "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the phase, each time a friendly TYRANIDS model makes an attack that targets that unit, re-roll a Hit roll of 1."
+ },
+ {
+  "source": "Psychophage",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Bio-stimulus",
+  "quand": "La cible a été touchée par le Psychophage ce tour",
+  "texte": "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the turn, each time a friendly TYRANIDS unit makes a melee attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1. The same enemy unit can only be affected by this ability once per turn."
+ },
+ {
+  "source": "Neurolictor",
+  "kw": [],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Saboteur Psychologique (Aura)",
+  "quand": "La cible est à 12\" du Neurolictor, et sous le choc",
+  "texte": "While an enemy unit is with 12\" of this model, if that unit is Battle-shocked: - Each time a friendly TYRANIDS model makes an attack that targets that unit, add 1 to the Wound roll."
+ },
+ {
+  "detach": "Ambush Predators",
+  "kw": [
+   "Lictor",
+   "Neurolictor"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Faim Mentale",
+  "quand": "La cible est un PERSONNAGE",
+  "texte": "▪ Friendly LICTOR/NEUROLICTOR units’ attacks that target a CHARACTER unit can re-roll hit rolls of 1."
+ },
+ {
+  "detach": "Crusher Stampede",
+  "kw": [
+   "monster"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Béhémoths Enragés",
+  "quand": "Le MONSTRE est sous son Effectif de Départ",
+  "texte": "Each time a Tyranids Monster model from your army makes an attack, add 1 to the Hit roll if that model’s unit is below its Starting Strength."
+ },
+ {
+  "detach": "Crusher Stampede",
+  "kw": [
+   "monster"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Béhémoths Enragés — sous la moitié",
+  "quand": "Le MONSTRE est sous la moitié de son effectif",
+  "texte": "…and add 1 to the Wound roll as well if that model’s unit is Below Half-strength."
+ },
+ {
+  "detach": "Invasion Fleet",
+  "kw": [],
+  "mot": "sust:1",
+  "nom": "Hyper-adaptation — Instincts Grégaires",
+  "quand": "Instincts Grégaires est choisie, et la cible est INFANTERIE ou NUÉE",
+  "texte": "Swarming Instincts Each time a TYRANIDS model with this Hyper-adaptation makes an attack that targets an INFANTRY or SWARM unit, that attack has the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "detach": "Invasion Fleet",
+  "kw": [],
+  "mot": "lethal",
+  "nom": "Hyper-adaptation — Hyper-agressivité",
+  "quand": "Hyper-agressivité est choisie, et la cible est MONSTRE ou VÉHICULE",
+  "texte": "Hyper-aggression Each time a TYRANIDS model with this Hyper-adaptation makes an attack that targets a MONSTER or VEHICLE unit, that attack has the [LETHAL HITS] ability."
+ },
+ {
+  "detach": "Synaptic Nexus",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Impératif — Poussés au Massacre",
+  "quand": "Cet impératif est actif ce round, et l'unité est à portée de Synapse",
+  "texte": "▪ Goaded to Slaughter: While this unit is within Synapse Range of your army, each time a model in this unit makes a melee attack, add 1 to the Hit roll."
+ },
+ {
+  "detach": "Synaptic Nexus",
+  "sens": "def",
+  "kw": [],
+  "champ": "inv",
+  "val": 5,
+  "nom": "Impératif — Augmentation Synaptique",
+  "quand": "Cet impératif est actif ce round, et l'unité est à portée de Synapse",
+  "texte": "▪ Synaptic Augmentation: While this unit is within Synapse Range of your army, models in this unit have a 5+ invulnerable save."
+ },
+ {
+  "detach": "Warrior Bioform Onslaught",
+  "sens": "def",
+  "kw": [
+   "Tyranid Warriors with Melee Bio-Weapons",
+   "Tyranid Warriors with Ranged Bio-Weapons",
+   "Tyranid Prime with Lash Whip",
+   "Winged Tyranid Prime"
+  ],
+  "champ": "inv",
+  "val": 5,
+  "nom": "Bêtes Meneuses",
+  "quand": "Toujours, pour les Guerriers et les Primes",
+  "texte": "▪ TYRANID WARRIORS/TYRANID PRIME WITH LASH WHIP/WINGED TYRANID PRIME models from your army have 5+ InSv."
+ }
+];
+const OCTROIS_DETACH = {
+ "Subterranean Assault": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "qui": "unite",
+   "kw": [],
+   "nom": "Assaut Surprise",
+   "texte": "Each time a Tyranids model from your army makes an attack, re-roll a Hit roll of 1."
+  }
+ ]
+};
+const STRAT_SIMU = [
+ {
+  "nom": "Broodguard Impulse",
+  "detach": "Assimilation Swarm",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour blesser — contre l'unité qui a détruit ton MOISSONNEUR",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Secure Biomass",
+  "detach": "Assimilation Swarm",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] au corps à corps",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Secure Biomass — Moissonneur",
+  "detach": "Assimilation Swarm",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Haruspex",
+   "Norn Assimilator",
+   "Psychophage",
+   "Pyrovores",
+   "Ripper Swarms"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] et touches critiques sur 5+ au corps à corps — MOISSONNEURS",
+  "effet": {
+   "lethal": true,
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Rampaging Monstrosities",
+  "detach": "Crusher Stampede",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Barbed Hierodule",
+   "Carnifexes",
+   "Dimachaeron",
+   "Exocrine",
+   "Harpy",
+   "Harridan",
+   "Haruspex",
+   "Hierophant",
+   "Hive Crone",
+   "Hive Tyrant",
+   "Maleceptor",
+   "Mawloc",
+   "Neurotyrant",
+   "Norn Assimilator",
+   "Norn Emissary",
+   "Old One Eye",
+   "Psychophage",
+   "Screamer-killer",
+   "Scythed Hierodule",
+   "Sporocyst",
+   "Tervigon",
+   "The Red Terror",
+   "The Swarmlord",
+   "Toxicrene",
+   "Trygon",
+   "Tyrannocyte",
+   "Tyrannofex",
+   "Winged Hive Tyrant"
+  ],
+  "sauf": [],
+  "aide": "relance des touches ratées",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Swarm-Guided Salvoes",
+  "detach": "Crusher Stampede",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Barbed Hierodule",
+   "Carnifexes",
+   "Dimachaeron",
+   "Exocrine",
+   "Harpy",
+   "Harridan",
+   "Haruspex",
+   "Hierophant",
+   "Hive Crone",
+   "Hive Tyrant",
+   "Maleceptor",
+   "Mawloc",
+   "Neurotyrant",
+   "Norn Assimilator",
+   "Norn Emissary",
+   "Old One Eye",
+   "Psychophage",
+   "Screamer-killer",
+   "Scythed Hierodule",
+   "Sporocyst",
+   "Tervigon",
+   "The Red Terror",
+   "The Swarmlord",
+   "Toxicrene",
+   "Trygon",
+   "Tyrannocyte",
+   "Tyrannofex",
+   "Winged Hive Tyrant"
+  ],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT], et ignore les malus de CT et de touche",
+  "effet": {
+   "ignoresCover": true,
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Adrenal Surge",
+  "detach": "Invasion Fleet",
+  "pc": 2,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "touches critiques sur 5+",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Enfilading Emergence",
+  "detach": "Subterranean Assault",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] et [IGNORE LE COUVERT] — l'unité est arrivée en Renforts ce tour",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1",
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Irresistible Will",
+  "detach": "Synaptic Nexus",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher et pour blesser — contre la cible désignée, à 6\" de la SYNAPSE",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Swarming Masses",
+  "detach": "Unending Swarm",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Gargoyles",
+   "Hormagaunts",
+   "Neurogaunts",
+   "Termagants"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1]",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Swarming Masses — 15 figurines ou plus",
+  "detach": "Unending Swarm",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Gargoyles",
+   "Hormagaunts",
+   "Neurogaunts",
+   "Termagants"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] et touches critiques sur 5+ — l'unité compte 15 figurines ou plus",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1",
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Surprise Assault",
+  "detach": "Vanguard Onslaught",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Broodlord",
+   "Deathleaper",
+   "Gargoyles",
+   "Genestealers",
+   "Harpy",
+   "Hive Crone",
+   "Hyperadapted Raveners",
+   "Lictor",
+   "Mawloc",
+   "Neurolictor",
+   "Parasite of Mortrex",
+   "Raveners",
+   "The Red Terror",
+   "Trygon",
+   "Tyrannocyte",
+   "Winged Hive Tyrant",
+   "Winged Tyranid Prime"
+  ],
+  "sauf": [],
+  "aide": "+1 pour toucher contre la cible désignée",
+  "effet": {
+   "hitMod": 1
+  }
+ },
+ {
+  "nom": "Surprise Assault — test de choc raté",
+  "detach": "Vanguard Onslaught",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Broodlord",
+   "Deathleaper",
+   "Gargoyles",
+   "Genestealers",
+   "Harpy",
+   "Hive Crone",
+   "Hyperadapted Raveners",
+   "Lictor",
+   "Mawloc",
+   "Neurolictor",
+   "Parasite of Mortrex",
+   "Raveners",
+   "The Red Terror",
+   "Trygon",
+   "Tyrannocyte",
+   "Winged Hive Tyrant",
+   "Winged Tyranid Prime"
+  ],
+  "sauf": [],
+  "aide": "+1 pour toucher et +1 pour blesser — la cible a raté son test de choc",
+  "effet": {
+   "hitMod": 1,
+   "wndMod": 1
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -1569,11 +2177,6 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "tyranides",
