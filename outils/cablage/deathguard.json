@@ -1,0 +1,289 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — DEATH GUARD",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-deathguard.js, réécrit à",
+    "chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "LA RÈGLE D'ARMÉE N'EST PAS CÂBLÉE, et c'est un manque du moteur, pas",
+    "un oubli. Le Don de Nurgle retire 1 à l'ENDURANCE de la cible Affligée :",
+    "aucun champ de l'attaquant ne retouche l'Endurance de la cible. Le",
+    "joueur l'ôte à la main dans la carte Cible. Les Fléaux qui l'accompagnent",
+    "(couvert, −1 pour toucher, Sauvegarde dégradée) jouent sur les attaques",
+    "ADVERSES : ils relèvent d'Encaisser, pas de la séquence d'attaque.",
+    "",
+    "Ce qui vise une cible Affligée — l'Helbrute, le Lanceur de Peste, la",
+    "Pestilence Rampante — se déclare : l'application ne sait pas qui est",
+    "dans la portée de Contagion.",
+    "",
+    "CE QUI RESTE DEHORS : le Familier Pestilent (une arme psychique, une",
+    "fois), la Garde Silencieuse (défense), « Overwhelming Generosity »",
+    "(relance du NOMBRE d'attaques, que le moteur n'a pas), la [LANCE] du",
+    "Seigneur de la Contagion comptée à part comme +1 pour blesser après",
+    "une charge, puisque le moteur ne connaît pas ce mot-clé."
+  ],
+
+  "APTIS_UNITE": {
+    "Poxwalkers": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "nom": "Mites Ricanantes",
+        "texte": "Ranged weapons equipped by models in this unit have the [IGNORES COVER] ability."
+      }
+    ]
+  },
+
+  "APTIS_COND": {
+    "Plague Marines": [
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Murmure Insectoïde",
+        "quand": "La cible est à portée de Contagion d'une unité amie",
+        "texte": "When this unit’s attacks target a unit within Contagion Range of a friendly unit, those attacks can re-roll wound rolls of 1."
+      }
+    ],
+    "Plague Surgeon": [
+      {
+        "champ": "critH",
+        "val": 5,
+        "port": "C",
+        "nom": "Infections Enflammées",
+        "quand": "La cible est l'unité désignée au début de la phase de Combat",
+        "texte": "At the start of the Fight phase, select one enemy unit within Engagement Range of this model. Until the end of the phase, each time this model makes an attack that targets that unit, an unmodified Hit roll of 5+ scores a Critical Hit. If that unit is below Half-strength, an unmodified Hit roll of 4+ scores a Critical Hit instead."
+      },
+      {
+        "champ": "critH",
+        "val": 4,
+        "port": "C",
+        "nom": "Infections Enflammées — sous la moitié",
+        "quand": "La cible désignée est sous la moitié de son effectif",
+        "texte": "At the start of the Fight phase, select one enemy unit within Engagement Range of this model. Until the end of the phase, each time this model makes an attack that targets that unit, an unmodified Hit roll of 5+ scores a Critical Hit. If that unit is below Half-strength, an unmodified Hit roll of 4+ scores a Critical Hit instead."
+      }
+    ],
+    "Helbrute": [
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "nom": "Malveillance Malade",
+        "quand": "La cible est Affligée",
+        "texte": "Each time this model makes an attack that targets an Afflicted unit, add 1 to the Wound roll."
+      },
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "C",
+        "nom": "Frénésie Écumante",
+        "quand": "Le Helbrute porte deux armes de mêlée en plus de son arme de base",
+        "texte": "If this model is equipped with two melee weapons in addition to its close combat weapon, add 2 to the Attacks characteristic of those two weapons."
+      }
+    ],
+    "Death Guard Possessed": [
+      {
+        "mot": "sust",
+        "nom": "Carnage Infectieux",
+        "quand": "L'unité a chargé ce tour",
+        "texte": "Each time this unit makes a Charge move, until the end of the turn, weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+      },
+      {
+        "mot": "lethal",
+        "port": "C",
+        "nom": "Icône Malade",
+        "quand": "L'unité porte l'icône",
+        "texte": "Melee weapons in the bearer's unit have the [LETHAL HITS] ability."
+      }
+    ]
+  },
+
+  "AURAS_PERSO": {
+    "Death Guard Chaos Lord": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Seigneur du Chaos",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+      }
+    ],
+    "Death Guard Chaos Lord in Terminator Armour": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Seigneur du Chaos",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+      }
+    ],
+    "Lord of Virulence": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Aura Virulente",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a ranged attack, you can re-roll the Wound roll."
+      }
+    ],
+    "Lord of Contagion": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Vecteur de Maladie",
+        "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
+      }
+    ],
+    "Biologus Putrifier": [
+      {
+        "mot": "lethal",
+        "nom": "Infusion Immonde",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [Lethal Hits] ability. In addition, each time a model in that unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only on a 6."
+      },
+      {
+        "champ": "critH",
+        "val": 5,
+        "nom": "Infusion Immonde — critique 5+",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [Lethal Hits] ability. In addition, each time a model in that unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only on a 6."
+      }
+    ]
+  },
+
+  "AURAS_ARMEE": [
+    {
+      "source": "Lord of Contagion",
+      "kw": [],
+      "champ": "wndMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Vecteur de Maladie — [LANCE]",
+      "quand": "L'unité est menée par le Seigneur de la Contagion et a chargé ce tour",
+      "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [Sustained Hits 1] and [Lance] abilties."
+    },
+    {
+      "source": "Lord of Virulence",
+      "kw": [],
+      "champ": "rrH",
+      "val": "ones",
+      "port": "T",
+      "nom": "Bombardement Pestilentiel",
+      "quand": "La cible est l'unité désignée par le Seigneur de la Virulence (relance totale pour une arme à Déflagration)",
+      "texte": "At the start of your Shooting phase, select one enemy unit within 30\" of and visible to this model. Until the end of the phase, each time a friendly Death Guard unit makes a ranged attack that targets that unit, re-roll a Hit roll of 1 (if that attack is made with a Blast weapon, you can re-roll the Hit roll instead)."
+    },
+    {
+      "source": "Malignant Plaguecaster",
+      "kw": [],
+      "mot": "sust",
+      "nom": "Don de Contagion",
+      "quand": "L'unité est menée par le Lanceur de Peste, et la cible est Affligée",
+      "texte": "While this model is leading a unit, each time a model in that unit makes an attack which targets a unit which is Afflicted, that attack has the [Sustained Hits 1] ability."
+    },
+    {
+      "source": "Poxwalkers",
+      "kw": [
+        "Beasts of Nurgle",
+        "Great Unclean One",
+        "Nurglings",
+        "Plague Drones",
+        "Plaguebearers",
+        "Rotigus"
+      ],
+      "champ": "rrH",
+      "val": "ones",
+      "port": "T",
+      "nom": "Souillure Luisante",
+      "quand": "La cible a été touchée par les Marcheurs de la Peste cette phase",
+      "texte": "In your Shooting phase, after this unit has shot, select one visible enemy unit hit by one or more of those attacks. Until the end of the phase, each time a friendly Nurgle Daemon model makes an attack that targets that unit, re-roll a Hit roll of 1."
+    },
+    {
+      "source": "Chaos Predator Destructor",
+      "kw": [],
+      "champ": "apMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Grêle de Maladie Corrosive",
+      "quand": "La cible (ni MONSTRE ni VÉHICULE) a été touchée par le Destructor cette phase",
+      "texte": "In your Shooting phase, after this model has shot, select one enemy unit (excluding Monsters and Vehicles) hit by one or more of those attacks. Until the end of the phase, each time a friending Death Guard unit makes a ranged attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1. The same enemy unit can only be affected by this ability once per phase."
+    },
+    {
+      "source": "Chaos Rhino",
+      "kw": [],
+      "champ": "rrW",
+      "val": "failed",
+      "nom": "Tir de Soutien",
+      "quand": "L'unité a débarqué du Rhino ce tour, et la cible a été touchée par lui",
+      "texte": "In your Shooting phase, after this model has shot, select one enemy unit hit by one or more of those attacks. Until the end of the phase, each time a friendly model that disembarked from this Transport this turn makes an attack that targets that unit, you can re-roll the Wound roll."
+    },
+    {
+      "source": "Rotigus",
+      "kw": [
+        "Beasts of Nurgle",
+        "Great Unclean One",
+        "Nurglings",
+        "Plague Drones",
+        "Plaguebearers",
+        "Rotigus"
+      ],
+      "champ": "dmgMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Bénédiction Virulente",
+      "quand": "La cible est l'unité désignée par Rotigus au début de la phase",
+      "texte": "At the start of the Fight phase, you can select one enemy unit within 24\" of and visible to this model. Until the end of the phase, each time an attack made by a Plague Legions model is allocated to a model in that unit, add 1 to the Damage characteristic of that attack."
+    },
+    {
+      "source": "Plague Drones",
+      "kw": [
+        "Beasts of Nurgle",
+        "Great Unclean One",
+        "Nurglings",
+        "Plague Drones",
+        "Plaguebearers",
+        "Rotigus"
+      ],
+      "champ": "rrW",
+      "val": "failed",
+      "nom": "Têtes de Mort",
+      "quand": "La cible a été touchée par les Drones de la Peste ce tour",
+      "texte": "In your Shooting phase, after this unit has shot, select one enemy unit hit by one or more of those attacks. Until the end of the turn, each time a friendly NURGLE LEGIONES DAEMONICA unit makes an attack that targets that unit, you can re-roll the Wound roll."
+    }
+  ],
+
+  "OCTROIS_DETACH": {
+    "Contagion Engines": [
+      {
+        "mot": "assault",
+        "port": "T",
+        "qui": "unite",
+        "kw": [
+          "Foetid Bloat-drone",
+          "Foetid Bloat-drone with heavy blight launcher",
+          "Helbrute"
+        ],
+        "nom": "Animus Rouillé et Déformé",
+        "texte": "Friendly CONTAGION ENGINE units’ ranged attacks have [ASSAULT]."
+      }
+    ]
+  },
+
+  "STRAT_SIMU": [
+    {"nom": "Blessings of Filth", "detach": "Champions of Contagion", "pc": 1, "ph": "TC", "unites": ["Biologus Putrifier", "Daemon Prince of Nurgle", "Daemon Prince of Nurgle with wings", "Death Guard Chaos Lord", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Sorcerer in Terminator Armour", "Foul Blightspawn", "Great Unclean One", "Icon Bearer", "Lord of Contagion", "Lord of Poxes", "Lord of Virulence", "Malignant Plaguecaster", "Mortarion", "Noxious Blightbringer", "Plague Surgeon", "Rotigus", "Tallyman", "Typhus"], "sauf": [], "aide": "touche critique sur 5+ — unité menée par un personnage", "effet": {"critH": 5}},
+
+    {"nom": "Malignance Magnified", "detach": "Champions of Contagion", "pc": 2, "ph": "TC", "unites": ["Biologus Putrifier", "Daemon Prince of Nurgle", "Daemon Prince of Nurgle with wings", "Death Guard Chaos Lord", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Sorcerer in Terminator Armour", "Foul Blightspawn", "Great Unclean One", "Icon Bearer", "Lord of Contagion", "Lord of Poxes", "Lord of Virulence", "Malignant Plaguecaster", "Mortarion", "Noxious Blightbringer", "Plague Surgeon", "Rotigus", "Tallyman", "Typhus"], "sauf": [], "aide": "relance des touches et des blessures ratées — contre une cible sous son Effectif de Départ", "effet": {"rrH": "failed", "rrW": "failed"}},
+
+    {"nom": "Fresh Vectors", "detach": "Contagion Engines", "pc": 1, "ph": "TC", "unites": ["Foetid Bloat-drone", "Foetid Bloat-drone with heavy blight launcher", "Helbrute"], "sauf": [], "aide": "relance des 1 pour blesser — MOTEUR DE CONTAGION", "effet": {"rrW": "ones"}},
+
+    {"nom": "Grim Reapers", "detach": "Death Lord’s Chosen", "pc": 1, "ph": "C", "unites": ["Blightlord Terminators", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Sorcerer in Terminator Armour", "Deathshroud Terminators", "Lord of Contagion", "Lord of Virulence", "Typhus"], "sauf": [], "aide": "relance des touches ratées — contre tout sauf MONSTRE ou VÉHICULE", "effet": {"rrH": "failed"}},
+
+    {"nom": "Mortarion's Teachings — immobile", "detach": "Death Lord’s Chosen", "pc": 1, "ph": "T", "unites": ["Blightlord Terminators", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Sorcerer in Terminator Armour", "Deathshroud Terminators", "Lord of Contagion", "Lord of Virulence", "Typhus"], "sauf": [], "aide": "[ASSAUT] et [LOURD] — l'unité n'a pas bougé, [LOURD] donne +1 pour toucher", "effet": {"hitMod": 1}},
+
+    {"nom": "Droning Horror", "detach": "Flyblown Host", "pc": 1, "ph": "T", "unites": ["Plague Marines"], "sauf": [], "aide": "relance des 1 pour toucher", "effet": {"rrH": "ones"}},
+
+    {"nom": "Droning Horror — à mi-portée", "detach": "Flyblown Host", "pc": 1, "ph": "T", "unites": ["Plague Marines"], "sauf": [], "aide": "relance des 1 pour toucher et pour blesser — la cible est à mi-portée", "effet": {"rrH": "ones", "rrW": "ones"}},
+
+    {"nom": "Drawn to Despair", "detach": "Mortarion’s Hammer", "pc": 1, "ph": "T", "unites": [], "sauf": [], "aide": "relance des touches ratées — la cible est dans la zone de déploiement adverse (hors AÉRONEF)", "effet": {"rrH": "failed"}},
+
+    {"nom": "Gnawing Hunger", "detach": "Shamblerot Vectorium", "pc": 1, "ph": "C", "unites": ["Poxwalkers"], "sauf": [], "aide": "+1 attaque et +1 en Force en mêlée", "effet": {"atkMod": 1, "strMod": 1}},
+
+    {"nom": "Clutching Corruption", "detach": "Tallyband Summoners", "pc": 1, "ph": "C", "unites": [], "sauf": [], "aide": "relance des touches ratées — la cible est au contact d'une unité des LÉGIONS DE LA PESTE", "effet": {"rrH": "failed"}},
+
+    {"nom": "Creeping Blight", "detach": "Virulent Vectorium", "pc": 1, "ph": "T", "unites": ["Biologus Putrifier", "Blightlord Terminators", "Death Guard Chaos Lord", "Death Guard Chaos Lord in Terminator Armour", "Death Guard Cultists", "Death Guard Possessed", "Death Guard Sorcerer in Terminator Armour", "Deathshroud Terminators", "Foul Blightspawn", "Icon Bearer", "Lord of Contagion", "Lord of Poxes", "Lord of Virulence", "Malignant Plaguecaster", "Noxious Blightbringer", "Plague Marines", "Plague Surgeon", "Plaguebearers", "Poxwalkers", "Tallyman", "Typhus"], "sauf": [], "aide": "relance des touches et des blessures ratées — contre une cible Affligée", "effet": {"rrH": "failed", "rrW": "failed"}}
+  ]
+}

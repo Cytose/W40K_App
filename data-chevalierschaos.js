@@ -805,11 +805,361 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "War Dog Executioner": [
+  {
+   "mot": "ignorescover",
+   "port": "T",
+   "nom": "Rivalité Grondante",
+   "texte": "This unit’s ranged attacks have [IGNORES COVER]."
+  }
+ ]
+};
+const APTIS_COND = {
+ "War Dog Executioner": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Exécuteur",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack that targets a unit Below Half-strength, add 1 to the Hit roll. Each time an enemy unit is destroyed as the result of this model's attacks, before removing the last model in that unit from the battlefield, each other unit from your opponent's army that is within 3\" of it must take a Battle-shock test."
+  }
+ ],
+ "War Dog Stalker": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Traqueur",
+   "quand": "Aucune autre unité adverse à 6\" de la cible",
+   "texte": "Each time this model makes an attack that targets an enemy unit, if there are no other units from your opponent’s army within 6\" of that target, add 1 to the Wound roll."
+  }
+ ],
+ "War Dog Brigand": [
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Brigand",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "Ranged weapons equipped by this model have the [Ignores Cover] ability while targeting enemy units in range of one or more objective markers."
+  }
+ ],
+ "Knight Rampager": [
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "Soif de Sang",
+   "quand": "Le Chevalier a chargé ce tour",
+   "texte": "Each time this model makes a Charge move, until the end of the turn, its melee weapons have the [Devastating Wounds] ability."
+  }
+ ],
+ "Chaos Acastus Knight Porphyrion": [
+  {
+   "mot": "lethal",
+   "port": "T",
+   "nom": "Bastion de Puissance de Feu",
+   "quand": "Le Chevalier est resté immobile ce tour",
+   "texte": "Each time this model Remains Stationary, until the end of the turn, ranged weapons equipped by this model have the [LETHAL HITS] ability."
+  }
+ ],
+ "Chaos Cerastus Knight Atrapos": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Protocoles de Macro-extinction — TITANESQUE",
+   "quand": "La cible est TITANESQUE ou IMPOSANTE",
+   "texte": "Each time this model makes an attack that targets a Monster or Vehicle unit, add 1 to the Hit roll. If that target is Titanic or Towering, add 1 to the Wound roll as well."
+  }
+ ],
+ "Knight Ruinator": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Destruction Méthodique",
+   "quand": "La cible est sa victime désignée",
+   "texte": "At the start of the first battle round, select one unit from your opponent's army to be this model's victim. Each time this model makes an attack that targets its victim, you can re-roll the Wound roll. Each time this model's victim is destroyed, select one new enemy unit to be this model's victim."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "War Dog Huntsman": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Veneur",
+   "texte": "Each time this model makes an attack that targets a Monster or Vehicle unit, you can re-roll the Wound roll."
+  }
+ ],
+ "Chaos Acastus Knight Asterius": [
+  {
+   "vs": [
+    "veh"
+   ],
+   "champ": "strMod",
+   "val": 1,
+   "nom": "Briseur de Forteresses",
+   "texte": "Each time this model makes an attack that targets a Vehicle, improve the Strength and Damage characteristics of that attack by 1 (if that attack targets a Fortification, improve the Strength and Damage characteristics of that attack by 2 instead)."
+  },
+  {
+   "vs": [
+    "veh"
+   ],
+   "champ": "dmgMod",
+   "val": 1,
+   "nom": "Briseur de Forteresses — dégâts",
+   "texte": "Each time this model makes an attack that targets a Vehicle, improve the Strength and Damage characteristics of that attack by 1 (if that attack targets a Fortification, improve the Strength and Damage characteristics of that attack by 2 instead)."
+  }
+ ],
+ "Chaos Cerastus Knight Atrapos": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Protocoles de Macro-extinction",
+   "texte": "Each time this model makes an attack that targets a Monster or Vehicle unit, add 1 to the Hit roll. If that target is Titanic or Towering, add 1 to the Wound roll as well."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "kw": [],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Effroi — Fatalité",
+  "quand": "La capacité « Doom » est active pour ton armée, et la cible est Ébranlée",
+  "texte": "2 - Doom: Each time this model makes an attack, if the target is Battle-shocked, add 1 to the Wound roll."
+ },
+ {
+  "source": "Knight Desecrator",
+  "kw": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "port": "T",
+  "nom": "Contremaître (Aura)",
+  "quand": "Le Chien de Guerre est à 9\" du Desecrator",
+  "texte": "While a friendly War Dog model is within 9\" of this model, each time that War Dog model makes a ranged attack, re-roll a Hit roll of 1."
+ },
+ {
+  "source": "Knight Rampager",
+  "kw": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "port": "C",
+  "nom": "Saccage Frénétique (Aura)",
+  "quand": "Le Chien de Guerre est à 9\" du Rampager",
+  "texte": "While a friendly War Dog model is within 9\" of this model, each time that War Dog model makes a melee attack, re-roll a Hit roll of 1."
+ },
+ {
+  "source": "Chaos Cerastus Knight Atrapos",
+  "kw": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Dévoré par la Faim (Aura)",
+  "quand": "Le Chien de Guerre est à 6\" de l'Atrapos, et la cible est TITANESQUE ou IMPOSANTE",
+  "texte": "While a friendly War Dog model is within 6\" of this model, each time that War Dog model makes an attack that targets a Titanic or Towering unit, you can re-roll the Hit roll."
+ },
+ {
+  "source": "Chaos Questoris Knight Styrix",
+  "kw": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Vue de Proie (Aura)",
+  "quand": "Le Chien de Guerre est à 6\" du Styrix",
+  "texte": "While a friendly War Dog model is within 6\" of this model, ranged weapons equipped by that War Dog model have the [IGNORES COVER] ability."
+ },
+ {
+  "source": "Knight Ruinator",
+  "kw": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "nom": "Tueurs de Près (Aura)",
+  "quand": "Le Chien de Guerre est à 9\" du Ruinator, et la cible est l'unité ennemie la plus proche",
+  "texte": "While a friendly War Dog model is within 9\" of this model, each time that War Dog model makes an attack that targets the closest enemy unit, improve the Armour Penetration characteristic of that attack by 1."
+ },
+ {
+  "detach": "Bastions of Tyranny",
+  "kw": [
+   "Knight Tyrant"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Anéantir les Indignes",
+  "quand": "La cible est Ébranlée",
+  "texte": "Friendly KNIGHT TYRANT units’ attacks that target a battle-shocked unit have +1 to the hit roll."
+ },
+ {
+  "detach": "Houndpack Lance",
+  "kw": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "mot": "sust",
+  "nom": "Proie Marquée",
+  "quand": "La cible est la proie désignée à ta phase de Commandement, et visible",
+  "texte": "At the start of your Command phase, select one unit from your opponent’s army. Until the start of your next Command phase, each time a War Dog model from your army makes an attack that targets that enemy unit, if that unit is visible to the attacking model, that attack has the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "detach": "Infernal Lance",
+  "kw": [],
+  "mot": "lethal",
+  "nom": "Puissance Diabolique — [TOUCHES LÉTALES]",
+  "quand": "L'unité est Renforcée et choisit les Touches Létales",
+  "texte": "Diabolic Power: When this unit is selected to shoot or fight, select either the [LETHAL HITS] or [SUSTAINED HITS 1] ability. Until the end of the phase, weapons equipped by models in this unit have the selected ability."
+ },
+ {
+  "detach": "Infernal Lance",
+  "kw": [],
+  "mot": "sust",
+  "nom": "Puissance Diabolique — [TOUCHES SOUTENUES 1]",
+  "quand": "L'unité est Renforcée et choisit les Touches Soutenues 1",
+  "texte": "Diabolic Power: When this unit is selected to shoot or fight, select either the [LETHAL HITS] or [SUSTAINED HITS 1] ability. Until the end of the phase, weapons equipped by models in this unit have the selected ability."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Hungry for Combat",
+  "detach": "Houndpack Lance",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "War Dog Brigand",
+   "War Dog Executioner",
+   "War Dog Huntsman",
+   "War Dog Karnivore",
+   "War Dog Moirax",
+   "War Dog Stalker"
+  ],
+  "sauf": [],
+  "aide": "touche critique sur 5+ — deux CHIENS DE GUERRE au contact de la même cible",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Warp Vision",
+  "detach": "Infernal Lance",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT]",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Titanic Duel",
+  "detach": "Lords of Dread",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Chaos Cerastus Knight Acheron",
+   "Chaos Cerastus Knight Atrapos",
+   "Chaos Cerastus Knight Castigator",
+   "Chaos Cerastus Knight Lancer",
+   "Chaos Questoris Knight Magaera",
+   "Chaos Questoris Knight Styrix",
+   "Knight Abominant",
+   "Knight Desecrator",
+   "Knight Despoiler",
+   "Knight Rampager",
+   "Knight Ruinator",
+   "Knight Tyrant"
+  ],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher et pour blesser — contre le MONSTRE ou VÉHICULE désigné",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Titanic Duel — TITANESQUE",
+  "detach": "Lords of Dread",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Chaos Cerastus Knight Acheron",
+   "Chaos Cerastus Knight Atrapos",
+   "Chaos Cerastus Knight Castigator",
+   "Chaos Cerastus Knight Lancer",
+   "Chaos Questoris Knight Magaera",
+   "Chaos Questoris Knight Styrix",
+   "Knight Abominant",
+   "Knight Desecrator",
+   "Knight Despoiler",
+   "Knight Rampager",
+   "Knight Ruinator",
+   "Knight Tyrant"
+  ],
+  "sauf": [],
+  "aide": "relance des touches et des blessures ratées — la cible désignée est TITANESQUE",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Conquerors Without Mercy",
+  "detach": "Traitoris Lance",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA en mêlée — le Chevalier a chargé ce tour",
+  "effet": {
+   "apMod": 1
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -818,9 +1168,6 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
 const AURAS_PERSO = {};
 
 enregistreFaction({

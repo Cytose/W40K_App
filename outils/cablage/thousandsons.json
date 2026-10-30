@@ -1,0 +1,210 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — THOUSAND SONS",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-thousandsons.js, réécrit à",
+    "chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "LE GROS MANQUE : LES ARMES PSYCHIQUES. Une bonne part des règles de la",
+    "faction ne vaut que pour elles — Grand Coven (+1 pour blesser, [BLESSURES",
+    "DÉVASTATRICES]), Hexwarp Thrallband, « Devastating Sorcery », « Twisted",
+    "Sorceries », le Rhino, le Familier, le Sacrifice du Chaman. Le catalogue",
+    "porte bien le drapeau `psychic` sur l'arme, mais aucune table du",
+    "simulateur ne sait viser « les armes psychiques de l'unité » : appliquer",
+    "ces règles à toute l'unité les surestimerait. Elles attendent ce champ.",
+    "",
+    "LA RÈGLE D'ARMÉE — les Rituels — n'est pas câblée non plus : l'export",
+    "ne donne que la mécanique du test psychique, pas le texte des Rituels.",
+    "",
+    "AUTRES ABSENTS : les relances uniques (Warpforged Cabal), le Maître des",
+    "Arcanes du Seigneur du Changement (une seule de ses armes), la Foulée",
+    "Éthérée du Prince Démon ([TOUCHES SOUTENUES D3] sur une arme), et la",
+    "défense (Changehost of Deceit, Rubricae Phalanx)."
+  ],
+
+  "APTIS_UNITE": {
+    "Rubric Marines": [
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "port": "T",
+        "nom": "Porteurs du Changement",
+        "texte": "Each time a model in this unit makes a ranged attack, re-roll a Wound roll of 1. If the attack targets a unit within range of an objective marker you do not control, you can re-roll the Wound roll instead."
+      }
+    ]
+  },
+
+  "APTIS_COND": {
+    "Rubric Marines": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "port": "T",
+        "nom": "Porteurs du Changement — objectif adverse",
+        "quand": "La cible est à portée d'un objectif que tu ne contrôles pas",
+        "texte": "Each time a model in this unit makes a ranged attack, re-roll a Wound roll of 1. If the attack targets a unit within range of an objective marker you do not control, you can re-roll the Wound roll instead."
+      },
+      {
+        "mot": "ignoresCover",
+        "port": "T",
+        "nom": "Icône de Flamme",
+        "quand": "L'unité porte l'icône (les personnages n'en profitent pas)",
+        "texte": "Ranged weapons equipped by models in the bearer's unit (excluding Characters) have the [Ignores Cover] ability."
+      }
+    ],
+    "Chaos Predator Annihilator": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "T",
+        "nom": "Annihilation Ensorcelée",
+        "quand": "La cible est un MONSTRE ou VÉHICULE touché par une attaque psychique de ton armée ce tour (la relance des dégâts n'est pas simulée)",
+        "texte": "Each time this model makes a ranged attack that targets a Monster or Vehicle unit that was hit by one or more Psychic attacks made by a Thousand Sons Psyker unit from your army this turn, you can re-roll the Hit roll and you can re-roll the Damage roll."
+      }
+    ],
+    "Helbrute": [
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "C",
+        "nom": "Voué à la Destruction",
+        "quand": "Le Helbrute porte deux armes de mêlée en plus de son arme de base",
+        "texte": "If this model is equipped with 2 melee weapons in addition to its close combat weapon, add 2 to the Attacks characteristic of those two weapons."
+      }
+    ],
+    "Daemon Prince of Tzeentch with wings": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Chasseur d'Âmes — PSYKER",
+        "quand": "La cible est un PERSONNAGE PSYKER",
+        "texte": "Each time this model makes an attack that targets a Character unit, re-roll a Hit roll of 1 and re-roll a Wound roll of 1 (if that attack targets a Psyker Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll instead). Each time this model destroys a Character unit, this model regains up to D3 lost wounds (if that Character unit was a Psyker, this model regains up to 3 lost wounds instead)."
+      },
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "nom": "Chasseur d'Âmes — PSYKER, blessure",
+        "quand": "La cible est un PERSONNAGE PSYKER",
+        "texte": "Each time this model makes an attack that targets a Character unit, re-roll a Hit roll of 1 and re-roll a Wound roll of 1 (if that attack targets a Psyker Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll instead). Each time this model destroys a Character unit, this model regains up to D3 lost wounds (if that Character unit was a Psyker, this model regains up to 3 lost wounds instead)."
+      }
+    ]
+  },
+
+  "APTIS_CIBLE": {
+    "Daemon Prince of Tzeentch with wings": [
+      {
+        "vs": [
+          "perso"
+        ],
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Chasseur d'Âmes",
+        "texte": "Each time this model makes an attack that targets a Character unit, re-roll a Hit roll of 1 and re-roll a Wound roll of 1 (if that attack targets a Psyker Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll instead). Each time this model destroys a Character unit, this model regains up to D3 lost wounds (if that Character unit was a Psyker, this model regains up to 3 lost wounds instead)."
+      },
+      {
+        "vs": [
+          "perso"
+        ],
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Chasseur d'Âmes",
+        "texte": "Each time this model makes an attack that targets a Character unit, re-roll a Hit roll of 1 and re-roll a Wound roll of 1 (if that attack targets a Psyker Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll instead). Each time this model destroys a Character unit, this model regains up to D3 lost wounds (if that Character unit was a Psyker, this model regains up to 3 lost wounds instead)."
+      }
+    ]
+  },
+
+  "AURAS_PERSO": {
+    "Infernal Master": [
+      {
+        "mot": "sust:1",
+        "nom": "Maelström Maléfique",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+      }
+    ],
+    "Sorcerer": [
+      {
+        "mot": "lethal",
+        "nom": "Guidance Empyréenne",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+      }
+    ],
+    "Sorcerer in Terminator Armour": [
+      {
+        "mot": "lethal",
+        "nom": "Guidance Empyréenne",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+      }
+    ],
+    "Tzaangor Shaman": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Prophète Bestial",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Hit roll."
+      }
+    ]
+  },
+
+  "AURAS_ARMEE": [
+    {
+      "source": "Sorcerer in Terminator Armour",
+      "kw": [],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Marqué par le Destin",
+      "quand": "L'unité est menée par le Sorcier en Armure Terminator, et la cible est celle qu'il a désignée",
+      "texte": "At the start of your Shooting phase, select one enemy unit that is visible to this Psyker model. Until the end of the phase, each time a model in this unit makes an attack that targets that enemy unit, add 1 to the Hit roll."
+    },
+    {
+      "source": "Lord of Change",
+      "kw": [
+        "Blue Horrors",
+        "Flamers",
+        "Kairos Fateweaver",
+        "Pink Horrors",
+        "Screamers"
+      ],
+      "champ": "strMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Seigneur Démon de Tzeentch (Aura)",
+      "quand": "L'unité des LÉGIONS SCINTILLANTES est à 6\" du Seigneur du Changement",
+      "texte": "While a friendly Scintillating Legions unit is within 6\" of this model, each time a model in that unit makes a ranged attack, add 1 to the Strength characteristic of that attack."
+    },
+    {
+      "detach": "Sekhetar Cohort",
+      "kw": [
+        "Sekhetar Robots"
+      ],
+      "champ": "hitMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Infusion (Aura)",
+      "quand": "Les Robots Sekhetar sont à 12\" d'un PSYKER des Thousand Sons (CC améliorée de 1)",
+      "texte": "Infusion (Aura): While a friendly SEKHETAR ROBOTS unit is within 12\" of this unit, that unit’s melee attacks have +1 WS."
+    },
+    {
+      "detach": "Warpmeld Pact",
+      "kw": [
+        "Tzaangor Shaman",
+        "Tzaangors",
+        "Tzaangor Enlightened",
+        "Tzaangor Enlightened with Fatecaster greatbows",
+        "Tzaangor Shaman"
+      ],
+      "champ": "wndMod",
+      "val": 1,
+      "nom": "Sacrifice Distordant",
+      "quand": "L'unité MUTANTE de TZEENTCH fait un Sacrifice Distordant (D3 blessures mortelles en fin de phase)",
+      "texte": "Each time a TZEENTCH MUTANT INFANTRY or TZEENTCH MUTANT MOUNTED unit from your army is selected to shoot or fight, before selecting its targets, that unit can make a Warpmeld Sacrifice. If it does, until the end of the phase, each time a model in that unit makes an attack, add 1 to the Wound roll."
+    }
+  ],
+
+  "STRAT_SIMU": [
+    {"nom": "Scouring Warpflame", "detach": "Hexwarp Thrallband", "pc": 1, "ph": "T", "unites": ["Ahriman", "Daemon Prince of Tzeentch", "Daemon Prince of Tzeentch with wings", "Exalted Sorcerer", "Exalted Sorcerer on Disc of Tzeentch", "Infernal Master", "Kairos Fateweaver", "Lord of Change", "Magnus the Red", "Rubric Marines", "Scarab Occult Terminators", "Sorcerer", "Sorcerer in Terminator Armour", "Tzaangor Shaman"], "sauf": [], "aide": "[IGNORE LE COUVERT] — unité PSYKER entièrement dans le Flux de Magie", "effet": {"ignoresCover": true}},
+
+    {"nom": "Ensorcelled Infusion", "detach": "Warpforged Cabal", "pc": 2, "ph": "T", "unites": ["Chaos Land Raider", "Chaos Predator Annihilator", "Chaos Predator Destructor", "Chaos Rhino", "Chaos Vindicator", "Defiler", "Forgefiend", "Helbrute", "Heldrake", "Maulerfiend", "Sekhetar Robots"], "sauf": [], "aide": "+1 pour blesser au tir — VÉHICULE à 6\" d'un PSYKER", "effet": {"wndMod": 1}}
+  ]
+}
