@@ -1,0 +1,618 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — ADEPTA SORORITAS",
+    "",
+    "Écrit à la main : aucune source ne dit ce qu'une règle fait au CALCUL.",
+    "extraction.py fusionne ce fichier dans data-sororitas.js, qui est",
+    "réécrit à chaque extraction ; celui-ci ne l'est jamais.",
+    "",
+    "LA RÈGLE D'ARMÉE N'EST PAS CÂBLÉE. Un Acte de Foi remplace UN dé par un",
+    "dé de Miracle dont la valeur est connue : c'est un choix dé par dé, que",
+    "le moteur, qui raisonne en espérances, ne sait pas représenter. Les",
+    "détachements « Army of Faith » (deux Actes par phase) et « Sanctified",
+    "Orators » (Commandement) ne touchent rien d'autre.",
+    "",
+    "« Améliorer la CT/CC de 1 » (Champions of Faith, Sacred Champions) est",
+    "rendu par +1 au jet de touche. C'est la même chose tant qu'aucun autre",
+    "modificateur ne joue ; avec un -1 adverse, la règle réelle vaut mieux",
+    "que ce qu'on calcule. L'erreur est donc du côté prudent.",
+    "",
+    "Les aptitudes qui supposent une figurine présente — la Supérieure",
+    "Repentia, le Prêtre des Sanctifiers, Aestred Thurga — sont câblées comme",
+    "si elle l'était : c'est le cas de la liste standard.",
+    "",
+    "CE QUI RESTE DEHORS. Les -1 pour blesser et pour toucher défensifs",
+    "(Sworn Protectors, Junith Eruita, Blinding Radiance) : l'onglet",
+    "Encaisser ne lit que l'invulnérable, l'insensibilité et la PA. Les",
+    "insensibilités contre les seules blessures mortelles. La sauvegarde 2+",
+    "de l'Imagifier : seule son invulnérable 4+ est reprise.",
+    "",
+    "STRAT_SIMU : seize pastilles. Trois stratagèmes ont une version",
+    "meilleure sous condition ou un choix : ils font deux pastilles."
+  ],
+  "APTIS_UNITE": {
+    "Repentia Squad": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "C",
+        "nom": "Surveillante de la Rédemption",
+        "texte": "While this unit contains a Repentia Superior model, each time a Sisters Repentia model in this unit makes a melee attack, you can re-roll the Hit roll."
+      },
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "port": "C",
+        "nom": "Surveillante de la Rédemption",
+        "texte": "... and you can re-roll the Wound roll."
+      }
+    ],
+    "Retributor Squad": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "port": "T",
+        "nom": "Tempête de Rétribution",
+        "texte": "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1."
+      },
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "port": "T",
+        "nom": "Tempête de Rétribution",
+        "texte": "Each time a model in this unit makes a ranged attack, re-roll a Wound roll of 1."
+      }
+    ],
+    "Sisters Novitiate Squad": [
+      {
+        "champ": "rrH",
+        "val": "ones",
+        "nom": "Ferveur Impétueuse",
+        "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+      }
+    ],
+    "Sanctifiers": [
+      {
+        "mot": "sust:1",
+        "port": "C",
+        "nom": "Sermon du Ministorum",
+        "texte": "While this unit contains a Ministorum Priest, melee weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Arco-Flagellants": [
+      {
+        "champ": "atkMod",
+        "val": 2,
+        "port": "C",
+        "nom": "Mot Déclencheur Extremis",
+        "quand": "Le mot déclencheur est invoqué (A 4 → 6 ; [DANGEREUX] non simulé)",
+        "texte": "Until the end of the phase, arco-flails equipped by models in this unit have an Attacks characteristic of 6 and the HAZARDOUS ability."
+      }
+    ],
+    "Morvenn Vahl": [
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "nom": "Répugnance Vertueuse",
+        "quand": "Un dé de Miracle est défaussé",
+        "texte": "Discard 1 Miracle dice: until the end of the phase, add 3 to the Attacks characteristic of Fidelis and the Lance of Illumination."
+      }
+    ],
+    "Ministorum Priest": [
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Zélote",
+        "quand": "Déclenchée ce tour — une fois par bataille",
+        "texte": "Once per battle, in the Fight phase: improve the Strength and Attacks characteristics of melee weapons equipped by this model by 3."
+      },
+      {
+        "champ": "strMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Zélote — la Force",
+        "quand": "Déclenchée ce tour — une fois par bataille",
+        "texte": "... and Strength by 3."
+      }
+    ],
+    "Retributor Squad": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Tempête de Rétribution — vengeance",
+        "quand": "La cible a détruit une unité ADEPTA SORORITAS de ton armée",
+        "texte": "If such an attack targets an enemy unit that has destroyed one or more Adepta Sororitas units from your army during the battle, add 1 to the Hit roll."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "T",
+        "nom": "Tempête de Rétribution — vengeance",
+        "quand": "La cible a détruit une unité ADEPTA SORORITAS de ton armée",
+        "texte": "... and add 1 to the Wound roll as well."
+      }
+    ],
+    "Sisters Novitiate Squad": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Ferveur Impétueuse — objectif",
+        "quand": "La cible est à portée d'un pion d'objectif",
+        "texte": "If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Hit roll instead."
+      }
+    ],
+    "Canoness with Jump Pack": [
+      {
+        "champ": "atkMod",
+        "val": 3,
+        "port": "C",
+        "nom": "Délivrance Divine",
+        "quand": "Déclenchée ce tour — une fois par bataille",
+        "texte": "Once per battle, at the start of the Fight phase: add 3 to the Attacks characteristic of melee weapons equipped by the model."
+      },
+      {
+        "mot": "dev",
+        "port": "C",
+        "nom": "Délivrance Divine — Blessures Dévastatrices",
+        "quand": "Déclenchée ce tour — une fois par bataille",
+        "texte": "... and those weapons have the [DEVASTATING WOUNDS] ability."
+      }
+    ],
+    "Celestian Insidiants": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Vertu d'Intolérance",
+        "quand": "La cible est la proie désignée en début de bataille",
+        "texte": "Each time a model in this unit makes an attack that targets its quarry, that attack has the [Precision] ability and you can re-roll the Hit roll."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Paragon Warsuits": [
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Parangons Vertueux",
+        "texte": "Each time a model in this unit makes an attack that targets a MONSTER or VEHICLE unit, add 1 to the Hit roll."
+      },
+      {
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "champ": "wndMod",
+        "val": 1,
+        "nom": "Parangons Vertueux",
+        "texte": "... and add 1 to the Wound roll."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Aestred Thurga and Agathae Dolan": [
+      {
+        "mot": "dev",
+        "nom": "Auto-Tapisserie du Jugement",
+        "texte": "While this unit is leading a unit and contains an Aestred Thurga model, weapons equipped by models in that unit have the [DEVASTATING WOUNDS] ability."
+      }
+    ],
+    "Morvenn Vahl": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "nom": "Abbesse Sanctorum",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, you can re-roll the Hit roll."
+      },
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "nom": "Abbesse Sanctorum",
+        "texte": "While this model is leading a unit, each time a model in that unit makes an attack, you can re-roll the Wound roll."
+      }
+    ],
+    "Palatine": [
+      {
+        "mot": "lethal",
+        "nom": "Fureur des Justes",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+      }
+    ],
+    "Ministorum Priest": [
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "port": "C",
+        "nom": "Châtiment Vertueux",
+        "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, add 1 to the Wound roll."
+      }
+    ],
+    "Imagifier": [
+      {
+        "champ": "inv",
+        "val": 4,
+        "nom": "Étendard des Saints Martyrs",
+        "texte": "While this model is leading a unit, models in that unit have a Save characteristic of 2+ and a 4+ invulnerable save. (La sauvegarde 2+ n'est pas reprise.)"
+      }
+    ],
+    "Hospitaller": [
+      {
+        "champ": "fnp",
+        "val": 5,
+        "nom": "Medicus Ministorum",
+        "texte": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Castigator",
+      "kw": [],
+      "champ": "apMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Rites de Castigation",
+      "quand": "La cible a été touchée par le Castigator ce tour",
+      "texte": "Each time a friendly Adepta Sororitas unit makes a ranged attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1."
+    },
+    {
+      "source": "Immolator",
+      "kw": [],
+      "mot": "ignoresCover",
+      "port": "T",
+      "nom": "Purger et Purifier",
+      "quand": "La cible a été touchée par l'Immolator cette phase",
+      "texte": "Until the end of the phase, that enemy unit cannot have the Benefit of Cover."
+    },
+    {
+      "source": "Triumph of Saint Katherine",
+      "kw": [],
+      "champ": "rrW",
+      "val": "ones",
+      "port": "T",
+      "nom": "Simulacre du Linceul d'Argent (Aura)",
+      "quand": "L'unité est à 6\" du Triomphe de Sainte Katherine, et la relique est choisie",
+      "texte": "While a friendly Adepta Sororitas unit is within 6\" of this model, each time a model in that unit makes a ranged attack, re-roll a Wound roll of 1."
+    },
+    {
+      "source": "Intranzia Fraye",
+      "kw": [],
+      "mot": "lethal",
+      "nom": "Jugé pour Exécution",
+      "quand": "La cible a été désignée par Intranzia Fraye",
+      "texte": "Each time a friendly Adepta Sororitas model makes an attack that targets that enemy unit, that attack has the [LETHAL HITS] ability."
+    },
+    {
+      "source": "Canoness",
+      "kw": [],
+      "champ": "rrH",
+      "val": "ones",
+      "nom": "Sceptre d'Office",
+      "quand": "L'unité est menée par une Canoness qui porte le Sceptre d'Office",
+      "texte": "Each time a model in the bearer's unit makes an attack, re-roll a Hit roll of 1."
+    },
+    {
+      "detach": "Bringers of Flame",
+      "kw": [],
+      "champ": "strMod",
+      "val": 1,
+      "port": "T",
+      "nom": "Purgation Fervente — à 6\"",
+      "quand": "La cible est à 6\" ou moins",
+      "texte": "Each time an attack made with such a weapon targets a unit within 6\", add 1 to the Strength characteristic of that attack."
+    },
+    {
+      "detach": "Champions of Faith",
+      "kw": [
+        "Battle Sisters Squad",
+        "Celestian Insidiants",
+        "Celestian Sacresants",
+        "Paragon Warsuits"
+      ],
+      "champ": "hitMod",
+      "val": 1,
+      "nom": "Dessein Vertueux",
+      "quand": "L'unité est Vertueuse ce tour",
+      "texte": "While a unit is Righteous: improve the WS and BS of weapons equipped by Battle Sisters Squad, Celestian Insidiants, Celestian Sacresants and Paragon Warsuits models by 1. (Rendu par +1 au jet de touche.)"
+    },
+    {
+      "detach": "Hallowed Martyrs",
+      "kw": [],
+      "champ": "hitMod",
+      "val": 1,
+      "nom": "Le Sang des Martyrs",
+      "quand": "L'unité est sous son effectif de départ",
+      "texte": "Add 1 to the Hit roll if that model’s unit is below its Starting Strength."
+    },
+    {
+      "detach": "Hallowed Martyrs",
+      "kw": [],
+      "champ": "wndMod",
+      "val": 1,
+      "nom": "Le Sang des Martyrs — sous la moitié",
+      "quand": "L'unité est sous la moitié de son effectif (cocher aussi la précédente)",
+      "texte": "... and add 1 to the Wound roll, as well, if that model’s unit is Below Half-strength."
+    },
+    {
+      "detach": "Penitent Host",
+      "kw": [
+        "Arco-Flagellants",
+        "Intranzia Fraye",
+        "Ministorum Priest",
+        "Mortifiers",
+        "Penitent Engines",
+        "Repentia Squad"
+      ],
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Absolution au Combat",
+      "quand": "Ce vœu est actif et l'unité a chargé ce tour",
+      "texte": "If that unit made a Charge move this turn, add 1 to the Attacks characteristic of melee weapons equipped by PENITENT models in that unit."
+    },
+    {
+      "detach": "Penitent Host",
+      "kw": [
+        "Arco-Flagellants",
+        "Intranzia Fraye",
+        "Ministorum Priest",
+        "Mortifiers",
+        "Penitent Engines",
+        "Repentia Squad"
+      ],
+      "champ": "strMod",
+      "val": 1,
+      "port": "C",
+      "nom": "Absolution au Combat — la Force",
+      "quand": "Ce vœu est actif et l'unité a chargé ce tour",
+      "texte": "... and add 1 to the Strength characteristic."
+    }
+  ],
+  "OCTROIS_DETACH": {
+    "Bringers of Flame": [
+      {
+        "qui": "unite",
+        "kw": [],
+        "mot": "assault",
+        "port": "T",
+        "nom": "Purgation Fervente",
+        "texte": "Ranged weapons equipped by ADEPTA SORORITAS models from your army have the [ASSAULT] ability."
+      }
+    ],
+    "Sacred Champions": [
+      {
+        "qui": "unite",
+        "kw": [
+          "Celestian Insidiants",
+          "Celestian Sacresants"
+        ],
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Quête Sacrée",
+        "texte": "Friendly CELESTIAN units’ attacks have +1 BS and WS. (Rendu par +1 au jet de touche.)"
+      }
+    ]
+  },
+  "STRAT_SIMU": [
+    {
+      "nom": "Divine Guidance",
+      "detach": "Army of Faith",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 en PA",
+      "effet": {
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Faith and Fury",
+      "detach": "Army of Faith",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "[LANCE] : +1 pour blesser, l'unité devant avoir chargé ce tour",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Light of the Emperor",
+      "detach": "Army of Faith",
+      "pc": 2,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "ignore les modificateurs de CT/CC et de jets — l'unité est bénie",
+      "effet": {
+        "ignoreMalus": true
+      }
+    },
+    {
+      "nom": "Cleansing Flames",
+      "detach": "Bringers of Flame",
+      "pc": 2,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "[BLESSURES DÉVASTATRICES] — armes [TORRENT] seulement",
+      "effet": {
+        "dev": true
+      }
+    },
+    {
+      "nom": "Righteous Blows",
+      "detach": "Bringers of Flame",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] en mêlée",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Rites of Fire",
+      "detach": "Bringers of Flame",
+      "pc": 1,
+      "ph": "T",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 pour blesser — cible à 6\" sur un objectif, l'unité a débarqué ce tour",
+      "effet": {
+        "wndMod": 1
+      }
+    },
+    {
+      "nom": "Suffer Not the Unfaithful — Touches Fatales",
+      "detach": "Champions of Faith",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES FATALES] — l'unité est Vertueuse",
+      "effet": {
+        "lethal": true
+      }
+    },
+    {
+      "nom": "Suffer Not the Unfaithful — Touches Soutenues",
+      "detach": "Champions of Faith",
+      "pc": 1,
+      "ph": "TC",
+      "unites": [],
+      "sauf": [],
+      "aide": "[TOUCHES SOUTENUES 1] — l'unité est Vertueuse",
+      "effet": {
+        "sustainedOn": true,
+        "sustainedN": "1"
+      }
+    },
+    {
+      "nom": "To the Heart of Heresy",
+      "detach": "Champions of Faith",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 en Force en mêlée",
+      "effet": {
+        "strMod": 1
+      }
+    },
+    {
+      "nom": "To the Heart of Heresy — Vertueuse",
+      "detach": "Champions of Faith",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "+1 en Force et +1 en PA en mêlée — l'unité est Vertueuse",
+      "effet": {
+        "strMod": 1,
+        "apMod": 1
+      }
+    },
+    {
+      "nom": "Devastating Reprise",
+      "detach": "Chorus of Condemnation",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Canoness with Jump Pack",
+        "Junith Eruita",
+        "Saint Celestine",
+        "Seraphim Squad",
+        "Zephyrim Squad"
+      ],
+      "sauf": [],
+      "aide": "[BLESSURES DÉVASTATRICES] contre l'unité touchée par l'Exorcist — ni MONSTRE ni VÉHICULE",
+      "effet": {
+        "dev": true
+      }
+    },
+    {
+      "nom": "Harmonised Exorcism",
+      "detach": "Chorus of Condemnation",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Exorcist"
+      ],
+      "sauf": [],
+      "aide": "+1 pour toucher contre l'unité désignée",
+      "effet": {
+        "hitMod": 1
+      }
+    },
+    {
+      "nom": "Righteous Vengeance",
+      "detach": "Hallowed Martyrs",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des touches en mêlée",
+      "effet": {
+        "rrH": "failed"
+      }
+    },
+    {
+      "nom": "Righteous Vengeance — sous la moitié",
+      "detach": "Hallowed Martyrs",
+      "pc": 1,
+      "ph": "C",
+      "unites": [],
+      "sauf": [],
+      "aide": "relance des touches et des blessures en mêlée — l'unité est sous la moitié de son effectif",
+      "effet": {
+        "rrH": "failed",
+        "rrW": "failed"
+      }
+    },
+    {
+      "nom": "Passion of the Penitent",
+      "detach": "Penitent Host",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Arco-Flagellants",
+        "Intranzia Fraye",
+        "Ministorum Priest",
+        "Mortifiers",
+        "Penitent Engines",
+        "Repentia Squad"
+      ],
+      "sauf": [],
+      "aide": "touches critiques sur 5+ en mêlée",
+      "effet": {
+        "critH": 5
+      }
+    },
+    {
+      "nom": "Sanctified Blows",
+      "detach": "Sacred Champions",
+      "pc": 1,
+      "ph": "C",
+      "unites": [
+        "Celestian Sacresants"
+      ],
+      "sauf": [],
+      "aide": "+1 attaque et +1 en Force en mêlée",
+      "effet": {
+        "atkMod": 1,
+        "strMod": 1
+      }
+    }
+  ]
+}

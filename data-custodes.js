@@ -1135,11 +1135,527 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_COND = {
+ "Allarus Custodians": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Tueurs de Tyrans",
+   "quand": "La cible a une Endurance supérieure à 8",
+   "texte": "This unit's melee attacks that target a unit with a T greater than this unit's T have +1 to wound rolls."
+  }
+ ],
+ "Blade Champion": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Épée du Trône",
+   "quand": "La cible est la marque du Champion",
+   "texte": "This model's attacks that target this model's mark have +1 to wound rolls."
+  }
+ ],
+ "Custodian Guard Sodality": [
+  {
+   "mot": "sust",
+   "nom": "Défense Impénétrable",
+   "quand": "L'unité ou la cible est à portée d'un objectif, et la cible n'est ni MONSTRE ni VÉHICULE",
+   "texte": "This unit's attacks have [SUSTAINED HITS 1: non-MONSTER/VEHICLE] if this unit, or the target, is within range of an objective."
+  }
+ ],
+ "Sentinel Guard Sodality": [
+  {
+   "mot": "lethal",
+   "nom": "Veille Constante",
+   "quand": "L'unité ou la cible est à portée d'un objectif, et la cible n'est ni MONSTRE ni VÉHICULE",
+   "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE] if this unit, or the target, is within range of an objective."
+  }
+ ],
+ "Vertus Praetors": [
+  {
+   "mot": "sust",
+   "port": "C",
+   "nom": "Exécution Vif-Argent",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "If this unit made a charge move this turn, this unit's melee attacks have [SUSTAINED HITS 1]."
+  }
+ ],
+ "Gyrfalcon Jetbike Sodality": [
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Coup Fatal",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "If this unit made a charge move this turn, this unit's melee attacks have +1 AP."
+  }
+ ],
+ "Venatari with Kinetic Destroyers": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "T",
+   "nom": "Frappe Venue du Ciel",
+   "quand": "L'unité est arrivée de réserve ce tour",
+   "texte": "In your Shooting phase, if this unit made an ingress move this turn, this unit's ranged attacks can re-roll hit rolls."
+  }
+ ],
+ "Trajann Valoris": [
+  {
+   "arme": "Watcher's Axe",
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Entrave Temporelle",
+   "quand": "Déclenchée ce tour — une fois par bataille",
+   "texte": "(Once per battle, per army) This model’s Watcher’s Axe weapon has +3 A until the end of the phase."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Caladius Grav-tank": [
+  {
+   "sauf": [
+    "mon",
+    "veh"
+   ],
+   "champ": "apMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Optiques de Destruction",
+   "texte": "This unit's ranged attacks that target a unit (excluding MONSTER/VEHICLE) have +1 AP."
+  }
+ ],
+ "Aquilon Terminators with Solarite Power Gauntlets": [
+  {
+   "sauf": [
+    "mon",
+    "veh"
+   ],
+   "champ": "apMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Ennemi Redouté",
+   "texte": "This unit's melee attacks that target a unit (excluding MONSTER/VEHICLE units) have +1 AP."
+  }
+ ],
+ "Aquilon Terminators with Solarite Power Talons": [
+  {
+   "vs": [
+    "inf"
+   ],
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Moisson Terrible",
+   "texte": "This unit’s attacks that target an Infantry unit can re-roll hit rolls of 1."
+  },
+  {
+   "vs": [
+    "inf"
+   ],
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Moisson Terrible",
+   "texte": "This unit’s attacks that target an Infantry unit can re-roll wound rolls of 1."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "kw": [],
+  "sauf": [
+   "Anathema Psykana Rhino",
+   "Knight-Centura",
+   "Prosecutor Squad",
+   "Vigilator Squad",
+   "Witchseeker Squad"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "port": "C",
+  "nom": "Ka’tah Dacatarai",
+  "quand": "Dacatarai choisi au début du Combat, et la cible n'est ni MONSTRE ni VÉHICULE",
+  "texte": "Your unit’s melee attacks that target an enemy unit (excluding MONSTER/VEHICLE units) can re-roll hit rolls of 1."
+ },
+ {
+  "kw": [],
+  "sauf": [
+   "Anathema Psykana Rhino",
+   "Knight-Centura",
+   "Prosecutor Squad",
+   "Vigilator Squad",
+   "Witchseeker Squad"
+  ],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Ka’tah Rendax",
+  "quand": "Rendax choisi quand l'unité combat, et la cible est un MONSTRE ou un VÉHICULE",
+  "texte": "Your unit’s melee attacks have [Lethal Hits: Monster/Vehicle]."
+ },
+ {
+  "kw": [],
+  "sauf": [
+   "Anathema Psykana Rhino",
+   "Knight-Centura",
+   "Prosecutor Squad",
+   "Vigilator Squad",
+   "Witchseeker Squad"
+  ],
+  "mot": "ignoreMalus",
+  "port": "T",
+  "nom": "Ka’tah Salvus",
+  "quand": "Salvus choisi quand l'unité tire",
+  "texte": "Your unit can ignore modifiers to your unit’s: BS. Hit rolls and wound rolls."
+ },
+ {
+  "detach": "Auric Champions",
+  "kw": [
+   "character"
+  ],
+  "qui": "figurine",
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Assemblage of Might",
+  "quand": "La cible est l'ennemi redoutable désigné à ta phase de Commandement — armes des PERSONNAGES seulement",
+  "texte": "Friendly Adeptus Custodes Character models’ attacks that target a dreadful foe unit have +1 to wound rolls."
+ },
+ {
+  "detach": "Guardians of the Throne",
+  "kw": [],
+  "mot": "sust",
+  "port": "C",
+  "nom": "Martial Mastery — Touches Soutenues",
+  "quand": "Choisi quand l'unité combat (au lieu des Touches Fatales)",
+  "texte": "When a friendly Adeptus Custodes unit is selected to fight, that unit’s melee attacks have [Sustained Hits 1]."
+ },
+ {
+  "detach": "Guardians of the Throne",
+  "kw": [],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Martial Mastery — Touches Fatales",
+  "quand": "Choisi quand l'unité combat (au lieu des Touches Soutenues)",
+  "texte": "When a friendly Adeptus Custodes unit is selected to fight, that unit’s melee attacks have [Lethal Hits]."
+ },
+ {
+  "detach": "Honoured Companions",
+  "kw": [
+   "Custodian Guard Sodality",
+   "Custodian Wardens",
+   "Sentinel Guard Sodality"
+  ],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Companion’s Watch",
+  "quand": "L'unité est à portée d'un objectif",
+  "texte": "While a friendly Trusted Sentinel unit is within range of an objective, that unit’s attacks can re-roll wound rolls of 1."
+ },
+ {
+  "detach": "Might of the Moritoi",
+  "kw": [
+   "Contemptor-Achillus Dreadnought",
+   "Contemptor-Galatus Dreadnought",
+   "Telemon Heavy Dreadnought",
+   "Venerable Contemptor Dreadnought"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Moritoi Ancients — entamée",
+  "quand": "Le Dreadnought est sous son effectif de départ",
+  "texte": "While a friendly ADEPTUS CUSTODES DREADNOUGHT unit is below starting strength, that unit’s attacks can re-roll hit rolls of 1."
+ },
+ {
+  "detach": "Might of the Moritoi",
+  "kw": [
+   "Contemptor-Achillus Dreadnought",
+   "Contemptor-Galatus Dreadnought",
+   "Telemon Heavy Dreadnought",
+   "Venerable Contemptor Dreadnought"
+  ],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Moritoi Ancients — sous la moitié",
+  "quand": "Le Dreadnought est sous la moitié de son effectif (cocher aussi « entamée »)",
+  "texte": "While a friendly ADEPTUS CUSTODES DREADNOUGHT unit is below half-strength, that unit’s attacks can re-roll wound rolls of 1 (as well as hit rolls of 1)."
+ },
+ {
+  "detach": "Grav‑Assault Force",
+  "kw": [
+   "Caladius Annihilator Grav-tank",
+   "Caladius Grav-tank",
+   "Coronus Grav-carrier",
+   "Pallas Grav-attack"
+  ],
+  "sens": "def",
+  "champ": "inv",
+  "val": 4,
+  "nom": "Flare Shields",
+  "quand": "L'attaque est une attaque de tir",
+  "texte": "Friendly grav-assault units have 4+ InSv against ranged attacks."
+ },
+ {
+  "source": "Trajann Valoris",
+  "kw": [],
+  "sauf": [
+   "vehicle",
+   "monster"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Capitaine-Général (Aura)",
+  "quand": "L'unité est à 6\" de Trajann Valoris",
+  "texte": "Friendly Adeptus Custodes units (excluding MONSTER/VEHICLE units) within 6\" of this model can re-roll hit rolls of 1."
+ },
+ {
+  "source": "Trajann Valoris",
+  "kw": [],
+  "sauf": [
+   "vehicle",
+   "monster"
+  ],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Capitaine-Général (Aura)",
+  "quand": "L'unité est à 6\" de Trajann Valoris",
+  "texte": "Friendly Adeptus Custodes units (excluding MONSTER/VEHICLE units) within 6\" of this model can re-roll wound rolls of 1."
+ },
+ {
+  "source": "Ares Gunship",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Bombes Infernus",
+  "quand": "La cible a été désignée par l'Ares Gunship à la fin du Combat adverse",
+  "texte": "Ranged attacks that target that enemy unit have [IGNORES COVER] until the end of your next turn."
+ },
+ {
+  "source": "Custodian Wardens",
+  "kw": [
+   "Custodian Wardens"
+  ],
+  "sens": "def",
+  "champ": "apMod",
+  "val": -1,
+  "nom": "Forteresse Vivante",
+  "quand": "Toujours — c'est l'aptitude de la fiche",
+  "texte": "Attacks that target this unit have -1AP."
+ },
+ {
+  "source": "Caladius Annihilator Grav-tank",
+  "kw": [
+   "Caladius Annihilator Grav-tank"
+  ],
+  "sens": "def",
+  "champ": "inv",
+  "val": 4,
+  "nom": "Boucliers Éclairs",
+  "quand": "L'attaque est une attaque de tir",
+  "texte": "This unit has a 4+ InSv against ranged attacks."
+ },
+ {
+  "source": "Caladius Grav-tank",
+  "kw": [
+   "Caladius Grav-tank"
+  ],
+  "sens": "def",
+  "champ": "inv",
+  "val": 4,
+  "nom": "Boucliers Éclairs",
+  "quand": "L'attaque est une attaque de tir",
+  "texte": "This unit has a 4+ InSv against ranged attacks."
+ },
+ {
+  "source": "Coronus Grav-carrier",
+  "kw": [
+   "Coronus Grav-carrier"
+  ],
+  "sens": "def",
+  "champ": "inv",
+  "val": 4,
+  "nom": "Boucliers Éclairs",
+  "quand": "L'attaque est une attaque de tir",
+  "texte": "This unit has a 4+ InSv against ranged attacks."
+ },
+ {
+  "source": "Pallas Grav-attack",
+  "kw": [
+   "Pallas Grav-attack"
+  ],
+  "sens": "def",
+  "champ": "inv",
+  "val": 4,
+  "nom": "Boucliers Éclairs",
+  "quand": "L'attaque est une attaque de tir",
+  "texte": "This unit has a 4+ InSv against ranged attacks."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Tip of the Talon",
+  "detach": "Aquilan Shield",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en Force — contre une cible à 9\" ou moins",
+  "effet": {
+   "strMod": 1
+  }
+ },
+ {
+  "nom": "Bearers of His Light",
+  "detach": "Emissaries Imperatus",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "ignore les modificateurs aux jets de touche et de blessure",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Slayers of Nightmares",
+  "detach": "Emissaries Imperatus",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 pour blesser — contre une cible d'Endurance supérieure",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Inevitable Annihilation",
+  "detach": "Grav‑Assault Force",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Caladius Annihilator Grav-tank",
+   "Caladius Grav-tank",
+   "Coronus Grav-carrier",
+   "Pallas Grav-attack"
+  ],
+  "sauf": [],
+  "aide": "ignore les modificateurs de CT et de touche",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Avenge the Fallen",
+  "detach": "Honoured Companions",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Custodian Guard Sodality",
+   "Custodian Wardens",
+   "Sentinel Guard Sodality"
+  ],
+  "sauf": [],
+  "aide": "+2 attaques en mêlée — unité sous son effectif de départ ; les PERSONNAGES n'en profitent pas",
+  "effet": {
+   "atkMod": 2
+  }
+ },
+ {
+  "nom": "Honoured Interred",
+  "detach": "Might of the Moritoi",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher — l'unité est à 6\" du Dreadnought désigné",
+  "effet": {
+   "rrH": "ones"
+  }
+ },
+ {
+  "nom": "Anathema Blademastery — Touches Soutenues",
+  "detach": "Null Maiden Vigil",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Vigilator Squad"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1]",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ },
+ {
+  "nom": "Anathema Blademastery — Touches Fatales",
+  "detach": "Null Maiden Vigil",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Vigilator Squad"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES]",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Psy-Chaff Volley",
+  "detach": "Null Maiden Vigil",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA contre l'unité poursuivie par les Prosecutors ce tour",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Purgation Sweep",
+  "detach": "Null Maiden Vigil",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Witchseeker Squad"
+  ],
+  "sauf": [],
+  "aide": "+1 attaque aux armes [TORRENT]",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Purgation Sweep — cible PSYKER ou ébranlée",
+  "detach": "Null Maiden Vigil",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Witchseeker Squad"
+  ],
+  "sauf": [],
+  "aide": "+2 attaques aux armes [TORRENT] — cible PSYKER ou ébranlée",
+  "effet": {
+   "atkMod": 2
+  }
+ },
+ {
+  "nom": "Grim Responsibility",
+  "detach": "Shadowkeepers",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] — contre PERSONNAGE ou MONSTRE",
+  "effet": {
+   "lethal": true
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -1149,8 +1665,6 @@ const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
 const AURAS_PERSO = {};
 
 enregistreFaction({

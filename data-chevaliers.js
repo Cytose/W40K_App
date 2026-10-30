@@ -917,11 +917,551 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_COND = {
+ "Armiger Warglaive": [
+  {
+   "arme": "➤ Reaper chain-cleaver - strike",
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Gloire Impétueuse — frappe",
+   "quand": "Le Warglaive a chargé ce tour",
+   "texte": "Each time this model makes a charge move, add 1 to the Attacks characteristic of this model's reaper chain-cleaver - strike profile."
+  },
+  {
+   "arme": "➤ Reaper chain-cleaver - sweep",
+   "champ": "atkMod",
+   "val": 2,
+   "port": "C",
+   "nom": "Gloire Impétueuse — balayage",
+   "quand": "Le Warglaive a chargé ce tour",
+   "texte": "... and add 2 to the Attacks characteristic of this model's reaper chain-cleaver - sweep profile."
+  }
+ ],
+ "Knight Errant": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Assaut Agressif",
+   "quand": "La cible est l'unité éligible la plus proche",
+   "texte": "Each time this model makes a ranged attack that targets the closest eligible target, add 1 to the Hit roll."
+  }
+ ],
+ "Knight Crusader": [
+  {
+   "mot": "sust",
+   "port": "T",
+   "nom": "Salves Punitives",
+   "quand": "Le Crusader est resté Stationnaire ce tour",
+   "texte": "In your Movement phase, if this model Remains Stationary, until the end of the turn, ranged weapons equipped by this model have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Knight Preceptor": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Exemple du Code",
+   "quand": "La cible est la proie du Preceptor",
+   "texte": "Each time this model makes an attack that targets its quarry, you can re-roll the Wound roll."
+  }
+ ],
+ "Acastus Knight Porphyrion": [
+  {
+   "mot": "lethal",
+   "port": "T",
+   "nom": "Bastion de Puissance de Feu",
+   "quand": "Le Porphyrion est resté Stationnaire ce tour",
+   "texte": "Each time this model Remains Stationary, until the end of the turn, ranged weapons equipped by this model have the [LETHAL HITS] ability."
+  }
+ ],
+ "Cerastus Knight Atrapos": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Protocoles de Macro-Extinction — TITANESQUE",
+   "quand": "La cible est TITANESQUE ou IMPOSANTE",
+   "texte": "If that target is TITANIC or TOWERING, add 1 to the Wound roll as well."
+  }
+ ],
+ "Knight Destrier": [
+  {
+   "champ": "atkMod",
+   "val": 2,
+   "port": "C",
+   "nom": "Charge Tonitruante",
+   "quand": "Le Destrier porte la lance et l'épée tronçonneuse",
+   "texte": "If this model is equipped with a thundershock spear and a bellatus reaper chainsword, add 2 to the Attacks characteristic of melee weapons equipped by this model."
+  },
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Feu de Saturation",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "Each time this model makes a ranged attack that targets a unit within range of one or more objective markers, that attack has the [IGNORES COVER] ability."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Knight Warden": [
+  {
+   "sauf": [
+    "mon",
+    "veh"
+   ],
+   "mot": "dev",
+   "port": "T",
+   "nom": "Éclaircir leurs Rangs",
+   "texte": "Each time this model makes a ranged attack that targets an enemy unit (excluding Monsters and Vehicles), that attack has the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Acastus Knight Asterius": [
+  {
+   "vs": [
+    "veh"
+   ],
+   "champ": "strMod",
+   "val": 1,
+   "nom": "Pourfendeur de Forteresses",
+   "texte": "Each time this model makes an attack that targets a VEHICLE, improve the Strength characteristic of that attack by 1."
+  },
+  {
+   "vs": [
+    "veh"
+   ],
+   "champ": "dmgMod",
+   "val": 1,
+   "nom": "Pourfendeur de Forteresses",
+   "texte": "... and the Damage characteristic by 1."
+  }
+ ],
+ "Cerastus Knight Atrapos": [
+  {
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Protocoles de Macro-Extinction",
+   "texte": "Each time this model makes an attack that targets a MONSTER or VEHICLE unit, add 1 to the Hit roll."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Knight Paladin",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "mot": "lethal",
+  "nom": "Devoir du Paladin (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Paladin",
+  "texte": "While a model is affected by this ability, weapons equipped by that model have the [LETHAL HITS] ability."
+ },
+ {
+  "source": "Knight Paladin",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Devoir du Paladin — Lance (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Paladin, et il a chargé ce tour",
+  "texte": "... and melee weapons equipped by that model have the [LANCE] ability. (+1 pour blesser après une charge.)"
+ },
+ {
+  "source": "Knight Gallant",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "port": "C",
+  "nom": "Devoir du Gallant (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Gallant",
+  "texte": "Each time that model makes a melee attack, you can re-roll the Hit roll."
+ },
+ {
+  "source": "Knight Warden",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "mot": "sust",
+  "nom": "Devoir du Warden (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Warden",
+  "texte": "While a model is affected by this ability, weapons equipped by that model have the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "source": "Knight Warden",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Devoir du Warden — couvert (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Warden",
+  "texte": "... and ranged weapons equipped by that model have the [IGNORES COVER] ability."
+ },
+ {
+  "source": "Knight Crusader",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Devoir du Crusader (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Crusader",
+  "texte": "Each time that model makes a ranged attack, add 1 to the Hit roll."
+ },
+ {
+  "source": "Knight Preceptor",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Mentor (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Knight Preceptor, et la cible est la proie du Preceptor",
+  "texte": "Each time a model affected by this ability makes an attack that targets this model's quarry, you can re-roll the Wound roll."
+ },
+ {
+  "source": "Cerastus Knight Castigator",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "mot": "sust",
+  "port": "T",
+  "nom": "Devoir du Castigator (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Cerastus Knight Castigator",
+  "texte": "Its ranged weapons have the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "source": "Cerastus Knight Castigator",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Devoir du Castigator — PA (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Cerastus Knight Castigator",
+  "texte": "... and the Armour Penetration characteristic of its ranged weapons is improved by 1."
+ },
+ {
+  "source": "Cerastus Knight Atrapos",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Devoir de l'Atrapos (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Cerastus Knight Atrapos, et la cible est TITANESQUE ou IMPOSANTE",
+  "texte": "Each time that model makes an attack that targets a TITANIC or TOWERING model, you can re-roll the Hit roll."
+ },
+ {
+  "source": "Cerastus Knight Atrapos",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Devoir de l'Atrapos — blessure (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Cerastus Knight Atrapos, et la cible est TITANESQUE ou IMPOSANTE",
+  "texte": "... and you can re-roll the Wound roll."
+ },
+ {
+  "source": "Questoris Knight Magaera",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "strMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Devoir du Magaera (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Questoris Knight Magaera, et la cible est la plus proche",
+  "texte": "Each time that model makes a ranged attack that targets the closest eligible target, improve the Strength characteristic of that attack by 1."
+ },
+ {
+  "source": "Questoris Knight Magaera",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Devoir du Magaera — PA (Lien d'Allégeance)",
+  "quand": "L'Armiger est sous l'effet du Lien d'Allégeance de Questoris Knight Magaera, et la cible est la plus proche",
+  "texte": "... and improve the Armour Penetration characteristic by 1."
+ },
+ {
+  "source": "Cerastus Knight Acheron",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Flammes Brûlantes",
+  "quand": "La cible a été touchée par le canon à flammes de l'Acheron cette phase",
+  "texte": "Until the end of the phase, that enemy unit cannot have the Benefit of Cover."
+ },
+ {
+  "detach": "Dominus Foebreakers",
+  "kw": [
+   "Knight Castellan",
+   "Knight Valiant"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Pluie de Dévastation",
+  "quand": "La cible est dans une zone de décor",
+  "texte": "Friendly IMPERIAL KNIGHTS DOMINUS units’ attacks that target a unit in a terrain area have +1 to hit rolls."
+ },
+ {
+  "detach": "Gate Warden Lance",
+  "kw": [],
+  "mot": "ignoreMalus",
+  "nom": "Contre la Horde",
+  "quand": "L'unité est sur ta ligne défensive",
+  "texte": "While on your defensive line: you can ignore any or all modifiers to the Hit roll."
+ },
+ {
+  "detach": "Gate Warden Lance",
+  "kw": [],
+  "mot": "sust",
+  "nom": "Contre la Horde — Touches Soutenues",
+  "quand": "L'unité est sur ta ligne défensive",
+  "texte": "... and weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "detach": "Throne-Bonded Outriders",
+  "kw": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Chassés de leurs Repaires",
+  "quand": "L'Armiger est sous l'effet d'un Lien d'Allégeance",
+  "texte": "While a friendly ARMIGER unit is affected by a Bondsman ability, that unit’s ranged attacks have [IGNORES COVER]."
+ },
+ {
+  "detach": "Freeblade Company",
+  "kw": [],
+  "sens": "def",
+  "champ": "fnp",
+  "val": 6,
+  "nom": "Chevaliers de Légende",
+  "quand": "Toujours, dans ce détachement",
+  "texte": "Imperial Knights models from your army have the Feel No Pain 6+ ability."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Foebreaker Firestorm",
+  "detach": "Dominus Foebreakers",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Knight Castellan",
+   "Knight Valiant"
+  ],
+  "sauf": [],
+  "aide": "+1 attaque aux armes [EXPLOSION] — l'unité est engagée, et perd l'Explosion",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Strength from Exile",
+  "detach": "Freeblade Company",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des 1 pour toucher et pour blesser — aucune unité amie à 9\"",
+  "effet": {
+   "rrH": "ones",
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Drive Them Out!",
+  "detach": "Gate Warden Lance",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "touches critiques sur 5+ — contre une unité sur ta ligne défensive",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Steadfast Superiority",
+  "detach": "Gate Warden Lance",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches — l'unité est engagée, sur ta ligne défensive",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Titanic Bombardment",
+  "detach": "Gate Warden Lance",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Acastus Knight Asterius",
+   "Acastus Knight Porphyrion",
+   "Canis Rex",
+   "Cerastus Knight Acheron",
+   "Cerastus Knight Atrapos",
+   "Cerastus Knight Castigator",
+   "Cerastus Knight Lancer",
+   "Knight Castellan",
+   "Knight Crusader",
+   "Knight Defender",
+   "Knight Destrier",
+   "Knight Errant",
+   "Knight Gallant",
+   "Knight Paladin",
+   "Knight Preceptor",
+   "Knight Valiant",
+   "Knight Warden",
+   "Questoris Knight Magaera",
+   "Questoris Knight Styrix"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 2] — resté Stationnaire, sur ta ligne défensive",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "2"
+  }
+ },
+ {
+  "nom": "Titanic Duel",
+  "detach": "Questoris Companions",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Acastus Knight Asterius",
+   "Acastus Knight Porphyrion",
+   "Canis Rex",
+   "Cerastus Knight Acheron",
+   "Cerastus Knight Atrapos",
+   "Cerastus Knight Castigator",
+   "Cerastus Knight Lancer",
+   "Knight Castellan",
+   "Knight Crusader",
+   "Knight Defender",
+   "Knight Destrier",
+   "Knight Errant",
+   "Knight Gallant",
+   "Knight Paladin",
+   "Knight Preceptor",
+   "Knight Valiant",
+   "Knight Warden",
+   "Questoris Knight Magaera",
+   "Questoris Knight Styrix"
+  ],
+  "sauf": [],
+  "aide": "+1 pour toucher et +1 pour blesser — contre MONSTRE, TITANESQUE ou MARCHEUR",
+  "effet": {
+   "hitMod": 1,
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Exemplar’s Wisdom",
+  "detach": "Spearhead-at-Arms",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA contre l'unité touchée par le Chevalier",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Virtue of Courage",
+  "detach": "Spearhead-at-Arms",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Armiger Helverin",
+   "Armiger Moirax",
+   "Armiger Warglaive"
+  ],
+  "sauf": [],
+  "aide": "+1 pour toucher contre l'unité désignée",
+  "effet": {
+   "hitMod": 1
+  }
+ },
+ {
+  "nom": "Run Them Through!",
+  "detach": "Valourstrike Lance",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité ayant chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Vow of Retribution",
+  "detach": "Valourstrike Lance",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] au tir",
+  "effet": {
+   "lethal": true
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -931,8 +1471,6 @@ const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
 const AURAS_PERSO = {};
 
 enregistreFaction({

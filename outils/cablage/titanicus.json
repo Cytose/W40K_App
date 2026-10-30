@@ -1,0 +1,20 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — ADEPTUS TITANICUS",
+    "",
+    "Rien n'est câblé, et ce n'est pas un oubli : les quatre Titans ont été",
+    "lus un par un.",
+    "",
+    "· La règle d'armée (Super-heavy Walker) déplace.",
+    "· La faction n'a aucun détachement au Munitorum : pas de règle de",
+    "  détachement, et ses stratagèmes sont les onze de base, qu'aucune",
+    "  pastille du simulateur ne porte.",
+    "· Les profils abîmés (−1 pour toucher) se génèrent : ils sont dans",
+    "  ABIMEES, sans câblage.",
+    "· « Titanic Fire Support » du Warbringer n'améliore la PA que sur une",
+    "  BLESSURE CRITIQUE. Le moteur ne sait pas lier une retouche de PA aux",
+    "  critiques ; l'appliquer à toutes les blessures surestimerait.",
+    "· « Striding Colossus », « God-machine », « Flank Speed », « Wrath of",
+    "  the Omnissiah » touchent les PC, le mouvement ou le moral."
+  ]
+}

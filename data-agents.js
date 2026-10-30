@@ -1583,11 +1583,667 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Imperial Navy Breachers": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Équipe de Brèche",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Wound roll of 1."
+  }
+ ],
+ "Deathwatch Kill Team": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Mort aux Xénos",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "Watch Captain Artemis": [
+  {
+   "mot": "sust:1",
+   "nom": "Instinct Tactique",
+   "texte": "This unit's attacks have [Sustained Hits 1]."
+  }
+ ],
+ "Sanctifiers": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Sermon du Ministorum",
+   "texte": "While this unit contains a Ministorum Priest, each time a model in this unit makes a melee attack, add 1 to the Wound roll."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Vindicare Assassin": [
+  {
+   "arme": "Exitus rifle",
+   "champ": "wndMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Brise-Bouclier",
+   "quand": "Balle brise-bouclier tirée — une fois par bataille",
+   "texte": "Once per battle: until the end of the phase, each time this model makes an attack with that weapon, add 1 to the Wound roll."
+  },
+  {
+   "arme": "Exitus rifle",
+   "champ": "critW",
+   "val": "tous",
+   "port": "T",
+   "nom": "Brise-Bouclier — critiques",
+   "quand": "Balle brise-bouclier tirée — une fois par bataille",
+   "texte": "... and any successful Wound roll scores a Critical Wound."
+  }
+ ],
+ "Eversor Assassin": [
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Surmenage",
+   "quand": "Déclenchée à ta phase de Mouvement — une fois par bataille",
+   "texte": "Once per battle: until the end of the turn, add 3 to the Attacks characteristic of this model's melee weapons."
+  }
+ ],
+ "Voidsmen-at-Arms": [
+  {
+   "mot": "lethal",
+   "port": "T",
+   "nom": "Maîtres des Espaces Clos",
+   "quand": "La cible est l'unité éligible la plus proche",
+   "texte": "Each time a model in this unit makes a ranged attack that targets the closest eligible target, that attack has the [LETHAL HITS] ability."
+  }
+ ],
+ "Imperial Navy Breachers": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Équipe de Brèche — objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Wound roll instead."
+  },
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Unité CAT",
+   "quand": "Déclenchée ce tour — une fois par bataille",
+   "texte": "Once per battle, when this unit is selected to shoot, ranged weapons equipped by this unit gain the [Ignores Cover] ability."
+  }
+ ],
+ "Exaction Squad": [
+  {
+   "mot": "lethal",
+   "nom": "Loi Impériale",
+   "quand": "La cible est l'unité désignée en début de bataille",
+   "texte": "Each time a model in this unit makes an attack that targets that unit, that attack has the [Lethal Hits] and [Precision] abilities."
+  },
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Scanner de Culpabilité",
+   "quand": "L'escouade porte le scanner de culpabilité",
+   "texte": "Ranged weapons equipped by models in the bearer’s unit have the [IGNORES COVER] ability."
+  }
+ ],
+ "Vigilant Squad": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Jugement Impitoyable",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time a model in this unit makes a ranged attack that targets a unit that is Below Half-strength, add 1 to the Wound roll."
+  }
+ ],
+ "Ministorum Priest": [
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Zélote",
+   "quand": "Déclenchée ce tour — une fois par bataille",
+   "texte": "Once per battle, in the Fight phase: improve the Strength and Attacks characteristics of melee weapons equipped by this model by 3."
+  },
+  {
+   "champ": "strMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Zélote — la Force",
+   "quand": "Déclenchée ce tour — une fois par bataille",
+   "texte": "... and Strength by 3."
+  }
+ ],
+ "Grey Knights Terminator Squad": [
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Main de Fer (Psychique)",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time this unit makes a Charge move, until the end of the turn, melee weapons equipped by models in this unit have the [LETHAL HITS] ability."
+  }
+ ],
+ "Deathwatch Kill Team": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Mort aux Xénos — ni IMPERIUM ni CHAOS",
+   "quand": "La cible n'est ni IMPERIUM ni CHAOS",
+   "texte": "If the target of that attack does not have the IMPERIUM or CHAOS keywords, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Aquila Kill Team": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Mort aux Xénos — ni IMPERIUM ni CHAOS",
+   "quand": "La cible n'est ni IMPERIUM ni CHAOS",
+   "texte": "If the target of that attack does not have the IMPERIUM or CHAOS keywords, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Watch Master": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Proie Purgatus",
+   "quand": "La cible est la proie traquée",
+   "texte": "This unit’s attacks that target this unit’s hunted unit can re-roll wound rolls of 1."
+  }
+ ],
+ "Inquisitor Kroyle": [
+  {
+   "arme": "Jindarii tox-cycler",
+   "champ": "strMod",
+   "val": 2,
+   "port": "T",
+   "nom": "Tox-Cycleur",
+   "quand": "Le tox-cycleur a déjà touché dans la bataille",
+   "texte": "If this model scored a hit with its Jindarii tox-cycler, until the end of the battle, add 2 to the Strength and Damage characteristics of that weapon."
+  },
+  {
+   "arme": "Jindarii tox-cycler",
+   "champ": "dmgMod",
+   "val": 2,
+   "port": "T",
+   "nom": "Tox-Cycleur — dégâts",
+   "quand": "Le tox-cycleur a déjà touché dans la bataille",
+   "texte": "... add 2 to the Damage characteristic."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Vindicare Assassin": [
+  {
+   "vs": [
+    "mon"
+   ],
+   "arme": "Exitus rifle",
+   "champ": "critW",
+   "val": 4,
+   "port": "T",
+   "nom": "Balles Micromelta",
+   "texte": "This model’s exitus rifle has the [ANTI-MONSTER 4+] ability."
+  },
+  {
+   "vs": [
+    "veh"
+   ],
+   "arme": "Exitus rifle",
+   "champ": "critW",
+   "val": 4,
+   "port": "T",
+   "nom": "Balles Micromelta",
+   "texte": "This model’s exitus rifle has the [ANTI-VEHICLE 4+] ability."
+  }
+ ],
+ "Watch Master": [
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Maître de Veille",
+   "texte": "This model’s attacks that target a Character unit can re-roll hit rolls of 1."
+  },
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Maître de Veille",
+   "texte": "This model’s attacks that target a Character unit can re-roll wound rolls of 1."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Inquisitor": [
+  {
+   "champ": "inv",
+   "val": 6,
+   "nom": "Protections Bénies",
+   "texte": "While this model is leading a unit, models in that unit have a 6+ invulnerable save."
+  }
+ ],
+ "Inquisitor Coteaz": [
+  {
+   "champ": "inv",
+   "val": 6,
+   "nom": "Protections Maléfiques (Psychique)",
+   "texte": "While this model is leading a unit, models in that unit have a 6+ invulnerable save (4+ against Psychic Attacks and DAEMON models, not simulated)."
+  }
+ ],
+ "Ministorum Priest": [
+  {
+   "mot": "sust:1",
+   "port": "C",
+   "nom": "Haine Sacrée",
+   "texte": "While this model is leading a unit, melee weapons equipped by that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "detach": "Ordo Hereticus, Purgation Force",
+  "kw": [
+   "Exaction Squad",
+   "Inquisitor",
+   "Inquisitor Coteaz",
+   "Inquisitor Draxus",
+   "Inquisitor Greyfax",
+   "Inquisitor Kroyle",
+   "Inquisitorial Agents",
+   "Ministorum Priest",
+   "Sisters of Battle Immolator",
+   "Sisters of Battle Squad",
+   "Subductor Squad",
+   "Vigilant Squad"
+  ],
+  "qui": "figurine",
+  "mot": "sust",
+  "nom": "Débusquer l'Hérésie — CHAOS",
+  "quand": "La cible est une unité du CHAOS de 5 figurines ou plus",
+  "texte": "Each time such a model makes an attack that targets a CHAOS unit containing 5 or more models, that attack has the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "detach": "Ordo Malleus, Daemon Hunters",
+  "kw": [
+   "Grey Knights Terminator Squad",
+   "Inquisitor",
+   "Inquisitor Coteaz",
+   "Inquisitor Draxus",
+   "Inquisitor Greyfax",
+   "Inquisitor Kroyle",
+   "Inquisitorial Agents"
+  ],
+  "qui": "figurine",
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Détruire le Démoniaque — DÉMON",
+  "quand": "La cible est une unité de DÉMONS",
+  "texte": "If the target of that attack is a DAEMON unit, re-roll a Wound roll of 1 as well."
+ },
+ {
+  "detach": "Imperialis Fleet",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Éliminer à Tout Prix",
+  "quand": "Ce choix est retenu ce tour, et la cible est l'unité désignée",
+  "texte": "Each time an AGENTS OF THE IMPERIUM model from your army makes an attack that targets that enemy unit, add 1 to the Hit roll."
+ },
+ {
+  "detach": "Ordo Xenos, Alien Hunters",
+  "kw": [
+   "Aquila Kill Team",
+   "Deathwatch Kill Team",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "mot": "sust",
+  "nom": "Tactique Furor",
+  "quand": "La Tactique Furor est active ce tour",
+  "texte": "While this Mission Tactic is active, weapons equipped by DEATHWATCH units from your army have the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "detach": "Ordo Xenos, Alien Hunters",
+  "kw": [
+   "Aquila Kill Team",
+   "Deathwatch Kill Team",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "mot": "lethal",
+  "nom": "Tactique Malleus",
+  "quand": "La Tactique Malleus est active ce tour",
+  "texte": "While this Mission Tactic is active, weapons equipped by DEATHWATCH units from your army have the [LETHAL HITS] ability."
+ },
+ {
+  "detach": "Imperialis Fleet",
+  "kw": [],
+  "sens": "def",
+  "champ": "inv",
+  "val": 5,
+  "nom": "À Tout Prix — invulnérable",
+  "quand": "« Acquérir à Tout Prix » est retenu, et l'unité est sur l'objectif désigné",
+  "texte": "While an AGENTS OF THE IMPERIUM unit from your army is within range of that objective marker, models in that unit have a 5+ invulnerable save."
+ },
+ {
+  "source": "Inquisitor Greyfax",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Sans Merci",
+  "quand": "L'unité est menée par Greyfax, et la cible est sous la moitié de son effectif",
+  "texte": "While this model is leading a unit, each time a model in that unit makes an attack that targets a unit that is Below Half-strength, add 1 to the Hit roll."
+ },
+ {
+  "source": "Inquisitor Draxus",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Chasseur de Xénos",
+  "quand": "L'unité est menée par Draxus, et la cible n'est ni IMPERIUM ni CHAOS",
+  "texte": "While this model is leading a unit, each time a model in that unit makes an attack that targets an enemy unit that does not have the IMPERIUM or CHAOS keywords, add 1 to the Hit roll."
+ },
+ {
+  "source": "Inquisitor Kroyle",
+  "kw": [],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "À Mon Signal, Feu !",
+  "quand": "La cible a été touchée par Kroyle cette phase",
+  "texte": "Each time an Agents of the Imperium or Imperium Infantry Battleline model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll."
+ },
+ {
+  "source": "Sisters of Battle Immolator",
+  "kw": [],
+  "mot": "ignoresCover",
+  "port": "T",
+  "nom": "Purger et Purifier",
+  "quand": "La cible a été touchée par l'Immolator cette phase",
+  "texte": "Until the end of the phase, that enemy unit cannot have the Benefit of Cover."
+ }
+];
+const OCTROIS_DETACH = {
+ "Ordo Hereticus, Purgation Force": [
+  {
+   "qui": "figurine",
+   "kw": [
+    "Exaction Squad",
+    "Inquisitor",
+    "Inquisitor Coteaz",
+    "Inquisitor Draxus",
+    "Inquisitor Greyfax",
+    "Inquisitor Kroyle",
+    "Inquisitorial Agents",
+    "Ministorum Priest",
+    "Sisters of Battle Immolator",
+    "Sisters of Battle Squad",
+    "Subductor Squad",
+    "Vigilant Squad"
+   ],
+   "mot": "ignorescover",
+   "port": "T",
+   "nom": "Débusquer l'Hérésie",
+   "texte": "Ranged weapons equipped by ADEPTUS ARBITES, INQUISITOR, INQUISITORIAL AGENTS and ORDO HERETICUS models from your army have the [IGNORES COVER] ability."
+  }
+ ],
+ "Ordo Malleus, Daemon Hunters": [
+  {
+   "qui": "figurine",
+   "kw": [
+    "Grey Knights Terminator Squad",
+    "Inquisitor",
+    "Inquisitor Coteaz",
+    "Inquisitor Draxus",
+    "Inquisitor Greyfax",
+    "Inquisitor Kroyle",
+    "Inquisitorial Agents"
+   ],
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Détruire le Démoniaque",
+   "texte": "Each time an INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS model from your army makes an attack, re-roll a Hit roll of 1."
+  }
+ ]
+};
+const STRAT_SIMU = [
+ {
+  "nom": "Close-Quarters Barrage",
+  "detach": "Imperialis Fleet",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Imperial Navy Breachers",
+   "Navigator",
+   "Rogue Trader Entourage",
+   "Voidsmen-at-Arms"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force et +1 en PA — cible à 12\" ou moins",
+  "effet": {
+   "strMod": 1,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Violent Acquisition",
+  "detach": "Imperialis Fleet",
+  "pc": 2,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1], [LANCE] (+1 pour blesser après une charge) et [IGNORE LE COUVERT] — cible sur un objectif",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1",
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Violent Acquisition — après une charge",
+  "detach": "Imperialis Fleet",
+  "pc": 2,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "… et [LANCE] : l'unité a chargé ce tour",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1",
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Dispense Justice",
+  "detach": "Ordo Hereticus, Purgation Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Exaction Squad",
+   "Inquisitor Greyfax",
+   "Inquisitorial Agents",
+   "Ministorum Priest",
+   "Sisters of Battle Immolator",
+   "Sisters of Battle Squad",
+   "Subductor Squad",
+   "Vigilant Squad"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES]",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Psybolt Ammunition",
+  "detach": "Ordo Malleus, Daemon Hunters",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Grey Knights Terminator Squad"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES FATALES] au tir",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Rites of Exorcism",
+  "detach": "Ordo Malleus, Daemon Hunters",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[BLESSURES DÉVASTATRICES] contre le DÉMON qui a raté son test",
+  "effet": {
+   "dev": true
+  }
+ },
+ {
+  "nom": "Dragonfire Rounds",
+  "detach": "Ordo Xenos, Alien Hunters",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Aquila Kill Team",
+   "Deathwatch Kill Team",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] au tir",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Kraken Rounds",
+  "detach": "Ordo Xenos, Alien Hunters",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Aquila Kill Team",
+   "Deathwatch Kill Team",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA au tir",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Hellfire Rounds — contre INFANTERIE",
+  "detach": "Ordo Xenos, Alien Hunters",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Aquila Kill Team",
+   "Deathwatch Kill Team",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "sauf": [],
+  "aide": "[ANTI-INFANTERIE 2+] — contre une INFANTERIE",
+  "effet": {
+   "critW": 2
+  }
+ },
+ {
+  "nom": "Hellfire Rounds — contre MONSTRE",
+  "detach": "Ordo Xenos, Alien Hunters",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Aquila Kill Team",
+   "Deathwatch Kill Team",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "sauf": [],
+  "aide": "[ANTI-MONSTRE 5+] — contre un MONSTRE",
+  "effet": {
+   "critW": 5
+  }
+ },
+ {
+  "nom": "Prime Target",
+  "detach": "Veiled Blade Elimination Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des 1 pour blesser — contre un PERSONNAGE",
+  "effet": {
+   "rrW": "ones"
+  }
+ },
+ {
+  "nom": "Prime Target — Assassin contre le Seigneur de Guerre",
+  "detach": "Veiled Blade Elimination Force",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Callidus Assassin",
+   "Culexus Assassin",
+   "Eversor Assassin",
+   "Vindicare Assassin"
+  ],
+  "sauf": [],
+  "aide": "relance des blessures — un ASSASSIN contre le Seigneur de Guerre adverse",
+  "effet": {
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Will-Sapping Salvo",
+  "detach": "Veiled Blade Elimination Force",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Aquila Kill Team",
+   "Callidus Assassin",
+   "Culexus Assassin",
+   "Deathwatch Kill Team",
+   "Eversor Assassin",
+   "Exaction Squad",
+   "Grey Knights Terminator Squad",
+   "Imperial Navy Breachers",
+   "Inquisitor",
+   "Inquisitor Coteaz",
+   "Inquisitor Draxus",
+   "Inquisitor Greyfax",
+   "Inquisitorial Agents",
+   "Ministorum Priest",
+   "Navigator",
+   "Rogue Trader Entourage",
+   "Sanctifiers",
+   "Sisters of Battle Squad",
+   "Subductor Squad",
+   "Vigilant Squad",
+   "Vindicare Assassin",
+   "Voidsmen-at-Arms",
+   "Watch Captain Artemis",
+   "Watch Master"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] au tir",
+  "effet": {
+   "sustainedOn": true,
+   "sustainedN": "1"
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -1595,11 +2251,6 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "agents",
