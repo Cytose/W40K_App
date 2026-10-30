@@ -3798,3 +3798,67 @@ Enfin la suite ouvre, pour chaque faction, une liste dont le détachement
 retenu porte un stratagème câblé **sans restriction de fiche**, et
 vérifie que `ROSTER.stratsSimu` le lui rend. Vérifier la table ne prouve
 rien : c'est le trajet jusqu'à l'écran qui casse.
+
+## 19. Les 25 autres factions — 30/10/2026
+
+Kévin a demandé toutes les factions. Elles sont générées par
+`outils/extraction.py`, comme les trois précédentes : BSData pour les
+fiches et les armes, le Munitorum pour les points, les rattachements et
+les détachements, le Base Size Guide pour les socles, l'export Wahapedia
+du 28/10/2026 pour les stratagèmes et les textes que BSData ne porte pas.
+Aucune n'est câblée : le simulateur tourne sur les caractéristiques nues.
+
+**Les sources avaient bougé.** Le Munitorum a changé de schéma depuis
+l'extraction des Custodes : `attachTo` est devenu `leaderTo`, `role` a
+disparu au profit de `leaderTo` / `supportTo`, et `objective` est devenu
+`objectives`, une liste. L'extracteur lisait l'ancien : relancé tel quel,
+il sortait **zéro rattachement** pour toutes les factions. Il lit
+désormais les deux. Quand BSData ne dit pas la règle d'armée, Wahapedia la
+donne : l'aptitude de type « Faction » que portent le plus de fiches.
+
+**Les chapitres** — Black Templars, Blood Angels, Dark Angels,
+Deathwatch, Space Wolves — lisent leur catalogue puis celui du Codex
+Space Marines, et le guide des socles sous leur en-tête puis sous
+SPACE MARINES. Une fiche redéfinie par le chapitre existe dans les deux
+catalogues : la première lue l'emporte, et l'extracteur nomme celles qu'il
+écarte. Wahapedia range leurs stratagèmes sous le code `SM` ; ne sont
+gardés que ceux des détachements que le Munitorum leur reconnaît.
+
+**Les quatre factions d'origine, remises à jour.** Kévin a relevé que
+les points et les profils de son armée étaient faux : elles dataient
+d'août, extraites sur un Munitorum antérieur. Confrontées au Munitorum
+v1.6 du 22/10/2026 : 16 coûts nécrons, 22 de l'Astra, 7 coûts et 4 profils
+World Eaters, et pour les Custodes un **nouveau codex** — 18 coûts,
+17 profils, neuf escouades renommées (Custodian Guard devient Custodian
+Guard Sodality, Prosecutors devient Prosecutor Squad…), sept détachements
+remplacés. Custodes, Astra et World Eaters sont régénérés ; leur câblage
+suit, à la casse près des noms de détachement (« Hammer of the Emperor »,
+le Munitorum ne met plus de capitale à « of »). **Les Nécrons ne
+reçoivent que leurs points** : leurs profils sont relus à la main, et la
+seule différence de profil relevée — l'invulnérable des Lychguard, qui ne
+vient que du bouclier — est une limite de l'extracteur, pas une erreur de
+la table.
+
+Une liste sauvegardée avant la mise à jour garde les anciens noms : une
+unité custodes renommée, ou un détachement dont la casse a changé, n'y
+est plus retrouvé. Il faut la refaire.
+
+`npm run custodes` et `npm run factions` suivent les nouvelles valeurs.
+Les socles custodes passent par une table d'alias, le guide portant
+encore les anciens noms ; Gyrfalcon et Sentinel Guard y sont rapprochés
+par déduction.
+
+Ce qui reste ouvert, et que `npm run livrees` montre :
+
+- **13 unités jouables sans socle**, absentes du guide dont on dispose :
+  Captain on Bike (tous les Space Marines), Clanblade, Dragon Knights,
+  Leystalker, Stonesinger (Aeldari), Gunwagon, Nazdreg, Warbuggies (Orks).
+  Le Plateau les pose sur un socle par défaut. Il faut un guide plus récent,
+  ou la mesure relevée à la main.
+- **Fiches en double dans BSData** : Captain on Bike, dont deux entrées
+  diffèrent par l'Endurance (5 et 6). La première est gardée, à vérifier.
+- **Règle d'armée approximative** pour l'Adeptus Titanicus : aucune source
+  n'en donne, et le repli de Wahapedia retient « Super-heavy Walker ».
+- `npm run wahapedia` compte 15 détachements custodes avec leur texte,
+  pour 11 attendus : l'export du 28/10 en porte quatre de plus.
+

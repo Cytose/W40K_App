@@ -1,8 +1,12 @@
 # Nécron — aide de jeu
 
 Simulateur de séquence d'attaque, constructeur de liste et comparateur d'unités
-pour **Warhammer 40 000, 11e édition**. Quatre factions : **Nécrons**,
-**Adeptus Custodes**, **Astra Militarum**, **World Eaters**.
+pour **Warhammer 40 000, 11e édition**. Les 29 factions du Base Size Guide.
+Les **Nécrons** sont relus à la main sur les documents officiels ;
+**Adeptus Custodes**, **Astra Militarum** et **World Eaters** ont un
+simulateur câblé en partie ; les 25 autres sont générées depuis BSData, le
+Munitorum et Wahapedia, et le simulateur tourne sur leurs caractéristiques
+nues.
 
 Application web statique, sans dépendance, installable sur téléphone et
 utilisable hors-ligne.
@@ -88,6 +92,22 @@ pas est une branche sur laquelle on ne peut pas travailler.
 | `outils/socles.json` | le relevé du Base Size Guide : 29 factions, 1 097 socles. Produit par `outils/socles.py` depuis le PDF, qui n'entre pas dans le dépôt |
 | `outils/wahapedia.py` | la lecture de l'export Wahapedia : stratagèmes, règles de détachement, textes d'optimisation. `npm run wahapedia` l'éprouve |
 
+### Remettre les données à jour
+
+Le Munitorum change ses points, fait passer des unités en **Legends** et
+renomme des escouades au fil des codex. `npm run maj` refait tout d'un
+coup : il rafraîchit BSData et le Munitorum, régénère chaque faction, ne
+reprend pour les Nécrons que les points et le drapeau Legends, et dit
+faction par faction ce qui a bougé — unités passées en Legends, retirées,
+nouvelles. Il exige l'export Wahapedia sous `build/wahapedia/`, sans quoi
+les stratagèmes seraient perdus. Ensuite : `npm run livrees`, puis
+`node build.js`.
+
+Dans l'application, une unité Legends reste jouable : elle est rangée en
+fin de catalogue et la liste avertit qu'elle n'est pas jouable en
+compétitif. Une unité retirée des données disparaît d'une liste
+sauvegardée, et la liste le dit à l'ouverture.
+
 ### Ajouter une faction
 
 `data.js` ne connaît aucune faction : il porte le registre et l'adaptateur.
@@ -127,7 +147,7 @@ Le sélecteur de faction, caché tant qu'il n'y en a qu'une, apparaît tout seul
 
 `node build.js` remplit `dist/` avec deux choses distinctes :
 
-- **le site** — `index.html`, `data.js`, les quatre `data-<faction>.js`,
+- **le site** — `index.html`, `data.js`, les `data-<faction>.js`,
   `engine.js`, `app.js`, `roster.js`, `layouts.js`, `plateau.js`, `sw.js`,
   `manifest.json`, `icon.svg`, les sources telles quelles, un fichier par rôle. C'est ce que Vercel publie, via `vercel.json#outputDirectory` ;
 - **le fichier autonome** — `dist/W40K_App.html`, l'application repliée

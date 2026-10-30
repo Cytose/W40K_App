@@ -27,7 +27,8 @@
     "custodes": "node outils/test-custodes.mjs",
     "livrees": "node outils/test-livrees.mjs",
     "socles": "python3 outils/socles.py build/base-size.pdf build/base-size-2.pdf",
-    "triage": "node outils/triage.js"
+    "triage": "node outils/triage.js",
+    "maj": "python3 outils/maj.py"
   },
   "devDependencies": {
     "terser": "^5.36.0"

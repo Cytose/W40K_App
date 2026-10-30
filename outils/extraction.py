@@ -63,6 +63,56 @@ FACTIONS = {
                      mfm='astra-militarum.yaml', guide='ASTRA MILITARUM'),
     'worldeaters': dict(nom='World Eaters',  bs=['Chaos - World Eaters.json'],
                         mfm='world-eaters.yaml', guide='WORLD EATERS'),
+    'sororitas': dict(nom='Adepta Sororitas', bs=['Imperium - Adepta Sororitas.json'],
+                   mfm='adepta-sororitas.yaml', guide='ADEPTA SORORITAS'),
+    'mechanicus': dict(nom='Adeptus Mechanicus', bs=['Imperium - Adeptus Mechanicus.json'],
+                    mfm='adeptus-mechanicus.yaml', guide='ADEPTUS MECHANICUS'),
+    'titanicus': dict(nom='Adeptus Titanicus', bs=['Imperium - Adeptus Titanicus.json', 'Library - Titans.json'],
+                   mfm='titan-legions.yaml', guide='ADEPTUS TITANICUS'),
+    'aeldari': dict(nom='Aeldari', bs=['Aeldari - Craftworlds.json', 'Aeldari - Aeldari Library.json'],
+                 mfm='aeldari.yaml', guide='AELDARI'),
+    'drukhari': dict(nom='Drukhari', bs=['Aeldari - Drukhari.json', 'Aeldari - Aeldari Library.json'],
+                  mfm='drukhari.yaml', guide='DRUKHARI'),
+    'agents': dict(nom='Agents Impériaux', bs=['Imperium - Agents of the Imperium.json'],
+                mfm='imperial-agents.yaml', guide='IMPERIAL AGENTS'),
+    'chevaliers': dict(nom='Chevaliers Impériaux', bs=['Imperium - Imperial Knights.json', 'Imperium - Imperial Knights - Library.json'],
+                    mfm='imperial-knights.yaml', guide='IMPERIAL KNIGHTS'),
+    'greyknights': dict(nom='Grey Knights', bs=['Imperium - Grey Knights.json'],
+                     mfm='grey-knights.yaml', guide='GREY KNIGHTS'),
+    'spacemarines': dict(nom='Space Marines', bs=['Imperium - Space Marines.json'],
+                      mfm='space-marines.yaml', guide='SPACE MARINES'),
+    'blacktemplars': dict(nom='Black Templars', bs=['Imperium - Black Templars.json', 'Imperium - Space Marines.json'],
+                       mfm='black-templars.yaml', guide=['BLACK TEMPLARS', 'SPACE MARINES']),
+    'bloodangels': dict(nom='Blood Angels', bs=['Imperium - Blood Angels.json', 'Imperium - Space Marines.json'],
+                     mfm='blood-angels.yaml', guide=['BLOOD ANGELS', 'SPACE MARINES']),
+    'darkangels': dict(nom='Dark Angels', bs=['Imperium - Dark Angels.json', 'Imperium - Space Marines.json'],
+                    mfm='dark-angels.yaml', guide=['DARK ANGELS', 'SPACE MARINES']),
+    'deathwatch': dict(nom='Deathwatch', bs=['Imperium - Deathwatch.json', 'Imperium - Space Marines.json'],
+                    mfm='deathwatch.yaml', guide=['DEATHWATCH', 'SPACE MARINES']),
+    'spacewolves': dict(nom='Space Wolves', bs=['Imperium - Space Wolves.json', 'Imperium - Space Marines.json'],
+                     mfm='space-wolves.yaml', guide=['SPACE WOLVES', 'SPACE MARINES']),
+    'csm': dict(nom='Space Marines du Chaos', bs=['Chaos - Chaos Space Marines.json'],
+             mfm='chaos-space-marines.yaml', guide='CHAOS SPACE MARINES'),
+    'deathguard': dict(nom='Death Guard', bs=['Chaos - Death Guard.json'],
+                    mfm='death-guard.yaml', guide='DEATH GUARD'),
+    'thousandsons': dict(nom='Thousand Sons', bs=['Chaos - Thousand Sons.json'],
+                      mfm='thousand-sons.yaml', guide='THOUSAND SONS'),
+    'emperorschildren': dict(nom="Emperor's Children", bs=["Chaos - Emperor's Children.json"],
+                          mfm='emperors-children.yaml', guide='EMPEROR’S CHILDREN'),
+    'demons': dict(nom='Démons du Chaos', bs=['Chaos - Chaos Daemons.json', 'Chaos - Chaos Daemons Library.json'],
+                mfm='chaos-daemons.yaml', guide='CHAOS DAEMONS'),
+    'chevalierschaos': dict(nom='Chevaliers du Chaos', bs=['Chaos - Chaos Knights.json', 'Chaos - Chaos Knights Library.json'],
+                         mfm='chaos-knights.yaml', guide='CHAOS KNIGHTS'),
+    'orks': dict(nom='Orks', bs=['Orks.json'],
+              mfm='orks.yaml', guide='ORKS'),
+    'tau': dict(nom="Empire T'au", bs=["T'au Empire.json"],
+             mfm='tau-empire.yaml', guide='T’AU EMPIRE'),
+    'tyranides': dict(nom='Tyranides', bs=['Tyranids.json', 'Library - Tyranids.json'],
+                   mfm='tyranids.yaml', guide='TYRANIDS'),
+    'gsc': dict(nom='Cultes Genestealers', bs=['Genestealer Cults.json'],
+             mfm='genestealer-cults.yaml', guide='GENESTEALER CULTS'),
+    'votann': dict(nom='Ligues de Votann', bs=['Leagues of Votann.json'],
+                mfm='leagues-of-votann.yaml', guide='LEAGUES OF VOTANN'),
 }
 
 SOCLES_JSON = os.path.join(RACINE, 'outils', 'socles.json')
@@ -97,15 +147,46 @@ def chargeCablage(faction):
 # ------------------------------------------------------------------
 ALIAS_SOCLE = {
     'worldeaters': {'Chaos Terminators': 'Terminator Squad'},
+    # Le codex custodes d'octobre 2026 a renommé ses escouades ; le guide
+    # porte encore les anciens noms. Mêmes figurines, même socle — sauf
+    # Gyrfalcon et Sentinel Guard, rapprochés de la moto Vertus et du
+    # Garde Custodien par déduction : à confirmer sur un guide plus récent.
+    'custodes': {'Custodian Guard Sodality': 'Custodian Guard',
+                 'Custodian Guard Sodality with Adrasite Spears': 'Custodian Guard',
+                 'Custodian Guard Sodality with Pyrithite Spears': 'Custodian Guard',
+                 'Sentinel Guard Sodality': 'Custodian Guard',
+                 'Sagittarum Custodians Sodality': 'Sagittarum Custodians',
+                 'Aquilon Terminators with Solarite Power Gauntlets': 'Aquilon Custodians',
+                 'Aquilon Terminators with Solarite Power Talons': 'Aquilon Custodians',
+                 'Caladius Annihilator Grav-tank': 'Caladius Grav-tank',
+                 'Gyrfalcon Jetbike Sodality': 'Vertus Praetors',
+                 'Prosecutor Squad': 'Prosecutors', 'Vigilator Squad': 'Vigilators',
+                 'Witchseeker Squad': 'Witchseekers',
+                 'Venatari with Kinetic Destroyers': 'Venatari Custodians',
+                 'Venatari with Verutum Lances': 'Venatari Custodians'},
+    'sororitas': {'Immolator': 'Immolator [Adepta_Sororitas]'},
+    'aeldari': {'War Walkers': 'War Walker', 'Starfangs': 'Starfang'},
+    'spacemarines': {'Eradicator Squad with Melta Rifles': 'Eradicator Squad',
+                     'Invader ATVs': 'Invader ATV'},
+    'blacktemplars': {"Emperor's Champion": 'The Emperor’s Champion',
+                      'Sword Brethren Squad': 'Sword Brethren'},
+    'orks': {'Rukkatrukk Squigbuggies': 'Rukkatrukk Squigbuggy',
+             'Runtherd': 'Gretchin: Runtherd', 'Wartrakks': 'Wartrakk'},
 }
 
 def chargeSocles(faction):
     """Le relevé du Base Size Guide pour cette faction, {figurine: socle}.
        Vide si le guide ne la couvre pas ou si le relevé manque : SOCLES
        sortira vide, et le Plateau posera sur un socle par défaut."""
-    entete = FACTIONS[faction].get('guide')
-    if not entete or not os.path.exists(SOCLES_JSON): return {}
-    return json.load(open(SOCLES_JSON, encoding='utf-8')).get(entete, {})
+    entetes = FACTIONS[faction].get('guide')
+    if not entetes or not os.path.exists(SOCLES_JSON): return {}
+    # Un chapitre ne liste dans le guide que ses figurines propres : le
+    # reste se lit sous SPACE MARINES. La première en-tête l'emporte.
+    if isinstance(entetes, str): entetes = [entetes]
+    guide = json.load(open(SOCLES_JSON, encoding='utf-8'))
+    out = {}
+    for e in reversed(entetes): out.update(guide.get(e, {}))
+    return out
 
 # ==================================================================
 # PARCOURS
@@ -320,6 +401,9 @@ def propre(t):
        officiels, et les perdre coûterait plus que de garder les
        astérisques."""
     t = (t or '').replace('**', '').replace('^^', '')
+    # Quelques textes portent encore une balise HTML d'errata — <ins>Or:</ins>
+    # chez les Orks — qui s'afficherait en clair. On garde les mots.
+    t = re.sub(r'</?(ins|del|b|i|u|em|strong)>', '', t, flags=re.I)
     t = t.replace('‑', '-')          # trait d'union insécable
     return re.sub(r'[ \t]+', ' ', t).strip()
 
@@ -649,7 +733,8 @@ def extrait(faction):
         MU[cle(u.get('name'))] = u
 
     UNITS, WEAPONS, CAT, APTITUDES, ATTACH, TRANSPORTS = [], [], [], {}, {}, {}
-    sansPrix, multiProfil, horsMFM = [], [], []
+    sansPrix, multiProfil, horsMFM, doublons = [], [], [], []
+    vues = set()
 
     LF = fiches(cats, idx)
     for f, arbre in LF:
@@ -674,9 +759,20 @@ def extrait(faction):
         if u is None:
             horsMFM.append(nom)
             continue
+        # Un chapitre redéfinit des fiches du Codex Space Marines, et le
+        # catalogue du chapitre est lu le premier : sa version l'emporte.
+        # Deux fiches du même nom se recouvriraient partout où
+        # l'application indexe par nom.
+        if cle(nom) in vues:
+            doublons.append(nom)
+            continue
+        vues.add(cle(nom))
         tailles, points = bareme(u)
         legends = 1 if u.get('legends') else 0
-        role = 'Meneur' if u.get('role') == 'leader' else ('Appui' if u.get('role') == 'support' else '')
+        # Le Munitorum a changé de schéma : `role` a disparu, et c'est la
+        # présence de `leaderTo` ou de `supportTo` qui dit le rôle.
+        role = ('Meneur' if u.get('role') == 'leader' or u.get('leaderTo') else
+                'Appui' if u.get('role') == 'support' or u.get('supportTo') else '')
         if not tailles: sansPrix.append(nom); tailles, points = [1], {'1': 0}
 
         invu = cible(car(p, 'InSv'))
@@ -705,7 +801,7 @@ def extrait(faction):
 
     # qui rejoint qui — le Munitorum le dit, la règle Leader n'a pas à être relue
     for u in mfm.get('units', []) or []:
-        att = u.get('attachTo') or []
+        att = u.get('leaderTo') or u.get('attachTo') or []
         if not att: continue
         porteur = next((x[0] for x in UNITS if cle(x[0]) == cle(u['name'])), None)
         if not porteur: continue
@@ -750,13 +846,21 @@ def extrait(faction):
         return ' '.join(m.capitalize() if m.lower() not in ('and', 'the', 'of') else m.lower()
                         for m in p)
 
+    def objectif(d):
+        """`objective` est devenu `objectives`, une liste. Trente-huit
+           détachements sur 334 en portent deux ; l'application n'en
+           affiche qu'une, la première."""
+        o = d.get('objectives')
+        if isinstance(o, list): return o[0] if o else ''
+        return o or d.get('objective') or ''
+
     DETACHMENTS, ENHANCEMENTS = [], []
     for d in mfm.get('detachments', []) or []:
         nom = d.get('name') or ''
         r = reglesDetach.get(cle(nom))
         nomRegle, txt = (r.get('name') or '', texteRegle(r)) if r else ('', '')
         DETACHMENTS.append([nom, d.get('dp') or 0, d.get('unique') or '',
-                            nomRegle, txt, '', 0, '', titre(d.get('objective'))])
+                            nomRegle, txt, '', 0, '', titre(objectif(d))])
         for e in d.get('enhancements', []) or []:
             en = e.get('name') or ''
             ENHANCEMENTS.append([en, e.get('points') or 0, nom,
@@ -821,16 +925,29 @@ def extrait(faction):
     # « Voix du Commandement » de l'Astra Militarum n'est liée que par
     # ses officiers, et le comptage la manquait.
     # ------------------------------------------------------------------
+    entetes = FACTIONS[faction].get('guide') or []
+    if isinstance(entetes, str): entetes = [entetes]
+    def nommee(t):
+        t = t.upper().replace('’', "'")
+        return any(e.replace('’', "'") in t[:80] for e in entetes[:1])
+
     faction_regle = []
     for c in cats:
         for r in (c.get('sharedRules') or []):
             t = texteRegle(r)
-            if re.match(r'if your army faction is', t, re.I):
+            # La bibliothèque aeldari porte Battle Focus, que les Drukhari
+            # lisent aussi : la règle doit nommer la faction elle-même.
+            if re.match(r'if your army faction is', t, re.I) and nommee(t):
                 faction_regle = [[r.get('name') or '', t]]
                 break
         if faction_regle: break
 
-    # à défaut : la règle partagée que la moitié des fiches lient
+    # à défaut : Wahapedia, qui range la règle d'armée parmi les
+    # aptitudes de type « Faction » de chaque fiche
+    if not faction_regle:
+        faction_regle = [list(r) for r in wahapedia.regleArmee(faction)]
+
+    # à défaut encore : la règle partagée que la moitié des fiches lient
     liees = {}
     for f, arbre in LF:
         vus = set()
@@ -869,7 +986,10 @@ def extrait(faction):
     # un socle par défaut, donc il doit se voir ici plutôt qu'à l'écran.
     guide = chargeSocles(faction)
     parCle = {cle(k): v for k, v in guide.items()}
-    alias = ALIAS_SOCLE.get(faction, {})
+    alias = dict(ALIAS_SOCLE.get(faction, {}))
+    # un chapitre hérite des noms relevés pour le Codex Space Marines
+    if 'SPACE MARINES' in (FACTIONS[faction].get('guide') or []) and faction != 'spacemarines':
+        alias = dict(ALIAS_SOCLE['spacemarines'], **alias)
     SOCLES, sansSocle = {}, []
     for u in UNITS:
         t = parCle.get(cle(alias.get(u[0], u[0])))
@@ -885,7 +1005,7 @@ def extrait(faction):
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
              FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES,
              STRATS=STRATS, CABLAGE=chargeCablage(faction))
-    stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM,
+    stats = dict(inconnus=inconnus, sansPrix=sansPrix, horsMFM=horsMFM, doublons=doublons,
                  multiProfil=multiProfil, sansSocle=sansSocle,
                  guide=len(guide), waha=waha)
     return T, stats
@@ -949,6 +1069,9 @@ def main():
         print('\n  %d fiches absentes du Munitorum, donc sans points :'
               % len(stats['horsMFM']))
         for n in stats['horsMFM']: print('    · ' + n)
+    if stats['doublons']:
+        print('\n  %d fiches en double, seule la première est gardée : %s'
+              % (len(stats['doublons']), ', '.join(stats['doublons'])))
     if stats['sansPrix']:
         print('\n  %d fiches du Munitorum sans barème lisible : %s'
               % (len(stats['sansPrix']), ', '.join(stats['sansPrix'])))
