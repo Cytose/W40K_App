@@ -653,10 +653,11 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
   overflow-x:auto;scrollbar-width:none;
   border-radius:8px}
 .subtabs::-webkit-scrollbar{display:none}
-.subtabs button{flex:1 0 auto;min-width:0;padding:9px 10px;background:var(--s1);border:0;color:var(--tx3);
+.subtabs button{flex:1 0 auto;min-width:0;padding:12px 10px;background:var(--s1);border:0;color:var(--tx3);
   font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap}
 .subtabs button.on{background:var(--glow-soft);color:var(--glow)}
 .sub{display:none}
+#cmpModes{margin-top:10px}
 .sub.on{display:block}
 
 /* ---------- retour vers l'index des listes ---------- */
@@ -1384,10 +1385,15 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   </button>
   <div class="subtabs" id="simTabs">
     <button type="button" class="on" data-v="subAtk">Attaque</button>
-    <button type="button" data-v="subCmp">Comparer</button>
-    <button type="button" data-v="subGrp">Combien il en faut</button>
-    <button type="button" data-v="subTop">Palmarès</button>
+    <button type="button" data-v="subCmp" data-famille="cmp">Comparer</button>
     <button type="button" data-v="subDef">Encaisser</button>
+  </div>
+  <!-- les trois facons de comparer : cote a cote, combien il en faut,
+       le palmares de la faction. Elles partagent la meme cible. -->
+  <div class="chips tight" id="cmpModes" hidden>
+    <button type="button" class="chip on" data-v="subCmp">Côte à côte</button>
+    <button type="button" class="chip" data-v="subGrp">Combien il en faut</button>
+    <button type="button" class="chip" data-v="subTop">Palmarès</button>
   </div>
   <div class="sub on" id="subAtk">
 

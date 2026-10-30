@@ -6263,19 +6263,30 @@ el("tabs").querySelectorAll("button").forEach(b=>
   if(el(i)) el(i).addEventListener("click", ()=> vaVers(el(i).dataset.s));
 });
 
-/* sous-onglets du simulateur */
-el("simTabs").querySelectorAll("button").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    el("simTabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
-    document.querySelectorAll("#scSim .sub").forEach(v=>v.classList.toggle("on", v.id === b.dataset.v));
-    window.scrollTo(0,0);
-    el("headSum").style.display = (b.dataset.v === "subAtk") ? "" : "none";
-    if(b.dataset.v === "subCmp"){ syncTarget(); renderCmpList(); }
-    if(b.dataset.v === "subGrp"){ syncTarget(); renderGrpList(); }
-    if(b.dataset.v === "subTop"){ syncTarget(); renderTop(); }
-    if(b.dataset.v === "subDef") renderDef();
-  });
-});
+/* sous-onglets du simulateur : Attaque, Comparer, Encaisser. Comparer
+   en regroupe trois -- cote a cote, combien il en faut, le palmares --
+   choisis par une rangee de puces juste dessous. */
+const FAMILLE_CMP = ["subCmp", "subGrp", "subTop"];
+let dernierCmp = "subCmp";
+function ouvreSub(v){
+  const cmp = FAMILLE_CMP.indexOf(v) >= 0;
+  if(cmp) dernierCmp = v;
+  el("simTabs").querySelectorAll("button").forEach(x=>
+    x.classList.toggle("on", cmp ? x.dataset.famille === "cmp" : x.dataset.v === v));
+  el("cmpModes").hidden = !cmp;
+  el("cmpModes").querySelectorAll("button").forEach(x=> x.classList.toggle("on", x.dataset.v === v));
+  document.querySelectorAll("#scSim .sub").forEach(x=>x.classList.toggle("on", x.id === v));
+  window.scrollTo(0,0);
+  el("headSum").style.display = (v === "subAtk") ? "" : "none";
+  if(v === "subCmp"){ syncTarget(); renderCmpList(); }
+  if(v === "subGrp"){ syncTarget(); renderGrpList(); }
+  if(v === "subTop"){ syncTarget(); renderTop(); }
+  if(v === "subDef") renderDef();
+}
+el("simTabs").querySelectorAll("button").forEach(b=>
+  b.addEventListener("click", ()=> ouvreSub(b.dataset.famille === "cmp" ? dernierCmp : b.dataset.v)));
+el("cmpModes").querySelectorAll("button").forEach(b=>
+  b.addEventListener("click", ()=> ouvreSub(b.dataset.v)));
 
 /* index <-> editeur */
 function ouvreEditeur(id){
