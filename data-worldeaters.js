@@ -1120,8 +1120,163 @@ const AURAS_ARMEE = [
   "nom": "Seigneur Démon de Khorne (Aura)",
   "quand": "L'unité est à 6\" du Bloodthirster, et elle est BLOOD LEGIONS",
   "texte": "While a friendly Blood Legions unit is within 6\" of this model, each time a model in that unit makes a melee attack, add 1 to the Hit roll."
+ },
+ {
+  "kw": [],
+  "mot": "sust",
+  "port": "C",
+  "nom": "Bénédiction — Excellence Martiale",
+  "quand": "La Bénédiction de Khorne est activée ce round",
+  "texte": "Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round. MARTIAL EXCELLENCE: Melee weapons equipped by models in this unit have the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "kw": [],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Bénédiction — Lames Warp",
+  "quand": "La Bénédiction de Khorne est activée ce round",
+  "texte": "Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round. WARP BLADES: Melee weapons equipped by models in this unit have the [LETHAL HITS] ability."
+ },
+ {
+  "kw": [],
+  "mot": "dev",
+  "port": "C",
+  "nom": "Bénédiction — Frappes Décapitantes",
+  "quand": "La Bénédiction de Khorne est activée ce round, et la cible est INFANTERIE",
+  "texte": "Once activated, each Blessing of Khorne applies to all units from your army with this ability until the end of the battle round. DECAPITATING STRIKES: Each time a model in this unit makes a melee attack that targets an INFANTRY unit, that attack has the [DEVASTATING WOUNDS] ability."
+ },
+ {
+  "detach": "Cult of Blood",
+  "kw": [
+   "Jakhals",
+   "Goremongers"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Idole de Rage Infinie (Aura)",
+  "quand": "Idole choisie ce tour, et l'unité est à 6\" (9\" d'un TITANESQUE) d'un MONSTRE ou TITANESQUE",
+  "texte": "Idol of Infinite Rage (Aura) While a friendly Jakhals or Goremongers unit is within 6\" of this model (or within 9\" if this model is TITANIC), each time a model in that unit makes an attack, add 1 to the Hit roll and add 1 to the Wound roll."
+ },
+ {
+  "detach": "Cult of Blood",
+  "kw": [
+   "Jakhals",
+   "Goremongers"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "Idole de Rage Infinie (Aura) — blessure",
+  "quand": "Idole choisie ce tour, et l'unité est à 6\" (9\" d'un TITANESQUE) d'un MONSTRE ou TITANESQUE",
+  "texte": "Idol of Infinite Rage (Aura) While a friendly Jakhals or Goremongers unit is within 6\" of this model (or within 9\" if this model is TITANIC), each time a model in that unit makes an attack, add 1 to the Hit roll and add 1 to the Wound roll."
+ },
+ {
+  "detach": "Goretrack Onslaught",
+  "kw": [
+   "Angron",
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Spawn",
+   "Chaos Terminators",
+   "Daemon Prince of Khorne",
+   "Daemon Prince of Khorne with wings",
+   "Defiler",
+   "Eightbound",
+   "Exalted Eightbound",
+   "Forgefiend",
+   "Goremongers",
+   "Helbrute",
+   "Heldrake",
+   "Jakhals",
+   "Khorne Berzerkers",
+   "Khorne Lord of Skulls",
+   "Khârn the Betrayer",
+   "Lord Invocatus",
+   "Lord on Juggernaut",
+   "Master of Executions",
+   "Maulerfiend",
+   "Slaughterbound"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Ruée dans la Mêlée — [LANCE]",
+  "quand": "L'unité a débarqué d'un TRANSPORT ce tour, et a chargé",
+  "texte": "Each time a World Eaters unit from your army disembarks from a Transport, until the end of the turn, add 1 to Charge rolls made for that unit and that unit’s melee weapons have the [lance] ability."
+ },
+ {
+  "detach": "Khorne Daemonkin",
+  "kw": [
+   "Bloodcrushers",
+   "Bloodletters",
+   "Bloodthirster",
+   "Flesh Hounds",
+   "Skarbrand"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Rage Démoniaque — [LANCE]",
+  "quand": "3 points de Tribut de Sang dépensés, et l'unité BLOOD LEGIONS a chargé ce tour",
+  "texte": "Daemonic Rage [3BTP] Melee weapons equipped by BLOOD LEGIONS units from your army have the [lance] ability."
+ },
+ {
+  "detach": "Vessels of Wrath",
+  "kw": [
+   "Daemon Prince of Khorne",
+   "Daemon Prince of Khorne with wings",
+   "Lord on Juggernaut",
+   "Master of Executions",
+   "Slaughterbound"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Courroux de Khorne",
+  "quand": "Le PERSONNAGE (hors Héros Épique) combat seul — mené une escouade, seules SES attaques en profitent",
+  "texte": "When a friendly WORLD EATERS CHARACTER unit (excluding EPIC HERO units) is selected to fight, that unit's CHARACTER models' melee attacks can have: - [CLEAVE 1]. - Or: +1 AP."
  }
 ];
+const OCTROIS_DETACH = {
+ "Berzerker Warband": [
+  {
+   "champ": "atkMod",
+   "val": 1,
+   "port": "C",
+   "qui": "unite",
+   "kw": [
+    "Angron",
+    "Chaos Land Raider",
+    "Chaos Predator Annihilator",
+    "Chaos Predator Destructor",
+    "Chaos Rhino",
+    "Chaos Spawn",
+    "Chaos Terminators",
+    "Daemon Prince of Khorne",
+    "Daemon Prince of Khorne with wings",
+    "Defiler",
+    "Eightbound",
+    "Exalted Eightbound",
+    "Forgefiend",
+    "Goremongers",
+    "Helbrute",
+    "Heldrake",
+    "Jakhals",
+    "Khorne Berzerkers",
+    "Khorne Lord of Skulls",
+    "Khârn the Betrayer",
+    "Lord Invocatus",
+    "Lord on Juggernaut",
+    "Master of Executions",
+    "Maulerfiend",
+    "Slaughterbound"
+   ],
+   "nom": "Rage Implacable",
+   "texte": "Friendly WORLD EATERS units’ melee attacks have +1 A."
+  }
+ ]
+};
 const STRAT_SIMU = [
  {
   "nom": "Hack and Slash",
@@ -1268,7 +1423,6 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
 
 enregistreFaction({

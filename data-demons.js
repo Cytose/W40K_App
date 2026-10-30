@@ -2250,11 +2250,832 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Tranceweaver": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Tisseuse de Transe",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1. If the target of that attack is within range of an objective marker, you can re-roll the Hit roll instead."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Tranceweaver": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Tisseuse de Transe — objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1. If the target of that attack is within range of an objective marker, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Daemon Prince of Chaos with wings": [
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Destruction Maléfique",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "Once per battle, at the start of the Fight phase, this model can use this ability. If it does, until the end of the phase, add 3 to the Attacks characteristic of this model’s hellforged weapons."
+  },
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Héraut de la Mort — [TOUCHES LÉTALES]",
+   "quand": "Choisi en début de combat",
+   "texte": "Each time this model is selected to fight, select one of the following abilities. Until the end of the phase, this model’s hellforged weapons have that ability:\n■ [LETHAL HITS]\n■ [PRECISION]\n■ [SUSTAINED HITS 1]"
+  },
+  {
+   "mot": "sust",
+   "port": "C",
+   "nom": "Héraut de la Mort — [TOUCHES SOUTENUES 1]",
+   "quand": "Choisi en début de combat",
+   "texte": "Each time this model is selected to fight, select one of the following abilities. Until the end of the phase, this model’s hellforged weapons have that ability:\n■ [LETHAL HITS]\n■ [PRECISION]\n■ [SUSTAINED HITS 1]"
+  }
+ ],
+ "Shalaxi Helbane": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Monarque de la Chasse",
+   "quand": "La cible est sa proie",
+   "texte": "At the start of the first battle round, select one enemy unit to be this model’s quarry. Each time this model makes a melee attack that targets its quarry, you can re-roll the Hit roll and you can re-roll the Wound roll. Each time this model’s quarry is destroyed, select one new enemy unit to be this model’s quarry."
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Monarque de la Chasse — blessure",
+   "quand": "La cible est sa proie",
+   "texte": "At the start of the first battle round, select one enemy unit to be this model’s quarry. Each time this model makes a melee attack that targets its quarry, you can re-roll the Hit roll and you can re-roll the Wound roll. Each time this model’s quarry is destroyed, select one new enemy unit to be this model’s quarry."
+  }
+ ],
+ "Hellflayers": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Faucher l'Ennemi",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time a model in this unit makes a melee attack, if this unit made a Charge move this turn, improve the Strength and Damage characteristics of that attack by 1."
+  },
+  {
+   "champ": "dmgMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Faucher l'Ennemi — dégâts",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time a model in this unit makes a melee attack, if this unit made a Charge move this turn, improve the Strength and Damage characteristics of that attack by 1."
+  }
+ ],
+ "Aetaos'rau'keres": [
+  {
+   "mot": "lethal",
+   "port": "T",
+   "nom": "Maître des Arcanes — [TOUCHES LÉTALES]",
+   "quand": "Choisi pour cette phase de Tir",
+   "texte": "In your Shooting phase, select one of the following abilities: [IGNORES COVER]; [LETHAL HITS]; [SUSTAINED HITS D3]. Until the end of the phase, this model’s ranged weapon has that ability."
+  },
+  {
+   "mot": "ignoresCover",
+   "port": "T",
+   "nom": "Maître des Arcanes — [IGNORE LE COUVERT]",
+   "quand": "Choisi pour cette phase de Tir",
+   "texte": "In your Shooting phase, select one of the following abilities: [IGNORES COVER]; [LETHAL HITS]; [SUSTAINED HITS D3]. Until the end of the phase, this model’s ranged weapon has that ability."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Skulltaker": [
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Des Crânes pour Khorne",
+   "texte": "Each time this model makes an attack that targets a Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll. Each time this model destroys an enemy Character unit, you gain 1CP."
+  },
+  {
+   "vs": [
+    "perso"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Des Crânes pour Khorne",
+   "texte": "Each time this model makes an attack that targets a Character unit, you can re-roll the Hit roll and you can re-roll the Wound roll. Each time this model destroys an enemy Character unit, you gain 1CP."
+  }
+ ],
+ "Rendmaster on Blood Throne": [
+  {
+   "vs": [
+    "perso",
+    "mon"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Tueur de Champions",
+   "texte": "Each time this model makes a melee attack that targets a CHARACTER or MONSTER unit, you can re-roll the Wound roll. Each time this model destroys an enemy CHARACTER or MONSTER unit, this model regains up to D6 lost wounds."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Skulltaker": [
+  {
+   "mot": "dev",
+   "port": "C",
+   "nom": "Seigneur des Décapitations",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Bloodmaster": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Maître du Sang",
+   "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Wound roll."
+  }
+ ],
+ "Fateskimmer": [
+  {
+   "mot": "lethal",
+   "port": "C",
+   "nom": "Glisse-Destin",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [LETHAL HITS] ability."
+  }
+ ],
+ "Changecaster": [
+  {
+   "mot": "sust:1",
+   "port": "T",
+   "nom": "Lanceur de Changement",
+   "texte": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Exalted Flamer": [
+  {
+   "mot": "assault",
+   "port": "T",
+   "nom": "Feu Warp Ardent",
+   "texte": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [ASSAULT] ability."
+  }
+ ],
+ "Poxbringer": [
+  {
+   "champ": "critH",
+   "val": 5,
+   "nom": "Porte-Vérole",
+   "texte": "While this model is leading a unit, each time a model in that unit makes an attack, a successful unmodified Hit roll of 5+ scores a Critical Hit."
+  }
+ ],
+ "Spoilpox Scrivener": [
+  {
+   "mot": "sust:1",
+   "port": "C",
+   "nom": "Continuez à Compter !",
+   "texte": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Syll'esske": [
+  {
+   "champ": "critW",
+   "val": 5,
+   "port": "C",
+   "nom": "Prince de Slaanesh",
+   "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack, a successful unmodified Wound roll of 5+ scores a Critical Wound."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Skarbrand",
+  "kw": [
+   "An'ggrath the Unbound",
+   "Bloodcrushers",
+   "Bloodletters",
+   "Bloodmaster",
+   "Bloodthirster",
+   "Flesh Hounds",
+   "Karanak",
+   "Rendmaster on Blood Throne",
+   "Skull Altar",
+   "Skull Cannon",
+   "Skullmaster",
+   "Skulltaker"
+  ],
+  "champ": "atkMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Rage Incarnée (Aura)",
+  "quand": "L'unité de KHORNE est à 6\" de Skarbrand",
+  "texte": "While a friendly Khorne Legiones Daemonica unit is within 6\" of this model, add 1 to the Attacks characteristic of melee weapons equipped by models in that unit."
+ },
+ {
+  "source": "Bloodthirster",
+  "kw": [
+   "An'ggrath the Unbound",
+   "Bloodcrushers",
+   "Bloodletters",
+   "Bloodmaster",
+   "Flesh Hounds",
+   "Karanak",
+   "Rendmaster on Blood Throne",
+   "Skarbrand",
+   "Skull Altar",
+   "Skull Cannon",
+   "Skullmaster",
+   "Skulltaker"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Seigneur Démon de Khorne (Aura)",
+  "quand": "L'unité de KHORNE est à 6\" du Buveur de Sang",
+  "texte": "While a friendly Khorne Legiones Daemonica unit is within 6\" of this model, each time a model in that unit makes a melee attack, add 1 to the Hit roll."
+ },
+ {
+  "source": "Karanak",
+  "kw": [
+   "Karanak",
+   "Flesh Hounds"
+  ],
+  "champ": "rrW",
+  "val": "failed",
+  "port": "C",
+  "nom": "Proie du Dieu du Sang",
+  "quand": "L'unité est celle de Karanak, et la cible est sa proie",
+  "texte": "At the start of the first battle round, select one enemy unit to be this model’s prey. Each time a model in this model’s unit makes a melee attack that targets its prey, you can re-roll the Wound roll. Each time this model’s prey is destroyed, select one new enemy unit to be this model’s prey."
+ },
+ {
+  "source": "Lord of Change",
+  "kw": [
+   "Aetaos'rau'keres",
+   "Blue Horrors",
+   "Burning Chariot",
+   "Changecaster",
+   "Exalted Flamer",
+   "Fateskimmer",
+   "Flamers",
+   "Fluxmaster",
+   "Kairos Fateweaver",
+   "Pink Horrors",
+   "Screamers",
+   "The Blue Scribes",
+   "The Changeling"
+  ],
+  "champ": "strMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Seigneur Démon de Tzeentch (Aura)",
+  "quand": "L'unité de TZEENTCH est à 6\" du Seigneur du Changement",
+  "texte": "While a friendly TZEENTCH LEGIONES DAEMONICA unit is within 6\" of this model, each time a model in that unit makes a ranged attack, add 1 to the Strength characteristic of that attack."
+ },
+ {
+  "source": "Rotigus",
+  "kw": [
+   "Beasts of Nurgle",
+   "Epidemius",
+   "Feculent Gnarlmaw",
+   "Great Unclean One",
+   "Horticulous Slimux",
+   "Nurglings",
+   "Plague Drones",
+   "Plague Toads",
+   "Plaguebearers",
+   "Pox Riders",
+   "Poxbringer",
+   "Rotigus",
+   "Scabeiathrax the Bloated",
+   "Sloppity Bilepiper",
+   "Spoilpox Scrivener"
+  ],
+  "champ": "dmgMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Bénédiction Virulente",
+  "quand": "La cible est l'unité désignée par Rotigus au début de la phase",
+  "texte": "At the start of the Fight phase, you can select one enemy unit within 24\" of and visible to this model. Until the end of the phase, each time an attack made by a NURGLE LEGIONES DAEMONICA model is allocated to a model in that unit, add 1 to the Damage characteristic of that attack."
+ },
+ {
+  "source": "Plague Drones",
+  "kw": [
+   "Beasts of Nurgle",
+   "Epidemius",
+   "Feculent Gnarlmaw",
+   "Great Unclean One",
+   "Horticulous Slimux",
+   "Nurglings",
+   "Plague Drones",
+   "Plague Toads",
+   "Plaguebearers",
+   "Pox Riders",
+   "Poxbringer",
+   "Rotigus",
+   "Scabeiathrax the Bloated",
+   "Sloppity Bilepiper",
+   "Spoilpox Scrivener"
+  ],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Têtes de Mort",
+  "quand": "La cible a été touchée par les Drones de la Peste ce tour",
+  "texte": "In your Shooting phase, after this unit has shot, select one enemy unit hit by one or more of those attacks. Until the end of the turn, each time a friendly NURGLE LEGIONES DAEMONICA unit makes an attack that targets that unit, you can re-roll the Wound roll."
+ },
+ {
+  "source": "Keeper of Secrets",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Seigneur Démon de Slaanesh (Aura)",
+  "quand": "L'unité de SLAANESH est à 6\" du Gardien des Secrets",
+  "texte": "While a friendly Slaanesh Legiones Daemonica unit is within 6\" of this model, improve the Armour Penetration of melee weapons in that unit by 1."
+ },
+ {
+  "source": "The Masque of Slaanesh",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "C",
+  "nom": "La Danse Éternelle",
+  "quand": "La cible est l'unité désignée par le Masque en début de combat",
+  "texte": "At the start of the Fight phase, select one enemy unit within 6\" of this model. Until the end of the phase:\n■ Each time a friendly SLAANESH LEGIONES DAEMONICA model makes a melee attack that targets that enemy unit, add 1 to the Wound roll.\n■ Each time a model in that enemy unit makes a melee attack, subtract 1 from the Wound roll."
+ },
+ {
+  "source": "Tormentbringer",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "mot": "sust",
+  "port": "C",
+  "nom": "Porteur de Tourments (Aura)",
+  "quand": "L'unité de SLAANESH est à 6\" du Porteur de Tourments",
+  "texte": "While a friendly Slaanesh Legions Daemonica unit is within 6\" of this model, melee weapons in that unit have the [SUSTAINED HITS 1] ability."
+ },
+ {
+  "source": "Tranceweaver",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Symphonie de Douleur",
+  "quand": "La cible est l'unité Ébranlée désignée ce tour",
+  "texte": "At the end of your Movement phase, you can select one enemy unit that is Battle-shocked and within 12\" of this model. Until the end of the turn, each time a SLAANESH LEGIONES DAEMONICA model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+ },
+ {
+  "source": "Tranceweaver",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Symphonie de Douleur — blessure",
+  "quand": "La cible est l'unité Ébranlée désignée ce tour",
+  "texte": "At the end of your Movement phase, you can select one enemy unit that is Battle-shocked and within 12\" of this model. Until the end of the turn, each time a SLAANESH LEGIONES DAEMONICA model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+ },
+ {
+  "source": "Herald of Slaanesh on Steed of Slaanesh",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Symphonie de Douleur",
+  "quand": "La cible est l'unité Ébranlée désignée ce tour",
+  "texte": "At the end of your Movement phase, you can select one enemy unit that is Battle-shocked and within 12\" of this model. Until the end of the turn, each time a SLAANESH LEGIONES DAEMONICA model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+ },
+ {
+  "source": "Herald of Slaanesh on Steed of Slaanesh",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Symphonie de Douleur — blessure",
+  "quand": "La cible est l'unité Ébranlée désignée ce tour",
+  "texte": "At the end of your Movement phase, you can select one enemy unit that is Battle-shocked and within 12\" of this model. Until the end of the turn, each time a SLAANESH LEGIONES DAEMONICA model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+ },
+ {
+  "detach": "Legion of Excess",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Gambit Séducteur",
+  "quand": "L'unité a fini une charge et renonce à Combat en Premier",
+  "texte": "Each time this unit ends a Charge move, you can declare it will perform a Seductive Gambit. If you do, until the end of the turn, this unit does not have the Fights First ability, but instead, each time a model in this unit makes an attack, you can re-roll the Hit roll and you can re-roll a Wound roll of 1."
+ },
+ {
+  "detach": "Legion of Excess",
+  "kw": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Gambit Séducteur — blessure",
+  "quand": "L'unité a fini une charge et renonce à Combat en Premier",
+  "texte": "Each time this unit ends a Charge move, you can declare it will perform a Seductive Gambit. If you do, until the end of the turn, this unit does not have the Fights First ability, but instead, each time a model in this unit makes an attack, you can re-roll the Hit roll and you can re-roll a Wound roll of 1."
+ },
+ {
+  "detach": "Shadow Legion",
+  "kw": [
+   "Be'lakor"
+  ],
+  "mot": "lethal",
+  "nom": "Disciples de Be'lakor — [TOUCHES LÉTALES]",
+  "quand": "L'unité INDIVISE conclut un Pacte Sombre et choisit les Touches Létales",
+  "texte": "SHADOW LEGION UNDIVIDED units only. This unit has the Dark Pacts army rule, and can use it as described in Codex: Chaos Space Marines, even though your Army Faction is not HERETIC ASTARTES."
+ },
+ {
+  "detach": "Shadow Legion",
+  "kw": [
+   "Be'lakor"
+  ],
+  "mot": "sust",
+  "nom": "Disciples de Be'lakor — [TOUCHES SOUTENUES 1]",
+  "quand": "L'unité INDIVISE conclut un Pacte Sombre et choisit les Touches Soutenues 1",
+  "texte": "SHADOW LEGION UNDIVIDED units only. This unit has the Dark Pacts army rule, and can use it as described in Codex: Chaos Space Marines, even though your Army Faction is not HERETIC ASTARTES."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Draught of Terror",
+  "detach": "Daemonic Incursion",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Draught of Terror — cible Ébranlée",
+  "detach": "Daemonic Incursion",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA, et relance des blessures ratées contre une cible Ébranlée",
+  "effet": {
+   "apMod": 1,
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Archagonists",
+  "detach": "Legion of Excess",
+  "pc": 2,
+  "ph": "C",
+  "unites": [
+   "Contorted Epitome",
+   "Daemonettes",
+   "Fiends",
+   "Hellflayers",
+   "Herald of Slaanesh on Steed of Slaanesh",
+   "Infernal Enrapturess",
+   "Keeper of Secrets",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Syll'esske",
+   "The Masque of Slaanesh",
+   "Tormentbringer",
+   "Tranceweaver",
+   "Zarakynel"
+  ],
+  "sauf": [],
+  "aide": "+1 pour blesser — un MONSTRE ou deux unités de SLAANESH",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Call to Murder",
+  "detach": "Lords of the Warp",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Bloodmaster",
+   "Karanak",
+   "Rendmaster on Blood Throne",
+   "Skullmaster",
+   "Skulltaker"
+  ],
+  "sauf": [],
+  "aide": "+1 attaque en mêlée — PERSONNAGE de KHORNE qui a chargé ce tour",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Skirling Magicks",
+  "detach": "Lords of the Warp",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Changecaster",
+   "Exalted Flamer",
+   "Fateskimmer",
+   "Fluxmaster",
+   "The Blue Scribes",
+   "The Changeling"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES LÉTALES] au tir — PERSONNAGE de TZEENTCH",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Fever Visions",
+  "detach": "Plague Legion",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Beasts of Nurgle",
+   "Epidemius",
+   "Feculent Gnarlmaw",
+   "Great Unclean One",
+   "Horticulous Slimux",
+   "Nurglings",
+   "Plague Drones",
+   "Plague Toads",
+   "Plaguebearers",
+   "Pox Riders",
+   "Poxbringer",
+   "Rotigus",
+   "Scabeiathrax the Bloated",
+   "Sloppity Bilepiper",
+   "Spoilpox Scrivener"
+  ],
+  "sauf": [],
+  "aide": "+1 pour toucher — unité de NURGLE",
+  "effet": {
+   "hitMod": 1
+  }
+ },
+ {
+  "nom": "Seeping Virulence",
+  "detach": "Plague Legion",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Beasts of Nurgle",
+   "Epidemius",
+   "Feculent Gnarlmaw",
+   "Great Unclean One",
+   "Horticulous Slimux",
+   "Nurglings",
+   "Plague Drones",
+   "Plague Toads",
+   "Plaguebearers",
+   "Pox Riders",
+   "Poxbringer",
+   "Rotigus",
+   "Scabeiathrax the Bloated",
+   "Sloppity Bilepiper",
+   "Spoilpox Scrivener"
+  ],
+  "sauf": [],
+  "aide": "touche critique sur 5+ — unité de NURGLE",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Pyrogenesis",
+  "detach": "Scintillating Legion",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Aetaos'rau'keres",
+   "Blue Horrors",
+   "Burning Chariot",
+   "Changecaster",
+   "Exalted Flamer",
+   "Fateskimmer",
+   "Flamers",
+   "Fluxmaster",
+   "Kairos Fateweaver",
+   "Lord of Change",
+   "Pink Horrors",
+   "Screamers",
+   "The Blue Scribes",
+   "The Changeling"
+  ],
+  "sauf": [],
+  "aide": "+2 en Force — unité de TZEENTCH",
+  "effet": {
+   "strMod": 2
+  }
+ },
+ {
+  "nom": "Pyrogenesis — jeton de Flux",
+  "detach": "Scintillating Legion",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Aetaos'rau'keres",
+   "Blue Horrors",
+   "Burning Chariot",
+   "Changecaster",
+   "Exalted Flamer",
+   "Fateskimmer",
+   "Flamers",
+   "Fluxmaster",
+   "Kairos Fateweaver",
+   "Lord of Change",
+   "Pink Horrors",
+   "Screamers",
+   "The Blue Scribes",
+   "The Changeling"
+  ],
+  "sauf": [],
+  "aide": "+3 en Force et +1 en PA — un jeton de Flux dépensé",
+  "effet": {
+   "strMod": 3,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Channelled Wrath — après une charge",
+  "detach": "Shadow Legion",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser, l'unité ayant chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Channelled Wrath — KHORNE",
+  "detach": "Shadow Legion",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "An'ggrath the Unbound",
+   "Bloodcrushers",
+   "Bloodletters",
+   "Bloodmaster",
+   "Bloodthirster",
+   "Flesh Hounds",
+   "Karanak",
+   "Rendmaster on Blood Throne",
+   "Skarbrand",
+   "Skull Altar",
+   "Skull Cannon",
+   "Skullmaster",
+   "Skulltaker"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA pour une unité de KHORNE, et [LANCE] si elle a chargé ce tour",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Encroaching Darkness",
+  "detach": "Shadow Legion",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] — l'unité est arrivée des Réserves ce tour",
+  "effet": {
+   "ignoresCover": true
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -2263,10 +3084,6 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "demons",

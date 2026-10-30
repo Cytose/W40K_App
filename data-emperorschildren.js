@@ -778,11 +778,464 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Infractors": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "port": "C",
+   "nom": "Assaut Excessif",
+   "texte": "Each time a model in this unit targets an enemy unit with a melee attack, re-roll a Wound roll of 1. If that enemy unit is within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Chaos Terminators": [
+  {
+   "mot": "sust:1",
+   "nom": "Férocité Frénétique",
+   "texte": "This unit's attacks have [SUSTAINED HITS 1]."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Infractors": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Assaut Excessif — objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "Each time a model in this unit targets an enemy unit with a melee attack, re-roll a Wound roll of 1. If that enemy unit is within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Lord Exultant": [
+  {
+   "champ": "atkMod",
+   "val": 3,
+   "port": "C",
+   "nom": "Frappes Euphoriques",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "Once per battle, at the start of the Fight phase, this model can use this ability. If it does so, until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and improve the Armour Penetration characteristic of those weapons by 1."
+  },
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Frappes Euphoriques — pénétration",
+   "quand": "L'aptitude est déclenchée — une fois par bataille",
+   "texte": "Once per battle, at the start of the Fight phase, this model can use this ability. If it does so, until the end of the phase, add 3 to the Attacks characteristic of melee weapons equipped by this model and improve the Armour Penetration characteristic of those weapons by 1."
+  }
+ ],
+ "Flawless Blades": [
+  {
+   "champ": "critW",
+   "val": 3,
+   "port": "C",
+   "nom": "Patrons Démoniaques",
+   "quand": "L'unité invoque ses patrons (une figurine meurt si elle ne tue rien)",
+   "texte": "Each time this unit is selected to fight, it can call upon daemonic patrons. If it does, until the end of the phase, each time a model in this unit makes an attack. an unmodified Wound roll of 3+ scores a Critical Wound. At the end of the Fight phase, if this unit called upon daemonic patrons this phase and no enemy models were destroyed by attacks made by models in this unit this phase, one model in this unit is destroyed."
+  }
+ ],
+ "Maulerfiend": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Gourmand de Souffrance",
+   "quand": "Le Maulerfiend est sous son Effectif de Départ",
+   "texte": "Each time this model makes an attack, if it is below its Starting Strength, add 1 to the Hit roll. If this model is also Below Half-Strength, add 1 to the Wound roll as well."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Gourmand de Souffrance — sous la moitié",
+   "quand": "Le Maulerfiend est sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack, if it is below its Starting Strength, add 1 to the Hit roll. If this model is also Below Half-Strength, add 1 to the Wound roll as well."
+  }
+ ],
+ "Shalaxi Helbane": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "port": "C",
+   "nom": "Monarque de la Chasse",
+   "quand": "La cible est sa proie",
+   "texte": "At the start of the first battle round, select one enemy unit to be this model's quarry. Each time this model makes a melee attack that targets its quarry, you can re-roll the Hit roll and you can re-roll the Wound roll. Each time this model's quarry is destroyed, select one new enemy unit to be this model's quarry."
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Monarque de la Chasse — blessure",
+   "quand": "La cible est sa proie",
+   "texte": "At the start of the first battle round, select one enemy unit to be this model's quarry. Each time this model makes a melee attack that targets its quarry, you can re-roll the Hit roll and you can re-roll the Wound roll. Each time this model's quarry is destroyed, select one new enemy unit to be this model's quarry."
+  }
+ ],
+ "Defiler": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Délectation Sacrilège",
+   "quand": "La cible n'est PAS sous la moitié de son effectif",
+   "texte": "Each time this model makes an attack that targets an enemy unit that is not below Half-strength, add 1 to the Hit roll."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Lucius the Eternal": [
+  {
+   "vs": [
+    "perso",
+    "mon"
+   ],
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Un Défi à sa Mesure",
+   "texte": "Each time this model makes an attack that targets a Character, Monster or Walker unit, you can re-roll the Hit roll and re-roll the Wound roll."
+  },
+  {
+   "vs": [
+    "perso",
+    "mon"
+   ],
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Un Défi à sa Mesure",
+   "texte": "Each time this model makes an attack that targets a Character, Monster or Walker unit, you can re-roll the Hit roll and re-roll the Wound roll."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Lord Exultant": [
+  {
+   "mot": "lethal",
+   "nom": "Perfectionnistes",
+   "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+  }
+ ],
+ "Lord Kakophonist": [
+  {
+   "mot": "sust:1",
+   "port": "T",
+   "nom": "Annonciation Obsessionnelle",
+   "texte": "While this model is leading a unit, ranged weapons equipped by that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "source": "Daemon Prince of Slaanesh",
+  "kw": [
+   "Chaos Land Raider",
+   "Chaos Rhino",
+   "Chaos Spawn",
+   "Chaos Terminators",
+   "Daemon Prince of Slaanesh",
+   "Daemon Prince of Slaanesh with Wings",
+   "Daemonettes",
+   "Defiler",
+   "Fiends",
+   "Flawless Blades",
+   "Fulgrim",
+   "Heldrake",
+   "Infractors",
+   "Keeper of Secrets",
+   "Lord Exultant",
+   "Lord Kakophonist",
+   "Lucius the Eternal",
+   "Maulerfiend",
+   "Noise Marines",
+   "Seekers",
+   "Shalaxi Helbane",
+   "Sorcerer",
+   "Tormentors"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Vigueur Excessive (Aura)",
+  "quand": "L'unité est à 6\" du Prince Démon et a chargé ce tour",
+  "texte": "While a friendly Slaanesh unit is within 6\" of this model, if that unit made a Charge move this turn, improve the Armour Penetration characteristic of melee weapons equipped by that unit by 1."
+ },
+ {
+  "source": "Keeper of Secrets",
+  "kw": [
+   "Daemonettes",
+   "Fiends",
+   "Seekers",
+   "Shalaxi Helbane"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Seigneur Démon de Slaanesh (Aura)",
+  "quand": "L'unité des LÉGIONS DE L'EXCÈS est à 6\" du Gardien des Secrets",
+  "texte": "While a friendly Legions of Excess unit is within 6\" of this model, improve the Armour Penetration of melee weapons in that unit by 1."
+ },
+ {
+  "detach": "Carnival of Excess",
+  "kw": [],
+  "mot": "sust",
+  "nom": "Renforcement Démoniaque",
+  "quand": "L'unité est Renforcée : à 6\" d'une unité amie de l'autre camp (Enfants de l'Empereur / Légions de l'Excès)",
+  "texte": "While a unit from your army is Empowered, weapons equipped by models in that unit have the [sustained hits 1] ability. If such a weapon already has that ability, each time an attack is made with that weapon, an unmodified Hit roll of 5+ scores a Critical Hit."
+ },
+ {
+  "detach": "Coterie of the Conceited",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Promesses au Prince — 1 point",
+  "quand": "Tu as gagné 1 point de Pacte ou plus",
+  "texte": "Emperor’s Children units from your army gain a bonus depending on how many Pact points you have gained during the battle, as shown below (these are all cumulative). 1+: Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "detach": "Coterie of the Conceited",
+  "kw": [],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Promesses au Prince — 3 points",
+  "quand": "Tu as gagné 3 points de Pacte ou plus",
+  "texte": "Emperor’s Children units from your army gain a bonus depending on how many Pact points you have gained during the battle, as shown below (these are all cumulative). 3+: Each time a model in this unit makes an attack, re-roll a Wound roll of 1."
+ },
+ {
+  "detach": "Coterie of the Conceited",
+  "kw": [],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Promesses au Prince — 5 points",
+  "quand": "Tu as gagné 5 points de Pacte ou plus",
+  "texte": "Emperor’s Children units from your army gain a bonus depending on how many Pact points you have gained during the battle, as shown below (these are all cumulative). 5+: Melee weapons equipped by models in this unit have the [LETHAL HITS] and [SUSTAINED HITS 1] abilities."
+ },
+ {
+  "detach": "Coterie of the Conceited",
+  "kw": [],
+  "mot": "sust",
+  "port": "C",
+  "nom": "Promesses au Prince — 5 points, soutenues",
+  "quand": "Tu as gagné 5 points de Pacte ou plus",
+  "texte": "Emperor’s Children units from your army gain a bonus depending on how many Pact points you have gained during the battle, as shown below (these are all cumulative). 5+: Melee weapons equipped by models in this unit have the [LETHAL HITS] and [SUSTAINED HITS 1] abilities."
+ },
+ {
+  "detach": "Coterie of the Conceited",
+  "kw": [],
+  "champ": "critH",
+  "val": 5,
+  "nom": "Promesses au Prince — 7 points",
+  "quand": "Tu as gagné 7 points de Pacte ou plus",
+  "texte": "Emperor’s Children units from your army gain a bonus depending on how many Pact points you have gained during the battle, as shown below (these are all cumulative). 7+: Each time a model in this unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+."
+ },
+ {
+  "detach": "Court of the Phoenician",
+  "kw": [],
+  "champ": "strMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Prestation Sensationnelle",
+  "quand": "L'unité a chargé ce tour et frappe une cible ni déjà engagée, ni déjà attaquée cette phase",
+  "texte": "Improve the Strength and Armour Penetration characteristics of this unit’s melee weapons by 1."
+ },
+ {
+  "detach": "Court of the Phoenician",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Prestation Sensationnelle — pénétration",
+  "quand": "L'unité a chargé ce tour et frappe une cible ni déjà engagée, ni déjà attaquée cette phase",
+  "texte": "Improve the Strength and Armour Penetration characteristics of this unit’s melee weapons by 1."
+ },
+ {
+  "detach": "Frenzied Host",
+  "kw": [
+   "battleline"
+  ],
+  "mot": "sust",
+  "nom": "Concentration Frénétique",
+  "quand": "L'unité de LIGNE a avancé ou battu en retraite ce tour",
+  "texte": "When a friendly EMPEROR’S CHILDREN BATTLELINE unit is selected to make an advance/fall-back move, that unit’s BATTLELINE models’ attacks have [SUSTAINED HITS 1] until the end of the turn."
+ },
+ {
+  "detach": "Peerless Bladesmen",
+  "kw": [],
+  "mot": "lethal",
+  "port": "C",
+  "nom": "Escrime Exquise — [TOUCHES LÉTALES]",
+  "quand": "L'unité a chargé ce tour et choisit les Touches Létales",
+  "texte": "Each time an Emperor’s Children unit from your army is selected to fight, if it made a Charge move this turn, select one of the abilities below. While resolving those attacks, melee weapons equipped by models in that unit have that ability: ▪ [LETHAL HITS] ▪ [SUSTAINED HITS 1]"
+ },
+ {
+  "detach": "Peerless Bladesmen",
+  "kw": [],
+  "mot": "sust",
+  "port": "C",
+  "nom": "Escrime Exquise — [TOUCHES SOUTENUES 1]",
+  "quand": "L'unité a chargé ce tour et choisit les Touches Soutenues 1",
+  "texte": "Each time an Emperor’s Children unit from your army is selected to fight, if it made a Charge move this turn, select one of the abilities below. While resolving those attacks, melee weapons equipped by models in that unit have that ability: ▪ [LETHAL HITS] ▪ [SUSTAINED HITS 1]"
+ },
+ {
+  "detach": "Rapid Evisceration",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Meurtre Mécanisé",
+  "quand": "L'unité est un TRANSPORT, ou a débarqué d'un TRANSPORT ce tour",
+  "texte": "Each time an Emperor’s Children model from your army makes an attack, if it is a Transport model or disembarked from a TRANSPORT this turn, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
+ },
+ {
+  "detach": "Rapid Evisceration",
+  "kw": [],
+  "champ": "rrW",
+  "val": "ones",
+  "nom": "Meurtre Mécanisé — blessure",
+  "quand": "L'unité est un TRANSPORT, ou a débarqué d'un TRANSPORT ce tour",
+  "texte": "Each time an Emperor’s Children model from your army makes an attack, if it is a Transport model or disembarked from a TRANSPORT this turn, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
+ },
+ {
+  "detach": "Slaanesh’s Chosen",
+  "kw": [],
+  "champ": "rrW",
+  "val": "failed",
+  "nom": "Champions Favoris",
+  "quand": "L'unité est celle des Champions Favoris de ton armée",
+  "texte": "Each time a model in your army’s Favoured Champions unit makes an attack, you can re-roll the Wound roll."
+ }
+];
+const STRAT_SIMU = [
+ {
+  "nom": "Martial Perfection",
+  "detach": "Coterie of the Conceited",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Unshakeable Opponents",
+  "detach": "Coterie of the Conceited",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "ignore les modificateurs de CT/CC, de touche et de blessure jusqu'à la fin du tour",
+  "effet": {
+   "ignoreMalus": true
+  }
+ },
+ {
+  "nom": "Close-Quarters Excruciation",
+  "detach": "Court of the Phoenician",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en Force et +1 en PA — contre une cible à 12\" ou moins",
+  "effet": {
+   "strMod": 1,
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Prideful Superiority",
+  "detach": "Court of the Phoenician",
+  "pc": 2,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches et des blessures ratées — contre un PERSONNAGE",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Psychedelic Soulflame",
+  "detach": "Elegant Brutes",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Chaos Terminators"
+  ],
+  "sauf": [],
+  "aide": "+2 en Force — unité de TERMINATORS",
+  "effet": {
+   "strMod": 2
+  }
+ },
+ {
+  "nom": "Violent Excess",
+  "detach": "Mercurial Host",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] en mêlée",
+  "effet": {
+   "sustainedOn": true
+  }
+ },
+ {
+  "nom": "Cruel Bladesman",
+  "detach": "Peerless Bladesmen",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA en mêlée — l'unité a chargé ce tour",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Devoted Duellists",
+  "detach": "Slaanesh’s Chosen",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Daemon Prince of Slaanesh",
+   "Daemon Prince of Slaanesh with Wings",
+   "Fulgrim",
+   "Keeper of Secrets",
+   "Lord Exultant",
+   "Lord Kakophonist",
+   "Lucius the Eternal",
+   "Shalaxi Helbane",
+   "Sorcerer"
+  ],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] en mêlée — PERSONNAGES, contre l'unité désignée",
+  "effet": {
+   "sustainedOn": true
+  }
+ },
+ {
+  "nom": "Heightened Jealousy",
+  "detach": "Slaanesh’s Chosen",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Daemon Prince of Slaanesh",
+   "Daemon Prince of Slaanesh with Wings",
+   "Fulgrim",
+   "Keeper of Secrets",
+   "Lord Exultant",
+   "Lord Kakophonist",
+   "Lucius the Eternal",
+   "Shalaxi Helbane",
+   "Sorcerer"
+  ],
+  "sauf": [],
+  "aide": "+1 en Force — PERSONNAGES qui ne sont pas les Champions Favoris",
+  "effet": {
+   "strMod": 1
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -791,10 +1244,6 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "emperorschildren",

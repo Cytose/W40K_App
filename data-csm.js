@@ -3390,11 +3390,1922 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Legionaries": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "port": "C",
+   "nom": "Vétérans de la Longue Guerre",
+   "texte": "Each time a model in this unit targets an enemy unit with a melee attack, re-roll a Wound roll of 1. If that enemy unit is within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Chaos Deimos Predator": [
+  {
+   "champ": "rrH",
+   "val": "ones",
+   "nom": "Fer de Lance Blindé",
+   "texte": "Each time this model makes an attack that targets an enemy unit, re-roll a Hit roll of 1 and, if that unit is within range of an objective marker you do not control, you can re-roll the Hit roll instead."
+  }
+ ]
+};
+const APTIS_COND = {
+ "Legionaries": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "port": "C",
+   "nom": "Vétérans de la Longue Guerre — objectif",
+   "quand": "La cible est à portée d'un pion d'objectif",
+   "texte": "Each time a model in this unit targets an enemy unit with a melee attack, re-roll a Wound roll of 1. If that enemy unit is within range of an objective marker, you can re-roll the Wound roll instead."
+  }
+ ],
+ "Chaos Deimos Predator": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Fer de Lance Blindé — objectif adverse",
+   "quand": "La cible est à portée d'un objectif que tu ne contrôles pas",
+   "texte": "Each time this model makes an attack that targets an enemy unit, re-roll a Hit roll of 1 and, if that unit is within range of an objective marker you do not control, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Dark Commune": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Rituel Impie",
+   "quand": "L'aptitude est déclenchée ce tour — une fois par bataille",
+   "texte": "Once per battle, in your Command phase, if this unit contains a CULT DEMAGOGUE model, it can use this ability. If it does, until the end of the turn, this unit can declare a charge in a turn in which it Advanced and each time a model in this unit makes an attack, add 1 to the Hit roll and add 1 to the Wound roll."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Rituel Impie — blessure",
+   "quand": "L'aptitude est déclenchée ce tour — une fois par bataille",
+   "texte": "Once per battle, in your Command phase, if this unit contains a CULT DEMAGOGUE model, it can use this ability. If it does, until the end of the turn, this unit can declare a charge in a turn in which it Advanced and each time a model in this unit makes an attack, add 1 to the Hit roll and add 1 to the Wound roll."
+  }
+ ],
+ "Chaos Terminator Squad": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Pillards",
+   "quand": "L'unité a conclu un Pacte Sombre cette phase",
+   "texte": "Each time this unit makes a Dark Pact, until the end of the phase, each time a model in this unit makes an attack, you can re-roll the Hit roll."
+  }
+ ],
+ "Possessed": [
+  {
+   "mot": "dev",
+   "nom": "Carnage Impie",
+   "quand": "L'unité a conclu un Pacte Sombre — une fois par bataille",
+   "texte": "Once per battle, when this unit makes a Dark Pact, until the end of the phase, weapons equipped by models in this unit have the [DEVASTATING WOUNDS] ability."
+  }
+ ],
+ "Chaos Bikers": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Assaut Rapide",
+   "quand": "L'unité a chargé ce tour",
+   "texte": "Each time a model in this unit makes a melee attack, if this unit made a Charge move this turn, improve the Strength characteristic of that attack by 1."
+  }
+ ],
+ "Forgefiend": [
+  {
+   "mot": "dev",
+   "port": "T",
+   "nom": "Artillerie Démoniaque",
+   "quand": "L'aptitude est utilisée — les armes deviennent aussi [DANGEREUSES]",
+   "texte": "Each time this model is selected to shoot, it can use this ability. If it does, until the end of the phase, its ranged weapons have the [DEVASTATING WOUNDS] and [HAZARDOUS] abilities."
+  }
+ ],
+ "Helbrute": [
+  {
+   "champ": "atkMod",
+   "val": 2,
+   "port": "C",
+   "nom": "Voué à la Destruction",
+   "quand": "Le Helbrute porte deux armes de mêlée en plus de son arme de base",
+   "texte": "If this model is equipped with 2 melee weapons in addition to its close combat weapon, add 2 to the Attacks characteristics of those 2 weapons."
+  }
+ ],
+ "Nemesis Claw": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Visions de Souffrance",
+   "quand": "La cible est sous son Effectif de Départ",
+   "texte": "Each time a model in this unit makes an attack that targets an enemy unit that is below its Starting Strength, add 1 to the Hit roll. If that enemy unit is Below Half-strength, add 1 to the Wound roll as well."
+  },
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Visions de Souffrance — sous la moitié",
+   "quand": "La cible est sous la moitié de son effectif",
+   "texte": "Each time a model in this unit makes an attack that targets an enemy unit that is below its Starting Strength, add 1 to the Hit roll. If that enemy unit is Below Half-strength, add 1 to the Wound roll as well."
+  }
+ ],
+ "Red Corsairs Reave-captain": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Pillard Brutal",
+   "quand": "L'unité a fini un mouvement de charge ce tour",
+   "texte": "Each time this model's unit ends a Charge move, until the end of the turn, add 1 to the Strength characteristic of melee weapons equipped by this model and improve the Armour Penetration characteristic of those weapons by 1."
+  },
+  {
+   "champ": "apMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Pillard Brutal — pénétration",
+   "quand": "L'unité a fini un mouvement de charge ce tour",
+   "texte": "Each time this model's unit ends a Charge move, until the end of the turn, add 1 to the Strength characteristic of melee weapons equipped by this model and improve the Armour Penetration characteristic of those weapons by 1."
+  }
+ ],
+ "Defiler": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Forge Démoniaque",
+   "quand": "L'unité a conclu un Pacte Sombre cette phase",
+   "texte": "Each time this unit makes a Dark Pact, until the end of the phase, each time this model makes an attack, re-roll a Wound roll of 1."
+  }
+ ],
+ "Kravek Morne": [
+  {
+   "champ": "apMod",
+   "val": 1,
+   "nom": "Destruction Effrénée",
+   "quand": "La cible est l'unité ennemie éligible la plus proche",
+   "texte": "Each time a model in this unit makes an attack that targets the closest eligible enemy unit, improve the Armour Penetration characteristic of that attack by 1."
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Architecte de la Ruine",
+   "quand": "La cible est l'ennemi juré désigné au début de la bataille",
+   "texte": "At the start of the battle, select one unit in your opponent’s army to be this model’s hated foe. Each time this model makes an attack that targets its hated foe, you can re-roll the Wound roll. Each time this model’s hated foe is destroyed, you can select a new unit from your opponent’s army to be its hated foe."
+  }
+ ]
+};
+const APTIS_CIBLE = {
+ "Chaos Predator Destructor": [
+  {
+   "vs": [
+    "inf"
+   ],
+   "champ": "apMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Destructeur",
+   "texte": "Each time a ranged attack made by this model targets an enemy INFANTRY unit, improve the Armour Penetration characteristic of that attack by 1."
+  }
+ ],
+ "Heldrake": [
+  {
+   "vs": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Prédateur Aérien",
+   "texte": "Each time this model makes an attack that targets a unit that can FLY, add 1 to the Hit roll."
+  }
+ ],
+ "Hell Blade": [
+  {
+   "vs": [
+    "vol"
+   ],
+   "champ": "hitMod",
+   "val": 1,
+   "port": "T",
+   "nom": "Intercepteur",
+   "texte": "Each time this model makes a ranged attack that targets a unit that can FLY, add 1 to the Hit roll."
+  }
+ ]
+};
+const AURAS_PERSO = {
+ "Fabius Bile": [
+  {
+   "champ": "strMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Guerriers Améliorés",
+   "texte": "If this unit is attached to a unit at the start of the battle, until the end of the battle, add 1 to the Strength characteristic of melee weapons equipped by Bodyguard models in that unit and add 1 to the Toughness characteristic of Bodyguard models in that unit."
+  }
+ ],
+ "Exalted Champion": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Champion Noir",
+   "texte": "While this model is leading a unit, each time a model in that unit makes an attack, add 1 to the Hit roll."
+  }
+ ],
+ "Dark Apostle": [
+  {
+   "champ": "wndMod",
+   "val": 1,
+   "port": "C",
+   "nom": "Zèle Impie",
+   "texte": "While this unit is leading a unit and contains a DARK APOSTLE model, each time a model in that unit makes a melee attack, add 1 to the Wound roll."
+  }
+ ],
+ "Sorcerer on Disc of Tzeentch": [
+  {
+   "mot": "ignorescover",
+   "port": "T",
+   "nom": "Flammes du Changement",
+   "texte": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [IGNORES COVER] ability."
+  }
+ ],
+ "Sorcerer on Palanquin of Nurgle": [
+  {
+   "mot": "sust:1",
+   "nom": "Don des Véroles",
+   "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Chaos Lord on Bike": [
+  {
+   "mot": "assault",
+   "port": "T",
+   "nom": "Assaut Rapide",
+   "texte": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [ASSAULT] ability."
+  }
+ ]
+};
+const AURAS_ARMEE = [
+ {
+  "kw": [
+   "Abaddon the Despoiler",
+   "Haarken Worldclaimer",
+   "Huron Blackheart",
+   "Heretic Astartes Daemon Prince",
+   "Heretic Astartes Daemon Prince with wings",
+   "Fabius Bile",
+   "Cypher",
+   "Master of Possession",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Lord Discordant on Helstalker",
+   "Warpsmith",
+   "Exalted Champion",
+   "Dark Apostle",
+   "Dark Commune",
+   "Legionaries",
+   "Cultist Mob",
+   "Accursed Cultists",
+   "Chaos Terminator Squad",
+   "Master of Executions",
+   "Possessed",
+   "Chosen",
+   "Venomcrawler",
+   "Chaos Bikers",
+   "Raptors",
+   "Warp Talons",
+   "Havocs",
+   "Obliterators",
+   "Noctilith Crown",
+   "Vashtorr the Arkifane",
+   "Traitor Guardsmen Squad",
+   "Fellgor Beastmen",
+   "Traitor Enforcer",
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Vindicator",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Maulerfiend",
+   "Chaos Rhino",
+   "Khorne Lord of Skulls",
+   "Chaos Spawn",
+   "Hell Talon",
+   "Hell Blade",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Juggernaut",
+   "Chaos Lord on Steed of Slaanesh",
+   "Sorcerer on Steed of Slaanesh",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Plague Ogryns",
+   "Mutilators",
+   "Renegade Ogryn Brutes",
+   "Rogue Psyker",
+   "Negavolt Cultists",
+   "Sorcerer on Bike",
+   "Renegade Ogryn Beast Handler",
+   "Chaos Lord on Bike",
+   "Chaos Deimos Predator",
+   "Chaos Lord with Jump Pack",
+   "Cultist Firebrand",
+   "Cultist Mob with Firearms",
+   "Nemesis Claw",
+   "Masters of the Maelstrom",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Defiler",
+   "Kravek Morne"
+  ],
+  "mot": "lethal",
+  "nom": "Pacte Sombre — [TOUCHES LÉTALES]",
+  "quand": "L'unité conclut un Pacte Sombre et choisit les Touches Létales",
+  "texte": "If your Army Faction is HERETIC ASTARTES, each time a unit with this ability is selected to shoot or fight, it can make a Dark Pact. If it does, it must first take a Leadership test before any effects of that Dark Pact are resolved; if that test is failed, that unit suffers D3 mortal wounds. Then, select one of the following abilities for that unit’s weapons to gain until the end of the phase: ▪ [LETHAL HITS] ▪ [SUSTAINED HITS 1]"
+ },
+ {
+  "kw": [
+   "Abaddon the Despoiler",
+   "Haarken Worldclaimer",
+   "Huron Blackheart",
+   "Heretic Astartes Daemon Prince",
+   "Heretic Astartes Daemon Prince with wings",
+   "Fabius Bile",
+   "Cypher",
+   "Master of Possession",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Lord Discordant on Helstalker",
+   "Warpsmith",
+   "Exalted Champion",
+   "Dark Apostle",
+   "Dark Commune",
+   "Legionaries",
+   "Cultist Mob",
+   "Accursed Cultists",
+   "Chaos Terminator Squad",
+   "Master of Executions",
+   "Possessed",
+   "Chosen",
+   "Venomcrawler",
+   "Chaos Bikers",
+   "Raptors",
+   "Warp Talons",
+   "Havocs",
+   "Obliterators",
+   "Noctilith Crown",
+   "Vashtorr the Arkifane",
+   "Traitor Guardsmen Squad",
+   "Fellgor Beastmen",
+   "Traitor Enforcer",
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Vindicator",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Maulerfiend",
+   "Chaos Rhino",
+   "Khorne Lord of Skulls",
+   "Chaos Spawn",
+   "Hell Talon",
+   "Hell Blade",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Juggernaut",
+   "Chaos Lord on Steed of Slaanesh",
+   "Sorcerer on Steed of Slaanesh",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Plague Ogryns",
+   "Mutilators",
+   "Renegade Ogryn Brutes",
+   "Rogue Psyker",
+   "Negavolt Cultists",
+   "Sorcerer on Bike",
+   "Renegade Ogryn Beast Handler",
+   "Chaos Lord on Bike",
+   "Chaos Deimos Predator",
+   "Chaos Lord with Jump Pack",
+   "Cultist Firebrand",
+   "Cultist Mob with Firearms",
+   "Nemesis Claw",
+   "Masters of the Maelstrom",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Defiler",
+   "Kravek Morne"
+  ],
+  "mot": "sust",
+  "nom": "Pacte Sombre — [TOUCHES SOUTENUES 1]",
+  "quand": "L'unité conclut un Pacte Sombre et choisit les Touches Soutenues 1",
+  "texte": "If your Army Faction is HERETIC ASTARTES, each time a unit with this ability is selected to shoot or fight, it can make a Dark Pact. If it does, it must first take a Leadership test before any effects of that Dark Pact are resolved; if that test is failed, that unit suffers D3 mortal wounds. Then, select one of the following abilities for that unit’s weapons to gain until the end of the phase: ▪ [LETHAL HITS] ▪ [SUSTAINED HITS 1]"
+ },
+ {
+  "source": "Sorcerer in Terminator Armour",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "nom": "Maléfice de Mort",
+  "quand": "La cible est l'unité maudite par le Sorcier (sur 2+)",
+  "texte": "At the start of your Shooting phase, one PSYKER with this ability can use it. If it does, select one enemy unit within 12\" of and visible to that PSYKER and roll one D6: on a 1, that PSYKER's unit suffers D3 mortal wounds; on a 2+, until the start of your next Movement phase, each time an attack targets that enemy unit, improve the Armour Penetration  characteristic of that attack by 1."
+ },
+ {
+  "source": "Lord Discordant on Helstalker",
+  "kw": [],
+  "champ": "rrW",
+  "val": "ones",
+  "port": "T",
+  "nom": "Voleur d'Esprit",
+  "quand": "La cible est le VÉHICULE désigné par le Seigneur Discordant ce tour",
+  "texte": "At the start of your Shooting phase, select one visible enemy Vehicle unit. Until the end of the phase, each time a friendly Heretic Astartes model makes an attack that targets that unit, re-roll a Wound roll of 1."
+ },
+ {
+  "source": "Warpsmith",
+  "kw": [
+   "vehicle"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Maître des Mécanismes",
+  "quand": "Ce VÉHICULE a été désigné par le Warpsmith à ta phase de Commandement",
+  "texte": "In your Command phase, select one friendly Heretic Astartes Vehicle model within 3\" of this model. That Vehicle model regains up to D3 lost wounds and, until the start of your next Command phase, each time that Vehicle makes an attack, add 1 to the Hit roll. Each model can only be selected for this ability once per Command phase."
+ },
+ {
+  "source": "Master of Executions",
+  "kw": [],
+  "champ": "rrH",
+  "val": "failed",
+  "port": "C",
+  "nom": "Boucher Clairvoyant",
+  "quand": "Le Maître des Exécutions mène l'unité, et la cible est sous son Effectif de Départ",
+  "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack that targets a unit that is below its Starting Strength, you can re-roll the Hit roll. If that unit is Below Half-strength, you can re-roll the Wound roll as well."
+ },
+ {
+  "source": "Master of Executions",
+  "kw": [],
+  "champ": "rrW",
+  "val": "failed",
+  "port": "C",
+  "nom": "Boucher Clairvoyant — sous la moitié",
+  "quand": "Le Maître des Exécutions mène l'unité, et la cible est sous la moitié de son effectif",
+  "texte": "While this model is leading a unit, each time a model in that unit makes a melee attack that targets a unit that is below its Starting Strength, you can re-roll the Hit roll. If that unit is Below Half-strength, you can re-roll the Wound roll as well."
+ },
+ {
+  "detach": "Cabal of Chaos",
+  "kw": [
+   "Dark Commune",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Nemesis Claw",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Bike",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle"
+  ],
+  "champ": "strMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Source Empyréenne — tir",
+  "quand": "L'unité PSYKER a conclu un Pacte Sombre",
+  "texte": "In your Shooting phase, when a friendly HERETIC ASTARTES PSYKER unit (excluding DAEMON units) is selected to shoot, if that unit makes a Dark Pact, that unit’s ranged attacks have +1 S."
+ },
+ {
+  "detach": "Cabal of Chaos",
+  "kw": [
+   "Heretic Astartes Daemon Prince",
+   "Heretic Astartes Daemon Prince with wings"
+  ],
+  "champ": "strMod",
+  "val": 2,
+  "port": "C",
+  "nom": "Source Empyréenne — Prince Démon",
+  "quand": "Le Prince Démon (hors KHORNE) a conclu un Pacte Sombre",
+  "texte": "In the Fight phase, when a friendly HERETIC ASTARTES DAEMON PRINCE unit (excluding KHORNE units) is selected to fight, if that unit makes a Dark Pact, that unit’s melee attacks have +2 S and +1 AP."
+ },
+ {
+  "detach": "Cabal of Chaos",
+  "kw": [
+   "Heretic Astartes Daemon Prince",
+   "Heretic Astartes Daemon Prince with wings"
+  ],
+  "champ": "apMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Source Empyréenne — Prince Démon, pénétration",
+  "quand": "Le Prince Démon (hors KHORNE) a conclu un Pacte Sombre",
+  "texte": "In the Fight phase, when a friendly HERETIC ASTARTES DAEMON PRINCE unit (excluding KHORNE units) is selected to fight, if that unit makes a Dark Pact, that unit’s melee attacks have +2 S and +1 AP."
+ },
+ {
+  "detach": "Creations of Bile",
+  "kw": [
+   "Abaddon the Despoiler",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cypher",
+   "Dark Apostle",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "champ": "atkMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Accélérants Cholinergiques",
+  "quand": "Augmentation retenue au début de la bataille",
+  "texte": "Cholinergic Accelerants: Add 1 to the Attacks characteristic of melee weapons equipped by this model."
+ },
+ {
+  "detach": "Creations of Bile",
+  "kw": [
+   "Abaddon the Despoiler",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cypher",
+   "Dark Apostle",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Réactions Paraneurales",
+  "quand": "Augmentation retenue au début de la bataille (CC améliorée de 1)",
+  "texte": "Paraneural Reactions: Improve the Weapon Skill characteristic of melee weapons equipped by this model by 1."
+ },
+ {
+  "detach": "Creations of Bile",
+  "kw": [
+   "Abaddon the Despoiler",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cypher",
+   "Dark Apostle",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "champ": "strMod",
+  "val": 1,
+  "port": "C",
+  "nom": "Tendons Macrotensiles",
+  "quand": "Augmentation retenue au début de la bataille",
+  "texte": "Macrotensile Sinews: Add 1 to the Strength characteristic of melee weapons equipped by this model."
+ },
+ {
+  "detach": "Creations of Bile",
+  "kw": [
+   "Abaddon the Despoiler",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cypher",
+   "Dark Apostle",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Amélioration Ophtalmique",
+  "quand": "Augmentation retenue au début de la bataille (CT améliorée de 1)",
+  "texte": "Ophthalmic Enhancement: Improve the Ballistic Skill characteristic of ranged weapons equipped by this model by 1."
+ },
+ {
+  "detach": "Huron’s Marauders",
+  "kw": [
+   "Abaddon the Despoiler",
+   "Accursed Cultists",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Cypher",
+   "Dark Apostle",
+   "Dark Commune",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Negavolt Cultists",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "Élite de Huron",
+  "quand": "Aptitude choisie à la phase de Commandement, ou unité visible de Huron Blackheart",
+  "texte": "Huron’s Elite: Each time a model in this unit makes an attack, add 1 to the Hit roll."
+ },
+ {
+  "detach": "Murdertalon Raiders",
+  "kw": [
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord with Jump Pack",
+   "Haarken Worldclaimer",
+   "Raptors",
+   "Sorcerer on Disc of Tzeentch",
+   "Warp Talons"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Proie des Faibles",
+  "quand": "La cible est Ébranlée, ou à la moitié de son effectif ou moins",
+  "texte": "Friendly HERETIC ASTARTES INFANTRY FLY units’ attacks that target a battle-shocked unit or a unit at or below half-strength can re-roll hit rolls of 1."
+ },
+ {
+  "detach": "Nightmare Hunt",
+  "kw": [],
+  "champ": "hitMod",
+  "val": 1,
+  "nom": "La Terreur Incarnée",
+  "quand": "La cible est sous la moitié de son effectif",
+  "texte": "Each time a HERETIC ASTARTES model from your army makes an attack that targets a unit that is Below Half-strength, add 1 to the Hit roll."
+ },
+ {
+  "detach": "Nightmare Hunt",
+  "kw": [],
+  "champ": "wndMod",
+  "val": 1,
+  "nom": "La Terreur Incarnée — cible Ébranlée",
+  "quand": "La cible est Ébranlée",
+  "texte": "Each time a HERETIC ASTARTES model from your army makes an attack that targets a Battle-shocked unit, add 1 to the Wound roll."
+ },
+ {
+  "detach": "Pactbound Zealots",
+  "kw": [],
+  "champ": "critH",
+  "val": 5,
+  "port": "C",
+  "nom": "Marque de Khorne",
+  "quand": "Unité KHORNE qui a réussi un Pacte pour les Touches Létales",
+  "texte": "UNITS THAT GAINED [LETHAL HITS] ▪ KHORNE: Each time a model in this unit makes a melee attack, an unmodified Hit roll of 5+ scores a Critical Hit."
+ },
+ {
+  "detach": "Pactbound Zealots",
+  "kw": [],
+  "champ": "critH",
+  "val": 5,
+  "port": "T",
+  "nom": "Marque de Tzeentch",
+  "quand": "Unité TZEENTCH qui a réussi un Pacte pour les Touches Létales",
+  "texte": "UNITS THAT GAINED [LETHAL HITS] ▪ TZEENTCH: Each time a model in this unit makes a ranged attack, an unmodified Hit roll of 5+ scores a Critical Hit."
+ },
+ {
+  "detach": "Pactbound Zealots",
+  "kw": [],
+  "champ": "critH",
+  "val": 5,
+  "port": "T",
+  "nom": "Marque de Nurgle",
+  "quand": "Unité NURGLE qui a réussi un Pacte pour les Touches Soutenues",
+  "texte": "UNITS THAT GAINED [SUSTAINED HITS 1] ▪ NURGLE: Each time a model in this unit makes a ranged attack, an unmodified Hit roll of 5+ scores a Critical Hit."
+ },
+ {
+  "detach": "Pactbound Zealots",
+  "kw": [],
+  "champ": "critH",
+  "val": 5,
+  "port": "C",
+  "nom": "Marque de Slaanesh",
+  "quand": "Unité SLAANESH qui a réussi un Pacte pour les Touches Soutenues",
+  "texte": "UNITS THAT GAINED [SUSTAINED HITS 1] ▪ SLAANESH: Each time a model in this unit makes a melee attack, an unmodified Hit roll of 5+ scores a Critical Hit."
+ },
+ {
+  "detach": "Pactbound Zealots",
+  "kw": [],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Chaos Indivis",
+  "quand": "Unité CHAOS UNDIVIDED qui a réussi un Pacte",
+  "texte": "▪ CHAOS UNDIVIDED: Each time a model in this unit makes an attack, re-roll a Hit roll of 1."
+ },
+ {
+  "detach": "Renegade Raiders",
+  "kw": [],
+  "champ": "apMod",
+  "val": 1,
+  "nom": "Pillards et Écumeurs",
+  "quand": "La cible est à portée d'un pion d'objectif",
+  "texte": "Each time a HERETIC ASTARTES model from your army makes an attack that targets a unit within range of an objective marker, improve the Armour Penetration characteristic of that attack by 1."
+ },
+ {
+  "detach": "Renegade Warband",
+  "kw": [],
+  "sauf": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Vendetta",
+  "quand": "La cible est ta cible de Vendetta",
+  "texte": "Each time a HERETIC ASTARTES model from your army (excluding Damned models) makes an attack that targets your Vendetta target, you can re-roll the Hit roll."
+ },
+ {
+  "detach": "Soulforged Warpack",
+  "kw": [
+   "Defiler",
+   "Forgefiend",
+   "Heldrake",
+   "Khorne Lord of Skulls",
+   "Maulerfiend",
+   "Venomcrawler"
+  ],
+  "champ": "wndMod",
+  "val": 1,
+  "port": "T",
+  "nom": "Dette envers la Forge des Âmes — tir",
+  "quand": "Le VÉHICULE DÉMON a invoqué son contrat en concluant un Pacte",
+  "texte": "Each time a model in that unit makes a ranged attack, add 1 to the Wound roll."
+ },
+ {
+  "detach": "Soulforged Warpack",
+  "kw": [
+   "Defiler",
+   "Forgefiend",
+   "Heldrake",
+   "Khorne Lord of Skulls",
+   "Maulerfiend",
+   "Venomcrawler"
+  ],
+  "champ": "atkMod",
+  "val": 2,
+  "port": "C",
+  "nom": "Dette envers la Forge des Âmes — mêlée",
+  "quand": "Le VÉHICULE DÉMON a invoqué son contrat en concluant un Pacte",
+  "texte": "Add 2 to the Attacks characteristic of melee weapons equipped by models in that unit."
+ },
+ {
+  "detach": "Veterans of the Long War",
+  "kw": [],
+  "sauf": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "champ": "rrH",
+  "val": "failed",
+  "nom": "Objet de Haine",
+  "quand": "La cible est ton objet de haine",
+  "texte": "Each time a HERETIC ASTARTES model from your army (excluding DAMNED models) makes an attack that targets your focus of hatred, you can re-roll the Hit roll."
+ }
+];
+const OCTROIS_DETACH = {
+ "Devotees of Destruction": [
+  {
+   "mot": "heavy",
+   "port": "T",
+   "qui": "unite",
+   "kw": [
+    "Havocs",
+    "Obliterators"
+   ],
+   "nom": "Pluie de Ruine",
+   "texte": "Friendly HAVOCS/OBLITERATORS units’ ranged attacks have [HEAVY]."
+  }
+ ],
+ "Renegade Raiders": [
+  {
+   "mot": "assault",
+   "port": "T",
+   "qui": "unite",
+   "kw": [],
+   "nom": "Pillards et Écumeurs",
+   "texte": "Ranged weapons equipped by HERETIC ASTARTES models from your army have the [ASSAULT] ability."
+  }
+ ],
+ "Renegade Warband": [
+  {
+   "mot": "assault",
+   "port": "T",
+   "qui": "unite",
+   "kw": [],
+   "nom": "Esclaves de Personne",
+   "texte": "Ranged weapons equipped by HERETIC ASTARTES models from your army have the [ASSAULT] ability."
+  }
+ ]
+};
+const STRAT_SIMU = [
+ {
+  "nom": "Wreathed in Warpflame",
+  "detach": "Cabal of Chaos",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Dark Commune",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Nemesis Claw",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Bike",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle"
+  ],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] — unité PSYKER",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Chosen for Glory",
+  "detach": "Chaos Cult",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "relance des touches ratées — l'unité DAMNÉE conclut un Pacte Désespéré",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Chosen for Glory — test réussi",
+  "detach": "Chaos Cult",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "relance des touches ET des blessures ratées — le test de Commandement du Pacte est réussi",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Crazed Focus",
+  "detach": "Chaos Cult",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA — l'unité DAMNÉE conclut un Pacte Désespéré",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Crazed Focus — test réussi",
+  "detach": "Chaos Cult",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA et +1 en Force — le test de Commandement du Pacte est réussi",
+  "effet": {
+   "apMod": 1,
+   "strMod": 1
+  }
+ },
+ {
+  "nom": "Infernal Sacrifice",
+  "detach": "Chaos Cult",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "+1 attaque en mêlée, l'unité subit D3 blessures mortelles",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Infernal Sacrifice — test réussi",
+  "detach": "Chaos Cult",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "+1 attaque et +1 en Force en mêlée — le test de Commandement du Pacte est réussi",
+  "effet": {
+   "atkMod": 1,
+   "strMod": 1
+  }
+ },
+ {
+  "nom": "Specimens for the Spider",
+  "detach": "Creations of Bile",
+  "pc": 2,
+  "ph": "C",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Accursed Cultists",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Cypher",
+   "Dark Apostle",
+   "Dark Commune",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Negavolt Cultists",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "sauf": [],
+  "aide": "relance des blessures ratées en mêlée — contre un PERSONNAGE seulement",
+  "effet": {
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Balefire Boon",
+  "detach": "Cult of the Arkifane",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Chaos Deimos Predator",
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Vindicator",
+   "Defiler",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Hell Blade",
+   "Hell Talon",
+   "Khorne Lord of Skulls",
+   "Maulerfiend",
+   "Venomcrawler",
+   "Lord Discordant on Helstalker",
+   "Vashtorr the Arkifane"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA — unité FORGE DES ÂMES",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Soul-Tally Offering",
+  "detach": "Cult of the Arkifane",
+  "pc": 2,
+  "ph": "TC",
+  "unites": [
+   "Chaos Deimos Predator",
+   "Chaos Land Raider",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Vindicator",
+   "Defiler",
+   "Forgefiend",
+   "Helbrute",
+   "Heldrake",
+   "Hell Blade",
+   "Hell Talon",
+   "Khorne Lord of Skulls",
+   "Maulerfiend",
+   "Venomcrawler",
+   "Lord Discordant on Helstalker",
+   "Vashtorr the Arkifane"
+  ],
+  "sauf": [],
+  "aide": "relance des blessures ratées — contre PERSONNAGE, MONSTRE ou VÉHICULE",
+  "effet": {
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Touch of the Arkifane",
+  "detach": "Cult of the Arkifane",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Chaos Bikers",
+   "Chaos Deimos Predator",
+   "Chaos Land Raider",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Bike",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Juggernaut",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord on Steed of Slaanesh",
+   "Chaos Lord with Jump Pack",
+   "Chaos Predator Annihilator",
+   "Chaos Predator Destructor",
+   "Chaos Rhino",
+   "Chaos Spawn",
+   "Chaos Terminator Squad",
+   "Chaos Vindicator",
+   "Chosen",
+   "Cypher",
+   "Dark Apostle",
+   "Defiler",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Forgefiend",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Helbrute",
+   "Heldrake",
+   "Hell Blade",
+   "Hell Talon",
+   "Heretic Astartes Daemon Prince",
+   "Heretic Astartes Daemon Prince with wings",
+   "Huron Blackheart",
+   "Khorne Lord of Skulls",
+   "Kravek Morne",
+   "Legionaries",
+   "Lord Discordant on Helstalker",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Maulerfiend",
+   "Mutilators",
+   "Nemesis Claw",
+   "Noctilith Crown",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Bike",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Sorcerer on Steed of Slaanesh",
+   "Vashtorr the Arkifane",
+   "Venomcrawler",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "sauf": [],
+  "aide": "le Pacte Sombre donne les DEUX aptitudes : [TOUCHES LÉTALES] et [TOUCHES SOUTENUES 1]",
+  "effet": {
+   "lethal": true,
+   "sustainedOn": true
+  }
+ },
+ {
+  "nom": "Pick Them Off",
+  "detach": "Deceptors",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées — la cible est sous son Effectif de Départ",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Pick Them Off — sous la moitié",
+  "detach": "Deceptors",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ET des blessures ratées — la cible est sous la moitié de son effectif",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Ruination’s Bounty",
+  "detach": "Devotees of Destruction",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Havocs",
+   "Obliterators"
+  ],
+  "sauf": [],
+  "aide": "le Pacte Sombre donne [TOUCHES LÉTALES] et [TOUCHES SOUTENUES 1]",
+  "effet": {
+   "lethal": true,
+   "sustainedOn": true
+  }
+ },
+ {
+  "nom": "Depthless Cruelty",
+  "detach": "Dread Talons",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Accursed Cultists",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Cypher",
+   "Dark Apostle",
+   "Dark Commune",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Negavolt Cultists",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA — contre une cible Ébranlée ou sous la moitié de son effectif",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Pitiless Hunters",
+  "detach": "Dread Talons",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Accursed Cultists",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Cypher",
+   "Dark Apostle",
+   "Dark Commune",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Negavolt Cultists",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "sauf": [],
+  "aide": "relance des touches et des blessures ratées — contre une cible Ébranlée ou sous la moitié de son effectif",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Persistent Assailants",
+  "detach": "Fellhammer Siege-Host",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ratées — l'unité a été prise pour cible cette phase",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Persistent Assailants — sous la moitié",
+  "detach": "Fellhammer Siege-Host",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches ET des blessures ratées — ton unité est sous la moitié de son effectif",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Pitiless Cannonade",
+  "detach": "Fellhammer Siege-Host",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "touche critique sur 5+ — contre une cible sous la moitié de son effectif",
+  "effet": {
+   "critH": 5
+  }
+ },
+ {
+  "nom": "Hardened Killers",
+  "detach": "Huron’s Marauders",
+  "pc": 1,
+  "ph": "T",
+  "unites": [
+   "Accursed Cultists",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Dark Commune",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Mutoid Vermin",
+   "Negavolt Cultists",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Beast Handler",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad"
+  ],
+  "sauf": [],
+  "aide": "CT améliorée de 1, comptée comme +1 pour toucher — unité DAMNÉE, effet choisi à la phase de Commandement",
+  "effet": {
+   "hitMod": 1
+  }
+ },
+ {
+  "nom": "Reavers’ Flurry",
+  "detach": "Huron’s Marauders",
+  "pc": 1,
+  "ph": "C",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 attaque en mêlée — l'unité a chargé ce tour",
+  "effet": {
+   "atkMod": 1
+  }
+ },
+ {
+  "nom": "Plunging Talons",
+  "detach": "Murdertalon Raiders",
+  "pc": 1,
+  "ph": "C",
+  "unites": [
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord with Jump Pack",
+   "Haarken Worldclaimer",
+   "Raptors",
+   "Sorcerer on Disc of Tzeentch",
+   "Warp Talons"
+  ],
+  "sauf": [],
+  "aide": "[LANCE] : +1 pour blesser — unité d'INFANTERIE VOLANTE qui a chargé ce tour",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Prey on the Weak",
+  "detach": "Nightmare Hunt",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Accursed Cultists",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Cypher",
+   "Dark Apostle",
+   "Dark Commune",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Negavolt Cultists",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "sauf": [],
+  "aide": "relance des touches ratées — contre une cible Ébranlée ou sous la moitié de son effectif",
+  "effet": {
+   "rrH": "failed"
+  }
+ },
+ {
+  "nom": "Talons Sunk Deep",
+  "detach": "Nightmare Hunt",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Accursed Cultists",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cultist Firebrand",
+   "Cultist Mob",
+   "Cultist Mob with Firearms",
+   "Cypher",
+   "Dark Apostle",
+   "Dark Commune",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Fellgor Beastmen",
+   "Gellerpox Infected",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Negavolt Cultists",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Renegade Enforcer",
+   "Renegade Heavy Weapons Squad",
+   "Renegade Ogryn Brutes",
+   "Renegade Plague Ogryns",
+   "Rogue Psyker",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Traitor Enforcer",
+   "Traitor Guardsmen Squad",
+   "Warp Talons",
+   "Warpsmith"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA — contre une cible Ébranlée ou sous la moitié de son effectif",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Profane Zeal",
+  "detach": "Pactbound Zealots",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des blessures ratées — unité CHAOS UNDIVIDED",
+  "effet": {
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Ruinous Raid",
+  "detach": "Renegade Raiders",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "relance des touches et des blessures ratées — l'unité a débarqué ce tour et la cible est sur un objectif",
+  "effet": {
+   "rrH": "failed",
+   "rrW": "failed"
+  }
+ },
+ {
+  "nom": "Corrupted Munitions",
+  "detach": "Renegade Warband",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "+1 en PA au tir",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Never Outgunned",
+  "detach": "Renegade Warband",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES LÉTALES] choisies",
+  "effet": {
+   "lethal": true
+  }
+ },
+ {
+  "nom": "Never Outgunned — Touches Soutenues",
+  "detach": "Renegade Warband",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [],
+  "sauf": [],
+  "aide": "[TOUCHES SOUTENUES 1] choisies",
+  "effet": {
+   "sustainedOn": true
+  }
+ },
+ {
+  "nom": "Vengeful Destruction",
+  "detach": "Renegade Warband",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Abaddon the Despoiler",
+   "Chaos Lord",
+   "Chaos Lord in Terminator Armour",
+   "Chaos Lord on Disc of Tzeentch",
+   "Chaos Lord on Palanquin of Nurgle",
+   "Chaos Lord with Jump Pack",
+   "Chaos Terminator Squad",
+   "Chosen",
+   "Cypher",
+   "Dark Apostle",
+   "Exalted Champion",
+   "Fabius Bile",
+   "Haarken Worldclaimer",
+   "Havocs",
+   "Huron Blackheart",
+   "Kravek Morne",
+   "Legionaries",
+   "Master of Executions",
+   "Master of Possession",
+   "Masters of the Maelstrom",
+   "Mutilators",
+   "Nemesis Claw",
+   "Obliterators",
+   "Possessed",
+   "Raptors",
+   "Red Corsairs Raiders",
+   "Red Corsairs Reave-captain",
+   "Sorcerer",
+   "Sorcerer in Terminator Armour",
+   "Sorcerer on Disc of Tzeentch",
+   "Sorcerer on Palanquin of Nurgle",
+   "Warp Talons",
+   "Warpsmith",
+   "Chaos Bikers",
+   "Chaos Lord on Bike",
+   "Chaos Lord on Juggernaut",
+   "Chaos Lord on Steed of Slaanesh",
+   "Lord Discordant on Helstalker",
+   "Sorcerer on Bike",
+   "Sorcerer on Steed of Slaanesh"
+  ],
+  "sauf": [],
+  "aide": "+1 pour blesser — contre ta cible de Vendetta",
+  "effet": {
+   "wndMod": 1
+  }
+ },
+ {
+  "nom": "Desperate Pledge",
+  "detach": "Soulforged Warpack",
+  "pc": 1,
+  "ph": "TC",
+  "unites": [
+   "Defiler",
+   "Forgefiend",
+   "Heldrake",
+   "Khorne Lord of Skulls",
+   "Maulerfiend",
+   "Venomcrawler"
+  ],
+  "sauf": [],
+  "aide": "+1 en PA — le VÉHICULE DÉMON invoque son contrat",
+  "effet": {
+   "apMod": 1
+  }
+ },
+ {
+  "nom": "Let the Galaxy Burn",
+  "detach": "Veterans of the Long War",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] — hors unités TZEENTCH ; les armes Torrent passent à 6 attaques (non simulé)",
+  "effet": {
+   "ignoresCover": true
+  }
+ },
+ {
+  "nom": "Siegebreaker Strike",
+  "detach": "Warpstrike Champions",
+  "pc": 1,
+  "ph": "T",
+  "unites": [],
+  "sauf": [],
+  "aide": "[IGNORE LE COUVERT] — l'unité est arrivée en Frappe en Profondeur ce tour",
+  "effet": {
+   "ignoresCover": true
+  }
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {};
-const STRAT_SIMU = [];
-const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
@@ -3402,11 +5313,6 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
-const APTIS_COND = {};
-const AURAS_ARMEE = [];
-const AURAS_PERSO = {};
 
 enregistreFaction({
   cle : "csm",
