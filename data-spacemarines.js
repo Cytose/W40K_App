@@ -2479,7 +2479,9 @@ const APTIS_CIBLE = {
 const AURAS_ARMEE = [
  {
   "source": "Chaplain",
-  "kw": [],
+  "kw": [
+   "Chaplain"
+  ],
   "nom": "Litanie de Haine (Meneur)",
   "quand": "L'unité est menée par Chaplain, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
   "texte": "This unit's melee attacks have [LANCE]",
@@ -2489,7 +2491,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Chaplain in Terminator Armour",
-  "kw": [],
+  "kw": [
+   "Chaplain in Terminator Armour"
+  ],
   "nom": "Litanie de Haine (Meneur)",
   "quand": "L'unité est menée par Chaplain in Terminator Armour, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
   "texte": "This unit's melee attacks have [LANCE]",
@@ -2499,7 +2503,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Chaplain on Bike",
-  "kw": [],
+  "kw": [
+   "Chaplain on Bike"
+  ],
   "nom": "Litanie de Haine (Meneur)",
   "quand": "L'unité est menée par Chaplain on Bike, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
   "texte": "This unit's melee attacks have [LANCE]",
@@ -2509,7 +2515,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Chaplain with Jump Pack",
-  "kw": [],
+  "kw": [
+   "Chaplain with Jump Pack"
+  ],
   "nom": "Litanie de Haine (Meneur)",
   "quand": "L'unité est menée par Chaplain with Jump Pack, et elle a chargé ce tour ([LANCE] : +1 pour blesser)",
   "texte": "This unit's melee attacks have [LANCE]",
@@ -2519,7 +2527,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Chaplain on Bike",
-  "kw": [],
+  "kw": [
+   "Chaplain on Bike"
+  ],
   "nom": "Catéchisme du Feu (Meneur)",
   "quand": "L'unité est menée par Chaplain on Bike, et la cible est celle qu'il a désignée",
   "texte": "In your Shooting phase, when this unit is selected to shoot, you can select one visible enemy unit. This unit's ranged attacks that target that unit have [DEVASTATING WOUNDS].",
@@ -2528,7 +2538,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Chaplain with Jump Pack",
-  "kw": [],
+  "kw": [
+   "Chaplain with Jump Pack"
+  ],
   "nom": "Exhortation de Rage (Meneur)",
   "quand": "L'unité est menée par Chaplain with Jump Pack, et elle est à la moitié de son effectif ou moins",
   "texte": "While this unit is at or below half-strength, this unit's melee attacks can re-roll wound rolls.",
@@ -2538,7 +2550,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Lieutenant",
-  "kw": [],
+  "kw": [
+   "Lieutenant"
+  ],
   "nom": "Précision Tactique (Meneur)",
   "quand": "L'unité est menée par Lieutenant, et la cible n'est ni MONSTRE ni VÉHICULE",
   "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE].",
@@ -2546,7 +2560,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Lieutenant in Phobos Armour",
-  "kw": [],
+  "kw": [
+   "Lieutenant in Phobos Armour"
+  ],
   "nom": "Précision Tactique (Meneur)",
   "quand": "L'unité est menée par Lieutenant in Phobos Armour, et la cible n'est ni MONSTRE ni VÉHICULE",
   "texte": "This unit's attacks have [LETHAL HITS: non-MONSTER/VEHICLE].",
@@ -2554,7 +2570,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Apothecary Biologis",
-  "kw": [],
+  "kw": [
+   "Apothecary Biologis"
+  ],
   "nom": "Ciblage Vivispectral (Meneur)",
   "quand": "L'unité est menée par Apothecary Biologis, et la cible n'est pas un VÉHICULE",
   "texte": "This unit's attacks have [LETHAL HITS: non-VEHICLE].",
@@ -2562,7 +2580,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Librarian in Terminator Armour",
-  "kw": [],
+  "kw": [
+   "Librarian in Terminator Armour"
+  ],
   "nom": "Puissance des Héros (Meneur)",
   "quand": "L'unité est menée par Librarian in Terminator Armour, et le test psychique est fait",
   "texte": "In the Fight phase, if this unit is not battle-shocked, you can make a psychic roll for this unit by rolling one D6. If you do: ▪ On a 1, this unit is battle-shocked. ▪ This unit's melee attacks have +2 S.",
@@ -2572,7 +2592,9 @@ const AURAS_ARMEE = [
  },
  {
   "source": "Bladeguard Ancient",
-  "kw": [],
+  "kw": [
+   "Bladeguard Ancient"
+  ],
   "nom": "Hauts Faits de Légende (Meneur)",
   "quand": "L'unité est menée par Bladeguard Ancient, et elle est à portée d'un objectif",
   "texte": "While this unit is within range of an objective, this unit's melee attacks have +1 A.",
