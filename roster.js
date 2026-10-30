@@ -412,7 +412,9 @@ window.ROSTER = {
     return STRAT_SIMU.filter(st=>{
       if(R.detach.indexOf(st.detach) < 0) return false;
       if(st.ph !== "TC" && st.ph !== (ph || "T")) return false;
-      if(st.unites.length && !st.unites.some(u => noms.indexOf(u) >= 0)) return false;
+      /* `unites` mêle des noms de fiche et des groupes de KW (GRAVIS,
+         TACTICUS…) : porte() sait les deux */
+      if(st.unites.length && !st.unites.some(u => porte(u))) return false;
       if((st.sauf || []).some(k => porte(k))) return false;
       return true;
     }).map(st => {

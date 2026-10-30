@@ -190,7 +190,8 @@ for (const F of registre) {
 
          · un détachement mal orthographié — la pastille ne paraît
            jamais, parce que roster.js filtre sur R.detach ;
-         · une unité qui n'existe pas dans `unites` — même effet ;
+         · une unité qui n'existe pas dans `unites` — même effet ; un
+           groupe de KW (gravis, tacticus…) y vaut une liste de fiches ;
          · un mot-clé absent de KW dans `sauf` — porteMot() retombe
            alors sur une comparaison de NOMS, et l'exclusion ne joue
            plus ;
@@ -201,7 +202,7 @@ for (const F of registre) {
       simuDetachOrphelins: [...new Set(STRAT_SIMU.filter(x => !detach.has(x.detach))
         .map(x => x.nom + ' → ' + x.detach))],
       simuUnitesOrphelines: [...new Set(STRAT_SIMU.flatMap(x =>
-        (x.unites || []).filter(u => !noms.has(u)).map(u => x.nom + ' → ' + u)))],
+        (x.unites || []).filter(u => !noms.has(u) && !KW[u]).map(u => x.nom + ' → ' + u)))],
       simuMotsOrphelins: [...new Set(STRAT_SIMU.flatMap(x =>
         (x.sauf || []).filter(k => !KW[k]).map(k => x.nom + ' → ' + k)))],
       simuChampsInconnus: [...new Set(STRAT_SIMU.flatMap(x =>

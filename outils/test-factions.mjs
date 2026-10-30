@@ -380,6 +380,26 @@ const parFig = await p.evaluate(() => {
 });
 T('une règle « figurine » ne vaut que pour le personnage du groupe', parFig, ['Shield-Captain']);
 
+/* `unites` d'un stratagème accepte un groupe de KW : le Codex écrit
+   « TERMINATOR » une fois, et la fiche propre d'un chapitre en est. */
+const parGroupe = await p.evaluate(() => {
+  const d = DETACHMENTS[0][0];
+  const L = JSON.parse(localStorage.getItem('mathhammer.lists.v1'));
+  L.listes[0].detach = [d]; localStorage.setItem('mathhammer.lists.v1', JSON.stringify(L));
+  return d;
+});
+await p.goto(base); await p.waitForTimeout(1100);
+const strG = await p.evaluate(d => {
+  const n = STRAT_SIMU.length;
+  STRAT_SIMU.push({ nom:'Essai groupe', detach:d, pc:1, ph:'TC', unites:['character'], aide:'', effet:{} },
+                  { nom:'Essai autre', detach:d, pc:1, ph:'TC', unites:['vehicle'], aide:'', effet:{} });
+  const r = window.ROSTER.stratsSimu('Custodian Guard Sodality', ['Shield-Captain'], 'C').map(x => x.nom);
+  STRAT_SIMU.length = n;
+  return r;
+}, parGroupe);
+T('un stratagème qui vise un groupe de KW est proposé à qui en porte', strG,
+  v => v.includes('Essai groupe') && !v.includes('Essai autre'));
+
 console.log('\n════ CONFORME ════'); ok.forEach(x => console.log('  ✓ ' + x));
 console.log('\n════ ÉCARTS ════'); console.log(ko.length ? ko.map(x => '  ✗ ' + x).join('\n') : '  (aucun)');
 console.log('\n════ ERREURS JS ════'); console.log(errs.length ? [...new Set(errs)].join('\n') : '  aucune');
