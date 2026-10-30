@@ -1,0 +1,306 @@
+{
+  "_": [
+    "CÂBLAGE DU SIMULATEUR — DARK ANGELS",
+    "",
+    "Écrit à la main, comme celui des Space Marines dont il hérite (clé",
+    "HERITE) : les fiches et les détachements du Codex que ce chapitre",
+    "reprend sont câblés dans spacemarines.json, une seule fois. Ce",
+    "fichier ne porte que ce qui est PROPRE au chapitre.",
+    "",
+    "Les conventions sont celles de spacemarines.json : [LANCE] câblé en",
+    "+1 pour blesser déclaré, règles de meneur conditionnelles dans",
+    "AURAS_ARMEE avec le meneur pour source, règles de détachement",
+    "conditionnelles dans AURAS_ARMEE avec `detach` et sans source.",
+    "",
+    "",
+    "CE QUI N'EST PAS CÂBLÉ, en plus de ce qu'en dit spacemarines.json :",
+    "· Deathwing (ignorer les modificateurs de touche) : une aptitude de fiche",
+    "  ne sait pas poser ce champ ;",
+    "· la Colère du Roc et les aptitudes de défense : elles se lisent sur la",
+    "  cible ;",
+    "· le Maître de la Deathwing de Belial vise la cible du Serment de l'Instant,",
+    "  règle de la 10e que l'armée n'a plus."
+  ],
+  "HERITE": "spacemarines",
+  "APTIS_UNITE": {
+    "Asmodai": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "C",
+        "nom": "Exemple de Haine",
+        "texte": "This unit's melee attacks can re-roll hit rolls."
+      }
+    ],
+    "Azrael": [
+      {
+        "mot": "sust:1",
+        "nom": "Suprême Grand Maître",
+        "texte": "This unit's attacks have [SUSTAINED HITS 1]."
+      }
+    ]
+  },
+  "AURAS_PERSO": {
+    "Asmodai": [
+      {
+        "champ": "rrH",
+        "val": "failed",
+        "port": "C",
+        "nom": "Exemple de Haine",
+        "texte": "This unit's melee attacks can re-roll hit rolls."
+      }
+    ],
+    "Azrael": [
+      {
+        "mot": "sust:1",
+        "nom": "Suprême Grand Maître",
+        "texte": "This unit's attacks have [SUSTAINED HITS 1]."
+      }
+    ],
+    "Deathwing Strikemaster": [
+      {
+        "mot": "lethal",
+        "nom": "Précision Tactique",
+        "texte": "While this model is leading a unit, weapons equipped by models in that unit have the [LETHAL HITS] ability."
+      }
+    ]
+  },
+  "APTIS_CIBLE": {
+    "Belial": [
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "nom": "Grand Maître de la Deathwing",
+        "texte": "This unit's attacks that target an enemy Character unit have +1 to wound rolls.",
+        "vs": [
+          "perso"
+        ]
+      }
+    ],
+    "Inner Circle Companions": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Inimitié pour l'Indigne",
+        "texte": "This unit's attacks that target a Character unit have +1 to hit rolls.",
+        "vs": [
+          "perso"
+        ]
+      }
+    ]
+  },
+  "APTIS_COND": {
+    "Ravenwing Black Knights": [
+      {
+        "champ": "critW",
+        "val": 4,
+        "port": "C",
+        "nom": "Chevaliers de Caliban",
+        "quand": "L'unité a chargé ce tour, contre un MONSTRE ou un VÉHICULE ([ANTI-MONSTRE/VÉHICULE 4+])",
+        "texte": "If this unit made a charge move this turn, this unit's melee attacks have [ANTI-MONSTER/VEHICLE 4+]."
+      }
+    ],
+    "Deathwing Strikemaster": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Vaincre l'Ennemi",
+        "quand": "La cible est sous la moitié de son effectif",
+        "texte": "Each time this model makes an attack that targets an enemy unit that is Below Half-strength, add 1 to the Hit roll and add 1 to the Wound roll."
+      },
+      {
+        "champ": "wndMod",
+        "val": 1,
+        "nom": "Vaincre l'Ennemi — blessure",
+        "quand": "La cible est sous la moitié de son effectif",
+        "texte": "Each time this model makes an attack that targets an enemy unit that is Below Half-strength, add 1 to the Hit roll and add 1 to the Wound roll."
+      }
+    ]
+  },
+  "AURAS_ARMEE": [
+    {
+      "source": "Belial",
+      "kw": [
+        "Belial"
+      ],
+      "nom": "Grand Maître de la Deathwing (Meneur)",
+      "quand": "L'unité est menée par Belial, et la cible est un PERSONNAGE",
+      "texte": "This unit's attacks that target an enemy Character unit have +1 to wound rolls.",
+      "champ": "wndMod",
+      "val": 1
+    },
+    {
+      "source": "Ezekiel",
+      "kw": [
+        "Ezekiel"
+      ],
+      "nom": "Livre du Salut (Meneur)",
+      "quand": "L'unité est menée par Ezekiel",
+      "texte": "This unit's melee attacks have +1 A.",
+      "champ": "atkMod",
+      "val": 1,
+      "port": "C"
+    },
+    {
+      "source": "Ravenwing Talonmaster",
+      "kw": [
+        "Captain on Bike",
+        "Chaplain on Bike",
+        "Invader ATVs",
+        "Land Speeder",
+        "Land Speeder Vengeance",
+        "Nephilim Jetfighter",
+        "Outrider Squad",
+        "Ravenwing Black Knights",
+        "Ravenwing Command Squad",
+        "Ravenwing Dark Talon",
+        "Ravenwing Darkshroud",
+        "Sammael",
+        "Scout Bike Squad",
+        "Storm Speeder Hailstrike",
+        "Storm Speeder Hammerstrike",
+        "Storm Speeder Thunderstrike",
+        "Stormhawk Interceptor",
+        "Stormraven Gunship",
+        "Stormtalon Gunship",
+        "Thunderhawk Gunship"
+      ],
+      "mot": "ignoresCover",
+      "port": "T",
+      "nom": "Nulle Part où se Cacher (Aura)",
+      "quand": "L'unité, MONTÉE ou VÉHICULE qui VOLE, est à 6\" du Maître de Talon",
+      "texte": "While a friendly Adeptus Astartes Mounted or Adeptus Astartes Fly Vehicle unit is within 6\" of this model, ranged weapons equipped by models in that unit have the [IGNORES COVER] ability."
+    },
+    {
+      "detach": "Inner Circle Task Force",
+      "kw": [
+        "Ancient in Terminator Armour",
+        "Asmodai",
+        "Azrael",
+        "Belial",
+        "Bladeguard Ancient",
+        "Bladeguard Veteran Squad",
+        "Captain in Terminator Armour",
+        "Chaplain in Terminator Armour",
+        "Deathwing Knights",
+        "Deathwing Terminator Squad",
+        "Ezekiel",
+        "Inner Circle Companions",
+        "Lazarus",
+        "Librarian in Terminator Armour",
+        "Sternguard Veteran Squad",
+        "Terminator Assault Squad",
+        "Terminator Squad",
+        "Vanguard Veteran Squad with Jump Packs"
+      ],
+      "champ": "wndMod",
+      "val": 1,
+      "nom": "Cible Jurée",
+      "quand": "L'unité est d'INFANTERIE DEATHWING, et la cible est à portée de l'objectif juré",
+      "texte": "Friendly Deathwing Infantry unit’s attacks that target an enemy unit within range of your vowed objective have +1 to wound rolls."
+    }
+  ],
+  "OCTROIS_DETACH": {
+    "Darkflight Pursuit": [
+      {
+        "mot": "ignorescover",
+        "port": "T",
+        "qui": "unite",
+        "kw": [
+          "Land Speeder",
+          "Land Speeder Vengeance",
+          "Nephilim Jetfighter",
+          "Ravenwing Dark Talon",
+          "Ravenwing Darkshroud",
+          "Sammael",
+          "Storm Speeder Hailstrike",
+          "Storm Speeder Hammerstrike",
+          "Storm Speeder Thunderstrike",
+          "Stormhawk Interceptor",
+          "Stormraven Gunship",
+          "Stormtalon Gunship",
+          "Thunderhawk Gunship"
+        ],
+        "nom": "Vigilance aux Ailes Noires",
+        "texte": "Friendly Ravenwing Fly units’ ranged attacks have [IGNORES COVER]."
+      }
+    ]
+  },
+  "STRAT_SIMU": [
+    {
+      "nom": "Relics of the Dark Age",
+      "detach": "Wrath of the Rock",
+      "pc": 1,
+      "ph": "T",
+      "unites": [
+        "Aggressor Squad",
+        "Ancient",
+        "Ancient in Terminator Armour",
+        "Apothecary",
+        "Apothecary Biologis",
+        "Asmodai",
+        "Assault Intercessor Squad",
+        "Assault Intercessors with Jump Packs",
+        "Azrael",
+        "Belial",
+        "Bladeguard Ancient",
+        "Bladeguard Veteran Squad",
+        "Captain",
+        "Captain in Gravis Armour",
+        "Captain in Phobos Armour",
+        "Captain in Terminator Armour",
+        "Captain on Bike",
+        "Captain with Jump Pack",
+        "Centurion Assault Squad",
+        "Centurion Devastator Squad",
+        "Chaplain",
+        "Chaplain in Terminator Armour",
+        "Chaplain on Bike",
+        "Chaplain with Jump Pack",
+        "Company Heroes",
+        "Deathwing Knights",
+        "Deathwing Terminator Squad",
+        "Desolation Squad",
+        "Eliminator Squad",
+        "Eradicator Squad with Heavy Bolters",
+        "Eradicator Squad with Melta Rifles",
+        "Ezekiel",
+        "Heavy Intercessor Squad",
+        "Hellblaster Squad",
+        "Inceptor Squad",
+        "Incursor Squad",
+        "Infernus Squad",
+        "Infiltrator Squad",
+        "Inner Circle Companions",
+        "Intercessor Squad",
+        "Invader ATVs",
+        "Judiciar",
+        "Lazarus",
+        "Librarian",
+        "Librarian in Phobos Armour",
+        "Librarian in Terminator Armour",
+        "Lieutenant",
+        "Lieutenant in Phobos Armour",
+        "Lieutenant with Combi-weapon",
+        "Outrider Squad",
+        "Ravenwing Black Knights",
+        "Ravenwing Command Squad",
+        "Reiver Squad",
+        "Sammael",
+        "Scout Bike Squad",
+        "Scout Squad",
+        "Sternguard Veteran Squad",
+        "Techmarine",
+        "Terminator Assault Squad",
+        "Terminator Squad",
+        "Vanguard Veteran Squad",
+        "Vanguard Veteran Squad with Jump Packs"
+      ],
+      "sauf": [],
+      "aide": "+2 en Force",
+      "effet": {
+        "strMod": 2
+      }
+    }
+  ]
+}
