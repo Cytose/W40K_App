@@ -333,6 +333,73 @@ T('une unité Legends est signalée non jouable en compétitif', avis,
   v => /Aquila Lander<\/b> : Legends, non jouable en compétitif/.test(v));
 T('une unité ordinaire ne l\'est pas', avis, v => !/Aegis Defence Line/.test(v));
 
+/* ------------------------------------------------------------------
+   LES RÈGLES D'ARMÉE ET DE DÉTACHEMENT À DÉCLARER
+
+   AURAS_ARMEE portait des auras de figurine (`source`). Une règle d'armée
+   ou de détachement conditionnelle — « si l'unité a chargé » — n'a pas de
+   figurine : sans `source`, elle vaut si son `detach` est retenu, et sans
+   l'un ni l'autre, toujours. Elle reste à déclarer, jamais appliquée.
+   ------------------------------------------------------------------ */
+await p.evaluate(() => {
+  localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v:1, actif:'r', listes:[
+    { id:'r', nom:'R', faction:'astra', cap:2000, detach:['Combined Arms'], fd:'', nextId:9,
+      units:[{ id:1, name:'Cadian Shock Troops', size:10, lo:[], chars:[], sel:true, grp:'', enh:null }] }
+  ]}));
+});
+await p.goto(base); await p.waitForTimeout(1100);
+const regles = await p.evaluate(() => {
+  const n = AURAS_ARMEE.length;
+  AURAS_ARMEE.push({ nom:'Essai armée', quand:'toujours', texte:'', champ:'hitMod', val:1 },
+                   { nom:'Essai retenu', detach:'Combined Arms', quand:'', texte:'', champ:'hitMod', val:1 },
+                   { nom:'Essai absent', detach:'Siege Regiment', quand:'', texte:'', champ:'hitMod', val:1 });
+  const c = window.ROSTER.simUnite(1, 'T').conditions.map(x => x.nom);
+  AURAS_ARMEE.length = n;
+  return c;
+});
+T('une règle d\'armée sans source est proposée', regles, v => v.includes('Essai armée'));
+T('une règle du détachement retenu aussi', regles, v => v.includes('Essai retenu'));
+T('pas celle d\'un détachement non retenu', regles, v => !v.includes('Essai absent'));
+
+/* « Les PERSONNAGES de l'unité seulement » : qui:"figurine" pose une
+   condition par membre qui porte le mot-clé, pas une pour le groupe. */
+await p.evaluate(() => {
+  localStorage.setItem('mathhammer.lists.v1', JSON.stringify({ v:1, actif:'q', listes:[
+    { id:'q', nom:'Q', faction:'custodes', cap:2000, detach:[], fd:'', nextId:9,
+      units:[{ id:1, name:'Custodian Guard Sodality', size:3, lo:[], sel:true, grp:'', enh:null,
+               chars:[{ name:'Shield-Captain', lo:[] }] }] }
+  ]}));
+});
+await p.goto(base); await p.waitForTimeout(1100);
+const parFig = await p.evaluate(() => {
+  const n = AURAS_ARMEE.length;
+  AURAS_ARMEE.push({ nom:'Essai perso', qui:'figurine', kw:['character'], quand:'', texte:'', champ:'hitMod', val:1 });
+  const c = window.ROSTER.simUnite(1, 'C').conditions.filter(x => x.nom === 'Essai perso').map(x => x.sur);
+  AURAS_ARMEE.length = n;
+  return c;
+});
+T('une règle « figurine » ne vaut que pour le personnage du groupe', parFig, ['Shield-Captain']);
+
+/* `unites` d'un stratagème accepte un groupe de KW : le Codex écrit
+   « TERMINATOR » une fois, et la fiche propre d'un chapitre en est. */
+const parGroupe = await p.evaluate(() => {
+  const d = DETACHMENTS[0][0];
+  const L = JSON.parse(localStorage.getItem('mathhammer.lists.v1'));
+  L.listes[0].detach = [d]; localStorage.setItem('mathhammer.lists.v1', JSON.stringify(L));
+  return d;
+});
+await p.goto(base); await p.waitForTimeout(1100);
+const strG = await p.evaluate(d => {
+  const n = STRAT_SIMU.length;
+  STRAT_SIMU.push({ nom:'Essai groupe', detach:d, pc:1, ph:'TC', unites:['character'], aide:'', effet:{} },
+                  { nom:'Essai autre', detach:d, pc:1, ph:'TC', unites:['vehicle'], aide:'', effet:{} });
+  const r = window.ROSTER.stratsSimu('Custodian Guard Sodality', ['Shield-Captain'], 'C').map(x => x.nom);
+  STRAT_SIMU.length = n;
+  return r;
+}, parGroupe);
+T('un stratagème qui vise un groupe de KW est proposé à qui en porte', strG,
+  v => v.includes('Essai groupe') && !v.includes('Essai autre'));
+
 console.log('\n════ CONFORME ════'); ok.forEach(x => console.log('  ✓ ' + x));
 console.log('\n════ ÉCARTS ════'); console.log(ko.length ? ko.map(x => '  ✗ ' + x).join('\n') : '  (aucun)');
 console.log('\n════ ERREURS JS ════'); console.log(errs.length ? [...new Set(errs)].join('\n') : '  aucune');
