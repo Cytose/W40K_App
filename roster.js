@@ -2343,6 +2343,7 @@ function ouvrePanneau(id, uid){
   unitOuverte = uid || null;
   el("pad").hidden = true;
   el("btnBackPad").hidden = false;
+  NAV.ouvre("panneau", fermePanneau);
   majRetour();
   PANNEAUX.forEach(p=>{
     const c = el(p); if(!c) return;
@@ -2363,6 +2364,7 @@ function fermePanneau(){
   unitOuverte = null; modeRange = false;
   el("pad").hidden = false;
   el("btnBackPad").hidden = true;
+  NAV.ferme("panneau");
   majRetour();
   PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
   renderList();
@@ -4707,8 +4709,10 @@ function retireUnite(ru){
   });
 }
 
-function openSheet(id){ el(id).classList.add("open"); document.body.style.overflow="hidden"; }
-function closeSheet(id){ el(id).classList.remove("open"); document.body.style.overflow=""; }
+/* les feuilles passent par celles d'app.js : c'est la qu'elles
+   s'inscrivent au retour arriere */
+const openSheet = id => window.openSheet(id);
+const closeSheet = id => window.closeSheet(id);
 
 let derniereAjoutee = null, ajoutees = 0;
 /* le compteur du catalogue : combien la liste pese deja, ce qu'il reste */
@@ -6255,6 +6259,12 @@ function vaVers(id){
   if(id === "scList") renderList();
   if(id === "scPlay") renderPlay();
   if(id === "scFiches") renderFiches();
+  /* le retour ramene du plateau a « En partie », puis de tout autre
+     onglet aux listes, qui sont l'accueil */
+  if(id === "scMap") NAV.ouvre("plateau", ()=> vaVers("scPlay"));
+  else NAV.ferme("plateau");
+  if(onglet !== "scList") NAV.ouvre("onglet", ()=> vaVers("scList"));
+  else NAV.ferme("onglet");
   majRetour();
 }
 el("tabs").querySelectorAll("button").forEach(b=>
@@ -6294,11 +6304,13 @@ function ouvreEditeur(id){
   el("listIndex").hidden = true;
   el("listEditor").hidden = false;
   fermePanneau();
+  NAV.ouvre("editeur", fermeEditeur);
   majRetour();
 }
 function fermeEditeur(){
   el("listEditor").hidden = true;
   el("listIndex").hidden = false;
+  NAV.ferme("editeur");
   majRetour();
   renderIndex(); window.scrollTo(0,0);
 }
@@ -6316,8 +6328,8 @@ function majRetour(){
   const hb = document.querySelector(".hbar");
   if(hb) hb.classList.toggle("retour", dansEditeur);
   if(!dansEditeur) return;
-  b.querySelector(".bt").textContent = dansPanneau ? "Le pavé" : "Mes listes";
-  b.setAttribute("aria-label", dansPanneau ? "Revenir au pavé" : "Revenir à mes listes");
+  b.querySelector(".bt").textContent = dansPanneau ? "Ma liste" : "Mes listes";
+  b.setAttribute("aria-label", dansPanneau ? "Revenir à la liste" : "Revenir à mes listes");
 }
 el("btnBack").addEventListener("click", ()=>{
   if(el("listEditor").hidden) return;

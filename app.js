@@ -535,8 +535,83 @@ function refreshTarget(){
 /* ==========================================================
    FEUILLES DE SÉLECTION
    ========================================================== */
-function openSheet(id){ el(id).classList.add("open"); document.body.style.overflow="hidden"; }
-function closeSheet(id){ el(id).classList.remove("open"); document.body.style.overflow=""; }
+/* ==========================================================
+   RETOUR ARRIÈRE
+   Le bouton retour du téléphone (ou du navigateur) quittait
+   l'application, où qu'on soit : aucun écran ne laissait de trace dans
+   l'historique. Chaque écran qu'on ouvre PAR-DESSUS un autre — une
+   feuille, l'éditeur d'une liste, le réglage d'une unité, un autre
+   onglet — s'inscrit ici en « couche », avec la façon de la refermer.
+   Le retour referme la couche du dessus, et seulement elle.
+
+   Une seule entrée d'historique sert de garde tant qu'il reste une
+   couche : on n'empile pas une entrée par écran, parce qu'une couche
+   refermée à la main (bouton « Fermer », choix fait dans une feuille)
+   laisserait derrière elle une entrée morte, et le retour suivant ne
+   ferait rien de visible. Sans couche, le retour sort de l'application,
+   comme partout ailleurs.
+   ========================================================== */
+const NAV = (function(){
+  const pile = [];
+  let garde = false;
+  const arme = () => {
+    if(garde || !pile.length) return;
+    try{ history.pushState({w40kGarde: 1}, ""); garde = true; }catch(e){}
+  };
+  const indice = cle => pile.findIndex(c => c.cle === cle);
+  function ouvre(cle, fermer){
+    const i = indice(cle);
+    if(i >= 0) pile[i].fermer = fermer;
+    else pile.push({cle, fermer});
+    arme();
+  }
+  function ferme(cle){
+    const i = indice(cle);
+    if(i >= 0) pile.splice(i, 1);
+  }
+  function deDessus(){
+    const c = pile.pop();
+    if(c) c.fermer();
+    return !!c;
+  }
+  window.addEventListener("popstate", ()=>{
+    /* un lien de partage collé dans l'adresse est une navigation par
+       ancre : elle n'est pas un retour, et la garde est restée dessous */
+    if(/[#&]l=/.test(location.hash || "")) return;
+    if(!garde) return;
+    garde = false;
+    if(deDessus()) arme();
+    else history.back();
+  });
+  /* au clavier, Échap fait ce que fait le retour */
+  document.addEventListener("keydown", e=>{
+    if(e.key !== "Escape" || !pile.length) return;
+    const t = e.target;
+    if(t && t.tagName === "INPUT" && t.value && t.type === "search") return;
+    e.preventDefault();
+    if(garde) history.back(); else deDessus();
+  });
+  return {ouvre, ferme, profondeur: () => pile.length};
+})();
+global.NAV = NAV;
+
+/* une feuille se referme par son bouton « Fermer » quand il existe : c'est
+   lui qui porte ce qui doit se passer à la sortie (le toast du catalogue) */
+function fermeFeuilleParBouton(id){
+  const b = document.querySelector('[data-close="' + id + '"]');
+  if(b) b.click(); else closeSheet(id);
+}
+function openSheet(id){
+  el(id).classList.add("open"); document.body.style.overflow="hidden";
+  NAV.ouvre("feuille:" + id, ()=> fermeFeuilleParBouton(id));
+}
+function closeSheet(id){
+  el(id).classList.remove("open");
+  NAV.ferme("feuille:" + id);
+  if(!document.querySelector(".sheet.open")) document.body.style.overflow="";
+}
+global.openSheet = openSheet;
+global.closeSheet = closeSheet;
 document.querySelectorAll("[data-close]").forEach(b=>
   b.addEventListener("click", ()=> closeSheet(b.dataset.close)));
 
