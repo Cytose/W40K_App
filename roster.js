@@ -35,8 +35,18 @@ const listeVierge = (nom, cap, faction) => ({
   cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
 });
 
+/* La date de derniere modification range les listes « Récentes ». Elle
+   ne bouge que si la liste a vraiment change : saveR est appele aussi
+   quand on ne fait que l'ouvrir, et l'ouvrir n'est pas la modifier. */
+let empreinteR = "";
+const empreinte = L => JSON.stringify(Object.assign({}, L, {maj: 0}));
 function saveR(){
-  if(R){ R.nextId = nextId; }
+  if(R){
+    R.nextId = nextId;
+    const e = empreinte(R);
+    if(empreinteR && e !== empreinteR) R.maj = Date.now();
+    empreinteR = e;
+  }
   try{ localStorage.setItem(LKEY, JSON.stringify({ v:1, actif: R ? R.id : null, listes: LISTS })); }catch(e){}
 }
 
@@ -167,7 +177,7 @@ function normaliseListe(L){
 
 /* Le seul endroit ou une liste devient la liste en service — c'est donc
    ici, et nulle part ailleurs, que la faction bascule. */
-function ouvre(L){ R = L; nextId = L.nextId || 1; activeFaction(L.faction || FACTION_DEFAUT); }
+function ouvre(L){ R = L; nextId = L.nextId || 1; activeFaction(L.faction || FACTION_DEFAUT); empreinteR = empreinte(L); }
 
 function loadR(){
   let actif = null;
@@ -222,22 +232,139 @@ function loadR(){
 
    Une seule faction enregistree, aucune question : on n'interroge pas
    quelqu'un sur un choix qu'il n'a pas. */
+/* Puis le reste de ce qui qualifie une liste avant sa premiere unite :
+   son format et son detachement. Les trois se choisissaient dans trois
+   endroits differents, dont deux une fois la liste ouverte ; ils tiennent
+   maintenant dans un seul ecran, et on en sort directement dans le
+   catalogue — c'est ce qu'on venait faire. */
+const FAMILLE_FACTION = {
+  imperium: ["spacemarines","blacktemplars","bloodangels","darkangels","deathwatch","spacewolves",
+             "greyknights","custodes","sororitas","mechanicus","astra","agents","chevaliers","titanicus"],
+  chaos:    ["csm","deathguard","thousandsons","worldeaters","emperorschildren","demons","chevalierschaos"],
+  xenos:    ["aeldari","drukhari","necrons","orks","tau","tyranides","gsc","votann"]
+};
+const FAMILLES = [["imperium","Imperium"], ["chaos","Chaos"], ["xenos","Xenos"]];
+const familleDe = cle => (FAMILLES.find(f => FAMILLE_FACTION[f[0]].indexOf(cle) >= 0) || ["autre"])[0];
+const FORMATS = [[1000, "Incursion"], [2000, "Strike Force"], [3000, "Onslaught"]];
+let NL = null;   // ce qu'on est en train de choisir dans l'ecran « Nouvelle liste »
+
 function nouvelleListe(apres){
   const dispo = (typeof listeFactions === "function") ? listeFactions() : [];
   if(dispo.length < 2){ creeListe(dispo.length ? dispo[0].cle : FACTION_DEFAUT, apres); return; }
-  el("listActTitle").textContent = "Quelle armée ?";
-  const host = el("listActList");
-  host.innerHTML = "";
-  dispo.forEach(f=>{
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "opt";
-    b.innerHTML = '<span class="oi"><span class="o1">' + f.nom + '</span>' +
-      '<span class="o2">' + fichesDe(f.cle) + ' fiches jouables</span></span>';
-    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); creeListe(f.cle, apres); });
-    host.appendChild(b);
-  });
-  openSheet("sheetListAct");
+  /* l'armee proposee d'office : celle de la derniere liste touchee */
+  const recente = LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0))[0];
+  NL = { faction: (recente && recente.faction) || "", cap: (R && R.cap) || 2000,
+         detach: "", nom: "", nomTouche: false, apres };
+  el("nlQ").value = "";
+  renderNouvelle();
+  openSheet("sheetNewList");
+  const corps = el("nlCorps"); if(corps) corps.scrollTop = 0;
 }
+function detachDe(cle){
+  const T = FACTIONS[cle] && FACTIONS[cle].tables;
+  return (T && T.DETACHMENTS) || [];
+}
+function nomAuto(){
+  if(!NL.faction) return "Liste " + (LISTS.length + 1);
+  const d = detachDe(NL.faction).find(x => x[0] === NL.detach);
+  return [factionNom(NL.faction), d ? (d[7] || d[0]) : "", NL.cap].filter(Boolean).join(" · ");
+}
+function renderNouvelle(){
+  const q = norm(el("nlQ").value.trim());
+  const dispo = listeFactions();
+  /* les armees deja jouees d'abord : c'est presque toujours l'une d'elles */
+  const jouees = [];
+  LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0)).forEach(L=>{
+    if(L.faction && jouees.indexOf(L.faction) < 0 && FACTIONS[L.faction]) jouees.push(L.faction);
+  });
+  const host = el("nlFactions"); host.innerHTML = "";
+  const bouton = f => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "nl-fac" + (NL.faction === f.cle ? " on" : "");
+    b.style.setProperty("--fac", COULEUR_FACTION[f.cle] || "#5D656B");
+    b.innerHTML = f.nom + '<small>' + fichesDe(f.cle) + ' fiches</small>';
+    b.setAttribute("aria-pressed", NL.faction === f.cle ? "true" : "false");
+    b.addEventListener("click", ()=>{
+      if(NL.faction !== f.cle){ NL.faction = f.cle; NL.detach = ""; }
+      renderNouvelle();
+    });
+    return b;
+  };
+  const bloc = (titre, lot) => {
+    if(!lot.length) return;
+    if(titre){
+      const t = document.createElement("div");
+      t.className = "nl-sous"; t.textContent = titre; host.appendChild(t);
+    }
+    const g = document.createElement("div");
+    g.className = "nl-grille";
+    lot.forEach(f => g.appendChild(bouton(f)));
+    host.appendChild(g);
+  };
+  if(q){
+    bloc("", dispo.filter(f => norm(f.nom).includes(q) || norm(f.cle).includes(q)));
+    if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune armée ne correspond.</div>';
+  } else {
+    bloc("Tes armées", jouees.map(c => dispo.find(f => f.cle === c)).filter(Boolean));
+    FAMILLES.forEach(([k, nom]) =>
+      bloc(nom, dispo.filter(f => familleDe(f.cle) === k && jouees.indexOf(f.cle) < 0)
+                     .sort((a, b) => a.nom.localeCompare(b.nom))));
+    bloc("Autres", dispo.filter(f => familleDe(f.cle) === "autre" && jouees.indexOf(f.cle) < 0));
+  }
+
+  const fh = el("nlFormat"); fh.innerHTML = "";
+  FORMATS.forEach(([pts, nom])=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (NL.cap === pts ? " on" : "");
+    b.innerHTML = pts + ' pts <small>' + nom + '</small>';
+    b.addEventListener("click", ()=>{ NL.cap = pts; renderNouvelle(); });
+    fh.appendChild(b);
+  });
+  if(FORMATS.every(f => f[0] !== NL.cap)){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip on"; b.textContent = NL.cap + " pts";
+    fh.appendChild(b);
+  }
+
+  const dh = el("nlDetach"); dh.innerHTML = "";
+  const regle = el("nlRegle"); regle.innerHTML = "";
+  if(!NL.faction){
+    dh.innerHTML = '<span class="hint" style="margin:0">Choisis d\'abord l\'armée.</span>';
+  } else {
+    const puce = (val, texte, extra) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip" + (NL.detach === val ? " on" : "");
+      b.innerHTML = texte + (extra ? ' <small>' + extra + '</small>' : '');
+      b.addEventListener("click", ()=>{ NL.detach = val; renderNouvelle(); });
+      dh.appendChild(b);
+    };
+    detachDe(NL.faction).forEach(d => puce(d[0], d[7] || d[0], d[1] > 1 ? d[1] + " PD" : ""));
+    puce("", "Plus tard", "");
+    const d = detachDe(NL.faction).find(x => x[0] === NL.detach);
+    if(d) regle.innerHTML = '<div class="nl-regle"><b>' + (d[3] || "") + '</b>' +
+      (d[4] ? ' — ' + d[4] : '') + '</div>';
+  }
+
+  const nom = el("nlNom");
+  if(!NL.nomTouche && document.activeElement !== nom) nom.value = nomAuto();
+  const go = el("nlGo");
+  go.disabled = !NL.faction;
+  go.textContent = NL.faction ? "Ajouter des unités →" : "Choisis une armée";
+}
+el("nlQ").addEventListener("input", renderNouvelle);
+el("nlNom").addEventListener("input", ()=>{ NL.nomTouche = !!el("nlNom").value.trim(); });
+el("nlGo").addEventListener("click", ()=>{
+  if(!NL || !NL.faction) return;
+  const choix = NL;
+  closeSheet("sheetNewList");
+  const L = listeVierge(el("nlNom").value.trim() || nomAuto(), choix.cap, choix.faction);
+  if(choix.detach) L.detach = [choix.detach];
+  L.maj = Date.now();
+  LISTS.push(L); ouvre(L); saveR(); renderList();
+  NL = null;
+  if(typeof choix.apres === "function") choix.apres();
+});
 /* combien de fiches une faction apporte, lu au registre sans la mettre
    en service : la faction courante ne doit pas bouger pour un menu */
 function fichesDe(cle){
@@ -246,6 +373,7 @@ function fichesDe(cle){
 }
 function creeListe(cle, apres){
   const L = listeVierge("Liste " + (LISTS.length + 1), R ? R.cap : 2000, cle);
+  L.maj = Date.now();
   LISTS.push(L); ouvre(L); saveR(); renderList();
   if(typeof apres === "function") apres();
 }
@@ -254,6 +382,7 @@ function dupliqueListe(){
   const copie = JSON.parse(JSON.stringify(R));
   copie.id = listeVierge().id;
   copie.nom = R.nom + " (copie)";
+  copie.maj = Date.now();
   LISTS.push(copie); ouvre(copie); saveR(); renderList();
 }
 function supprimeListe(){
@@ -2447,32 +2576,62 @@ function appuiLong(elem, action){
   }, true);
 }
 
+/* Le rangement de l'index : par date (la derniere touchee en tete), par
+   armee ou par format. Choix d'affichage, garde d'une visite a l'autre. */
+let triListes = "recent";
+try{ triListes = localStorage.getItem("mathhammer.tri-listes") || "recent"; }catch(e){}
+function ilYa(t){
+  if(!t) return "";
+  const m = Math.round((Date.now() - t) / 60000);
+  if(m < 2) return "à l'instant";
+  if(m < 60) return "il y a " + m + " min";
+  const h = Math.round(m / 60);
+  if(h < 24) return "il y a " + h + " h";
+  const j = Math.round(h / 24);
+  if(j < 31) return "il y a " + j + " jour" + (j > 1 ? "s" : "");
+  return new Date(t).toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
+}
 function renderIndex(){
   const host = el("listCards"); if(!host) return;
   host.innerHTML = "";
+  const tri = el("listTri");
+  if(tri) tri.querySelectorAll("button").forEach(b=>{
+    const on = b.dataset.t === triListes;
+    b.classList.toggle("on", on); b.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  /* chercher et ranger ne servent a rien sous quatre listes */
+  const peu = LISTS.length < 4;
+  if(el("listQ")) el("listQ").hidden = peu;
+  if(tri) tri.hidden = LISTS.length < 2;
   if(!LISTS.length){
     host.innerHTML = '<div class="empty" style="padding:16px 4px">Aucune liste. Crées-en une pour commencer.</div>';
     return;
   }
-  LISTS.forEach(L=>{
+  const plusieurs = listeFactions().length > 1;
+  const detachTexte = L => dansSaFaction(L, ()=> L.detach.map(nomDetach).join(" · ")) || "";
+  const q = peu ? "" : norm(((el("listQ") || {}).value || "").trim());
+  const vues = LISTS.filter(L => !q || norm(L.nom).includes(q) ||
+    norm(factionNom(L.faction || FACTION_DEFAUT)).includes(q) || norm(detachTexte(L)).includes(q));
+  const parDate = (a, b) => (b.maj || 0) - (a.maj || 0);
+  const carte = L => {
     const p = pointsDe(L), over = p > L.cap;
     const rangee = document.createElement("div");
     rangee.className = "lrow";
     const b = document.createElement("button");
     b.type = "button";
     b.className = "lcard" + (L === R ? " on" : "");
+    b.style.setProperty("--fac", COULEUR_FACTION[L.faction || FACTION_DEFAUT] || "#5D656B");
+    const det = detachTexte(L);
     b.innerHTML =
       '<span class="li"><b>' + L.nom + '</b>' +
-      '<i>' + (listeFactions().length > 1 ? factionNom(L.faction || FACTION_DEFAUT) + ' · ' : '') +
+      '<i>' + (plusieurs && triListes !== "armee" ? factionNom(L.faction || FACTION_DEFAUT) + ' · ' : '') +
         L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
-        ' · ' + L.detach.length + ' détachement' + (L.detach.length > 1 ? 's' : '') + '</i>' +
-      /* le nom francais d'un detachement se lit dans SA table : celui
-         d'une liste custodes n'existe pas chez les Necrons */
-      '<span class="det">' + (dansSaFaction(L, ()=> L.detach.map(nomDetach).join(" · ")) ||
-                              "aucun détachement") + '</span>' +
+        (L.maj ? ' · ' + ilYa(L.maj) : '') + '</i>' +
+      '<span class="det">' + (det || "aucun détachement") + '</span>' +
       (L === R ? '<span class="lserv">En service — simulateur et partie</span>' : '') + '</span>' +
       '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
     b.addEventListener("click", ()=> ouvreEditeur(L.id));
+    appuiLong(b, ()=> ouvreActions(L));
     const m = document.createElement("button");
     m.type = "button";
     m.className = "lmore";
@@ -2481,8 +2640,40 @@ function renderIndex(){
     m.addEventListener("click", e => { e.stopPropagation(); ouvreActions(L); });
     rangee.appendChild(b); rangee.appendChild(m);
     host.appendChild(rangee);
-  });
+  };
+  const titre = (t, n) => {
+    const d = document.createElement("div");
+    d.className = "lgrp";
+    d.innerHTML = t + (n > 1 ? ' <small>· ' + n + '</small>' : '');
+    host.appendChild(d);
+  };
+  if(triListes === "recent"){
+    vues.slice().sort(parDate).forEach(carte);
+  } else {
+    const cle = L => triListes === "armee" ? (L.faction || FACTION_DEFAUT) : L.cap;
+    const groupes = {};
+    vues.forEach(L => (groupes[cle(L)] = groupes[cle(L)] || []).push(L));
+    /* l'armee la plus recemment touchee d'abord ; les formats du plus
+       petit au plus grand */
+    const recentDe = g => Math.max.apply(null, g.map(L => L.maj || 0));
+    const ordre = Object.keys(groupes).sort(triListes === "armee"
+      ? (a, b) => recentDe(groupes[b]) - recentDe(groupes[a])
+      : (a, b) => a - b);
+    ordre.forEach(k=>{
+      titre(triListes === "armee" ? factionNom(k) : k + " points", groupes[k].length);
+      groupes[k].sort(parDate).forEach(carte);
+    });
+  }
+  if(!vues.length) host.innerHTML =
+    '<div class="empty" style="padding:16px 4px">Aucune liste ne correspond à « ' + q + ' ».</div>';
 }
+if(el("listTri")) el("listTri").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-t]"); if(!b) return;
+  triListes = b.dataset.t;
+  try{ localStorage.setItem("mathhammer.tri-listes", triListes); }catch(e){}
+  renderIndex();
+});
+if(el("listQ")) el("listQ").addEventListener("input", renderIndex);
 
 /* ==========================================================
    LISTE EN LECTURE
@@ -6358,7 +6549,7 @@ if(el("btnPadQClear")) el("btnPadQClear").addEventListener("click", ()=>{
 /* l'editeur ne s'ouvre qu'une fois l'armee choisie : sans quoi il
    s'ouvrirait derriere la question, sur une liste d'une faction qu'on
    est en train de changer */
-el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(()=> ouvreEditeur()); });
+el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(()=>{ ouvreEditeur(); openUnitPick(); }); });
 function syncTarget(){
   el("ptName5").textContent = SIM.tgtName;
   el("ptSub5").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +

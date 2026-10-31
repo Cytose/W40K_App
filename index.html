@@ -1057,6 +1057,35 @@ h2 #capCount.on{color:var(--glow)}
   font-family:inherit;font-size:19px;font-weight:800;cursor:pointer;line-height:1;
   border-radius:8px}
 .lmore:active{background:var(--s2)}
+/* le bandeau de couleur de l'armee, a gauche de la carte */
+.lcard{position:relative;overflow:hidden;padding-left:16px}
+.lcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--fac,var(--line-hi))}
+.lsearch{width:100%;box-sizing:border-box;height:42px;border:1px solid var(--line);border-radius:8px;
+  padding:0 12px;font-size:15px;font-family:inherit;background:var(--s1);color:var(--tx)}
+.ltri{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.lgrp{margin:14px 0 -2px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.lgrp small{font-weight:600;letter-spacing:0;text-transform:none}
+
+/* ---------- nouvelle liste ---------- */
+.nl-sec{margin:14px 0 6px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.nl-sec:first-child{margin-top:4px}
+.nl-sec small{font-weight:500;letter-spacing:0;text-transform:none}
+.nl-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.nl-fac{min-height:46px;text-align:left;padding:6px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--s1);color:var(--tx);font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+  position:relative;overflow:hidden;padding-left:14px}
+.nl-fac::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fac,var(--line-hi))}
+.nl-fac small{display:block;font-size:11px;font-weight:500;color:var(--tx3);margin-top:1px}
+.nl-fac.on{border:2px solid var(--glow);background:var(--glow-soft);padding:5px 9px 5px 13px}
+.nl-sous{font-size:10.5px;font-weight:700;color:var(--tx3);margin:10px 0 5px;letter-spacing:.06em;text-transform:uppercase}
+.nl-puces{display:flex;flex-wrap:wrap;gap:6px}
+.nl-puces .chip{min-height:40px}
+.nl-regle{margin-top:8px;font-size:12.5px;color:var(--tx2);background:var(--s1);border:1px solid var(--line-soft);
+  border-radius:8px;padding:8px 10px;line-height:1.4}
+.nl-nom{width:100%;box-sizing:border-box;height:42px;border:1px solid var(--line);border-radius:8px;padding:0 12px;
+  font-size:15px;font-family:inherit;background:var(--s1);color:var(--tx)}
+.nl-pied{padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:var(--s1);border-top:1px solid var(--line)}
+.nl-pied .btn{width:100%;margin:0}
 
 /* ---------- liste en lecture ---------- */
 .pgrp{margin-top:13px;border:1px solid var(--line);background:var(--s1);
@@ -1712,7 +1741,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <section class="card">
       <h2>Mes listes <span class="chev">▾</span></h2>
       <div class="body">
-        <p class="hint" style="margin-top:2px">Touche une liste pour l'ouvrir et la modifier.</p>
+        <input type="search" class="lsearch" id="listQ" placeholder="Chercher une liste, une armée, un détachement…" autocomplete="off" aria-label="Chercher une liste">
+        <div class="ltri" id="listTri" role="tablist" aria-label="Ranger les listes">
+          <button type="button" class="chip" role="tab" data-t="recent">Récentes</button>
+          <button type="button" class="chip" role="tab" data-t="armee">Par armée</button>
+          <button type="button" class="chip" role="tab" data-t="format">Par format</button>
+        </div>
         <div id="listCards"></div>
         <button class="btn go" id="btnNewList2" type="button">+ Créer une liste</button>
       </div>
@@ -1959,6 +1993,23 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <div class="sheet" id="sheetListAct">
   <div class="sheet-head"><h3 id="listActTitle">Liste</h3><button class="ghost" data-close="sheetListAct" type="button">Fermer</button></div>
   <div class="sheet-list" id="listActList"></div>
+</div>
+
+<div class="sheet" id="sheetNewList">
+  <div class="sheet-head"><h3>Nouvelle liste</h3><button class="ghost" data-close="sheetNewList" type="button">Fermer</button></div>
+  <div class="sheet-list" id="nlCorps">
+    <div class="nl-sec">1 · Armée</div>
+    <input type="search" class="sheet-search" id="nlQ" placeholder="Chercher une armée…" autocomplete="off" style="margin:0 0 8px;width:100%;box-sizing:border-box" aria-label="Chercher une armée">
+    <div id="nlFactions"></div>
+    <div class="nl-sec">2 · Format</div>
+    <div class="nl-puces" id="nlFormat"></div>
+    <div class="nl-sec">3 · Détachement <small>(modifiable ensuite)</small></div>
+    <div class="nl-puces" id="nlDetach"></div>
+    <div id="nlRegle"></div>
+    <div class="nl-sec">4 · Nom</div>
+    <input type="text" class="nl-nom" id="nlNom" maxlength="42" aria-label="Nom de la liste">
+  </div>
+  <div class="nl-pied"><button type="button" class="btn go" id="nlGo">Ajouter des unités →</button></div>
 </div>
 
 <div class="sheet" id="sheetFiche">
