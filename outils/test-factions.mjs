@@ -260,21 +260,22 @@ await p.goto(base); await p.waitForTimeout(1000);
 await p.click('#tabs button[data-s="scList"]'); await p.waitForTimeout(400);
 await p.click('#btnNewList2'); await p.waitForTimeout(500);
 const feuille = await p.evaluate(() => {
-  const s = document.getElementById('sheetListAct');
+  const s = document.getElementById('sheetNewList');
   return { ouverte: s.classList.contains('open'),
-           titre: document.getElementById('listActTitle').textContent,
-           choix: [...document.querySelectorAll('#listActList .opt')]
-             .map(b => b.querySelector('.o1').textContent) };
+           titre: s.querySelector('h3').textContent,
+           choix: [...document.querySelectorAll('#nlFactions .nl-fac')]
+             .map(b => b.firstChild.textContent) };
 });
 T('créer une liste demande d\'abord l\'armée', feuille.ouverte, true);
-T('et elle le demande en toutes lettres', feuille.titre, 'Quelle armée ?');
+T('dans l\'écran « Nouvelle liste »', feuille.titre, 'Nouvelle liste');
 T('toutes les factions du registre y sont', feuille.choix.length, registre.length);
-const apres = await p.evaluate(() => {
-  const b = [...document.querySelectorAll('#listActList .opt')]
+await p.evaluate(() => {
+  const b = [...document.querySelectorAll('#nlFactions .nl-fac')]
     .find(x => /Custodes/.test(x.textContent));
   b.click();
-  return null;
 });
+await p.waitForTimeout(200);
+await p.click('#nlGo');
 await p.waitForTimeout(700);
 const neuve = await p.evaluate(() => {
   const o = JSON.parse(localStorage.getItem('mathhammer.lists.v1'));

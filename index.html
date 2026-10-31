@@ -381,7 +381,16 @@ input.sheet-search{
   color:var(--tx3);opacity:.8;font-variant-numeric:tabular-nums}
 /* ---- le metier de l'unite : douze roles, quatre familles ---- */
 .roles{margin:8px 0 0;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--s2)}
-.roles-tete{display:flex;align-items:baseline;gap:6px}
+.roles-tete{display:flex;align-items:baseline;gap:6px;width:100%;border:0;background:transparent;padding:0;
+  font-family:inherit;text-align:left;cursor:pointer;color:inherit}
+.roles-tete .rchev{font-size:11px;color:var(--tx3);width:10px}
+.roles.replie{padding:8px 10px}
+.roles.replie .roles-tete i{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;color:var(--tx2)}
+.meneurs{margin:10px 0 2px}
+.men-t{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:6px}
+.men-p{display:flex;flex-wrap:wrap;gap:6px}
+.men-p .chip{min-height:38px}
+.chip.ghostchip{background:transparent;border-style:dashed}
 .roles-tete b{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3)}
 .roles-tete i{flex:1;font-style:normal;font-size:10.5px;color:var(--tx3)}
 .roles-tete .xbtn{flex:0 0 auto}
@@ -439,6 +448,7 @@ input.sheet-search{
 .pickbar.over b{color:var(--warn)}
 .opt.cher .o2{color:var(--warn)}
 .opt.pose{border-color:var(--glow)}
+.opt.pris{border-color:var(--acc-bd)}
 /* annulation : une suppression doit pouvoir se reprendre */
 .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(120%);
   bottom:calc(64px + env(safe-area-inset-bottom));z-index:200;display:flex;align-items:center;gap:12px;
@@ -1057,6 +1067,94 @@ h2 #capCount.on{color:var(--glow)}
   font-family:inherit;font-size:19px;font-weight:800;cursor:pointer;line-height:1;
   border-radius:8px}
 .lmore:active{background:var(--s2)}
+/* le bandeau de couleur de l'armee, a gauche de la carte */
+.lcard{position:relative;overflow:hidden;padding-left:16px}
+.lcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--fac,var(--line-hi))}
+.lsearch{width:100%;box-sizing:border-box;height:42px;border:1px solid var(--line);border-radius:8px;
+  padding:0 12px;font-size:15px;font-family:inherit;background:var(--s1);color:var(--tx)}
+.ltri{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.lgrp{margin:14px 0 -2px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.lgrp small{font-weight:600;letter-spacing:0;text-transform:none}
+
+/* ---------- la liste a cote du catalogue ---------- */
+.pickcorps{flex:1;min-height:0;display:flex;flex-direction:column}
+.pickcat{flex:1;min-height:0;display:flex;flex-direction:column}
+.pickliste{flex:0 0 auto;min-width:0;display:flex;flex-direction:column;max-height:44vh;background:var(--s1);
+  border-top:1px solid var(--line-hi);box-shadow:0 -6px 18px rgba(22,27,31,.10);border-radius:12px 12px 0 0}
+.pickliste[hidden],.pickbar[hidden]{display:none}
+.pl-tete{display:flex;align-items:baseline;gap:8px;width:100%;padding:10px 14px;border:0;background:transparent;
+  font-family:inherit;color:var(--tx);cursor:pointer;text-align:left;border-bottom:1px solid var(--line-soft)}
+.pl-tete .pl-ch{color:var(--tx3);font-size:12px;width:12px}
+.pl-tete .pl-t{font-size:14.5px;font-weight:800}
+.pl-tete .pl-s{flex:1;font-size:12px;color:var(--tx2)}
+.pl-tete .pl-p{font-size:17px;font-weight:800;color:var(--glow);font-variant-numeric:tabular-nums}
+.pl-tete .pl-p small{font-size:11.5px;font-weight:500;color:var(--tx3)}
+.pl-tete.over .pl-p{color:var(--warn)}
+.pickliste.replie .pl-corps{display:none}
+.pickliste.replie .pl-tete{border-bottom:0}
+.pl-corps{overflow-y:auto;overflow-x:hidden;padding:2px 14px calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.pl-cat{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);padding:9px 0 2px}
+.pl-l{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+.pl-l.neuve{background:var(--glow-soft);margin:0 -14px;padding-left:14px;padding-right:14px}
+.pl-n{flex:1;min-width:0;text-align:left;border:0;background:transparent;padding:4px 0;font-family:inherit;color:var(--tx);cursor:pointer}
+.pl-n b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-n i{display:block;font-style:normal;font-size:11.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-n i.alerte{color:var(--warn)}
+.pl-eff{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:0 0 auto}
+.pl-eff button{min-width:34px;height:34px;padding:0 7px;border:0;background:var(--s1);font-family:inherit;font-size:12.5px;color:var(--tx2);cursor:pointer}
+.pl-eff button+button{border-left:1px solid var(--line)}
+.pl-eff button.on{background:var(--glow);color:#fff;font-weight:800}
+.pl-pts{flex:0 0 36px;text-align:right;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.pl-x{flex:0 0 auto;width:32px;height:34px;border:0;background:transparent;color:var(--tx3);font-size:17px;cursor:pointer;border-radius:8px}
+.pl-x:active{background:var(--s2)}
+.pl-vide{padding:12px 0;font-size:12.5px;color:var(--tx3)}
+.opt .dans{display:inline-block;margin-left:6px;padding:0 7px;border-radius:9px;background:var(--glow);color:#fff;
+  font-size:10.5px;font-weight:800;vertical-align:2px}
+@media (min-width:900px){
+  .pickcorps{flex-direction:row;max-width:1280px;width:100%;margin:0 auto}
+  .pickcat{flex:1 1 0;min-width:0}
+  .pickcat .sheet-list,.pickcat input.sheet-search,.pickcat .pickbar{max-width:none}
+  .pickliste{flex:0 0 400px;max-height:none;border-top:0;border-left:1px solid var(--line);box-shadow:none;border-radius:0}
+  .pickliste.replie .pl-corps{display:block}
+  .pl-tete{cursor:default}
+  .pl-tete .pl-ch{display:none}
+}
+
+/* ---------- la liste en lignes (editeur) ---------- */
+.padlignes{display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--line);border-radius:10px;
+  padding:2px 12px 8px}
+.padlignes .padrole{margin:8px 0 0}
+.uligne{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line-soft);position:relative}
+.uligne:last-of-type{border-bottom:0}
+.uligne .pl-n b small{font-weight:500;color:var(--tx3);font-size:11.5px}
+.uligne.warnmark::before{content:"";position:absolute;left:-12px;top:6px;bottom:6px;width:3px;background:var(--warn);border-radius:2px}
+.uligne.range{width:100%;border:0;border-bottom:1px solid var(--line-soft);background:var(--s1);font-family:inherit;
+  color:var(--tx);cursor:grab;touch-action:none;text-align:left}
+.uligne.range .poignee{flex:0 0 auto;color:var(--tx3);font-size:18px;padding:0 4px}
+.uligne.glisse{box-shadow:0 8px 22px var(--ombre);z-index:5;position:relative}
+.uajout{margin-top:10px;width:100%;min-height:46px;border:1px dashed var(--acc-bd);border-radius:8px;
+  background:var(--glow-soft);color:var(--glow);font-family:inherit;font-size:14.5px;font-weight:800;cursor:pointer}
+
+/* ---------- nouvelle liste ---------- */
+.nl-sec{margin:14px 0 6px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.nl-sec:first-child{margin-top:4px}
+.nl-sec small{font-weight:500;letter-spacing:0;text-transform:none}
+.nl-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.nl-fac{min-height:46px;text-align:left;padding:6px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--s1);color:var(--tx);font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+  position:relative;overflow:hidden;padding-left:14px}
+.nl-fac::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fac,var(--line-hi))}
+.nl-fac small{display:block;font-size:11px;font-weight:500;color:var(--tx3);margin-top:1px}
+.nl-fac.on{border:2px solid var(--glow);background:var(--glow-soft);padding:5px 9px 5px 13px}
+.nl-sous{font-size:10.5px;font-weight:700;color:var(--tx3);margin:10px 0 5px;letter-spacing:.06em;text-transform:uppercase}
+.nl-puces{display:flex;flex-wrap:wrap;gap:6px}
+.nl-puces .chip{min-height:40px}
+.nl-regle{margin-top:8px;font-size:12.5px;color:var(--tx2);background:var(--s1);border:1px solid var(--line-soft);
+  border-radius:8px;padding:8px 10px;line-height:1.4}
+.nl-nom{width:100%;box-sizing:border-box;height:42px;border:1px solid var(--line);border-radius:8px;padding:0 12px;
+  font-size:15px;font-family:inherit;background:var(--s1);color:var(--tx)}
+.nl-pied{padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:var(--s1);border-top:1px solid var(--line)}
+.nl-pied .btn{width:100%;margin:0}
 
 /* ---------- liste en lecture ---------- */
 .pgrp{margin-top:13px;border:1px solid var(--line);background:var(--s1);
@@ -1712,7 +1810,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <section class="card">
       <h2>Mes listes <span class="chev">▾</span></h2>
       <div class="body">
-        <p class="hint" style="margin-top:2px">Touche une liste pour l'ouvrir et la modifier.</p>
+        <input type="search" class="lsearch" id="listQ" placeholder="Chercher une liste, une armée, un détachement…" autocomplete="off" aria-label="Chercher une liste">
+        <div class="ltri" id="listTri" role="tablist" aria-label="Ranger les listes">
+          <button type="button" class="chip" role="tab" data-t="recent">Récentes</button>
+          <button type="button" class="chip" role="tab" data-t="armee">Par armée</button>
+          <button type="button" class="chip" role="tab" data-t="format">Par format</button>
+        </div>
         <div id="listCards"></div>
         <button class="btn go" id="btnNewList2" type="button">+ Créer une liste</button>
       </div>
@@ -1739,7 +1842,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       </div>
       <div class="padgrid" id="padUnits"></div>
       <div class="carte" id="padCarte" hidden></div>
-      <p class="padhint" id="padHint" hidden>Appui long sur une case : régler, fiche, dupliquer, retirer.</p>
+      <p class="padhint" id="padHint" hidden>Toucher une unité pour la régler · « ⋯ » ou appui long : fiche, dupliquer, retirer.</p>
       <div class="padsep">Réglages de la liste</div>
       <div class="padgrid pad3" id="padTools"></div>
     </div>
@@ -1936,9 +2039,20 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 
 <div class="sheet" id="sheetUnit">
   <div class="sheet-head"><h3>Choisir l'unité</h3><button class="ghost" data-close="sheetUnit" type="button">Fermer</button></div>
-  <div class="pickbar" id="uBudget" hidden></div>
-  <input class="sheet-search" id="uSearch" type="text" placeholder="Rechercher une unité…" autocomplete="off">
-  <div class="sheet-list" id="uList"></div>
+  <div class="pickcorps">
+    <div class="pickcat">
+      <div class="pickbar" id="uBudget" hidden></div>
+      <input class="sheet-search" id="uSearch" type="text" placeholder="Rechercher une unité…" autocomplete="off">
+      <div class="sheet-list" id="uList"></div>
+    </div>
+    <!-- La liste en cours, a cote du catalogue : on voit ce qu'on a pose
+         sans ressortir. En bas sur un telephone (repliable), a droite sur
+         un grand ecran. -->
+    <section class="pickliste" id="uListe" hidden aria-label="Ma liste">
+      <button type="button" class="pl-tete" id="uListeTete" aria-expanded="true"></button>
+      <div class="pl-corps" id="uListeCorps"></div>
+    </section>
+  </div>
 </div>
 
 <div class="sheet" id="sheetRosterUnit">
@@ -1959,6 +2073,23 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 <div class="sheet" id="sheetListAct">
   <div class="sheet-head"><h3 id="listActTitle">Liste</h3><button class="ghost" data-close="sheetListAct" type="button">Fermer</button></div>
   <div class="sheet-list" id="listActList"></div>
+</div>
+
+<div class="sheet" id="sheetNewList">
+  <div class="sheet-head"><h3>Nouvelle liste</h3><button class="ghost" data-close="sheetNewList" type="button">Fermer</button></div>
+  <div class="sheet-list" id="nlCorps">
+    <div class="nl-sec">1 · Armée</div>
+    <input type="search" class="sheet-search" id="nlQ" placeholder="Chercher une armée…" autocomplete="off" style="margin:0 0 8px;width:100%;box-sizing:border-box" aria-label="Chercher une armée">
+    <div id="nlFactions"></div>
+    <div class="nl-sec">2 · Format</div>
+    <div class="nl-puces" id="nlFormat"></div>
+    <div class="nl-sec">3 · Détachement <small>(modifiable ensuite)</small></div>
+    <div class="nl-puces" id="nlDetach"></div>
+    <div id="nlRegle"></div>
+    <div class="nl-sec">4 · Nom</div>
+    <input type="text" class="nl-nom" id="nlNom" maxlength="42" aria-label="Nom de la liste">
+  </div>
+  <div class="nl-pied"><button type="button" class="btn go" id="nlGo">Ajouter des unités →</button></div>
 </div>
 
 <div class="sheet" id="sheetFiche">

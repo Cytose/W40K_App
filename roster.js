@@ -35,8 +35,18 @@ const listeVierge = (nom, cap, faction) => ({
   cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
 });
 
+/* La date de derniere modification range les listes « Récentes ». Elle
+   ne bouge que si la liste a vraiment change : saveR est appele aussi
+   quand on ne fait que l'ouvrir, et l'ouvrir n'est pas la modifier. */
+let empreinteR = "";
+const empreinte = L => JSON.stringify(Object.assign({}, L, {maj: 0}));
 function saveR(){
-  if(R){ R.nextId = nextId; }
+  if(R){
+    R.nextId = nextId;
+    const e = empreinte(R);
+    if(empreinteR && e !== empreinteR) R.maj = Date.now();
+    empreinteR = e;
+  }
   try{ localStorage.setItem(LKEY, JSON.stringify({ v:1, actif: R ? R.id : null, listes: LISTS })); }catch(e){}
 }
 
@@ -167,7 +177,7 @@ function normaliseListe(L){
 
 /* Le seul endroit ou une liste devient la liste en service — c'est donc
    ici, et nulle part ailleurs, que la faction bascule. */
-function ouvre(L){ R = L; nextId = L.nextId || 1; activeFaction(L.faction || FACTION_DEFAUT); }
+function ouvre(L){ R = L; nextId = L.nextId || 1; activeFaction(L.faction || FACTION_DEFAUT); empreinteR = empreinte(L); }
 
 function loadR(){
   let actif = null;
@@ -222,22 +232,139 @@ function loadR(){
 
    Une seule faction enregistree, aucune question : on n'interroge pas
    quelqu'un sur un choix qu'il n'a pas. */
+/* Puis le reste de ce qui qualifie une liste avant sa premiere unite :
+   son format et son detachement. Les trois se choisissaient dans trois
+   endroits differents, dont deux une fois la liste ouverte ; ils tiennent
+   maintenant dans un seul ecran, et on en sort directement dans le
+   catalogue — c'est ce qu'on venait faire. */
+const FAMILLE_FACTION = {
+  imperium: ["spacemarines","blacktemplars","bloodangels","darkangels","deathwatch","spacewolves",
+             "greyknights","custodes","sororitas","mechanicus","astra","agents","chevaliers","titanicus"],
+  chaos:    ["csm","deathguard","thousandsons","worldeaters","emperorschildren","demons","chevalierschaos"],
+  xenos:    ["aeldari","drukhari","necrons","orks","tau","tyranides","gsc","votann"]
+};
+const FAMILLES = [["imperium","Imperium"], ["chaos","Chaos"], ["xenos","Xenos"]];
+const familleDe = cle => (FAMILLES.find(f => FAMILLE_FACTION[f[0]].indexOf(cle) >= 0) || ["autre"])[0];
+const FORMATS = [[1000, "Incursion"], [2000, "Strike Force"], [3000, "Onslaught"]];
+let NL = null;   // ce qu'on est en train de choisir dans l'ecran « Nouvelle liste »
+
 function nouvelleListe(apres){
   const dispo = (typeof listeFactions === "function") ? listeFactions() : [];
   if(dispo.length < 2){ creeListe(dispo.length ? dispo[0].cle : FACTION_DEFAUT, apres); return; }
-  el("listActTitle").textContent = "Quelle armée ?";
-  const host = el("listActList");
-  host.innerHTML = "";
-  dispo.forEach(f=>{
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "opt";
-    b.innerHTML = '<span class="oi"><span class="o1">' + f.nom + '</span>' +
-      '<span class="o2">' + fichesDe(f.cle) + ' fiches jouables</span></span>';
-    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); creeListe(f.cle, apres); });
-    host.appendChild(b);
-  });
-  openSheet("sheetListAct");
+  /* l'armee proposee d'office : celle de la derniere liste touchee */
+  const recente = LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0))[0];
+  NL = { faction: (recente && recente.faction) || "", cap: (R && R.cap) || 2000,
+         detach: "", nom: "", nomTouche: false, apres };
+  el("nlQ").value = "";
+  renderNouvelle();
+  openSheet("sheetNewList");
+  const corps = el("nlCorps"); if(corps) corps.scrollTop = 0;
 }
+function detachDe(cle){
+  const T = FACTIONS[cle] && FACTIONS[cle].tables;
+  return (T && T.DETACHMENTS) || [];
+}
+function nomAuto(){
+  if(!NL.faction) return "Liste " + (LISTS.length + 1);
+  const d = detachDe(NL.faction).find(x => x[0] === NL.detach);
+  return [factionNom(NL.faction), d ? (d[7] || d[0]) : "", NL.cap].filter(Boolean).join(" · ");
+}
+function renderNouvelle(){
+  const q = norm(el("nlQ").value.trim());
+  const dispo = listeFactions();
+  /* les armees deja jouees d'abord : c'est presque toujours l'une d'elles */
+  const jouees = [];
+  LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0)).forEach(L=>{
+    if(L.faction && jouees.indexOf(L.faction) < 0 && FACTIONS[L.faction]) jouees.push(L.faction);
+  });
+  const host = el("nlFactions"); host.innerHTML = "";
+  const bouton = f => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "nl-fac" + (NL.faction === f.cle ? " on" : "");
+    b.style.setProperty("--fac", COULEUR_FACTION[f.cle] || "#5D656B");
+    b.innerHTML = f.nom + '<small>' + fichesDe(f.cle) + ' fiches</small>';
+    b.setAttribute("aria-pressed", NL.faction === f.cle ? "true" : "false");
+    b.addEventListener("click", ()=>{
+      if(NL.faction !== f.cle){ NL.faction = f.cle; NL.detach = ""; }
+      renderNouvelle();
+    });
+    return b;
+  };
+  const bloc = (titre, lot) => {
+    if(!lot.length) return;
+    if(titre){
+      const t = document.createElement("div");
+      t.className = "nl-sous"; t.textContent = titre; host.appendChild(t);
+    }
+    const g = document.createElement("div");
+    g.className = "nl-grille";
+    lot.forEach(f => g.appendChild(bouton(f)));
+    host.appendChild(g);
+  };
+  if(q){
+    bloc("", dispo.filter(f => norm(f.nom).includes(q) || norm(f.cle).includes(q)));
+    if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune armée ne correspond.</div>';
+  } else {
+    bloc("Tes armées", jouees.map(c => dispo.find(f => f.cle === c)).filter(Boolean));
+    FAMILLES.forEach(([k, nom]) =>
+      bloc(nom, dispo.filter(f => familleDe(f.cle) === k && jouees.indexOf(f.cle) < 0)
+                     .sort((a, b) => a.nom.localeCompare(b.nom))));
+    bloc("Autres", dispo.filter(f => familleDe(f.cle) === "autre" && jouees.indexOf(f.cle) < 0));
+  }
+
+  const fh = el("nlFormat"); fh.innerHTML = "";
+  FORMATS.forEach(([pts, nom])=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (NL.cap === pts ? " on" : "");
+    b.innerHTML = pts + ' pts <small>' + nom + '</small>';
+    b.addEventListener("click", ()=>{ NL.cap = pts; renderNouvelle(); });
+    fh.appendChild(b);
+  });
+  if(FORMATS.every(f => f[0] !== NL.cap)){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip on"; b.textContent = NL.cap + " pts";
+    fh.appendChild(b);
+  }
+
+  const dh = el("nlDetach"); dh.innerHTML = "";
+  const regle = el("nlRegle"); regle.innerHTML = "";
+  if(!NL.faction){
+    dh.innerHTML = '<span class="hint" style="margin:0">Choisis d\'abord l\'armée.</span>';
+  } else {
+    const puce = (val, texte, extra) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip" + (NL.detach === val ? " on" : "");
+      b.innerHTML = texte + (extra ? ' <small>' + extra + '</small>' : '');
+      b.addEventListener("click", ()=>{ NL.detach = val; renderNouvelle(); });
+      dh.appendChild(b);
+    };
+    detachDe(NL.faction).forEach(d => puce(d[0], d[7] || d[0], d[1] > 1 ? d[1] + " PD" : ""));
+    puce("", "Plus tard", "");
+    const d = detachDe(NL.faction).find(x => x[0] === NL.detach);
+    if(d) regle.innerHTML = '<div class="nl-regle"><b>' + (d[3] || "") + '</b>' +
+      (d[4] ? ' — ' + d[4] : '') + '</div>';
+  }
+
+  const nom = el("nlNom");
+  if(!NL.nomTouche && document.activeElement !== nom) nom.value = nomAuto();
+  const go = el("nlGo");
+  go.disabled = !NL.faction;
+  go.textContent = NL.faction ? "Ajouter des unités →" : "Choisis une armée";
+}
+el("nlQ").addEventListener("input", renderNouvelle);
+el("nlNom").addEventListener("input", ()=>{ NL.nomTouche = !!el("nlNom").value.trim(); });
+el("nlGo").addEventListener("click", ()=>{
+  if(!NL || !NL.faction) return;
+  const choix = NL;
+  closeSheet("sheetNewList");
+  const L = listeVierge(el("nlNom").value.trim() || nomAuto(), choix.cap, choix.faction);
+  if(choix.detach) L.detach = [choix.detach];
+  L.maj = Date.now();
+  LISTS.push(L); ouvre(L); saveR(); renderList();
+  NL = null;
+  if(typeof choix.apres === "function") choix.apres();
+});
 /* combien de fiches une faction apporte, lu au registre sans la mettre
    en service : la faction courante ne doit pas bouger pour un menu */
 function fichesDe(cle){
@@ -246,6 +373,7 @@ function fichesDe(cle){
 }
 function creeListe(cle, apres){
   const L = listeVierge("Liste " + (LISTS.length + 1), R ? R.cap : 2000, cle);
+  L.maj = Date.now();
   LISTS.push(L); ouvre(L); saveR(); renderList();
   if(typeof apres === "function") apres();
 }
@@ -254,6 +382,7 @@ function dupliqueListe(){
   const copie = JSON.parse(JSON.stringify(R));
   copie.id = listeVierge().id;
   copie.nom = R.nom + " (copie)";
+  copie.maj = Date.now();
   LISTS.push(copie); ouvre(copie); saveR(); renderList();
 }
 function supprimeListe(){
@@ -666,7 +795,15 @@ function peutRejoindre(perso, unite){
 }
 
 /* ce qu'un groupe porte deja : un chef, un soutien, une escorte */
-const roleDe = nom => (unitRow(nom) || [])[9] || (RETINUE[nom] ? "Escorte" : "");
+/* Le role de rattachement d'une fiche. Les tables necrones l'ecrivent en
+   anglais (Leader, Support), toutes les autres en francais (Meneur,
+   Appui) : le code ne comparait qu'a l'anglais, si bien que dans
+   vingt-sept armees sur vingt-neuf aucun personnage ne pouvait rejoindre
+   une unite. On ramene les deux ecritures a une seule cle. */
+const ROLE_CLE = {Meneur: "Leader", Appui: "Support"};
+const roleCle = r => ROLE_CLE[r] || r || "";
+const estAttachable = u => { const r = roleCle(u && u[9]); return r === "Leader" || r === "Support"; };
+const roleDe = nom => roleCle((unitRow(nom) || [])[9]) || (RETINUE[nom] ? "Escorte" : "");
 const compteRole = (ru, role) => ru.chars.filter(c => roleDe(c.name) === role).length;
 const aCryptek = ru => ru.chars.some(c => has("cryptek", c.name));
 
@@ -1928,7 +2065,7 @@ function caseSous(g, x, y){
   g.el.style.pointerEvents = "none";
   const sous = document.elementFromPoint(x, y);
   g.el.style.pointerEvents = "";
-  const c = sous && sous.closest ? sous.closest(".tile") : null;
+  const c = sous && sous.closest ? sous.closest(".tile, .uligne") : null;
   return (c && c !== g.el && !c.classList.contains("add")
           && c.parentNode === g.el.parentNode) ? c : null;
 }
@@ -1948,7 +2085,10 @@ function rangeSous(g){
      fier au sens du deplacement donnait un resultat dependant du chemin
      parcouru : la case atterrissait un cran a cote de la ou on visait. */
   const rc = cible.getBoundingClientRect();
-  const ref = (g.x > rc.left + rc.width / 2) ? cible.nextSibling : cible;
+  /* une ligne pleine largeur : c'est la moitie haute ou basse qui decide */
+  const apres = cible.classList.contains("uligne") ? g.y > rc.top + rc.height / 2
+                                                   : g.x > rc.left + rc.width / 2;
+  const ref = apres ? cible.nextSibling : cible;
   if(ref === g.el || ref === g.el.nextSibling) return;
 
   const cases = Array.prototype.slice.call(g.el.parentNode.children);
@@ -2058,9 +2198,11 @@ function armeGlisse(b){
    fiche (ce que l'unite EST), "tac" par role tactique (ce qu'elle
    FAIT). Une unite a plusieurs roles apparait sous chacun — c'est
    voulu : la question est « qui couvre ce travail ». */
-let padGroupe = "";
+let padGroupe = "cat";
 let padQ = "";
-let padRoleOuvert = "";
+/* en lignes, tout est deplie d'office : une ligne ne prend que sa
+   hauteur. On ne retient que ce qu'on a replie a la main. */
+const padFermes = new Set();
 
 /* Une case du pave portait le nom, les points et l'effectif — et un grand
    vide au milieu. « +1 perso » ne disait pas qui, et deux Destroyers Lourds
@@ -2089,6 +2231,14 @@ function detailCase(ru){
 /* le nom d'affichage d'une optimisation, sans son « (Aura) » ni sa
    parenthese de type : la case n'a pas la place */
 const nomEnh = n => String(n).replace(/\s*\([^)]*\)\s*$/, "");
+/* ce qui se lit sous le nom, sur une ligne de liste : qui la mene, son
+   equipement, son amelioration, son arme principale */
+const sousLigne = ru => {
+  const d = detailCase(ru);
+  const meneurs = d.filter(x => x.cl === "dp").map(x => x.t);
+  return (meneurs.length ? ["avec " + meneurs.join(", ")] : [])
+    .concat(d.filter(x => x.cl !== "dp").map(x => x.t));
+};
 
 /* L'armement d'une unite en une ligne : « 2× Destructeur gauss ·
    1× Exterminateur enmitique ». C'est souvent la seule chose qui
@@ -2153,7 +2303,7 @@ function renderPad(){
     bv.hidden = modeRange || R.units.length < 4;
     /* la barre disparait sous quatre unites : sans ce repli, une liste
        qu'on vide resterait bloquee sur la carte sans moyen d'en sortir */
-    if(bv.hidden && padGroupe){ padGroupe = ""; carteSel = null; }
+    if(bv.hidden && padGroupe === "carte"){ padGroupe = "cat"; carteSel = null; }
     bv.querySelectorAll("button").forEach(x=>{
       const on = x.dataset.v === padGroupe;
       x.classList.toggle("on", on);
@@ -2191,34 +2341,80 @@ function renderPad(){
   const q = modeRange ? "" : norm(padQ.trim());
   const retenue = ru => !q || norm(ru.name).includes(q) ||
     norm(ru.grp || "").includes(q) || ru.chars.some(c => norm(c.name).includes(q));
+  /* UNE LIGNE PAR UNITE
+     Le pave posait chaque unite sur une case carree : on y voyait six
+     unites par ecran, et rien de ce qui les distingue. Une ligne dit le
+     nom, qui la mene, son amelioration, son effectif — qu'on change sur
+     place — et ses points, comme dans les outils de liste habituels, et
+     comme la liste affichee a cote du catalogue. Toucher le nom ouvre le
+     reglage ; « ⋯ » ou l'appui long, les actions. */
+  gu.classList.remove("padgrid");
+  gu.classList.add("padlignes");
   const dessine = (ru, iu)=>{
     const u = unitRow(ru.name); if(!u) return;
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "tile" + (uniteSuspecte(ru) ? " warnmark" : "");
-    b.dataset.uid = ru.id;
-    /* le rang ne s'affiche que la ou il change le prix : sur une unite a
-       tarif fixe, « 2e copie » serait du bruit */
+    const suspecte = uniteSuspecte(ru);
     const rg = rangUnite(ru);
     const rang = (prixEvolue(u) && rg > 1) ? rg + "\u1d49 copie" : "";
-    b.innerHTML =
-      (estGroupe(ru) && ru.grp ? '<span class="tg">' + ru.grp + '</span>' : '') +
-      '<span class="tn">' + ru.name + '</span>' +
-      '<span class="td">' + detailCase(ru).map(d =>
-        '<span class="' + d.cl + '">' + d.t + '</span>').join("") + '</span>' +
-      '<span class="tb"><span class="tp">' + pointsUnite(ru) + '<small>points</small></span>' +
-      '<span class="tx">×' + ru.size + (rang ? '<br>' + rang : '') + '</span></span>' +
-      (uniteSuspecte(ru) ? '<span class="tmark"></span>' : '');
+    const sous = sousLigne(ru);
+    if(rang) sous.push(rang);
+    const titre = '<b>' + nomAffiche(ru) +
+      (nomAffiche(ru) !== ru.name ? ' <small>' + ru.name + '</small>' : '') + '</b>' +
+      (sous.length ? '<i>' + sous.join(" · ") + '</i>' : '') +
+      (suspecte ? '<i class="alerte">à vérifier</i>' : '');
     if(modeRange){
-      /* deux fleches par case alourdissaient chaque tuile pour une
-         manoeuvre que le glisser-deposer fait d'un geste et en voyant
-         ou l'on pose. */
+      /* en reorganisation la ligne entiere est la poignee */
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "uligne range" + (suspecte ? " warnmark" : "");
+      b.dataset.uid = ru.id;
+      b.innerHTML = '<span class="pl-n">' + titre + '</span><span class="pl-pts">' + pointsUnite(ru) + '</span>' +
+        '<span class="poignee" aria-hidden="true">≡</span>';
       armeGlisse(b);
-    } else {
-      appuiLong(b, ()=> ouvreActionsUnite(ru));
-      b.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
+      gu.appendChild(b);
+      return;
     }
-    gu.appendChild(b);
+    const l = document.createElement("div");
+    l.className = "uligne" + (suspecte ? " warnmark" : "");
+    l.dataset.uid = ru.id;
+    const n = document.createElement("button");
+    n.type = "button"; n.className = "pl-n";
+    n.innerHTML = titre;
+    n.setAttribute("aria-label", "Régler " + nomAffiche(ru));
+    appuiLong(n, ()=> ouvreActionsUnite(ru));
+    n.addEventListener("click", ()=> ouvrePanneau("cardUnits", ru.id));
+    l.appendChild(n);
+    if(u[6].length > 1 && u[6].length <= 4){
+      const eff = document.createElement("span");
+      eff.className = "pl-eff";
+      u[6].forEach(sz=>{
+        const b = document.createElement("button");
+        b.type = "button"; b.textContent = sz;
+        b.className = sz === ru.size ? "on" : "";
+        b.setAttribute("aria-label", sz + " figurines");
+        b.setAttribute("aria-pressed", sz === ru.size ? "true" : "false");
+        b.addEventListener("click", ()=>{
+          if(ru.size === sz) return;
+          changeEffectif(ru, sz); saveR(); renderList();
+        });
+        eff.appendChild(b);
+      });
+      l.appendChild(eff);
+    } else if(ru.size > 1){
+      const e = document.createElement("span");
+      e.className = "pl-eff";
+      e.innerHTML = '<button type="button" class="on" disabled>×' + ru.size + '</button>';
+      l.appendChild(e);
+    }
+    const p = document.createElement("span");
+    p.className = "pl-pts"; p.textContent = pointsUnite(ru);
+    l.appendChild(p);
+    const m = document.createElement("button");
+    m.type = "button"; m.className = "pl-x";
+    m.textContent = "⋯";
+    m.setAttribute("aria-label", "Actions sur " + nomAffiche(ru));
+    m.addEventListener("click", ()=> ouvreActionsUnite(ru));
+    l.appendChild(m);
+    gu.appendChild(l);
   };
 
   const vues = R.units.map((ru, iu)=>({ru, iu})).filter(x => retenue(x.ru));
@@ -2263,7 +2459,7 @@ function renderPad(){
         gu.appendChild(v);
         return;
       }
-      const ouvert = !!q || padRoleOuvert === cat;
+      const ouvert = !!q || !padFermes.has(cat);
       const pts = lot.reduce((a, x) => a + pointsUnite(x.ru), 0);
       const t = document.createElement("button");
       t.type = "button"; t.className = "padrole" + (ouvert ? " on" : "");
@@ -2275,7 +2471,7 @@ function renderPad(){
         '</span>' +
         '<span class="rcnt">' + lot.length + ' · ' + pts + ' pts</span>';
       t.addEventListener("click", ()=>{
-        padRoleOuvert = (padRoleOuvert === cat) ? "" : cat;
+        if(padFermes.has(cat)) padFermes.delete(cat); else padFermes.add(cat);
         renderPad();
       });
       gu.appendChild(t);
@@ -2293,21 +2489,21 @@ function renderPad(){
   const hint = el("padHint");
   if(hint){
     hint.hidden = modeRange || !R.units.length ||
-      (padGroupe && !q && !padRoleOuvert);
+      !!q;
     /* en vue tactique une unite compte dans chacun de ses metiers :
        le dire, sinon la somme des lignes ne tombe pas sur le total
        de la liste et on croit a un bug */
     hint.textContent = padGroupe === "tac"
       ? "Une unité qui fait deux métiers compte dans les deux : les points de chaque ligne se recoupent."
-      : "Appui long sur une case : régler, fiche, dupliquer, retirer.";
+      : "Toucher une unité pour la régler · « ⋯ » ou appui long : fiche, dupliquer, retirer.";
   }
   if(modeRange){ gt.innerHTML = ""; return; }
   if(q){ if(hint) hint.hidden = true; gt.innerHTML = ""; return; }
   const plus = document.createElement("button");
   plus.type = "button";
-  plus.className = "tile add";
+  plus.className = "uajout";
   plus.hidden = modeRange;
-  plus.innerHTML = "+<br>Unité";
+  plus.textContent = "+ Ajouter des unités";
   plus.addEventListener("click", openUnitPick);
   gu.appendChild(plus);
 
@@ -2343,6 +2539,7 @@ function ouvrePanneau(id, uid){
   unitOuverte = uid || null;
   el("pad").hidden = true;
   el("btnBackPad").hidden = false;
+  NAV.ouvre("panneau", fermePanneau);
   majRetour();
   PANNEAUX.forEach(p=>{
     const c = el(p); if(!c) return;
@@ -2363,6 +2560,7 @@ function fermePanneau(){
   unitOuverte = null; modeRange = false;
   el("pad").hidden = false;
   el("btnBackPad").hidden = true;
+  NAV.ferme("panneau");
   majRetour();
   PANNEAUX.forEach(p => { const c = el(p); if(c) c.hidden = true; });
   renderList();
@@ -2445,32 +2643,62 @@ function appuiLong(elem, action){
   }, true);
 }
 
+/* Le rangement de l'index : par date (la derniere touchee en tete), par
+   armee ou par format. Choix d'affichage, garde d'une visite a l'autre. */
+let triListes = "recent";
+try{ triListes = localStorage.getItem("mathhammer.tri-listes") || "recent"; }catch(e){}
+function ilYa(t){
+  if(!t) return "";
+  const m = Math.round((Date.now() - t) / 60000);
+  if(m < 2) return "à l'instant";
+  if(m < 60) return "il y a " + m + " min";
+  const h = Math.round(m / 60);
+  if(h < 24) return "il y a " + h + " h";
+  const j = Math.round(h / 24);
+  if(j < 31) return "il y a " + j + " jour" + (j > 1 ? "s" : "");
+  return new Date(t).toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
+}
 function renderIndex(){
   const host = el("listCards"); if(!host) return;
   host.innerHTML = "";
+  const tri = el("listTri");
+  if(tri) tri.querySelectorAll("button").forEach(b=>{
+    const on = b.dataset.t === triListes;
+    b.classList.toggle("on", on); b.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  /* chercher et ranger ne servent a rien sous quatre listes */
+  const peu = LISTS.length < 4;
+  if(el("listQ")) el("listQ").hidden = peu;
+  if(tri) tri.hidden = LISTS.length < 2;
   if(!LISTS.length){
     host.innerHTML = '<div class="empty" style="padding:16px 4px">Aucune liste. Crées-en une pour commencer.</div>';
     return;
   }
-  LISTS.forEach(L=>{
+  const plusieurs = listeFactions().length > 1;
+  const detachTexte = L => dansSaFaction(L, ()=> L.detach.map(nomDetach).join(" · ")) || "";
+  const q = peu ? "" : norm(((el("listQ") || {}).value || "").trim());
+  const vues = LISTS.filter(L => !q || norm(L.nom).includes(q) ||
+    norm(factionNom(L.faction || FACTION_DEFAUT)).includes(q) || norm(detachTexte(L)).includes(q));
+  const parDate = (a, b) => (b.maj || 0) - (a.maj || 0);
+  const carte = L => {
     const p = pointsDe(L), over = p > L.cap;
     const rangee = document.createElement("div");
     rangee.className = "lrow";
     const b = document.createElement("button");
     b.type = "button";
     b.className = "lcard" + (L === R ? " on" : "");
+    b.style.setProperty("--fac", COULEUR_FACTION[L.faction || FACTION_DEFAUT] || "#5D656B");
+    const det = detachTexte(L);
     b.innerHTML =
       '<span class="li"><b>' + L.nom + '</b>' +
-      '<i>' + (listeFactions().length > 1 ? factionNom(L.faction || FACTION_DEFAUT) + ' · ' : '') +
+      '<i>' + (plusieurs && triListes !== "armee" ? factionNom(L.faction || FACTION_DEFAUT) + ' · ' : '') +
         L.units.length + ' unité' + (L.units.length > 1 ? 's' : '') +
-        ' · ' + L.detach.length + ' détachement' + (L.detach.length > 1 ? 's' : '') + '</i>' +
-      /* le nom francais d'un detachement se lit dans SA table : celui
-         d'une liste custodes n'existe pas chez les Necrons */
-      '<span class="det">' + (dansSaFaction(L, ()=> L.detach.map(nomDetach).join(" · ")) ||
-                              "aucun détachement") + '</span>' +
+        (L.maj ? ' · ' + ilYa(L.maj) : '') + '</i>' +
+      '<span class="det">' + (det || "aucun détachement") + '</span>' +
       (L === R ? '<span class="lserv">En service — simulateur et partie</span>' : '') + '</span>' +
       '<span class="lp' + (over ? ' over' : '') + '"><b>' + p + '</b><i>/ ' + L.cap + ' pts</i></span>';
     b.addEventListener("click", ()=> ouvreEditeur(L.id));
+    appuiLong(b, ()=> ouvreActions(L));
     const m = document.createElement("button");
     m.type = "button";
     m.className = "lmore";
@@ -2479,8 +2707,40 @@ function renderIndex(){
     m.addEventListener("click", e => { e.stopPropagation(); ouvreActions(L); });
     rangee.appendChild(b); rangee.appendChild(m);
     host.appendChild(rangee);
-  });
+  };
+  const titre = (t, n) => {
+    const d = document.createElement("div");
+    d.className = "lgrp";
+    d.innerHTML = t + (n > 1 ? ' <small>· ' + n + '</small>' : '');
+    host.appendChild(d);
+  };
+  if(triListes === "recent"){
+    vues.slice().sort(parDate).forEach(carte);
+  } else {
+    const cle = L => triListes === "armee" ? (L.faction || FACTION_DEFAUT) : L.cap;
+    const groupes = {};
+    vues.forEach(L => (groupes[cle(L)] = groupes[cle(L)] || []).push(L));
+    /* l'armee la plus recemment touchee d'abord ; les formats du plus
+       petit au plus grand */
+    const recentDe = g => Math.max.apply(null, g.map(L => L.maj || 0));
+    const ordre = Object.keys(groupes).sort(triListes === "armee"
+      ? (a, b) => recentDe(groupes[b]) - recentDe(groupes[a])
+      : (a, b) => a - b);
+    ordre.forEach(k=>{
+      titre(triListes === "armee" ? factionNom(k) : k + " points", groupes[k].length);
+      groupes[k].sort(parDate).forEach(carte);
+    });
+  }
+  if(!vues.length) host.innerHTML =
+    '<div class="empty" style="padding:16px 4px">Aucune liste ne correspond à « ' + q + ' ».</div>';
 }
+if(el("listTri")) el("listTri").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-t]"); if(!b) return;
+  triListes = b.dataset.t;
+  try{ localStorage.setItem("mathhammer.tri-listes", triListes); }catch(e){}
+  renderIndex();
+});
+if(el("listQ")) el("listQ").addEventListener("input", renderIndex);
 
 /* ==========================================================
    LISTE EN LECTURE
@@ -3485,26 +3745,39 @@ function renderCarte(){
    en grise et compte partout : une liste toute neuve se relit deja.
    Le premier clic fige le choix, et un bouton rend la suggestion.
    ---------------------------------------------------------------- */
+/* Le role tactique occupait le haut de chaque unite, dix-huit puces
+   depliees avant meme l'effectif. Il se relit plus qu'il ne se regle :
+   replie d'office, sa tete dit ce qui est retenu, et une touche l'ouvre. */
+const rolesOuverts = new Set();
 function blocRoles(ru){
   const box = document.createElement("div");
-  box.className = "roles";
+  const ouvert = rolesOuverts.has(ru.id);
+  box.className = "roles" + (ouvert ? "" : " replie");
   const choisi = rolesFixes(ru), actifs = rolesDe(ru);
   const attendus = rolesAttendus();
 
-  const tete = document.createElement("div");
+  const tete = document.createElement("button");
+  tete.type = "button";
   tete.className = "roles-tete";
-  tete.innerHTML = '<b>Rôle tactique</b><i>' +
-    (choisi ? (actifs.length ? actifs.length + " sur " + ROLES_MAX
-                             : "aucun rôle — assumé")
-            : "suggestion du catalogue, à toi de la corriger") + '</i>';
+  tete.setAttribute("aria-expanded", ouvert ? "true" : "false");
+  tete.innerHTML = '<span class="rchev">' + (ouvert ? "▾" : "▸") + '</span><b>Rôle tactique</b><i>' +
+    (actifs.length ? actifs.map(roleNom).join(", ") : "aucun") +
+    (choisi ? "" : " — suggestion du catalogue") + '</i>';
+  tete.addEventListener("click", ()=>{
+    if(ouvert) rolesOuverts.delete(ru.id); else rolesOuverts.add(ru.id);
+    renderList();
+  });
+  if(!ouvert){ box.appendChild(tete); return box; }
   if(choisi){
     const rz = document.createElement("button");
     rz.type = "button"; rz.className = "xbtn"; rz.textContent = "⟳";
     rz.title = "Revenir à la suggestion du catalogue";
     rz.addEventListener("click", ()=>{ delete ru.roles; saveR(); renderList(); });
-    tete.appendChild(rz);
-  }
-  box.appendChild(tete);
+    const ligne = document.createElement("div");
+    ligne.style.cssText = "display:flex;align-items:center;gap:6px";
+    ligne.appendChild(tete); ligne.appendChild(rz);
+    box.appendChild(ligne);
+  } else box.appendChild(tete);
 
   ROLES_FAMILLES.forEach(fam=>{
     const lot = ROLES.filter(r => r[2] === fam);
@@ -3540,6 +3813,76 @@ function blocRoles(ru){
   return box;
 }
 
+/* ==========================================================
+   QUI MENE CETTE UNITE
+   Rattacher un personnage demandait d'ouvrir l'unite, puis une feuille
+   de tous les personnages de l'armee. Les meneurs possibles s'affichent
+   maintenant en puces dans l'unite : ceux qu'on a deja poses a part dans
+   la liste d'abord — les rattacher les deplace, ils ne sont pas comptes
+   deux fois —, puis ceux du catalogue. La feuille complete reste au
+   bout, pour les cas sans regle connue.
+   ========================================================== */
+function blocMeneurs(ru){
+  const u = unitRow(ru.name);
+  /* un personnage ne se rattache pas a un autre personnage seul */
+  if(!u || estAttachable(u)) return null;
+  const candidats = UNITS.filter(c => (estAttachable(c) || RETINUE[c[0]]) &&
+    peutRejoindre(c[0], ru.name) === true && !refusAttache(c[0], ru) &&
+    !ru.chars.some(x => x.name === c[0]));
+  if(!candidats.length && !ru.chars.length) return null;
+  const seuls = nom => R.units.filter(x => x !== ru && x.name === nom && !x.chars.length);
+  candidats.sort((a, b) => (seuls(b[0]).length ? 1 : 0) - (seuls(a[0]).length ? 1 : 0) ||
+                           (a[10] ? 1 : 0) - (b[10] ? 1 : 0));
+  const box = document.createElement("div");
+  box.className = "meneurs";
+  box.innerHTML = '<div class="men-t">Mené par</div>';
+  const puces = document.createElement("div");
+  puces.className = "men-p";
+  ru.chars.forEach((c, ci)=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip on";
+    b.textContent = "✓ " + c.name;
+    b.title = "Détacher " + c.name;
+    b.addEventListener("click", ()=>{
+      ru.chars.splice(ci, 1);
+      vueMembre[ru.id] = "";
+      saveR(); renderList();
+      toast(c.name + " détaché.", "Annuler", ()=>{
+        ru.chars.splice(Math.min(ci, ru.chars.length), 0, c); saveR(); renderList();
+      });
+    });
+    puces.appendChild(b);
+  });
+  candidats.slice(0, 8).forEach(c=>{
+    const st = seuls(c[0]);
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip";
+    b.innerHTML = c[0] + ' <small>' + (st.length ? "de ta liste" :
+      ptsPour(c, c[6][0], rangProchain(c[0])) + " pts") + '</small>';
+    b.addEventListener("click", ()=>{
+      const pris = st[0];
+      if(pris){
+        /* il etait pose a part : on le deplace, avec son amelioration
+           si le groupe n'en portait pas */
+        R.units.splice(R.units.indexOf(pris), 1);
+        if(pris.enh && !ru.enh){ ru.enh = pris.enh; ru.enhP = c[0]; }
+      }
+      ru.chars.push({name: c[0], lo: loPersoParDefaut(c[0])});
+      if(estGroupe(ru) && !ru.grp) ru.grp = nomGroupe();
+      saveR(); renderList();
+      if(pris) toast(c[0] + " rejoint " + ru.name + " : retiré de sa ligne à part.", "", null);
+    });
+    puces.appendChild(b);
+  });
+  const autre = document.createElement("button");
+  autre.type = "button"; autre.className = "chip ghostchip";
+  autre.textContent = "Autre…";
+  autre.addEventListener("click", ()=> openCharPick(ru));
+  puces.appendChild(autre);
+  box.appendChild(puces);
+  return box;
+}
+
 /* Quel membre du groupe on regle en ce moment : "" pour l'escouade, sinon
    le nom du personnage rattache. Un groupe de trois membres tenait sur un
    panneau qu'il fallait parcourir en entier pour trouver la bonne arme ;
@@ -3550,6 +3893,26 @@ const membreVu = ru => {
   const v = vueMembre[ru.id] || "";
   return (v && ru.chars.some(c => c.name === v)) ? v : "";
 };
+
+/* changer l'effectif d'une unite : chaque emplacement d'arme se replie
+   sur le nouvel effectif. Sert au reglage de l'unite comme a la liste
+   affichee a cote du catalogue. */
+function changeEffectif(ru, sz){
+  ru.size = sz;
+  armSlots(ru.name).forEach((sl, si)=>{
+    const lot = loSlot(ru, si);
+    let tot = lot.reduce((a, l) => a + l.n, 0);
+    for(let k = lot.length - 1; k >= 0 && tot > sz; k--){
+      const baisse = Math.min(lot[k].n, tot - sz);
+      lot[k].n -= baisse; tot -= baisse;
+    }
+    if(sl.min >= 1 && tot < sz){
+      if(lot.length) lot[0].n += sz - tot;
+      else ru.lo.push({s:si, o:0, n:sz});
+    }
+  });
+  ru.lo = ru.lo.filter(l => l.n > 0);
+}
 
 function renderRoster(){
   const host = el("rosterList"); host.innerHTML = "";
@@ -3601,7 +3964,7 @@ function renderRoster(){
       case1(ru.name, "", "×" + ru.size + " · " + ptsPour(u, ru.size, rgM["u" + ru.id]) + " pts");
       ru.chars.forEach((c, i)=>{
         const cu = unitRow(c.name);
-        case1(c.name, c.name, (roleDe(c.name) || "Personnage") +
+        case1(c.name, c.name, ({Leader:"Meneur", Support:"Appui"}[roleDe(c.name)] || roleDe(c.name) || "Personnage") +
           (cu ? " · " + ptsPour(cu, cu[6][0], rgM["c" + ru.id + "." + i]) + " pts" : ""));
       });
       div.appendChild(mb);
@@ -3617,8 +3980,6 @@ function renderRoster(){
       '<span class="rpts">' + unitPoints(ru) + ' pts</span>';
     div.appendChild(head);
 
-    div.appendChild(blocRoles(ru));
-
     if(u[6].length > 1){
       const sc = document.createElement("div");
       sc.className = "chips tight";
@@ -3627,28 +3988,16 @@ function renderRoster(){
         b.type="button"; b.className = "chip" + (sz===ru.size ? " on" : "");
         const pSz = ptsPour(u, sz, rangUnite(ru));
         b.textContent = "×" + sz + (pSz ? " · " + pSz + " pts" : "");
-        b.addEventListener("click", ()=>{
-          ru.size = sz;
-          /* chaque emplacement se replie sur le nouvel effectif */
-          armSlots(ru.name).forEach((sl, si)=>{
-            const lot = loSlot(ru, si);
-            let tot = lot.reduce((a, l) => a + l.n, 0);
-            for(let k = lot.length - 1; k >= 0 && tot > sz; k--){
-              const baisse = Math.min(lot[k].n, tot - sz);
-              lot[k].n -= baisse; tot -= baisse;
-            }
-            if(sl.min >= 1 && tot < sz){
-              if(lot.length) lot[0].n += sz - tot;
-              else ru.lo.push({s:si, o:0, n:sz});
-            }
-          });
-          ru.lo = ru.lo.filter(l => l.n > 0);
-          saveR(); renderList();
-        });
+        b.addEventListener("click", ()=>{ changeEffectif(ru, sz); saveR(); renderList(); });
         sc.appendChild(b);
       });
       div.appendChild(sc);
     }
+    /* qui mene cette unite, en puces sous l'effectif ; puis le role
+       tactique, replie : il se relit, il se regle rarement */
+    const men = blocMeneurs(ru);
+    if(men) div.appendChild(men);
+    div.appendChild(blocRoles(ru));
 
 
     /* Les armes d'office se listent sans compteur : toutes les figurines
@@ -3979,7 +4328,7 @@ function renderRoster(){
     bw.type="button"; bw.textContent="+ Arme";
     bw.hidden = true;   /* les options s'affichent toutes, il n'y a plus rien a ajouter */
     const bc = document.createElement("button");
-    bc.type="button"; bc.textContent="+ Personnage";
+    bc.type="button"; bc.textContent="Tous les personnages…";
     bc.addEventListener("click", ()=> openCharPick(ru));
     const be = document.createElement("button");
     be.type="button"; be.textContent = ru.enh ? "⇄ Amélioration" : "+ Amélioration";
@@ -4669,6 +5018,7 @@ function renderList(){
   renderStrats(); renderArms(); renderIndex(); renderPad(); renderPartie();
   renderBarreListe();
   renderDispo();
+  if(pickMode === "unit") renderPickListe();
   if(el("cardPartage") && !el("cardPartage").hidden) renderPartage();
   if(window.__relitUniteChargee) window.__relitUniteChargee();
 }
@@ -4707,14 +5057,17 @@ function retireUnite(ru){
   });
 }
 
-function openSheet(id){ el(id).classList.add("open"); document.body.style.overflow="hidden"; }
-function closeSheet(id){ el(id).classList.remove("open"); document.body.style.overflow=""; }
+/* les feuilles passent par celles d'app.js : c'est la qu'elles
+   s'inscrivent au retour arriere */
+const openSheet = id => window.openSheet(id);
+const closeSheet = id => window.closeSheet(id);
 
 let derniereAjoutee = null, ajoutees = 0;
 /* le compteur du catalogue : combien la liste pese deja, ce qu'il reste */
 function majBudgetPick(){
   const bar = el("uBudget"); if(!bar) return;
-  if(pickMode !== "unit" || !R){ bar.hidden = true; return; }
+  /* en ajout d'unites, c'est la tete de « Ma liste » qui porte le budget */
+  if(pickMode !== "unit" || !R || el("uListe")){ bar.hidden = true; return; }
   const pts = totalPoints(), cap = R.cap || 2000, reste = cap - pts;
   bar.hidden = false;
   bar.classList.toggle("over", reste < 0);
@@ -4723,6 +5076,103 @@ function majBudgetPick(){
     '<span class="pb2" style="text-align:right;flex:0 0 auto">' + R.units.length +
     ' unité' + (R.units.length > 1 ? 's' : '') + '</span>';
 }
+
+/* ==========================================================
+   MA LISTE, A COTE DU CATALOGUE
+   Le catalogue couvrait l'ecran : pendant qu'on choisissait, on ne
+   voyait de sa liste que le total. Elle reste maintenant sous les yeux,
+   rangee par categorie comme le catalogue : en bas sur un telephone, ou
+   on la replie d'une touche, a droite sur un grand ecran. L'effectif s'y
+   change sans ouvrir l'unite ; toucher une ligne ouvre son reglage.
+   ========================================================== */
+let listeRepliee = false;
+try{ listeRepliee = localStorage.getItem("mathhammer.liste-repliee") === "1"; }catch(e){}
+function renderPickListe(){
+  const box = el("uListe"); if(!box) return;
+  if(pickMode !== "unit" || !R){ box.hidden = true; return; }
+  box.hidden = false;
+  box.classList.toggle("replie", listeRepliee);
+  const pts = totalPoints(), cap = R.cap || 2000, reste = cap - pts;
+  const tete = el("uListeTete");
+  tete.classList.toggle("over", reste < 0);
+  tete.setAttribute("aria-expanded", listeRepliee ? "false" : "true");
+  tete.innerHTML = '<span class="pl-ch">' + (listeRepliee ? "▴" : "▾") + '</span>' +
+    '<span class="pl-t">Ma liste</span>' +
+    '<span class="pl-s">' + R.units.length + ' unité' + (R.units.length > 1 ? 's' : '') + ' · ' +
+      (reste >= 0 ? reste + ' pts restants' : (-reste) + ' pts de trop') + '</span>' +
+    '<span class="pl-p">' + pts + ' <small>/ ' + cap + '</small></span>';
+  const corps = el("uListeCorps");
+  corps.innerHTML = "";
+  if(!R.units.length){
+    corps.innerHTML = '<div class="pl-vide">Rien encore. Le « + » d\'une ligne du catalogue l\'ajoute ici.</div>';
+    return;
+  }
+  const parCat = {};
+  R.units.forEach(ru => (parCat[categorie(ru.name)] = parCat[categorie(ru.name)] || []).push(ru));
+  CAT_ORDRE.concat(Object.keys(parCat).filter(c => CAT_ORDRE.indexOf(c) < 0)).forEach(cat=>{
+    const lot = parCat[cat]; if(!lot) return;
+    const t = document.createElement("div");
+    t.className = "pl-cat"; t.textContent = cat + (lot.length > 1 ? " · " + lot.length : "");
+    corps.appendChild(t);
+    lot.forEach(ru=>{
+      const u = unitRow(ru.name); if(!u) return;
+      const l = document.createElement("div");
+      l.className = "pl-l" + (ru.id === derniereAjoutee ? " neuve" : "");
+      const n = document.createElement("button");
+      n.type = "button"; n.className = "pl-n";
+      const sous = sousLigne(ru);
+      n.innerHTML = '<b>' + nomAffiche(ru) + (nomAffiche(ru) !== ru.name ? ' <small style="font-weight:500;color:var(--tx3)">' + ru.name + '</small>' : '') + '</b>' +
+        (sous.length ? '<i' + (uniteSuspecte(ru) ? ' class="alerte"' : '') + '>' + sous.join(" · ") + '</i>' : '');
+      n.setAttribute("aria-label", "Régler " + nomAffiche(ru));
+      n.addEventListener("click", ()=>{
+        /* on quitte le catalogue sans le toast « N unités ajoutées » :
+           on va justement en regler une */
+        ajoutees = 0;
+        const b = el("sheetUnit").querySelector("[data-close]");
+        if(b) b.click(); else closeSheet("sheetUnit");
+        ouvrePanneau("cardUnits", ru.id);
+      });
+      l.appendChild(n);
+      if(u[6].length > 1 && u[6].length <= 4){
+        const eff = document.createElement("span");
+        eff.className = "pl-eff";
+        u[6].forEach(sz=>{
+          const b = document.createElement("button");
+          b.type = "button"; b.textContent = sz;
+          b.className = sz === ru.size ? "on" : "";
+          b.setAttribute("aria-label", sz + " figurines");
+          b.setAttribute("aria-pressed", sz === ru.size ? "true" : "false");
+          b.addEventListener("click", ()=>{
+            if(ru.size === sz) return;
+            changeEffectif(ru, sz); saveR(); renderList(); renderPick();
+          });
+          eff.appendChild(b);
+        });
+        l.appendChild(eff);
+      } else if(ru.size > 1){
+        const e = document.createElement("span");
+        e.className = "pl-eff"; e.innerHTML = '<button type="button" class="on" disabled>×' + ru.size + '</button>';
+        l.appendChild(e);
+      }
+      const p = document.createElement("span");
+      p.className = "pl-pts"; p.textContent = pointsUnite(ru);
+      l.appendChild(p);
+      const x = document.createElement("button");
+      x.type = "button"; x.className = "pl-x"; x.textContent = "×";
+      x.setAttribute("aria-label", "Retirer " + nomAffiche(ru));
+      x.addEventListener("click", ()=>{ retireUnite(ru); renderPick(); });
+      l.appendChild(x);
+      corps.appendChild(l);
+    });
+  });
+}
+el("uListeTete").addEventListener("click", ()=>{
+  /* sur grand ecran la liste ne se replie pas : elle a sa colonne */
+  if(window.matchMedia && window.matchMedia("(min-width:900px)").matches) return;
+  listeRepliee = !listeRepliee;
+  try{ localStorage.setItem("mathhammer.liste-repliee", listeRepliee ? "1" : "0"); }catch(e){}
+  renderPickListe();
+});
 
 function openUnitPick(){
   window.__rosterPick = true; pickMode = "unit"; pickTarget = null;
@@ -4749,6 +5199,7 @@ const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""
    remis a zero a chaque ouverture, jamais enregistre. */
 let catOuverte = "";
 function renderPick(){
+  renderPickListe();
   const q = norm(el("uSearch").value.trim());
   const host = el("uList"); host.innerHTML = "";
   const head = el("sheetUnit").querySelector("h3");
@@ -4766,7 +5217,7 @@ function renderPick(){
        une optimisation — mais c'est un VEHICULE : elle ne se rattache a
        personne, et elle n'a donc rien a faire dans cette liste. */
     const candidats = UNITS.filter(u =>
-      (u[9] === "Leader" || u[9] === "Support" || RETINUE[u[0]]) &&
+      (estAttachable(u) || RETINUE[u[0]]) &&
       (!q || norm(u[0]).includes(q)));
     const ok = candidats.filter(u => peutRejoindre(u[0], cible) === true);
     const inconnu = candidats.filter(u => peutRejoindre(u[0], cible) === null);
@@ -4953,7 +5404,10 @@ function renderPick(){
     const monte = pmin > ptsPour(u, u[6][0], 1);
     const reste = (R.cap || 2000) - totalPoints();
     if(pmin > reste) b.classList.add("cher");
-    b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">×' + u[6].join("/") +
+    const deja = R.units.filter(x => x.name === u[0]).length;
+    if(deja) b.classList.add("pris");
+    b.innerHTML = '<span class="oi"><span class="o1">' + u[0] +
+      (deja ? '<span class="dans">×' + deja + ' dans la liste</span>' : '') + '</span><span class="o2">×' + u[6].join("/") +
       ' · ' + (pmin === pmax ? pmin + ' pts' : pmin + '–' + pmax + ' pts') +
       (monte ? ' <b class="rang">' + rgN + 'ᵉ copie</b>' : '') +
       ' · E' + u[2] + ' · Svg ' + u[3] + '+</span></span>' +
@@ -4968,8 +5422,14 @@ function renderPick(){
          derriere et le budget se met a jour au-dessus. */
       b.classList.add("pose");
       setTimeout(()=> b.classList.remove("pose"), 700);
-      majBudgetPick();
       derniereAjoutee = neuve.id; ajoutees++;
+      majBudgetPick();
+      /* le badge « ×N dans la liste » et le prix de la copie suivante
+         changent : on redessine le catalogue sans perdre sa place */
+      const zone = el("uList"), haut = zone.scrollTop;
+      renderPick(); zone.scrollTop = haut;
+      const corps = el("uListeCorps"), neuveL = corps && corps.querySelector(".pl-l.neuve");
+      if(neuveL && neuveL.scrollIntoView) neuveL.scrollIntoView({block:"nearest"});
     });
     /* la fiche se consulte avant d'ajouter : c'est la qu'on decide */
     const rangee = document.createElement("div");
@@ -6255,6 +6715,12 @@ function vaVers(id){
   if(id === "scList") renderList();
   if(id === "scPlay") renderPlay();
   if(id === "scFiches") renderFiches();
+  /* le retour ramene du plateau a « En partie », puis de tout autre
+     onglet aux listes, qui sont l'accueil */
+  if(id === "scMap") NAV.ouvre("plateau", ()=> vaVers("scPlay"));
+  else NAV.ferme("plateau");
+  if(onglet !== "scList") NAV.ouvre("onglet", ()=> vaVers("scList"));
+  else NAV.ferme("onglet");
   majRetour();
 }
 el("tabs").querySelectorAll("button").forEach(b=>
@@ -6294,11 +6760,13 @@ function ouvreEditeur(id){
   el("listIndex").hidden = true;
   el("listEditor").hidden = false;
   fermePanneau();
+  NAV.ouvre("editeur", fermeEditeur);
   majRetour();
 }
 function fermeEditeur(){
   el("listEditor").hidden = true;
   el("listIndex").hidden = false;
+  NAV.ferme("editeur");
   majRetour();
   renderIndex(); window.scrollTo(0,0);
 }
@@ -6316,8 +6784,8 @@ function majRetour(){
   const hb = document.querySelector(".hbar");
   if(hb) hb.classList.toggle("retour", dansEditeur);
   if(!dansEditeur) return;
-  b.querySelector(".bt").textContent = dansPanneau ? "Le pavé" : "Mes listes";
-  b.setAttribute("aria-label", dansPanneau ? "Revenir au pavé" : "Revenir à mes listes");
+  b.querySelector(".bt").textContent = dansPanneau ? "Ma liste" : "Mes listes";
+  b.setAttribute("aria-label", dansPanneau ? "Revenir à la liste" : "Revenir à mes listes");
 }
 el("btnBack").addEventListener("click", ()=>{
   if(el("listEditor").hidden) return;
@@ -6334,7 +6802,7 @@ if(el("btnReorder")) el("btnReorder").addEventListener("click", ()=>{
 if(el("padVues")) el("padVues").addEventListener("click", e=>{
   const b = e.target.closest("button[data-v]"); if(!b) return;
   padGroupe = b.dataset.v;
-  padRoleOuvert = ""; carteSel = null; renderPad();
+  padFermes.clear(); carteSel = null; renderPad();
 });
 if(el("padQ")) el("padQ").addEventListener("input", e=>{
   padQ = e.target.value; renderPad();
@@ -6346,7 +6814,7 @@ if(el("btnPadQClear")) el("btnPadQClear").addEventListener("click", ()=>{
 /* l'editeur ne s'ouvre qu'une fois l'armee choisie : sans quoi il
    s'ouvrirait derriere la question, sur une liste d'une faction qu'on
    est en train de changer */
-el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(()=> ouvreEditeur()); });
+el("btnNewList2").addEventListener("click", ()=>{ nouvelleListe(()=>{ ouvreEditeur(); openUnitPick(); }); });
 function syncTarget(){
   el("ptName5").textContent = SIM.tgtName;
   el("ptSub5").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
