@@ -302,6 +302,74 @@ function nlBloque(d){
 function nlAjuste(){
   while(NL.detach.length && nlDP() > nlCapDP()) NL.detach.pop();
 }
+
+/* LA FICHE D'UN DETACHEMENT : sa regle, ses stratagemes, ses
+   ameliorations avec leur cout et les unites qui peuvent les porter.
+   Elle se lit dans les tables de la faction passee en argument, et non
+   dans les tables en service : l'ecran « Nouvelle liste » montre une
+   armee qui n'est pas encore celle de l'application.
+   Les deux listes sont repliees : la regle se lit d'un coup d'oeil, le
+   detail s'ouvre quand on hesite entre deux detachements. */
+const escD = t => String(t == null ? "" : t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+/* les unites qui peuvent porter une amelioration, en clair. La cible
+   nomme des fiches (Wahapedia) ou des groupes de KW (table necrone) ;
+   vide, c'est la regle par defaut : tout PERSONNAGE hors Heros Epique. */
+function porteursEnh(T, e){
+  const t = (e && e[4]) || {c:"f", k:[]};
+  const kw = T.KW || {};
+  const epique = new Set(kw.epic || []);
+  const perso = n => { const u = T.UNITS.find(x => x[0] === n); return !!(u && u[9]); };
+  let noms = [];
+  if(!t.k.length){
+    noms = T.UNITS.filter(u => u[9] && !epique.has(u[0])).map(u => u[0]);
+  } else {
+    t.k.forEach(k => {
+      if(kw[k]) kw[k].forEach(n => { if((t.c === "u" || perso(n)) && !epique.has(n)) noms.push(n); });
+      else noms.push(k);
+    });
+  }
+  noms = [...new Set(noms)];
+  return { unite: t.c === "u", noms: noms, defaut: !t.k.length };
+}
+function ficheDetach(cle, nom){
+  const T = (FACTIONS[cle] && FACTIONS[cle].tables) || {};
+  const d = (T.DETACHMENTS || []).find(x => x[0] === nom);
+  const box = document.createElement("div");
+  box.className = "dfiche";
+  if(!d) return box;
+  const strats = (T.STRATS || []).filter(x => x[1] === nom);
+  const enhs = (T.ENHANCEMENTS || []).filter(x => x[2] === nom);
+  let h = '<div class="dfiche-t"><b>' + escD(d[7] || d[0]) + '</b><small>' + d[1] + ' PD' +
+    (d[2] ? ' · tag ' + escD(d[2]) : '') + (d[8] ? ' · ' + escD(d[8]) : '') + '</small></div>';
+  if(d[3] || d[4]) h += '<div class="dfiche-r"><b>' + escD(d[3]) + '</b>' + (d[4] ? ' — ' + escD(d[4]) : '') + '</div>';
+  /* stratagemes : meme carte que l'onglet de la liste, sans la saisie */
+  h += '<details class="dfiche-d"><summary>' + strats.length + ' stratagème' + (strats.length > 1 ? 's' : '') +
+    '</summary>' + (strats.length ? strats.map(([sn, , type, cp, quand, cible, effet, restric]) =>
+      '<div class="strat"><button type="button"><span class="sn"><b>' + escD(sn) + '</b><i>' +
+        (type ? escD(type) : 'Stratagème') + '</i></span><span class="cp">' + cp + ' PC</span></button>' +
+      '<div class="sbody">' + (effet
+        ? '<dl><dt>Quand</dt><dd>' + escD(quand) + '</dd><dt>Cible</dt><dd>' + escD(cible || "—") +
+          '</dd><dt>Effet</dt><dd>' + escD(effet) + '</dd>' +
+          (restric ? '<dt>Restrictions</dt><dd>' + escD(restric) + '</dd>' : '') + '</dl>'
+        : '<p class="vide">Texte non renseigné.</p>') + '</div></div>').join("")
+      : '<p class="dfiche-vide">Aucun stratagème propre à ce détachement.</p>') + '</details>';
+  /* ameliorations : cout, unites eligibles, texte en entier */
+  h += '<details class="dfiche-d"><summary>' + enhs.length + ' amélioration' + (enhs.length > 1 ? 's' : '') +
+    '</summary>' + (enhs.length ? enhs.map(e => {
+      const p = porteursEnh(T, e);
+      const qui = (p.unite ? 'Unité : ' : 'Porteur : ') + (p.defaut ? 'tout Personnage (hors Héros Épiques)'
+        : (p.noms.length ? p.noms.map(escD).join(", ") : "—"));
+      return '<div class="dfiche-e"><div class="dfiche-et"><b>' + escD(e[0]) + '</b><span class="cp">' +
+        (typeof e[1] === "number" ? e[1] + ' pts' : 'coût ?') + '</span></div>' +
+        '<div class="dfiche-qui">' + qui + '</div>' +
+        (e[3] ? '<div class="dfiche-tx">' + escD(e[3]) + '</div>' : '') + '</div>';
+    }).join("")
+      : '<p class="dfiche-vide">Ce détachement n\'ouvre aucune amélioration.</p>') + '</details>';
+  box.innerHTML = h;
+  box.querySelectorAll(".strat > button").forEach(b =>
+    b.addEventListener("click", () => b.parentNode.classList.toggle("open")));
+  return box;
+}
 function renderNouvelle(){
   const q = norm(el("nlQ").value.trim());
   const dispo = listeArmees();
@@ -319,7 +387,7 @@ function renderNouvelle(){
     b.innerHTML = f.nom + '<small>' + fichesDe(f.cle) + ' fiches</small>';
     b.setAttribute("aria-pressed", NL.faction === f.cle ? "true" : "false");
     b.addEventListener("click", ()=>{
-      if(NL.faction !== f.cle){ NL.faction = f.cle; NL.detach = []; }
+      if(NL.faction !== f.cle){ NL.faction = f.cle; NL.detach = []; NL.voir = ""; }
       renderNouvelle();
     });
     return b;
@@ -395,9 +463,34 @@ function renderNouvelle(){
     };
     detachDe(NL.faction).forEach(d => puce(d[0], d[7] || d[0], d[1] + " PD", nlBloque(d)));
     puce("", "Plus tard", "");
-    regle.innerHTML = NL.detach.map(n => detachDe(NL.faction).find(x => x[0] === n)).filter(Boolean)
-      .map(d => '<div class="nl-regle"><b>' + (d[3] || "") + '</b>' +
-        (d[4] ? ' — ' + d[4] : '') + '</div>').join("");
+    /* chaque detachement coche montre sa fiche : regle, stratagemes,
+       ameliorations. Un autre se consulte sans le prendre, par le
+       menu en dessous : on choisit souvent apres avoir compare. */
+    NL.detach.forEach(n => regle.appendChild(ficheDetach(NL.faction, n)));
+    const autres = detachDe(NL.faction).filter(d => NL.detach.indexOf(d[0]) < 0);
+    if(NL.voir && !autres.some(d => d[0] === NL.voir)) NL.voir = "";
+    if(autres.length){
+      const sel = document.createElement("select");
+      sel.id = "nlVoir"; sel.className = "nl-voir";
+      sel.setAttribute("aria-label", "Consulter un détachement");
+      sel.innerHTML = '<option value="">Consulter un autre détachement…</option>' +
+        autres.map(d => '<option value="' + escD(d[0]).replace(/"/g, "&quot;") + '"' +
+          (NL.voir === d[0] ? ' selected' : '') + '>' + escD(d[7] || d[0]) + ' (' + d[1] + ' PD)</option>').join("");
+      sel.addEventListener("change", () => { NL.voir = sel.value; renderNouvelle(); });
+      regle.appendChild(sel);
+      if(NL.voir){
+        const f = ficheDetach(NL.faction, NL.voir);
+        f.classList.add("apercu");
+        const d = autres.find(x => x[0] === NL.voir), raison = nlBloque(d);
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip dfiche-prendre";
+        b.textContent = raison ? "Indisponible : " + raison : "Prendre ce détachement";
+        b.disabled = !!raison;
+        b.addEventListener("click", () => { NL.detach.push(NL.voir); NL.voir = ""; renderNouvelle(); });
+        f.appendChild(b);
+        regle.appendChild(f);
+      }
+    }
   }
 
   const nom = el("nlNom");
@@ -545,6 +638,12 @@ function profilsPhase(ru, ph){
 }
 
 window.ROSTER = {
+  /* les fiches qui peuvent porter une amelioration, telles que la fiche
+     d'un detachement les annonce (test-listes.mjs, section 8) */
+  porteursEnh: (cle, nom) => {
+    const T = FACTIONS[cle].tables;
+    return porteursEnh(T, T.ENHANCEMENTS.find(e => e[0] === nom));
+  },
   /* crochets de verification des options payantes (test-options.mjs) :
      le total qu'aurait la liste ouverte avec ces unites-la, le prix
      annonce a cote d'une option, et les entrees d'OPTIONS_PTS qui ne
@@ -7036,6 +7135,16 @@ function initDetachSheet(){
       closeSheet("sheetDetach"); saveR(); renderList();
     });
     host.appendChild(b);
+    /* la fiche complete se deplie sous la ligne, meme grisee : on peut
+       vouloir lire un detachement avant de liberer des PD pour lui */
+    const voir = document.createElement("details");
+    voir.className = "dvoir";
+    voir.innerHTML = '<summary>Stratagèmes et améliorations</summary>';
+    voir.addEventListener("toggle", () => {
+      if(voir.open && !voir.querySelector(".dfiche"))
+        voir.appendChild(ficheDetach(R.faction || FACTION_ACTIVE, d[0]));
+    }, { once: false });
+    host.appendChild(voir);
   });
   if(!dispo){
     const m = document.createElement("div");

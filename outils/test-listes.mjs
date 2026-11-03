@@ -176,6 +176,46 @@ await p.locator('#uList .legmasq').click();
 eq('le rappel les réaffiche', await p.locator('#uList .opt').filter({hasText: /^Big Trakk/}).count(), 1);
 eq('et coche la préférence', await p.isChecked('#prefLegends'), true);
 
+console.log('\n== 8. un détachement montre ses stratagèmes et ses améliorations ==');
+/* Kevin, le 03/11 : « quand je choisis un détachement, je voudrais
+   savoir les stratagèmes et les améliorations possibles ». */
+await p.goto(base + 'index.html'); await p.waitForTimeout(900);
+await p.evaluate(() => localStorage.clear());
+await p.reload(); await p.waitForTimeout(900);
+await p.click('#btnNewList2'); await p.waitForTimeout(300);
+await p.fill('#nlQ', 'custodes');
+await p.locator('#nlFactions .nl-fac').first().click();
+eq('rien de coché, aucune fiche', await p.locator('#nlRegle .dfiche').count(), 0);
+await p.locator('#nlDetach .chip').filter({hasText: 'Aquilan Shield'}).first().click();
+const fiche = p.locator('#nlRegle .dfiche').first();
+eq('le détachement coché a sa fiche', await p.locator('#nlRegle .dfiche').count(), 1);
+eq('ses trois stratagèmes', (await fiche.locator('summary').first().innerText()).trim().toLowerCase(), '3 stratagèmes');
+eq('ses deux améliorations', (await fiche.locator('summary').nth(1).innerText()).trim().toLowerCase(), '2 améliorations');
+await fiche.locator('summary').first().click();
+await fiche.locator('.strat > button').first().click();
+eq('un stratagème se déplie avec son texte', await fiche.locator('.strat.open .sbody dd').count() >= 3, true);
+await fiche.locator('summary').nth(1).click();
+const enh = fiche.locator('.dfiche-e').filter({hasText: 'Not a Shell Wasted'});
+eq('l\'amélioration dit son coût', (await enh.locator('.cp').innerText()).trim(), '10 pts');
+eq('et qui peut la porter', /Shield-Captain/.test(await enh.locator('.dfiche-qui').innerText()), true);
+await p.selectOption('#nlVoir', 'Lions of the Emperor');
+eq('un autre se consulte sans être pris', await p.locator('#nlRegle .dfiche.apercu').count(), 1);
+eq('rien n\'a été coché pour autant', await p.locator('#nlDetach .chip.on').count(), 1);
+await p.locator('#nlRegle .dfiche-prendre').click();
+eq('le bouton de l\'aperçu le prend', await p.locator('#nlDetach .chip.on').count(), 2);
+/* la table nécrone vise des groupes de KW : ils doivent se lire en fiches */
+await p.fill('#nlQ', 'nécrons');
+await p.locator('#nlFactions .nl-fac').first().click();
+const porteurs = await p.evaluate(() =>
+  ['Dimensional Sanctum', 'Autodivinator'].map(n => ROSTER.porteursEnh('necrons', n).noms));
+eq('« cryptek » devient des noms de fiches', porteurs.length > 0 && porteurs.every(n => n.length && n.every(x => x !== 'cryptek')), true);
+/* l'éditeur, lui, déplie la fiche sous chaque ligne */
+await p.click('#nlGo'); await p.waitForTimeout(400);
+await retour();
+await p.evaluate(() => document.getElementById('btnAddDetach').click()); await p.waitForTimeout(200);
+await p.locator('#dList .dvoir summary').first().click(); await p.waitForTimeout(200);
+eq('la feuille des détachements déplie une fiche', await p.locator('#dList .dvoir .dfiche').count(), 1);
+
 await b.close();
 console.log([...ok, ...ko].join('\n'));
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
