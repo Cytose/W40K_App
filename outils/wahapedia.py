@@ -264,6 +264,64 @@ def optimisations(faction):
         if t: out.setdefault(_cle(x.get('name')), t)
     return out
 
+def _cleOpt(nom):
+    """Le nom d'une optimisation sans ses étiquettes entre parenthèses :
+       le Munitorum écrit « (Upgrade) » — et une fois « (Upgarde) » —,
+       Wahapedia « (Aura) », « (Psychic) », « (one per army) », et chacun
+       à sa façon."""
+    return _cle(re.sub(r'\([^)]*\)', ' ', nom or ''))
+
+def porteursOptimisations(faction):
+    """{ (détachement, optimisation) : (amélioration ?, [fiches]) }, les
+       deux noms en clé normalisée.
+
+       La phrase « … model only. » ne suffit pas à savoir qui porte une
+       optimisation : elle nomme des mots-clés — DREADNOUGHT, GRAV-ASSAULT,
+       TRUSTED SENTINEL — que l'application ne garde pas, et sans elle
+       l'éditeur proposait les deux améliorations Dreadnought des Custodes
+       au Shield-Captain et les refusait au Contemptor. Wahapedia publie la
+       liste des fiches admises, optimisation par optimisation
+       (Datasheets_enhancements.csv) : c'est elle qu'on reprend, telle
+       quelle. Le drapeau « upgrade » dit qu'elle se paie sur une unité
+       qui n'est pas forcément un PERSONNAGE."""
+    code = CODES.get(faction)
+    if not code: return {}
+    fiches = {x.get('id'): x.get('name') or '' for x in enregistrements('Datasheets.csv')}
+    parOpt = {}
+    for x in enregistrements('Datasheets_enhancements.csv'):
+        parOpt.setdefault(x.get('enhancement_id'), []).append(fiches.get(x.get('datasheet_id'), ''))
+    out = {}
+    for x in enregistrements('Enhancements.csv'):
+        if x.get('faction_id') != code: continue
+        noms = sorted({n for n in parOpt.get(x.get('id'), []) if n})
+        out[(_cle(x.get('detachment')), _cleOpt(x.get('name')))] = (
+            (x.get('upgrade') or '').strip().lower() == 'true', noms)
+    return out
+
+def cibleOptimisation(porteurs, detachement, nom, unites):
+    """La cible d'une optimisation dans le format de l'éditeur :
+       {"c": "f", "k": [fiches de l'application]}, ou None quand Wahapedia
+       ne la connaît pas — l'éditeur retombe alors sur ses PERSONNAGES.
+
+       Les fiches se rapprochent sur la clé normalisée : BSData suffixe
+       parfois « [Legends] », Wahapedia jamais. Une fiche absente de la
+       faction garde son nom Wahapedia : c'est un allié — le Watch Master
+       de la Deathwatch pour la Balise Angelis, les Tech-priests pour le
+       Magos Questoris — qu'un groupe peut compter par le multi-faction,
+       et personne d'autre ne doit pouvoir la prendre à sa place."""
+    d, n = _cle(detachement), _cleOpt(nom)
+    p = porteurs.get((d, n))
+    if p is None:
+        cands = [v for (dd, nn), v in porteurs.items() if nn == n]
+        if len(cands) == 1: p = cands[0]
+    if p is None: return None
+    upgrade, noms = p
+    parCle = {}
+    for u in unites:
+        parCle.setdefault(_cle(re.sub(r'\[legends\]', '', u, flags=re.I)), u)
+    if not noms: return None
+    return {"c": "f", "k": sorted({parCle.get(_cle(n), n) for n in noms})}
+
 def titre(nom):
     """Wahapedia crie les noms de stratagème : « INSANITY'S IRE ». Le
        fichier nécron les écrit comme la carte les imprime — et le « s »

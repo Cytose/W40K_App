@@ -957,6 +957,13 @@ def extrait(faction):
             if t:
                 e[3] = t
                 waha['textes'] += 1
+        # Qui peut porter chaque optimisation : la liste de fiches de
+        # Wahapedia. Sans elle, l'éditeur les offrait à tout PERSONNAGE.
+        porteurs = wahapedia.porteursOptimisations(faction)
+        unites = [u[0] for u in UNITS]
+        for e in ENHANCEMENTS:
+            if e[4] is None:
+                e[4] = wahapedia.cibleOptimisation(porteurs, e[2], e[0], unites)
         STRATS = wahapedia.stratagemes(faction, [d[0] for d in DETACHMENTS])
         coeur = wahapedia.coeur()
         waha['coeur'] = len(coeur)

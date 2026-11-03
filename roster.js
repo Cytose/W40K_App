@@ -558,6 +558,12 @@ window.ROSTER = {
   /* crochet de verification : le bilan de la liste ouverte, tel que
      l'ecran le rend */
   bilan: function(){ return R ? bilanListe().map(x => x.t) : null; },
+  /* crochet de verification : qui, dans un groupe, peut porter une
+     amelioration (le porteur "" est l'unite elle-meme) */
+  porteurs: function(nom, unite, persos){
+    const ru = { name:unite, chars:(persos || []).map(n => ({ name:n })) };
+    return porteursPossibles(ru, enhRow(nom));
+  },
   /* crochet de verification : ce que la liste ouverte compte vraiment,
      unite par unite, entrave comprise */
   liste: function(){
@@ -1112,23 +1118,33 @@ const enhCible = e => (e && e[4]) || {c:"f", k:[]};
 /* Qui, dans ce groupe, peut porter cette amelioration. Le porteur ""
    designe l'unite elle-meme : les ameliorations du pack de faction
    visent parfois l'unite — « Unite d'IMMORTELS seulement » — et non
-   une figurine. Un Heros Epique n'en recoit jamais. */
+   une figurine. Un Heros Epique n'en recoit jamais.
+
+   La cible nomme des fiches (la liste de Wahapedia, reprise a
+   l'extraction) ou des groupes de KW (le fichier necron, tenu a la
+   main). Une fiche nommee porte l'amelioration telle quelle, PERSONNAGE
+   ou non : les deux ameliorations Dreadnought de la Puissance des
+   Moritoi vont sur un Contemptor, qui n'en est pas un. Un groupe de KW,
+   lui, ne vise que ses PERSONNAGES, et une cible vide aussi : c'est la
+   regle par defaut d'une optimisation. */
 function porteursPossibles(ru, e){
   if(!e) return [];
   const t = enhCible(e);
-  const convient = nom => !t.k.length ||
-    t.k.some(k => (KW[k] ? has(k, nom) : k === nom));
+  const nommee = nom => t.k.indexOf(nom) >= 0;
+  const parGroupe = nom => !t.k.length || t.k.some(k => KW[k] && has(k, nom));
   const out = [];
   if(t.c === "u"){
-    if(convient(ru.name)) out.push("");
+    if(nommee(ru.name) || parGroupe(ru.name)) out.push("");
     return out;
   }
-  const uu = unitRow(ru.name);
-  if(uu && uu[9] && !has("epic", ru.name) && convient(ru.name)) out.push("");
-  ru.chars.forEach(c=>{
-    const cu = unitRow(c.name);
-    if(cu && cu[9] && !has("epic", c.name) && convient(c.name)) out.push(c.name);
-  });
+  const peut = nom => {
+    if(has("epic", nom)) return false;
+    if(nommee(nom)) return true;
+    const u = unitRow(nom);
+    return !!(u && u[9]) && parGroupe(nom);
+  };
+  if(peut(ru.name)) out.push("");
+  ru.chars.forEach(c=>{ if(peut(c.name)) out.push(c.name); });
   return out;
 }
 /* le porteur retenu, ou null si l'amelioration ne peut aller nulle part */

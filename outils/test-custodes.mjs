@@ -162,6 +162,29 @@ T('et les tables du simulateur sont câblées', await p.evaluate(() =>
   [Object.keys(APTIS_COND).length, AURAS_ARMEE.length, Object.keys(OCTROIS_DETACH).length]),
   [8, 18, 0]);
 
+/* ---- qui porte une amélioration ----
+   Les deux améliorations de la Puissance des Moritoi sont réservées aux
+   DREADNOUGHTS : l'éditeur les offrait au Shield-Captain et les grisait
+   sur le Contemptor, qui n'est pas un PERSONNAGE. */
+const porteurs = await p.evaluate(() => {
+  const g = (name, chars) => [name, chars || []];
+  const de = (nom, [u, c]) => ROSTER.porteurs(nom, u, c).length > 0;
+  return {
+    achillus: de('Memento Moritoi (one per army) (Upgrade)', g('Contemptor-Achillus Dreadnought')),
+    galatus: de('Augury Uplink (one per army) (Upgrade)', g('Contemptor-Galatus Dreadnought')),
+    capitaine: de('Memento Moritoi (one per army) (Upgrade)', g('Shield-Captain')),
+    escorte: de('Augury Uplink (one per army) (Upgrade)', g('Custodian Guard Sodality', ['Shield-Captain'])),
+    allarus: de('Lightning Descent', g('Shield-Captain in Allarus Terminator Armour')),
+    pasAllarus: de('Lightning Descent', g('Shield-Captain')),
+    sodalite: de('Auric Eagle (Upgrade)', g('Custodian Guard Sodality')),
+    terminator: de('Auric Eagle (Upgrade)', g('Allarus Custodians'))
+  };
+});
+T('les améliorations Dreadnought vont sur le Contemptor', [porteurs.achillus, porteurs.galatus], [true, true]);
+T('et plus sur le Shield-Captain', [porteurs.capitaine, porteurs.escorte], [false, false]);
+T('Lightning Descent : le Shield-Captain en Allarus seulement', [porteurs.allarus, porteurs.pasAllarus], [true, false]);
+T('Auric Eagle : une escouade, pas des Terminators', [porteurs.sodalite, porteurs.terminator], [true, false]);
+
 /* le Plateau lit SOCLES : il pose maintenant sur les vrais socles */
 await p.evaluate(() => document.querySelector('[data-s="scMap"]')?.click());
 await p.waitForTimeout(1000);
