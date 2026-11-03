@@ -75,6 +75,33 @@ eq('puis à mes listes', (await etat()).editeur, false);
 await retour();
 eq('et enfin hors de l\'application', p.url(), 'about:blank');
 
+console.log('\n== 5. plusieurs détachements dès la création ==');
+/* Les détachements à 1 PD n'affichaient pas leur coût, et l'écran n'en
+   gardait qu'un : impossible d'en cumuler trois à 2000 pts. */
+await p.goto(base + 'index.html'); await p.waitForTimeout(900);
+await p.click('#btnNewList2'); await p.waitForTimeout(300);
+await p.fill('#nlQ', 'custodes');
+await p.locator('#nlFactions .nl-fac').first().click();
+const puceCustodes = t => p.locator('#nlDetach .chip').filter({hasText: t}).first();
+eq('chaque détachement dit son coût, même à 1 PD',
+  await p.locator('#nlDetach .chip').filter({hasNotText: 'Plus tard'}).evaluateAll(
+    l => l.every(x => / PD/.test(x.textContent))), true);
+await puceCustodes('Auric Champions').click();
+await puceCustodes('Lions of the Emperor').click();
+await puceCustodes('Null Maiden Vigil').click();
+eq('trois détachements à 1 PD tiennent dans 3 PD',
+  await p.locator('#nlDetach .chip.on').count(), 3);
+eq('le quatrième est grisé', await puceCustodes('Honoured Companions').isDisabled(), true);
+await puceCustodes('Null Maiden Vigil').click();
+eq('un détachement coché se décoche', await p.locator('#nlDetach .chip.on').count(), 2);
+await p.locator('#nlFormat .chip').filter({hasText: '1000'}).click();
+eq('à 1000 pts, il ne reste que ce qui tient en 2 PD', await p.locator('#nlDetach .chip.on').count(), 2);
+await p.locator('#nlFormat .chip').filter({hasText: '2000'}).click();
+await puceCustodes('Null Maiden Vigil').click();
+await p.click('#nlGo'); await p.waitForTimeout(400);
+eq('la liste naît avec ses trois détachements', await p.evaluate(() =>
+  JSON.parse(localStorage.getItem('mathhammer.lists.v1')).listes.slice(-1)[0].detach.length), 3);
+
 await b.close();
 console.log([...ok, ...ko].join('\n'));
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');

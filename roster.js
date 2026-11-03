@@ -254,7 +254,7 @@ function nouvelleListe(apres){
   /* l'armee proposee d'office : celle de la derniere liste touchee */
   const recente = LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0))[0];
   NL = { faction: (recente && recente.faction) || "", cap: (R && R.cap) || 2000,
-         detach: "", nom: "", nomTouche: false, apres };
+         detach: [], nom: "", nomTouche: false, apres };
   el("nlQ").value = "";
   renderNouvelle();
   openSheet("sheetNewList");
@@ -266,8 +266,29 @@ function detachDe(cle){
 }
 function nomAuto(){
   if(!NL.faction) return "Liste " + (LISTS.length + 1);
-  const d = detachDe(NL.faction).find(x => x[0] === NL.detach);
-  return [factionNom(NL.faction), d ? (d[7] || d[0]) : "", NL.cap].filter(Boolean).join(" · ");
+  const noms = NL.detach.map(n => { const d = detachDe(NL.faction).find(x => x[0] === n);
+    return d ? (d[7] || d[0]) : n; });
+  return [factionNom(NL.faction), noms.join(" + "), NL.cap].filter(Boolean).join(" · ");
+}
+/* Le budget de Points de Detachement de l'ecran « Nouvelle liste ».
+   Il suit le format choisi, avec la meme regle que l'editeur (capDP) :
+   3 PD a 2000 pts. Un detachement a 1 PD laisse donc de la place pour
+   d'autres, et l'ecran doit le laisser prendre. */
+const nlCapDP = () => Math.max(1, Math.round((NL.cap || 2000) / 2000 * 3));
+const nlDP = () => NL.detach.reduce((a, n) => {
+  const d = detachDe(NL.faction).find(x => x[0] === n); return a + (d ? d[1] : 0); }, 0);
+/* pourquoi ce detachement ne peut pas s'ajouter a ceux deja coches */
+function nlBloque(d){
+  if(NL.detach.indexOf(d[0]) >= 0) return "";
+  const reste = nlCapDP() - nlDP();
+  if(d[1] > reste) return reste > 0 ? "il ne reste que " + reste + " PD" : "budget épuisé";
+  const tags = NL.detach.map(n => (detachDe(NL.faction).find(x => x[0] === n) || [])[2]).filter(Boolean);
+  if(d[2] && tags.indexOf(d[2]) >= 0) return "tag " + d[2] + " déjà pris";
+  return "";
+}
+/* un format plus petit peut ne plus tout tenir : on lache les derniers */
+function nlAjuste(){
+  while(NL.detach.length && nlDP() > nlCapDP()) NL.detach.pop();
 }
 function renderNouvelle(){
   const q = norm(el("nlQ").value.trim());
@@ -286,7 +307,7 @@ function renderNouvelle(){
     b.innerHTML = f.nom + '<small>' + fichesDe(f.cle) + ' fiches</small>';
     b.setAttribute("aria-pressed", NL.faction === f.cle ? "true" : "false");
     b.addEventListener("click", ()=>{
-      if(NL.faction !== f.cle){ NL.faction = f.cle; NL.detach = ""; }
+      if(NL.faction !== f.cle){ NL.faction = f.cle; NL.detach = []; }
       renderNouvelle();
     });
     return b;
@@ -318,7 +339,7 @@ function renderNouvelle(){
     const b = document.createElement("button");
     b.type = "button"; b.className = "chip" + (NL.cap === pts ? " on" : "");
     b.innerHTML = pts + ' pts <small>' + nom + '</small>';
-    b.addEventListener("click", ()=>{ NL.cap = pts; renderNouvelle(); });
+    b.addEventListener("click", ()=>{ NL.cap = pts; nlAjuste(); renderNouvelle(); });
     fh.appendChild(b);
   });
   if(FORMATS.every(f => f[0] !== NL.cap)){
@@ -332,18 +353,34 @@ function renderNouvelle(){
   if(!NL.faction){
     dh.innerHTML = '<span class="hint" style="margin:0">Choisis d\'abord l\'armée.</span>';
   } else {
-    const puce = (val, texte, extra) => {
+    /* Plusieurs detachements se cumulent tant que le budget de PD le
+       permet : chaque puce dit son cout, meme quand il vaut 1, et se
+       coche ou se decoche. Celles qui ne tiennent plus se grisent. */
+    const cap = nlCapDP(), pris = nlDP();
+    const tete = document.createElement("div");
+    tete.className = "hint"; tete.style.margin = "0 0 6px"; tete.style.flexBasis = "100%";
+    tete.textContent = pris + " / " + cap + " Points de Détachement à " + NL.cap + " pts";
+    dh.appendChild(tete);
+    const puce = (val, texte, extra, raison) => {
       const b = document.createElement("button");
-      b.type = "button"; b.className = "chip" + (NL.detach === val ? " on" : "");
+      const on = val ? NL.detach.indexOf(val) >= 0 : !NL.detach.length;
+      b.type = "button"; b.className = "chip" + (on ? " on" : "");
+      b.setAttribute("aria-pressed", on ? "true" : "false");
       b.innerHTML = texte + (extra ? ' <small>' + extra + '</small>' : '');
-      b.addEventListener("click", ()=>{ NL.detach = val; renderNouvelle(); });
+      if(raison){ b.disabled = true; b.title = raison; b.style.opacity = ".45"; }
+      b.addEventListener("click", ()=>{
+        if(!val) NL.detach = [];
+        else if(NL.detach.indexOf(val) >= 0) NL.detach.splice(NL.detach.indexOf(val), 1);
+        else NL.detach.push(val);
+        renderNouvelle();
+      });
       dh.appendChild(b);
     };
-    detachDe(NL.faction).forEach(d => puce(d[0], d[7] || d[0], d[1] > 1 ? d[1] + " PD" : ""));
+    detachDe(NL.faction).forEach(d => puce(d[0], d[7] || d[0], d[1] + " PD", nlBloque(d)));
     puce("", "Plus tard", "");
-    const d = detachDe(NL.faction).find(x => x[0] === NL.detach);
-    if(d) regle.innerHTML = '<div class="nl-regle"><b>' + (d[3] || "") + '</b>' +
-      (d[4] ? ' — ' + d[4] : '') + '</div>';
+    regle.innerHTML = NL.detach.map(n => detachDe(NL.faction).find(x => x[0] === n)).filter(Boolean)
+      .map(d => '<div class="nl-regle"><b>' + (d[3] || "") + '</b>' +
+        (d[4] ? ' — ' + d[4] : '') + '</div>').join("");
   }
 
   const nom = el("nlNom");
@@ -359,7 +396,7 @@ el("nlGo").addEventListener("click", ()=>{
   const choix = NL;
   closeSheet("sheetNewList");
   const L = listeVierge(el("nlNom").value.trim() || nomAuto(), choix.cap, choix.faction);
-  if(choix.detach) L.detach = [choix.detach];
+  if(choix.detach.length) L.detach = choix.detach.slice();
   L.maj = Date.now();
   LISTS.push(L); ouvre(L); saveR(); renderList();
   NL = null;
