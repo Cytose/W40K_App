@@ -2803,6 +2803,29 @@ const KW = {
   "Ynnari Archon",
   "Ynnari Succubus",
   "Yvraine"
+ ],
+ "grenades": [
+  "Amallyn Shadowguide",
+  "Asurmen",
+  "Autarch",
+  "Autarch Wayleaper",
+  "Baharroth",
+  "Corsair Cloud Dancer Band",
+  "Corsair Reaver Band",
+  "Corsair Skyreavers",
+  "Corsair Voidreavers",
+  "Corsair Voidscarred",
+  "Dire Avengers",
+  "Fire Dragons",
+  "Fuegan",
+  "Guardian Defenders",
+  "Shadowseer",
+  "Starfangs",
+  "Storm Guardians",
+  "Swooping Hawks",
+  "Troupe",
+  "Troupe Master",
+  "Ynnari Wyches"
  ]
 };
 

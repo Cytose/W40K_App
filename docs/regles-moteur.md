@@ -71,6 +71,8 @@ d'une unité de la liste.
 - **Invulnérable selon le type d'attaque** (Kroot : 6+ au corps à corps,
   5+ au tir) et **ignorer les modificateurs de PA et de dégâts** (Seer's
   Eye).
-- **Blessures mortelles** : le moteur n'en simule aucune, donc
-  l'insensibilité contre les seules blessures mortelles n'a rien à
-  réduire.
+- **Blessures mortelles** : le moteur ne simule que celles des deux
+  stratagèmes de base Explosifs et Impact écrasant (profil `mortels`
+  dans engine.js, offerts par `STRAT_BASE` de roster.js selon les
+  mots-clés GRENADES/EXPLOSIVES et VEHICLE/MONSTER). Une insensibilité
+  qui ne vaut que contre les blessures mortelles n'est pas lue.

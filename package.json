@@ -31,6 +31,7 @@
     "custodes": "node outils/test-custodes.mjs",
     "aptitudes": "node outils/test-aptitudes.mjs",
     "ameliorations": "node outils/test-ameliorations.mjs",
+    "strats-base": "node outils/test-strats-base.mjs",
     "recable": "python3 outils/recable.py --toutes",
     "options": "python3 outils/options.py",
     "options-test": "node outils/test-options.mjs",

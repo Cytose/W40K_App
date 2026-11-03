@@ -732,6 +732,14 @@ const KW = {
   "Primus",
   "Reductus Saboteur",
   "Sanctus"
+ ],
+ "grenades": [
+  "Acolyte Iconward",
+  "Atalan Jackals",
+  "Hybrid Metamorphs",
+  "Jackal Alphus",
+  "Neophyte Hybrids",
+  "Reductus Saboteur"
  ]
 };
 

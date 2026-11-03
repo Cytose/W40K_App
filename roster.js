@@ -761,10 +761,12 @@ window.ROSTER = {
   /* Les stratagemes de mes detachements qui touchent la sequence
      d'attaque, pour l'unite chargee et la phase choisie. */
   stratsSimu: function(nomUnite, persos, ph){
-    if(!R || typeof STRAT_SIMU === "undefined") return [];
+    if(!R) return [];
     const noms = [nomUnite].concat(persos || []).filter(Boolean);
     const porte = k => noms.some(n => porteMot(k, n));
-    return STRAT_SIMU.filter(st=>{
+    const base = stratsBase(noms, ph || "T");
+    if(typeof STRAT_SIMU === "undefined") return base;
+    return base.concat(STRAT_SIMU.filter(st=>{
       if(R.detach.indexOf(st.detach) < 0) return false;
       if(st.ph !== "TC" && st.ph !== (ph || "T")) return false;
       /* `unites` mêle des noms de fiche et des groupes de KW (GRAVIS,
@@ -786,7 +788,7 @@ window.ROSTER = {
                   qu'il change, ce sont les regles qui s'appliquent */
                situ: st.situ || "", situOn: st.situ ? !!situ[st.situ] : false,
                enAttente: (st.plus && !p) ? st.plus.aide : "" };
-    });
+    }));
   },
   /* Les regles de detachement en vigueur, dites en clair : elles
      s'appliquent sans qu'on les coche, et rien ne le montrait. */
@@ -1831,6 +1833,45 @@ function activeRules(){
    la Main de la Dynastie.
    ========================================================== */
 /* un mot-cle exige : soit un groupe de KW, soit un nom d'unite */
+/* LES STRATAGEMES DE BASE QUI FONT DES DEGATS (regles de base 11e,
+   export Wahapedia du 22/10) : ils ne retouchent aucun jet, ils
+   infligent des blessures mortelles avant la sequence d'attaque. Ils
+   ne dependent d'aucun detachement, seulement des mots-cles de l'unite.
+   — EXPLOSIFS (l'ancienne « Grenade »), phase de tir : une unite
+     GRENADES ou EXPLOSIVES non engagee. Six D6, chaque 4+ fait une
+     blessure mortelle a une unite ennemie non engagee a 8".
+   — IMPACT ECRASANT (l'ancien « Tank Shock »), phase de charge : une
+     unite MONSTRE ou VEHICULE qui finit sa charge. Autant de D6 que
+     l'Endurance d'une de ses figurines ; chaque 5+ fait une blessure
+     mortelle a l'ennemi (six au plus), chaque 1 en fait une a l'unite.
+     Le simulateur le propose en phase de combat, puisqu'il se joue
+     juste avant que l'unite qui a charge ne frappe. */
+const STRAT_BASE = [
+  { id:"base|explosifs", nom:"Explosifs", pc:1, ph:"T", kw:["grenades","explosives"],
+    aide:"6D6 : une blessure mortelle par 4+ (cible non engagée à 8\")",
+    mortels: () => ({des:6, seuil:4, max:0}) },
+  { id:"base|impact", nom:"Impact écrasant", pc:1, ph:"C", kw:["vehicle","monster"],
+    aide:"après la charge : ", mortels: e => ({des:e, seuil:5, max:6}) }
+];
+function stratsBase(noms, ph){
+  return STRAT_BASE.filter(st => st.ph === ph).map(st => {
+    const qui = noms.filter(n => st.kw.some(k => typeof KW !== "undefined" && KW[k] && has(k, n)));
+    if(!qui.length) return null;
+    /* l'Endurance de la figurine choisie : on prend la plus forte de
+       celles qui portent le mot-cle, c'est ce que fera le joueur */
+    const e = Math.max.apply(null, qui.map(n => { const u = unitRow(n); return u ? +u[2] || 0 : 0; }));
+    const m = st.mortels(e);
+    if(!m.des) return null;
+    const moy = ENG.moyenneMortels(m);
+    const aide = st.id === "base|impact"
+      ? st.aide + m.des + "D6 (E" + e + "), une BM par 5+, 6 au plus ; chaque 1 t'en coûte une (≈" +
+        (m.des / 6).toFixed(1).replace(".", ",") + ")"
+      : st.aide;
+    return { id:st.id, nom:st.nom, pc:st.pc, detach:"Stratagème de base",
+             aide: aide + " · ≈" + moy.toFixed(1).replace(".", ",") + " BM",
+             effet:{}, mortels:m, situ:"", situOn:false, enAttente:"" };
+  }).filter(Boolean);
+}
 const porteMot = (k, nom) => (typeof KW !== "undefined" && KW[k]) ? has(k, nom) : k === nom;
 /* le groupe entier porte-t-il ce mot-cle ? un Plasmancien rattache rend
    CRYPTEK l'unite qu'il mene */

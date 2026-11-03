@@ -1168,6 +1168,16 @@ const KW = {
   "Rotigus",
   "Tallyman",
   "Typhus"
+ ],
+ "grenades": [
+  "Biologus Putrifier",
+  "Death Guard Chaos Lord",
+  "Foul Blightspawn",
+  "Icon Bearer",
+  "Lord of Contagion",
+  "Lord of Poxes",
+  "Mortarion",
+  "Plague Marines"
  ]
 };
 

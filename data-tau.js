@@ -1929,6 +1929,17 @@ const KW = {
   "Kroot War Shaper",
   "Longstrike",
   "The Twin Lance"
+ ],
+ "grenades": [
+  "Breacher Team",
+  "Cadre Fireblade",
+  "Kroot Carnivores",
+  "Kroot Farstalkers",
+  "Krootox Rampagers",
+  "Krootox Riders",
+  "Pathfinder Team",
+  "Stealth Battlesuits",
+  "Strike Team"
  ]
 };
 

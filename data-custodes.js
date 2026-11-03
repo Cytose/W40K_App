@@ -1078,6 +1078,10 @@ const KW = {
   "Shield-Captain on Dawneagle Jetbike",
   "Trajann Valoris",
   "Valerian"
+ ],
+ "explosives": [
+  "Venatari with Kinetic Destroyers",
+  "Venatari with Verutum Lances"
  ]
 };
 

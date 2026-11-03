@@ -48,6 +48,17 @@
    l'attaque), defWndFE (le meme -1, seulement si la Force depasse
    l'Endurance), dmgHalf (degats divises par deux, arrondis au superieur),
    svMod (sauvegarde d'armure amelioree, l'invulnerable n'en profite pas).
+
+   LES BLESSURES MORTELLES D'UN STRATAGEME (03/11/2026)
+   — mortels : {des, seuil, max}. Le profil ne decrit pas une arme mais
+     un jet de des : EXPLOSIFS jette six D6 et chaque 4+ inflige une
+     blessure mortelle ; IMPACT ECRASANT jette autant de D6 que
+     l'Endurance de la figurine, chaque 5+ en inflige une, six au plus.
+     Ni touche, ni blessure, ni sauvegarde : un point de degats par
+     blessure, que l'insensibilite peut encore arreter. La reduction et
+     la moitie des degats ne s'y appliquent pas (ce ne sont pas des
+     attaques). Un point a la fois, la surtue est impossible : le reste
+     passe a la figurine suivante.
    ========================================================== */
 (function(global){
 "use strict";
@@ -273,8 +284,28 @@ function moyenneAttaques(d, rrA){
   if(!xs) return m;
   return xs.reduce((a, x) => a + (x < m ? m : x), 0) / xs.length;
 }
+/* ---------- les blessures mortelles d'un stratageme ----------
+   L'esperance de min(X, max) quand X suit une binomiale (des, p). */
+function pReussite(m){ return Math.max(0, Math.min(1, (7 - Math.max(2, m.seuil)) / 6)); }
+function moyenneMortels(m){
+  const n = m.des|0, p = pReussite(m), cap = m.max || n;
+  let e = 0, c = 1;
+  for(let k=0;k<=n;k++){
+    if(k > 0) c = c * (n - k + 1) / k;
+    e += Math.min(k, cap) * c * Math.pow(p, k) * Math.pow(1 - p, n - k);
+  }
+  return e;
+}
+function analyticMortels(s){
+  const mw = moyenneMortels(s.mortels);
+  const keep = s.fnp ? 1 - passProb(s.fnp) : 1;
+  return {A:0, hits:0, wounds:mw, unsaved:mw, rawDmg:mw * keep,
+          wt:woundTarget(force(s), endurance(s)), st:saveTarget(s), mortels:mw};
+}
+
 /* ---------- esperances exactes ---------- */
 function analytic(s0){
+  if(s0.mortels) return analyticMortels(s0);
   const s = normalise(s0);
   const atk = parseDice(s.attacks) || {n:0,f:0,b:0};
   const blast = s.blast ? Math.floor(s.models/5) : 0;
@@ -322,6 +353,7 @@ function analytic(s0){
 /* ---------- precalcul pour la simulation ---------- */
 const roll = () => 1 + (Math.random()*6|0);
 function prep(s0){
+  if(s0.mortels) return { mortels: s0.mortels, fnp: s0.fnp|0 };
   const s = normalise(s0);
   const dmgD = parseDice(s.dmg) || {n:0,f:0,b:1};
   return {
@@ -357,6 +389,11 @@ function jette(set, rr, une, U, cle){
 }
 /* nombre d'attaques non sauvegardees sur un jet complet */
 function rollUnsaved(P, U){
+  if(P.mortels){
+    let n = 0;
+    for(let i=0;i<P.mortels.des;i++) if(roll() >= P.mortels.seuil) n++;
+    return P.mortels.max ? Math.min(n, P.mortels.max) : n;
+  }
   U = U || neuves();
   let x = diceRoll(P.atk);
   if(P.rrA && P.atk.n && x < diceMean(P.atk)) x = diceRoll(P.atk);
@@ -386,6 +423,7 @@ function rollUnsaved(P, U){
 }
 /* degats effectivement subis pour une attaque non sauvegardee */
 function rollDamage(P, U){
+  if(P.mortels) return (P.fnp && roll() >= P.fnp) ? 0 : 1;
   U = U || neuves();
   let x = diceRoll(P.dmgD);
   /* on relance un jet sous la moyenne du de : c'est ce que fait le
@@ -507,6 +545,6 @@ function simulateCombined(list, N){
 
 global.ENG = {parseDice, diceMean, diceRoll, scaleDice, sets, probs, woundTarget,
               saveTarget, apEffectif, passProb, endurance, force, ctEffective, meanDamagePerHit, analytic, simulate,
-              normalise,
+              normalise, moyenneMortels,
               simulateCombined, seuilTues, auMoins};
 })(typeof window !== "undefined" ? window : globalThis);

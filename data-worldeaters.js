@@ -867,6 +867,11 @@ const KW = {
   "Master of Executions",
   "Skarbrand",
   "Slaughterbound"
+ ],
+ "grenades": [
+  "Goremongers",
+  "Jakhals",
+  "Khorne Berzerkers"
  ]
 };
 

@@ -1118,6 +1118,9 @@ const KW = {
   "Tech-Priest Manipulus",
   "Technoarcheologist",
   "Thulia Ghuld"
+ ],
+ "grenades": [
+  "Pteraxii Skystalkers"
  ]
 };
 
