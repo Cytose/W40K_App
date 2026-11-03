@@ -597,6 +597,23 @@ def rangDe(intervalle):
     m = re.match(r'\[(\d+)', str(intervalle or '[1,)'))
     return int(m.group(1)) if m else 1
 
+def rangMFM(u):
+    """Quand le Munitorum donne deux entrées du même nom, la plus
+       ordinaire l'emporte : d'abord celle qui n'est pas Legends — le
+       Venerable Dreadnought du codex Space Wolves (130) et non celui
+       des Space Marines passé en Legends (165) —, puis celle sans
+       groupTitle — un Agent Impérial au prix de son propre détachement
+       (Eversor 100) et non au prix d'« Assigned Agent » dans une autre
+       armée impériale (110), que l'application ne joue pas."""
+    return (1 if u.get('legends') else 0, 1 if u.get('groupTitle') else 0)
+
+def indexeMFM(mfm):
+    MU = {}
+    for u in mfm.get('units', []) or []:
+        k = cle(u.get('name'))
+        if k not in MU or rangMFM(u) < rangMFM(MU[k]): MU[k] = u
+    return MU
+
 def bareme(unite):
     """Rend (tailles, points) au format de UNITS. Un seul barème donne un
        objet ; plusieurs — les seuils de réquisition — donnent la forme
@@ -780,9 +797,7 @@ def extrait(faction):
     inconnus = {}
 
     # le Munitorum, indexé par nom normalisé
-    MU = {}
-    for u in mfm.get('units', []) or []:
-        MU[cle(u.get('name'))] = u
+    MU = indexeMFM(mfm)
 
     UNITS, WEAPONS, CAT, APTITUDES, ATTACH, TRANSPORTS = [], [], [], {}, {}, {}
     MOTS = {}   # fiche → ses mots-clés BSData, en minuscules
