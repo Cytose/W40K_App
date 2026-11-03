@@ -48,42 +48,42 @@ const UNITS = [
   ["Damned Legionnaires",6,4,3,4,2,[5, 10],{"5": 90, "10": 180},0,"",1,"",1,"6+"],
   ["Deathwatch Kill Team",6,5,3,0,2,[5, 10],{"5": 115, "10": 220},0,"",0,"",2,"6+"],
   ["Deathwatch Terminator Squad",5,5,2,4,3,[5, 10],{"5": 210, "10": 420},0,"",1,"",1,"6+"],
-  ["Eversor Assassin",9,4,6,4,4,[1],{"1": 110},0,"",0,"",1,"6+"],
-  ["Exaction Squad",6,3,4,0,1,[11],{"11": 85},0,"",0,"",1,"7+"],
+  ["Eversor Assassin",9,4,6,4,4,[1],{"1": 100},0,"",0,"",1,"6+"],
+  ["Exaction Squad",6,3,4,0,1,[11],{"11": 90},0,"",0,"",1,"7+"],
   ["Fortis Kill Team",6,4,3,0,2,[5, 10],{"5": 100, "10": 200},0,"",1,"",1,"6+"],
-  ["Grey Knights Terminator Squad",5,6,2,4,3,[5],{"5": 190},0,"",0,"",2,"6+"],
+  ["Grey Knights Terminator Squad",5,6,2,4,3,[5],{"5": 175},0,"",0,"",2,"6+"],
   ["Imperial Navy Breachers",6,3,4,0,1,[10],{"10": 90},0,"",0,"",2,"7+"],
   ["Imperial Rhino",12,9,3,0,10,[1],[[1, {"1": 65}], [4, {"1": 75}]],0,"",0,"",2,"6+"],
   ["Indomitor Kill Team",5,6,3,0,3,[5, 10],{"5": 120, "10": 240},0,"",1,"",1,"6+"],
-  ["Inquisitor",6,3,4,5,4,[1],{"1": 65},0,"Meneur",0,"",1,"6+"],
-  ["Inquisitor Coteaz",6,3,2,4,4,[1],{"1": 95},0,"Meneur",0,"",1,"6+"],
-  ["Inquisitor Draxus",6,3,3,5,4,[1],{"1": 110},0,"Meneur",0,"",1,"6+"],
+  ["Inquisitor",6,3,4,5,4,[1],{"1": 55},0,"Meneur",0,"",1,"6+"],
+  ["Inquisitor Coteaz",6,3,2,4,4,[1],{"1": 75},0,"Meneur",0,"",1,"6+"],
+  ["Inquisitor Draxus",6,3,3,5,4,[1],{"1": 75},0,"Meneur",0,"",1,"6+"],
   ["Inquisitor Eisenhorn",6,3,4,5,4,[1],{"1": 65},0,"Meneur",1,"",1,"6+"],
   ["Inquisitor Greyfax",6,3,3,5,4,[1],{"1": 65},0,"Meneur",0,"",1,"6+"],
   ["Inquisitor Karamazov",8,9,3,4,10,[1],{"1": 140},0,"",1,"",3,"6+"],
   ["Inquisitor Kroyle",12,4,3,4,6,[1],{"1": 100},0,"",0,"",2,"6+"],
   ["Inquisitor Ostromandeus",6,3,3,5,4,[2],{"2": 65},0,"Meneur",1,"",1,"6+"],
   ["Inquisitor in Terminator Armour",5,4,2,4,5,[1],{"1": 70},0,"Meneur",1,"",1,"6+"],
-  ["Inquisitorial Agents",6,3,5,0,1,[6, 12],{"6": 60, "12": 120},0,"",0,"",1,"7+"],
+  ["Inquisitorial Agents",6,3,5,0,1,[6, 12],{"6": 50, "12": 100},0,"",0,"",1,"7+"],
   ["Inquisitorial Chimera",10,9,3,0,11,[1],[[1, {"1": 60}], [4, {"1": 70}]],0,"",0,"",2,"7+"],
   ["Janus Draik",6,3,4,4,4,[1],{"1": 40},0,"Meneur",1,"",1,"6+"],
   ["Jokaero Weaponsmith",6,3,5,4,2,[1],{"1": 30},0,"Meneur",1,"",0,"7+"],
   ["Kill Team Cassius",6,4,3,4,4,[11],{"11": 220},0,"",1,"",2,"5+"],
   ["Ministorum Priest",6,3,6,4,3,[1],{"1": 40},0,"Appui",0,"",1,"7+"],
-  ["Navigator",6,3,5,4,3,[1],{"1": 75},0,"Meneur",0,"",1,"7+"],
+  ["Navigator",6,3,5,4,3,[1],{"1": 60},0,"Meneur",0,"",1,"7+"],
   ["Neyam Shai Murad",6,3,4,4,4,[1],{"1": 40},0,"Meneur",1,"",1,"6+"],
   ["Proteus Kill Team",12,5,3,0,3,[5, 10],{"5": 160, "10": 320},0,"",1,"",2,"6+"],
-  ["Rogue Trader Entourage",6,3,4,4,4,[4],{"4": 105},0,"Meneur",0,"",1,"6+"],
+  ["Rogue Trader Entourage",6,3,4,4,4,[4],{"4": 75},0,"Meneur",0,"",1,"6+"],
   ["Sanctifiers",6,3,6,5,1,[9],{"9": 100},0,"",0,"",1,"7+"],
-  ["Sisters of Battle Immolator",12,10,3,6,11,[1],[[1, {"1": 105}], [4, {"1": 115}]],0,"",0,"",2,"7+"],
-  ["Sisters of Battle Squad",6,3,3,6,1,[10],{"10": 110},0,"",0,"",2,"7+"],
+  ["Sisters of Battle Immolator",12,10,3,6,11,[1],[[1, {"1": 90}], [4, {"1": 100}]],0,"",0,"",2,"7+"],
+  ["Sisters of Battle Squad",6,3,3,6,1,[10],{"10": 100},0,"",0,"",2,"7+"],
   ["Spectrus Kill Team",6,4,3,0,2,[5, 10],{"5": 90, "10": 180},0,"",1,"",1,"6+"],
-  ["Subductor Squad",6,3,3,4,1,[11],{"11": 100},0,"",0,"",1,"7+"],
+  ["Subductor Squad",6,3,3,4,1,[11],{"11": 85},0,"",0,"",1,"7+"],
   ["UR-025",5,5,3,0,4,[1],{"1": 55},0,"",1,"",1,"7+"],
   ["Veteran Bike Squad",12,5,3,0,3,[3, 6],{"3": 70, "6": 140},0,"",1,"",2,"6+"],
   ["Vigilant Squad",6,3,4,0,1,[11],{"11": 85},0,"",0,"",2,"7+"],
-  ["Vindicare Assassin",7,4,6,4,4,[1],{"1": 125},0,"",0,"",1,"6+"],
-  ["Voidsmen-at-Arms",6,3,4,0,1,[6],{"6": 70},0,"",0,"",2,"7+"],
+  ["Vindicare Assassin",7,4,6,4,4,[1],{"1": 110},0,"",0,"",1,"6+"],
+  ["Voidsmen-at-Arms",6,3,4,0,1,[6],{"6": 50},0,"",0,"",2,"7+"],
   ["Watch Captain Artemis",6,5,3,4,4,[1],{"1": 75},0,"Meneur",0,"",1,"6+"],
   ["Watch Master",6,5,2,4,5,[1],{"1": 105},0,"Meneur",0,"",1,"6+"]
 ];
@@ -2282,6 +2282,12 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Grey Knights Terminator Squad" : [["Psycannon", 5, [[0, 3, 1]], []]],
+ "Sisters of Battle Immolator" : [["Twin Multi-melta", 15, [[0, 2, 1]], []]]
+};
+
 enregistreFaction({
   cle : "agents",
   nom : "Agents Impériaux",
@@ -2290,7 +2296,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

@@ -1492,6 +1492,11 @@ const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
 const AURAS_PERSO = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Knight Crusader" : [["Rapid-fire battle cannon", 15, [[0, 1, 1]], []]]
+};
+
 enregistreFaction({
   cle : "chevaliers",
   nom : "Chevaliers Impériaux",
@@ -1500,7 +1505,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

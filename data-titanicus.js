@@ -254,6 +254,9 @@ const APTIS_COND = {};
 const AURAS_ARMEE = [];
 const AURAS_PERSO = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {};
+
 enregistreFaction({
   cle : "titanicus",
   nom : "Adeptus Titanicus",
@@ -262,7 +265,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

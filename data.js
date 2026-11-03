@@ -66,7 +66,8 @@ const TABLES_FACTION = [
 const TABLES_FACTION_OPT = {
     ENTRAVES   : {},   /* équipement imposé par un détachement */
     ENH_OTEES  : [],   /* optimisations que ce détachement retire */
-    SITU_CHOIX : {}    /* conditions de détachement qui se choisissent */
+    SITU_CHOIX : {},   /* conditions de détachement qui se choisissent */
+    OPTIONS_PTS: {}    /* options payantes du Munitorum (outils/options.py) */
   };
 
 /* Déclarés en let, et non en const : ce sont eux que l'adaptateur
@@ -76,7 +77,7 @@ const TABLES_FACTION_OPT = {
    d'une ligne. */
 let UNITS, ARMEMENT, WEAPONS, KW, STRAT_SIMU, APTIS_CIBLE, DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES, GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE, APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE, APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO;
 /* les facultatives, mêmes règles */
-let ENTRAVES, ENH_OTEES, SITU_CHOIX;
+let ENTRAVES, ENH_OTEES, SITU_CHOIX, OPTIONS_PTS;
 
 /* Index dérivés. Ils se calculent à partir des tables ci-dessus et
    doivent donc être refaits à chaque bascule — c'est la partie du
@@ -144,6 +145,7 @@ function activeFaction(cle){
   ENTRAVES       = T.ENTRAVES   || TABLES_FACTION_OPT.ENTRAVES;
   ENH_OTEES      = T.ENH_OTEES  || TABLES_FACTION_OPT.ENH_OTEES;
   SITU_CHOIX     = T.SITU_CHOIX || TABLES_FACTION_OPT.SITU_CHOIX;
+  OPTIONS_PTS    = T.OPTIONS_PTS || TABLES_FACTION_OPT.OPTIONS_PTS;
   FACTION_ACTIVE = F.cle;
   reconstruitIndex();
   return F.cle;

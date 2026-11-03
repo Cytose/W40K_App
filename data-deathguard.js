@@ -1721,6 +1721,11 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Defiler" : [["Heavy Reaper Autocannon", 15, [[0, 3, 1], [2, 3, 1]], []], ["Hades Lascannon", 15, [[0, 2, 1], [2, 2, 1]], []]]
+};
+
 enregistreFaction({
   cle : "deathguard",
   nom : "Death Guard",
@@ -1729,7 +1734,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

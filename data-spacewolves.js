@@ -145,7 +145,7 @@ const UNITS = [
   ["Ulrik the Slayer",7,5,3,4,4,[1],{"1": 90},0,"Meneur",0,"",1,"5+"],
   ["Vanguard Veteran Squad",6,4,3,0,2,[5, 10],{"5": 120, "10": 240},0,"",1,"",1,"6+"],
   ["Vanguard Veteran Squad with Jump Packs",12,5,3,0,2,[5, 10],[[1, {"5": 110, "10": 220}], [3, {"5": 130, "10": 240}]],0,"",0,"",1,"6+"],
-  ["Venerable Dreadnought",8,9,2,0,8,[1],{"1": 165},0,"",1,"",3,"6+"],
+  ["Venerable Dreadnought",8,9,2,0,8,[1],[[1, {"1": 130}], [3, {"1": 140}]],0,"",0,"",3,"6+"],
   ["Vindicator",9,11,2,0,11,[1],[[1, {"1": 185}], [3, {"1": 200}]],0,"",1,"",3,"6+"],
   ["Whirlwind",10,10,3,0,11,[1],[[1, {"1": 175}], [2, {"1": 195}]],0,"",1,"",3,"6+"],
   ["Wolf Guard",6,4,3,0,2,[5, 10],{"5": 85, "10": 170},0,"",1,"",1,"5+"],
@@ -4512,6 +4512,19 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Desolation Squad" : [["Vengor Launcher", 5, [[1, 2, 1]], []]],
+ "Impulsor" : [["Orbital Comms Array", 10, [[0, 0, 1]], []]],
+ "Invader ATVs" : [["Multi-melta", 5, [[0, 1, 1]], []]],
+ "Redemptor Dreadnought" : [["Macro plasma incinerator", 10, [[0, 1, 1]], []]],
+ "Repulsor Executioner" : [["Heavy Laser Destroyer", 10, [[0, 1, 1]], []]],
+ "Terminator Assault Squad" : [["Storm Shield", 5, [[1, 0, 1], [0, 1, 1]], []]],
+ "Terminator Squad" : [["Cyclone Missile Launcher", 10, [[1, 2, 1], [1, 3, 1]], []]],
+ "Thunderwolf Cavalry" : [["Storm Shield", 5, [[0, 0, 1]], []]],
+ "Wolf Guard Terminators" : [["Storm Shield", 5, [[1, 1, 1], [0, 3, 1]], []]]
+};
+
 enregistreFaction({
   cle : "spacewolves",
   nom : "Space Wolves",
@@ -4520,7 +4533,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

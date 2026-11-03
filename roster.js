@@ -545,6 +545,31 @@ function profilsPhase(ru, ph){
 }
 
 window.ROSTER = {
+  /* crochets de verification des options payantes (test-options.mjs) :
+     le total qu'aurait la liste ouverte avec ces unites-la, le prix
+     annonce a cote d'une option, et les entrees d'OPTIONS_PTS qui ne
+     tombent sur aucune option reelle, faction par faction */
+  essaiPoints: function(units){
+    if(!R) return null;
+    const sav = R.units; R.units = units;
+    try { return totalPoints(); } finally { R.units = sav; }
+  },
+  loDefaut: (nom, taille) => loParDefaut(nom, taille),
+  prixOption: (nom, si, oi) => prixOption(nom, si, oi),
+  optionsUnite: (faction, ru) => dansSaFaction({faction: faction}, () => optionsPtsUnite(ru)),
+  optionsOrphelines: function(){
+    const bad = [];
+    listeFactions().forEach(f => dansSaFaction({faction: f.cle}, () => {
+      Object.keys(OPTIONS_PTS).forEach(n => {
+        if(!unitRow(n)) bad.push(f.cle + ":" + n);
+        OPTIONS_PTS[n].forEach(([o, , opts]) => opts.forEach(([si, oi]) => {
+          const sl = armSlots(n)[si];
+          if(!sl || !sl.o[oi]) bad.push(f.cle + ":" + n + ":" + o);
+        }));
+      });
+    }));
+    return bad;
+  },
   /* crochet de verification : ce que « Maintenant » annonce a une phase
      et un camp donnes, sans avoir a promener l'ecran En partie */
   maintenant: function(ph, moi){
@@ -1181,7 +1206,44 @@ const nomPorteur = (ru, p) => (p === "" || p === undefined || p === null) ? ru.n
 function supplementPts(ru, L){
   const e = ru.enh && enhRow(ru.enh);
   const t = entraveDe(ru, L);
-  return (e && typeof e[1] === "number" ? e[1] : 0) + (t ? t[1] : 0);
+  return (e && typeof e[1] === "number" ? e[1] : 0) + (t ? t[1] : 0) +
+    optionsPtsUnite(ru) + ru.chars.reduce((a, c) => a + optionsPtsPerso(c), 0);
+}
+
+/* LES OPTIONS QUI SE PAIENT. Sous certaines fiches, le Munitorum ajoute
+   une ligne « Wargear options » : 25 points par Praesidium Shield sur un
+   Shield-Captain, 5 par multi-melta de flanc sur un Leman Russ. Le
+   bareme seul les oubliait : un Shield-Captain equipe d'office de sa
+   pyrithite et de son bouclier s'affichait 180 au lieu de 205.
+   OPTIONS_PTS (outils/options.py) dit, objet par objet, quelles options
+   d'emplacement l'emportent [emplacement, option, exemplaires] et
+   quelles armes d'office le portent. */
+const optionsDe = nom => (OPTIONS_PTS && OPTIONS_PTS[nom]) || null;
+function optionsPtsDe(nom, lo, parFig, port){
+  const t = optionsDe(nom); if(!t) return 0;
+  let p = 0;
+  t.forEach(([, pts, opts, fixes]) => {
+    let k = 0;
+    (lo || []).forEach(l => {
+      const nf = parFig ? (l.n > 0 ? l.n : 0) : 1;
+      opts.forEach(([s, o, n]) => { if(l.s === s && l.o === o) k += nf * n; });
+    });
+    if(fixes.length){ const pt = port(); fixes.forEach(i => { k += pt[i] || 0; }); }
+    p += k * pts;
+  });
+  return p;
+}
+const optionsPtsUnite = ru => optionsPtsDe(ru.name, ru.lo, true, () => portParArme(ru));
+const optionsPtsPerso = c => optionsPtsDe(c.name, c.lo, false, () => portParArmePerso(c));
+/* « +25 pts » a cote d'une option qui se paie, pour que le joueur voie
+   ce qu'il ajoute avant de le prendre */
+function prixOption(nom, si, oi){
+  const t = optionsDe(nom); if(!t) return "";
+  let p = 0; const quoi = [];
+  t.forEach(([objet, pts, opts]) => opts.forEach(([s, o, n]) => {
+    if(s === si && o === oi){ p += pts * n; quoi.push(objet); }
+  }));
+  return p ? ' <b class="omax" title="' + quoi.join(", ") + '">+' + p + ' pts</b>' : "";
 }
 
 /* KWSET et CATMAP se construisaient ici, une fois pour toutes. Ils
@@ -4170,7 +4232,7 @@ function renderRoster(){
         const row = document.createElement("div");
         row.className = "lo" + (n() ? " lo-on" : "") + (omax && n() > omax ? " lo-trop" : "");
         row.innerHTML = '<span class="ln">' + libelleOption(ru.name, opt, sl, oi) +
-          (omax ? ' <b class="omax">' + omax + ' max</b>' : '') +
+          (omax ? ' <b class="omax">' + omax + ' max</b>' : '') + prixOption(ru.name, si, oi) +
           ' <em>' + (detailDe(opt) || (eq ? "équipement, aucune arme" : "")) + '</em></span>';
         /* une figurine seule ne repartit rien : elle choisit. Un
            equipement facultatif se prend ET se rend — d'ou le second
@@ -4252,7 +4314,7 @@ function renderRoster(){
           const r = document.createElement("div");
           r.className = "lo" + (pris ? " lo-on" : "");
           r.innerHTML = '<span class="ln">' + libelleOption(c.name, opt, sl, oi) +
-            ' <em>' + (detailC(opt) ||
+            prixOption(c.name, si, oi) + ' <em>' + (detailC(opt) ||
               (slotEquip(sl) ? "équipement, aucune arme" : "")) + '</em></span>';
           const b = document.createElement("button");
           b.type = "button"; b.className = "chip" + (pris ? " on" : "");
@@ -4736,6 +4798,13 @@ function ouvreFiche(nom){
           tailles.map(t => "×" + t + " " + (pl[1][String(t)] || 0) + " pts").join("  ·  ") +
           '</span>';
       }).join("") + '</p></div>';
+  }
+
+  /* les options que le Munitorum fait payer en plus du bareme */
+  const opay = optionsDe(nom);
+  if(opay){
+    h += '<div class="ds-meta"><p class="fiche-pal"><b>Options payantes</b>' +
+      opay.map(([objet, pts]) => '<span>' + objet + ' : +' + pts + ' pts</span>').join("") + '</p></div>';
   }
 
   /* les armes : l'en-tete du tableau porte le titre, comme sur la fiche */
@@ -5544,8 +5613,12 @@ function renderPick(){
        facture au rang, et afficher le tarif de la premiere quand on en a
        deja deux fausserait le budget au moment meme du choix */
     const rgN = rangProchain(u[0]);
-    const pmin = ptsPour(u, u[6][0], rgN), pmax = ptsPour(u, u[6][u[6].length-1], rgN);
-    const monte = pmin > ptsPour(u, u[6][0], 1);
+    /* l'equipement d'office compte : un Shield-Captain arrive avec son
+       Praesidium Shield, et le paie */
+    const dflt = t => optionsPtsUnite({name: u[0], size: t, lo: loParDefaut(u[0], t), chars: []});
+    const tMax = u[6][u[6].length-1];
+    const pmin = ptsPour(u, u[6][0], rgN) + dflt(u[6][0]), pmax = ptsPour(u, tMax, rgN) + dflt(tMax);
+    const monte = ptsPour(u, u[6][0], rgN) > ptsPour(u, u[6][0], 1);
     const reste = (R.cap || 2000) - totalPoints();
     if(pmin > reste) b.classList.add("cher");
     const deja = R.units.filter(x => x.name === u[0]).length;

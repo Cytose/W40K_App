@@ -3504,6 +3504,21 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Desolation Squad" : [["Vengor Launcher", 5, [[1, 2, 1]], []]],
+ "Gladiator Lancer" : [["Multi-melta", 10, [[0, 0, 1]], []]],
+ "Gladiator Reaper" : [["Multi-melta", 10, [[0, 0, 1]], []]],
+ "Gladiator Valiant" : [["Multi-melta", 10, [], [1]]],
+ "Impulsor" : [["Multi-melta", 10, [[1, 1, 1]], []], ["Orbital Comms Array", 10, [[0, 0, 1]], []]],
+ "Invader ATVs" : [["Multi-melta", 5, [[0, 1, 1]], []]],
+ "Redemptor Dreadnought" : [["Macro plasma incinerator", 10, [[0, 1, 1]], []]],
+ "Repulsor" : [["Multi-melta", 10, [[2, 0, 1]], []]],
+ "Repulsor Executioner" : [["Multi-melta", 10, [[1, 0, 1]], []]],
+ "Terminator Assault Squad" : [["Storm Shield", 5, [[1, 0, 1], [0, 1, 1]], []]],
+ "Terminator Squad" : [["Cyclone Missile Launcher", 10, [[1, 2, 1], [1, 3, 1]], []]]
+};
+
 enregistreFaction({
   cle : "blacktemplars",
   nom : "Black Templars",
@@ -3512,7 +3527,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();
