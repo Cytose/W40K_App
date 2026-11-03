@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1511,7 +1512,24 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Brôkhyr Iron-master" : {"f": [0, 1, 2, 3, 4, 5, 6], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 2, "4": 1, "5": 1, "6": 1}},
+ "Brôkhyr Thunderkyn" : {"f": [3], "s": [{"min": 1, "o": [[0], [1], [2]]}]},
+ "Cthonian Beserks" : {"f": [], "s": [{"min": 1, "o": [[2], [1], [3], [0]], "qui": "Figurines", "omax": [0, 0, 2, 2], "onom": ["Beserk : Heavy plasma axe", "Beserk : Concussion maul", "Beserk w/ twin concussion gauntlets", "Beserk w/ mole grenade launcher"]}]},
+ "Cthonian Earthshakers" : {"f": [3, 0], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Einhyr Champion" : {"f": [0], "s": [{"min": 1, "o": [[2], [1]]}]},
+ "Einhyr Hearthguard" : {"f": [1], "s": [{"min": 0, "o": [[4]], "nb": 1, "qui": "Hesyr"}, {"min": 1, "o": [[0], [2]], "nb": -1, "qui": "Einhyr Hearthguard"}, {"min": 1, "o": [[3], [5]], "nb": -1, "qui": "Einhyr Hearthguard"}]},
+ "Grimnyr" : {"f": [0, 1, 2, 3, 4], "s": [], "nf": {"0": 2, "1": 1, "2": 1, "3": 1, "4": 2}},
+ "Hearthkyn Warriors" : {"f": [0, 10], "s": [{"min": 0, "o": [[12]], "nb": 1, "qui": "Theyn"}, {"min": 1, "o": [[1], [5], [7]], "nb": 1, "qui": "Theyn"}, {"min": 1, "o": [[1], [5], [11], [4], [3], [8, 9], [6], [2]], "qui": "Figurines", "omax": [0, 0, 2, 1, 1, 1, 1, 1], "onom": ["Hearthkyn Warrior w/ bolter", "Hearthkyn Warrior w/ ion blaster", "Hearthkyn Warrior w/ plasma knife", "Hearthkyn Warrior w/ HYLas rotary cannon", "Hearthkyn Warrior w/ HYLas auto rifle", "Hearthkyn Warrior w/ L7 missile launcher", "Hearthkyn Warrior w/ magna-rail rifle", "Hearthkyn Warrior w/ EtaCarn plasma beamer"], "nb": -1}]},
+ "Hekaton Land Fortress" : {"f": [7, 3], "s": [{"min": 1, "o": [[0], [4], [1]]}, {"min": 1, "o": [[5], [6]]}, {"min": 1, "o": [[5], [6]]}, {"min": 1, "o": [[], [2]], "onom": ["Pan spectral scanner", ""]}]},
+ "Hernkyn Pioneers" : {"f": [0, 1, 4, 5], "s": [{"min": 1, "o": [[], [2], [3]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Hernkyn Pioneer", "Hernkyn Pioneer w/ HYLas rotary cannon", "Hernkyn Pioneer w/ ion beamer"]}]},
+ "Hernkyn Yaegirs" : {"f": [4], "s": [{"min": 1, "o": [[2], [1, 5]], "nb": 1, "qui": "Yaegir Theyn"}, {"min": 1, "o": [[2], [1, 5], [0], [3]], "qui": "Figurines", "omax": [0, 0, 1, 1], "onom": ["Hernkyn Yaegir w/ bolt shotgun", "Hernkyn Yaegir w/ revolver and knife", "Hernkyn Yaegir w/ APM launcher", "Hernkyn Yaegir w/ magna-coil rifle"], "nb": -1}]},
+ "Ironkin Steeljacks with Heavy Volkanite Disintegrators" : {"f": [1, 2], "s": [{"min": 1, "o": [[1, 2], [0, 3]], "nb": 1, "qui": "Steeljack Theyn"}], "nf": {"1": -1, "2": -1}},
+ "Ironkin Steeljacks with Melee Weapons" : {"f": [0], "s": [{"min": 1, "o": [[2], [1]], "nb": 1, "qui": "Steeljack Theyn"}, {"min": 1, "o": [[1], [2]], "qui": "Figurines", "onom": ["Ironkin Steeljack w/ concussion gauntlet", "Ironkin Steeljack w/ plasma sword"], "nb": -1}]},
+ "Kapricus Defenders" : {"f": [3, 2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Kâhl" : {"f": [], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[0], [1]]}]},
+ "Sagitaur" : {"f": [6, 3], "s": [{"min": 1, "o": [[0], [2, 4, 5], [1]]}]}
+};
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};

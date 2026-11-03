@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -4023,7 +4024,113 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Aquila Lander" : {"f": [3], "s": [{"min": 1, "o": [[1], [0], [2]]}]},
+ "Arkurian Stormhammer" : {"f": [7, 8, 9, 4], "s": [{"min": 1, "o": [[5], [0], [1], [4]]}, {"min": 0, "o": [[6], [2]]}, {"min": 0, "o": [[3]]}], "n": {"5": 7, "0": 7, "1": 7, "4": 7}},
+ "Armageddon-pattern Medusa" : {"f": [4, 6], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 0, "o": [[5], [2]]}, {"min": 0, "o": [[3]]}]},
+ "Armoured Sentinels" : {"f": [9], "s": [{"min": 1, "o": [[4], [0], [3], [1], [5, 6], [7, 8]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[10]]}]},
+ "Artillery Team" : {"f": [5, 2], "s": [{"min": 1, "o": [[0], [4], [3], [1]]}]},
+ "Atlas Recovery Vehicle" : {"f": [4, 0], "s": [{"min": 0, "o": [[3], [1]]}, {"min": 0, "o": [[2]]}]},
+ "Attilan Rough Riders" : {"f": [0, 1, 4], "s": [{"min": 0, "o": [[3]], "nb": 1, "qui": "Rough Rider Sergeant"}, {"min": 1, "o": [[5, 6], [2]], "omax": [0, 2], "nb": 1, "qui": "Rough Rider Sergeant"}, {"min": 1, "o": [[5, 6], [2]], "qui": "Figurines", "omax": [0, 1], "onom": ["Rough Rider w/ Hunting lance", "Rough Rider w/ Goad lance"], "nb": -1}]},
+ "Avenger Strike Fighter" : {"f": [0, 3, 1, 2], "s": [], "n": {"2": 2}},
+ "Baneblade" : {"f": [0, 7, 1, 2, 3, 4, 5], "s": [{"min": 1, "o": [[6], [5]]}, {"min": 0, "o": [[4, 5], [4, 6]]}], "n": {"4": 2, "6": 2, "5": 2}},
+ "Banehammer" : {"f": [1, 4, 0, 2], "s": [{"min": 1, "o": [[3], [2]]}, {"min": 0, "o": [[0, 2], [0, 3]]}], "n": {"0": 2, "3": 2, "2": 2}},
+ "Banesword" : {"f": [1, 4, 0, 2], "s": [{"min": 1, "o": [[3], [2]]}, {"min": 0, "o": [[0, 2], [0, 3]]}], "n": {"0": 2, "3": 2, "2": 2}},
+ "Basilisk" : {"f": [0, 4], "s": [{"min": 1, "o": [[1], [2]]}, {"min": 0, "o": [[3]]}]},
+ "Bullgryn Squad" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]], "nb": 1, "qui": "Bullgryn Bone 'ead"}, {"min": 1, "o": [[0], [1]], "nb": -1, "qui": "Bullgryn"}]},
+ "Cadian Castellan" : {"f": [], "s": [{"min": 1, "o": [[2], [0], [3, 4]]}, {"min": 1, "o": [[5], [6, 1], [7], [8]]}]},
+ "Cadian Command Squad" : {"f": [2, 12], "s": [{"min": 1, "o": [[11], [13], [14]], "nb": 1, "qui": "Cadian Commander"}, {"min": 1, "o": [[3], [0], [9, 10]], "nb": 1, "qui": "Cadian Commander"}, {"min": 1, "o": [[2], [1], [5, 6], [4], [7, 8]], "nb": 1, "qui": "Cadian Veteran Guardsman w/ Regimental standard"}, {"min": 1, "o": [[11], [1, 12], [12, 5, 6], [12, 7, 8], [12, 4], [13], [14]], "nb": 1, "qui": "Cadian Veteran Guardsman"}, {"min": 1, "o": [[0], [3], [9, 10]], "nb": 1, "qui": "Cadian Veteran Guardsman"}], "nf": {"2": 2, "12": 3}},
+ "Cadian Heavy Weapons Squad" : {"f": [3, 7], "s": [{"min": 1, "o": [[1], [4], [5, 6], [2], [0]], "qui": "Figurines", "onom": ["Heavy Weapons Team w/ Heavy bolter", "Heavy Weapons Team w/ Mortar", "Heavy Weapons Team w/ Missile launcher", "Heavy Weapons Team w/ Lascannon", "Heavy Weapons Team w/ Autocannon"]}]},
+ "Cadian Recon Squad" : {"f": [1, 2, 5, 6, 9], "s": [{"min": 1, "o": [[1], [3], [0], [7, 8], [4]], "qui": "Figurines", "omax": [0, 2, 1, 1, 1], "onom": ["Recon Trooper w/ Lasgun", "Recon Trooper w/ Long-las", "Recon Trooper w/ Autostubber", "Recon Trooper w/ Plasma gun", "Recon Trooper w/ Meltagun"], "nb": -3}], "nf": {"1": 1, "2": 2, "5": 1, "6": 1}},
+ "Cadian Shock Troops" : {"f": [11], "s": [{"min": 1, "o": [[3, 10], [0, 10], [5, 11]], "nb": 1, "qui": "Shock Trooper Sergeant"}, {"min": 1, "o": [[2], [1], [6, 7], [4], [8, 9]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1], "onom": ["Shock Trooper", "Shock Trooper w/ Flamer", "Shock Trooper w/ Grenade Launcher", "Shock Trooper w/ Meltagun", "Shock Trooper w/ Plasma Gun"], "nb": -1}], "nf": {"11": -1}},
+ "Carnodon" : {"f": [11], "s": [{"min": 1, "o": [[0], [4], [5], [7], [8], [9]]}, {"min": 1, "o": [[1], [2], [3], [10]]}, {"min": 0, "o": [[6]]}], "n": {"0": 2, "4": 2, "5": 2, "7": 2, "8": 2, "9": 2}},
+ "Catachan Command Squad" : {"f": [5, 15], "s": [{"min": 1, "o": [[5], [0], [12, 13]], "nb": 1, "qui": "Catachan Commander"}, {"min": 0, "o": [[1], [14], [16], [17]], "nb": 1, "qui": "Catachan Commander"}, {"min": 1, "o": [[4], [2], [8, 9], [3], [6], [10, 11], [7]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1, 1, 1], "onom": ["Veteran Guardsman", "Veteran Guardsman w/ Flamer", "Veteran Guardsman w/ Grenade launcher", "Veteran Guardsman w/ Heavy flamer", "Veteran Guardsman w/ Meltagun", "Veteran Guardsman w/ Plasma gun", "Veteran Guardsman w/ Sniper rifle"], "nb": -1}], "nf": {"5": -1}},
+ "Catachan Heavy Weapons Squad" : {"f": [3, 7], "s": [{"min": 1, "o": [[1], [4], [5, 6], [2], [0]], "qui": "Figurines", "onom": ["Heavy Weapons Team w/ Heavy bolter", "Heavy Weapons Team w/ Mortar", "Heavy Weapons Team w/ Missile launcher", "Heavy Weapons Team w/ Lascannon", "Heavy Weapons Team w/ Autocannon"]}]},
+ "Catachan Jungle Fighters" : {"f": [2, 3], "s": [{"min": 1, "o": [[1], [0]], "qui": "Figurines", "omax": [0, 2], "onom": ["Jungle Fighter", "Jungle Fighter w/ Flamer"], "nb": -1}], "nf": {"2": 1}},
+ "Centaur Light Carrier" : {"f": [2, 0], "s": [{"min": 0, "o": [[1]]}], "n": {"0": 2}},
+ "Chimera" : {"f": [4, 7], "s": [{"min": 1, "o": [[5], [0], [1]]}, {"min": 1, "o": [[0], [1]]}, {"min": 0, "o": [[6], [2]]}, {"min": 0, "o": [[3]]}]},
+ "Colossus" : {"f": [0, 4], "s": [{"min": 0, "o": [[1], [3]]}, {"min": 0, "o": [[2]]}]},
+ "Commissar" : {"f": [], "s": [{"min": 1, "o": [[0], [1, 2]]}, {"min": 1, "o": [[3], [4]]}]},
+ "Commissar Graves" : {"f": [1, 3, 2, 0, 4], "s": [], "n": {"1": 2}},
+ "Crassus" : {"f": [0, 3], "s": [{"min": 0, "o": [[1], [2]]}], "n": {"0": 4}},
+ "Death Korps Grenadier Squad" : {"f": [5, 11, 12], "s": [{"min": 1, "o": [[3], [7, 8], [2], [4], [9, 10], [6], [0], [1]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2, 2, 2, 1], "onom": ["Grenadier", "Grenadier w/ Grenade launcher", "Grenadier w/ Heavy stubber", "Grenadier w/ Meltagun", "Grenadier w/ Plasma gun", "Grenadier w/ Sniper rifle", "Grenadier w/ Flamer", "Heavy Weapons Team"], "nb": -1}], "nf": {"5": 1, "11": -1, "12": 1}},
+ "Death Korps of Krieg" : {"f": [14], "s": [{"min": 1, "o": [[13, 4], [13, 0], [13, 11, 12], [15, 4], [15, 0], [15, 11, 12], [14, 1]], "nb": 1, "qui": "Death Korps Watchmaster"}, {"min": 1, "o": [[3], [2], [7, 8], [5], [6], [9, 10]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1, 1], "onom": ["Death Korps Trooper", "Death Korps Trooper w/ Flamer", "Death Korps Trooper w/ Grenade launcher", "Death Korps Trooper w/ Long-las", "Death Korps Trooper w/ Meltagun", "Death Korps Trooper w/ Plasma gun"], "nb": -1}], "nf": {"14": -1}},
+ "Death Riders" : {"f": [0, 1, 2, 3], "s": []},
+ "Deathstrike" : {"f": [0, 4], "s": [{"min": 1, "o": [[1], [2]]}, {"min": 0, "o": [[3]]}]},
+ "Dominus Armoured Siege Bombard" : {"f": [1, 8], "s": [{"min": 0, "o": [[7], [4]]}, {"min": 1, "o": [[2], [0], [3], [6]]}, {"min": 0, "o": [[5]]}], "n": {"2": 2, "0": 2, "3": 2, "6": 2}},
+ "Doomhammer" : {"f": [1, 4, 0, 2], "s": [{"min": 1, "o": [[3], [2]]}, {"min": 0, "o": [[0, 2], [0, 3]]}], "n": {"0": 2, "3": 2, "2": 2}},
+ "Elysian Drop Sentinel" : {"f": [4, 0], "s": [{"min": 0, "o": [[3], [1]]}, {"min": 0, "o": [[2]]}]},
+ "Field Ordnance Battery" : {"f": [2, 3, 5], "s": [{"min": 1, "o": [[4], [0], [1]], "qui": "Figurines", "onom": ["Ordnance Team w/ Malleus rocket launcher", "Ordnance Team w/ Bombast field gun", "Ordnance Team w/ Heavy lascannon"]}]},
+ "Gaunt’s Ghosts" : {"f": [0, 1, 2, 3, 4, 5, 6, 7, 8], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 4}},
+ "Gorgon Heavy Transport" : {"f": [6, 5], "s": [{"min": 1, "o": [[0], [1], [2], [3]]}, {"min": 0, "o": [[4]]}], "n": {"5": 2, "0": 2, "1": 4, "2": 4, "3": 4}},
+ "Griffon Mortar Carrier" : {"f": [0, 5], "s": [{"min": 1, "o": [[1], [2]]}, {"min": 0, "o": [[4], [3]]}]},
+ "Hell's Last" : {"f": [0, 1, 2, 3, 4, 5, 6], "s": [], "nf": {"0": 2, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 3}},
+ "Hellhammer" : {"f": [3, 7, 0, 1, 2, 4, 5], "s": [{"min": 1, "o": [[6], [5]]}, {"min": 0, "o": [[4, 5], [4, 6]]}], "n": {"4": 2, "6": 2, "5": 2}},
+ "Hellhound" : {"f": [7], "s": [{"min": 1, "o": [[2], [6], [1]]}, {"min": 1, "o": [[4], [0], [5]]}, {"min": 0, "o": [[3]]}]},
+ "Hippogriff AFV" : {"f": [6], "s": [{"min": 1, "o": [[1], [4]]}, {"min": 1, "o": [[5], [3], [0], [2]]}]},
+ "Hydra" : {"f": [3, 4], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}]},
+ "Kasrkin" : {"f": [14], "s": [{"min": 1, "o": [[3], [11, 12], [0]], "nb": 1, "qui": "Kasrkin Sergeant"}, {"min": 1, "o": [[13], [15]], "nb": 1, "qui": "Kasrkin Sergeant"}, {"min": 1, "o": [[2], [4], [3], [1], [9, 10], [5], [6], [7, 8]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1, 1, 1, 1], "onom": ["Kasrkin Trooper", "Kasrkin Trooper w/ Hot-shot marksman rifle", "Kasrkin Trooper w/ Hot-shot laspistol and melta mine", "Kasrkin Trooper w/ Flamer", "Kasrkin Trooper w/ Plasma gun", "Kasrkin Trooper w/ Hot-shot volley gun", "Kasrkin Trooper w/ Meltagun", "Kasrkin Trooper w/ Grenade launcher"], "nb": -1}], "nf": {"14": -1}},
+ "Krieg Combat Engineers" : {"f": [], "s": [{"min": 1, "o": [[0, 10], [0, 7], [0, 9], [4, 10], [4, 7], [4, 9], [5, 6, 10], [5, 6, 7], [5, 6, 9], [1, 10], [1, 7], [1, 9], [8, 2]], "nb": 1, "qui": "Krieg Engineer Watchmaster"}, {"min": 1, "o": [[0, 10], [8, 2], [8, 3], [0, 8]], "qui": "Figurines", "omax": [0, 0, 1, 1], "onom": ["Krieg Combat Engineer", "Krieg Combat Engineer w/ Combat shotgun", "Krieg Combat Engineer w/ Flamer", "Krieg Combat Engineer w/ Remote mine"], "nb": -1}]},
+ "Krieg Command Squad" : {"f": [3, 4, 13], "s": [{"min": 0, "o": [[10, 11]], "nb": 1, "qui": "Lord Commissar"}, {"min": 1, "o": [[15], [14]], "nb": 1, "qui": "Lord Commissar"}, {"min": 1, "o": [[1], [8, 9], [5], [6, 7], [2]], "nb": 1, "qui": "Veteran Guardsman w/ Boltgun"}, {"min": 1, "o": [[12], [16], [15]], "nb": 1, "qui": "Veteran Guardsman w/ Chainsword"}, {"min": 1, "o": [[4], [0], [10, 11]], "omax": [0, 1, 1], "nb": 1, "qui": "Veteran Guardsman w/ Chainsword"}], "nf": {"3": 2, "4": 2, "13": 4}},
+ "Krieg Heavy Weapons Squad" : {"f": [2, 4], "s": [{"min": 1, "o": [[0], [3], [1]], "qui": "Figurines", "onom": ["Heavy Weapons Gunners w/ Krieg heavy flamer", "Heavy Weapons Gunners w/ Twin Krieg heavy stubber", "Heavy Weapons Gunners w/ Lascannon"], "nb": -1}]},
+ "Leman Russ Battle Tank" : {"f": [5, 10], "s": [{"min": 1, "o": [[4], [0], [1]]}, {"min": 0, "o": [[0], [1], [6], [8, 9]]}, {"min": 0, "o": [[7], [2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2, "1": 2, "6": 2, "8": 2, "9": 2}},
+ "Leman Russ Commander" : {"f": [17], "s": [{"min": 1, "o": [[8], [0], [12], [1], [13, 14], [10], [2]]}, {"min": 1, "o": [[7], [3], [4]]}, {"min": 0, "o": [[3], [4], [9], [15, 16]]}, {"min": 0, "o": [[11], [5]]}, {"min": 0, "o": [[6]]}], "n": {"3": 2, "4": 2, "9": 2, "16": 2, "15": 2}},
+ "Leman Russ Demolisher" : {"f": [0, 10], "s": [{"min": 1, "o": [[5], [1], [2]]}, {"min": 0, "o": [[1], [2], [6], [8, 9]]}, {"min": 0, "o": [[7], [3]]}, {"min": 0, "o": [[4]]}], "n": {"1": 2, "2": 2, "6": 2, "8": 2, "9": 2}},
+ "Leman Russ Eradicator" : {"f": [0, 10], "s": [{"min": 1, "o": [[5], [1], [2]]}, {"min": 0, "o": [[1], [2], [6], [8, 9]]}, {"min": 0, "o": [[7], [3]]}, {"min": 0, "o": [[4]]}], "n": {"1": 2, "2": 2, "6": 2, "8": 2, "9": 2}},
+ "Leman Russ Executioner" : {"f": [11, 7, 8], "s": [{"min": 1, "o": [[4], [0], [1]]}, {"min": 0, "o": [[0], [1], [5], [9, 10]]}, {"min": 0, "o": [[6], [2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2, "1": 2, "5": 2, "9": 2, "10": 2}},
+ "Leman Russ Exterminator" : {"f": [0, 10], "s": [{"min": 1, "o": [[5], [1], [2]]}, {"min": 0, "o": [[1], [2], [6], [8, 9]]}, {"min": 0, "o": [[7], [3]]}, {"min": 0, "o": [[4]]}], "n": {"1": 2, "2": 2, "6": 2, "8": 2, "9": 2}},
+ "Leman Russ Punisher" : {"f": [6, 10], "s": [{"min": 1, "o": [[4], [0], [1]]}, {"min": 0, "o": [[0], [1], [5], [8, 9]]}, {"min": 0, "o": [[7], [2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2, "1": 2, "5": 2, "8": 2, "9": 2}},
+ "Leman Russ Vanquisher" : {"f": [10, 7], "s": [{"min": 1, "o": [[4], [0], [1]]}, {"min": 0, "o": [[0], [1], [5], [8, 9]]}, {"min": 0, "o": [[6], [2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2, "1": 2, "5": 2, "8": 2, "9": 2}},
+ "Macharius" : {"f": [4, 7, 6], "s": [{"min": 0, "o": [[2], [5]]}, {"min": 1, "o": [[2], [0], [1]]}, {"min": 0, "o": [[3]]}], "n": {"2": 2, "0": 2, "1": 2}},
+ "Macharius Omega" : {"f": [5, 6, 7], "s": [{"min": 0, "o": [[0], [1], [2]]}, {"min": 0, "o": [[4], [3]]}], "n": {"0": 2, "1": 2, "2": 2}},
+ "Macharius Vanquisher" : {"f": [4, 7, 6], "s": [{"min": 1, "o": [[2], [0], [1]]}, {"min": 0, "o": [[2], [5]]}, {"min": 0, "o": [[3]]}], "n": {"2": 2, "0": 2, "1": 2}},
+ "Macharius Vulcan" : {"f": [4, 7, 6], "s": [{"min": 1, "o": [[2], [0], [1]]}, {"min": 0, "o": [[2], [5]]}, {"min": 0, "o": [[3]]}], "n": {"2": 2, "0": 2, "1": 2}},
+ "Malcador" : {"f": [5, 7], "s": [{"min": 1, "o": [[0], [1], [4]]}, {"min": 1, "o": [[1], [4], [0]]}, {"min": 0, "o": [[2], [6]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2, "1": 2, "4": 2}},
+ "Malcador Annihilator" : {"f": [1, 6, 8], "s": [{"min": 1, "o": [[0], [2], [5]]}, {"min": 0, "o": [[3], [7]]}, {"min": 0, "o": [[4]]}], "n": {"0": 2, "2": 2, "5": 2}},
+ "Malcador Defender" : {"f": [1, 7, 2], "s": [{"min": 1, "o": [[2], [0], [5]]}, {"min": 0, "o": [[3], [6]]}, {"min": 0, "o": [[4]]}], "n": {"2": 5, "0": 2, "5": 2}},
+ "Malcador Infernus" : {"f": [5, 8], "s": [{"min": 1, "o": [[1], [0], [6], [2]]}, {"min": 0, "o": [[3], [7]]}, {"min": 0, "o": [[4]]}], "n": {"1": 2, "0": 2, "6": 2, "2": 2}},
+ "Manticore" : {"f": [3, 4], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}]},
+ "Marauder Bomber" : {"f": [2, 0, 1], "s": [], "n": {"0": 2, "1": 2}},
+ "Marauder Destroyer" : {"f": [3, 0, 4, 1], "s": [{"min": 0, "o": [[2]]}], "n": {"0": 2, "1": 2}},
+ "Militarum Tempestus Command Squad" : {"f": [12, 13], "s": [{"min": 1, "o": [[0], [], [10, 11]], "onom": ["", "Command rod", ""], "nb": 1, "qui": "Tempestor Prime"}, {"min": 1, "o": [[2], [1], [6, 7], [5], [4], [8, 9], [3]], "qui": "Figurines", "omax": [0, 0, 0, 0, 0, 0, 1], "onom": ["Tempestus Scion : Hot-shot lasgun", "Tempestus Scion : Flamer", "Tempestus Scion : Grenade launcher", "Tempestus Scion : Meltagun", "Tempestus Scion : Hot-shot volley gun", "Tempestus Scion : Plasma gun", "Tempestus Scion w/ Master Vox"], "nb": -1}, {"min": 0, "o": [[2]], "nb": -1, "qui": "Tempestus Scion w/ Medi-pack"}], "nf": {"12": -1, "13": 1}},
+ "Ministorum Priest" : {"f": [], "s": [{"min": 1, "o": [[3, 1], [0, 2]]}]},
+ "Mukaali Riders" : {"f": [1, 12], "s": [{"min": 1, "o": [[1], [7, 8]], "nb": 1, "qui": "Mukaali Rider Sergeant"}, {"min": 1, "o": [[10], [9], [11]], "nb": 1, "qui": "Mukaali Rider Sergeant"}, {"min": 1, "o": [[10], [0], [5, 6], [2], [3, 4]], "nb": 2, "qui": "Mukaali Riders"}], "nf": {"1": 2, "12": 3}},
+ "Munitorum Servitors" : {"f": [], "s": [{"min": 1, "o": [[4], [0], [1], [2, 3]], "qui": "Figurines", "omax": [0, 2, 2, 2], "onom": ["Munitorum Servitor w/ Servitor's Servo Arm", "Munitorum Servitor w/ Special Weapon : Heavy bolter", "Munitorum Servitor w/ Special Weapon : Multi-melta", "Munitorum Servitor w/ Special Weapon : Plasma cannon"]}]},
+ "Ogryn Bodyguard" : {"f": [3], "s": [{"min": 1, "o": [[4], []], "onom": ["", "Slabshield"]}, {"min": 1, "o": [[1, 5], [2], [0]]}]},
+ "Ogryn Squad" : {"f": [0, 1], "s": []},
+ "Praetor" : {"f": [5, 3, 4, 0], "s": [{"min": 0, "o": [[1], [2]]}], "n": {"0": 2}},
+ "Quartermaster Cadre Squad" : {"f": [0, 1, 2], "s": [], "nf": {"0": 1, "1": 4, "2": 1}},
+ "Ratlings" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]], "qui": "Figurines", "omax": [0, 1], "onom": ["Ratlings", "Ratling w/ tankstopper rifle"]}]},
+ "Regimental Attachés" : {"f": [0, 1, 2], "s": [], "nf": {"0": 3, "1": 1, "2": 2}},
+ "Rein and Raus" : {"f": [0, 1, 2, 3], "s": [], "nf": {"0": 1, "1": 1, "2": 2, "3": 2}},
+ "Rogal Dorn Battle Tank" : {"f": [9, 3], "s": [{"min": 1, "o": [[8], [1, 6]]}, {"min": 1, "o": [[0], [7]]}, {"min": 0, "o": [[5], [2]]}, {"min": 0, "o": [[4], [3]]}], "n": {"5": 2, "2": 2, "4": 2, "3": 2}},
+ "Rogal Dorn Commander" : {"f": [9, 3], "s": [{"min": 1, "o": [[0], [7]]}, {"min": 0, "o": [[4], [3]]}, {"min": 0, "o": [[5], [2]]}, {"min": 1, "o": [[8], [1, 6]]}], "n": {"4": 2, "3": 2, "5": 2, "2": 2}},
+ "Sabre Weapons Battery" : {"f": [4], "s": [{"min": 1, "o": [[1], [], [3], [2], [0]], "onom": ["", "Defence Searchlight", "", "", ""]}]},
+ "Salamander Command Vehicle" : {"f": [5, 0, 1], "s": [{"min": 0, "o": [[4], [2]]}, {"min": 0, "o": [[3]]}]},
+ "Salamander Scout Vehicle" : {"f": [5, 0, 1], "s": [{"min": 0, "o": [[4], [2]]}, {"min": 0, "o": [[3]]}]},
+ "Scout Sentinels" : {"f": [9], "s": [{"min": 1, "o": [[4], [0], [3], [1], [5, 6], [7, 8]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[10]]}]},
+ "Shadowsword" : {"f": [3, 4, 0, 1], "s": [{"min": 1, "o": [[2], [1]]}, {"min": 0, "o": [[0, 1], [0, 2]]}], "n": {"0": 2, "2": 2, "1": 2}},
+ "Storm Chimera" : {"f": [6, 0], "s": [{"min": 0, "o": [[5], [3]]}, {"min": 1, "o": [[1], [2]]}, {"min": 0, "o": [[4]]}]},
+ "Stormblade" : {"f": [6, 7, 8, 2], "s": [{"min": 1, "o": [[4], [5]]}, {"min": 0, "o": [[0], [3]]}, {"min": 0, "o": [[2, 4], [2, 5]]}, {"min": 0, "o": [[1]]}], "n": {"2": 2, "4": 2, "5": 2}},
+ "Stormlord" : {"f": [4, 2, 1, 0, 5], "s": [{"min": 1, "o": [[3], [2]]}, {"min": 0, "o": [[1, 2], [1, 3]]}], "n": {"1": 2, "0": 2, "3": 2, "2": 2}},
+ "Stormsword" : {"f": [1, 2, 0, 4], "s": [{"min": 1, "o": [[3], [2]]}, {"min": 0, "o": [[0, 2], [0, 3]]}], "n": {"0": 2, "3": 2, "2": 2}},
+ "Stygies Destroyer Tank Hunter" : {"f": [3, 4], "s": [{"min": 0, "o": [[2], [0]]}, {"min": 0, "o": [[1]]}]},
+ "Tarantula Battery" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]], "qui": "Figurines", "onom": ["Tarantula w/ twin heavy bolter", "Tarantula w/ twin lascannon"]}]},
+ "Tauros Assault Vehicle" : {"f": [4], "s": [{"min": 1, "o": [[0], [2, 3]]}, {"min": 0, "o": [[1]]}]},
+ "Tauros Venator" : {"f": [3], "s": [{"min": 1, "o": [[2], [1]]}, {"min": 0, "o": [[0]]}]},
+ "Taurox" : {"f": [1, 2], "s": [{"min": 0, "o": [[0]]}]},
+ "Taurox Prime" : {"f": [7], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[1], [2], [5, 6]]}, {"min": 1, "o": [[3], [4]]}]},
+ "Tempestus Aquilons" : {"f": [12], "s": [{"min": 1, "o": [[1], [11], [13], [2]], "nb": 1, "qui": "Tempestor Aquilon"}, {"min": 0, "o": [[2], [0]], "nb": 1, "qui": "Tempestor Aquilon"}, {"min": 1, "o": [[5], [6], [9, 10]], "nb": 1, "qui": "Tempestor Aquilon"}, {"min": 1, "o": [[1], [2], [3], [7, 8], [4]], "qui": "Figurines", "omax": [0, 2, 1, 1, 1], "onom": ["Tempestus Aquilon", "Tempestus Aquilon w/ 1 Hot-shot laspistol", "Tempestus Aquilon w/ Hot-shot long-las", "Tempestus Aquilon w/ Special weapon : Plasma carbine", "Tempestus Aquilon w/ Special weapon : Melta carbine"], "nb": -1}]},
+ "Tempestus Scions" : {"f": [13], "s": [{"min": 1, "o": [[3], [0], [10, 11]], "nb": 1, "qui": "Tempestor"}, {"min": 1, "o": [[12], [14], [15]], "nb": 1, "qui": "Tempestor"}, {"min": 1, "o": [[2], [1], [6, 7], [4], [5], [8, 9], [3]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2, 2, 1], "onom": ["Tempestus Scion", "Tempestus Scion w/ Flamer", "Tempestus Scion w/ Grenade launcher", "Tempestus Scion w/ Hot-shot volley gun", "Tempestus Scion w/ Meltagun", "Tempestus Scion w/ Plasma gun", "Tempestus Scion w/ Vox-caster"], "nb": -1}], "nf": {"13": -1}},
+ "Trojan Support Vehicle" : {"f": [3], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}]},
+ "Valdor" : {"f": [7, 8], "s": [{"min": 0, "o": [[3], [6]]}, {"min": 1, "o": [[0], [1], [2], [5]]}, {"min": 0, "o": [[4]]}]},
+ "Valkyrie" : {"f": [5], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[1], [4]]}, {"min": 1, "o": [[3], [2]]}], "n": {"0": 2, "4": 2}},
+ "Valkyrie Sky Talon" : {"f": [0, 3], "s": [{"min": 1, "o": [[1], [2]]}], "n": {"1": 2, "2": 2}},
+ "Vendetta Gunship" : {"f": [3, 2], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[2], [1]]}], "n": {"0": 2, "2": 2}},
+ "Voss-pattern Lightning" : {"f": [2, 0], "s": [{"min": 0, "o": [[1]]}], "n": {"0": 2}},
+ "Vulture Gunship" : {"f": [4, 0], "s": [{"min": 1, "o": [[1, 3], [2]]}], "n": {"1": 2, "2": 2}},
+ "Wyvern" : {"f": [3, 4], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

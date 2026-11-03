@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1471,7 +1472,32 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Brother-Captain" : {"f": [4], "s": [{"min": 1, "o": [[3], [0], [2], [1]]}]},
+ "Brotherhood Librarian" : {"f": [3, 2], "s": [{"min": 0, "o": [[1], [0]]}]},
+ "Brotherhood Terminator Squad" : {"f": [3, 4], "s": [{"min": 1, "o": [[3], [0], [2], [1], []], "qui": "Figurines", "omax": [0, 1, 1, 1, 1], "onom": ["Terminator", "Terminator with Ancient's Banner : Incinerator", "Terminator with Ancient's Banner : Psycannon", "Terminator with Ancient's Banner : Psilencer", "Terminator with Narthecium"], "nb": -1}], "nf": {"3": 1}},
+ "Grand Master" : {"f": [4], "s": [{"min": 1, "o": [[3], [0], [2], [1]]}]},
+ "Grand Master in Nemesis Dreadknight" : {"f": [], "s": [{"min": 1, "o": [[5], [8], [7], [6], [9, 10]]}, {"min": 0, "o": [[4], [1], [2], [3]]}, {"min": 0, "o": [[4], [1], [2], [3]]}, {"min": 0, "o": [[0]]}]},
+ "Grey Knights Dreadnought" : {"f": [], "s": [{"min": 1, "o": [[0, 5, 12], [0, 9, 10, 11], [0, 1, 12], [7, 8, 5, 12], [7, 8, 9, 10, 11], [7, 8, 1, 12], [4, 5, 12], [4, 9, 10, 11], [4, 1, 12], [6, 5, 12], [6, 9, 10, 11], [6, 1, 12], [5, 13, 2], [13, 2, 3]]}]},
+ "Grey Knights Relic Razorback" : {"f": [7], "s": [{"min": 0, "o": [[2]]}, {"min": 1, "o": [[5], [3], [4], [6], [1]]}, {"min": 0, "o": [[0]]}]},
+ "Grey Knights Thunderhawk Gunship" : {"f": [1, 5, 4], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[], [0]], "onom": ["Thunderhawk cluster bombs", ""]}], "n": {"1": 2, "4": 4}},
+ "Interceptor Squad" : {"f": [3, 5], "s": [{"min": 1, "o": [[5, 3], [4, 0], [4, 1], [4, 2]], "qui": "Figurines", "omax": [0, 2, 2, 2], "onom": ["Interceptor", "Interceptor w/ incinerator", "Interceptor w/ psilencer", "Interceptor w/ psycannon"], "nb": -1}], "nf": {"3": 1, "5": 1}},
+ "Land Raider" : {"f": [0, 4, 5], "s": [{"min": 0, "o": [[3]]}, {"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}], "n": {"0": 2}},
+ "Land Raider Crusader" : {"f": [4, 5, 1], "s": [{"min": 0, "o": [[3]]}, {"min": 0, "o": [[0]]}, {"min": 0, "o": [[2]]}], "n": {"1": 2}},
+ "Land Raider Redeemer" : {"f": [0, 4, 5], "s": [{"min": 0, "o": [[3]]}, {"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}], "n": {"0": 2}},
+ "Nemesis Dreadknight" : {"f": [], "s": [{"min": 1, "o": [[3], [5, 6], [4]]}, {"min": 0, "o": [[0], [2], [1]]}, {"min": 0, "o": [[0], [2], [1]]}]},
+ "Paladin Squad" : {"f": [3, 4], "s": [{"min": 1, "o": [[3], [0], [2], [1], []], "qui": "Figurines", "omax": [0, 2, 2, 2, 1], "onom": ["Paladin", "Paladin with Heavy Weapon : Incinerator", "Paladin with Heavy Weapon : Psycannon", "Paladin with Heavy Weapon : Psilencer", "Paladin with Narthecium"], "nb": -1}], "nf": {"3": 1}},
+ "Purgation Squad" : {"f": [3, 5], "s": [{"min": 1, "o": [[5, 3], [4, 0], [4, 1], [4, 2]], "qui": "Figurines", "omax": [0, 4, 4, 4], "onom": ["Purgator", "Purgator w/ incinerator", "Purgator w/ psilencer", "Purgator w/ psycannon"], "nb": -1}], "nf": {"3": 1, "5": 1}},
+ "Purifier Squad" : {"f": [3, 4, 6], "s": [{"min": 1, "o": [[6, 4], [5, 0], [5, 1], [5, 2]], "qui": "Figurines", "omax": [0, 4, 4, 4], "onom": ["Purifier", "Purifier w/ incinerator", "Purifier w/ psilencer", "Purifier w/ psycannon"], "nb": -1}], "nf": {"4": 1, "6": 1}},
+ "Razorback" : {"f": [4], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 0, "o": [[1]]}, {"min": 0, "o": [[0]]}]},
+ "Rhino" : {"f": [1, 2], "s": [{"min": 0, "o": [[0]]}]},
+ "Servitors" : {"f": [], "s": [{"min": 1, "o": [[5], [0, 4], [1, 4], [2, 3, 4]], "qui": "Figurines", "omax": [0, 2, 2, 2], "onom": ["Servitor with servo-arm", "Servitor with heavy bolter", "Servitor with multi-melta", "Servitor with plasma cannon"]}]},
+ "Stormhawk Interceptor" : {"f": [3, 7], "s": [{"min": 1, "o": [[2], [4], [5, 6]]}, {"min": 1, "o": [[1], [0]]}]},
+ "Stormraven Gunship" : {"f": [10, 1], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[2], [6, 7], [4]]}, {"min": 1, "o": [[8, 9], [5], [3]]}], "n": {"1": 2, "0": 2}},
+ "Stormtalon Gunship" : {"f": [1, 6], "s": [{"min": 1, "o": [[0], [3], [2], [4, 5]]}]},
+ "Strike Squad" : {"f": [3, 5], "s": [{"min": 1, "o": [[5, 3], [4, 0], [4, 2], [4, 1]], "qui": "Figurines", "onom": ["Grey Knight", "Grey Knight with Heavy Weapon : Close combat weapon + Incinerator", "Grey Knight with Heavy Weapon : Close combat weapon + Psycannon", "Grey Knight with Heavy Weapon : Close combat weapon + Psilencer"], "nb": -1}], "nf": {"3": 1, "5": 1}},
+ "Venerable Dreadnought" : {"f": [], "s": [{"min": 0, "o": [[0], [4, 5], [3], [2, 6], [1, 6]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

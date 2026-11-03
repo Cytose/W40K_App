@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1159,7 +1160,21 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Chaos Acastus Knight Asterius" : {"f": [0, 1, 2, 3], "s": [], "n": {"0": 2, "2": 2}},
+ "Chaos Acastus Knight Porphyrion" : {"f": [4, 5], "s": [{"min": 1, "o": [[1], [2]]}, {"min": 1, "o": [[0], [3]]}, {"min": 1, "o": [[0], [3]]}], "n": {"4": 2}},
+ "Chaos Questoris Knight Magaera" : {"f": [0, 1], "s": [{"min": 1, "o": [[5, 6], [2, 3, 4]]}]},
+ "Chaos Questoris Knight Styrix" : {"f": [0, 2], "s": [{"min": 1, "o": [[5, 6], [1, 3, 4]]}]},
+ "Knight Desecrator" : {"f": [0, 1], "s": [{"min": 1, "o": [[2, 3], [4, 5]]}]},
+ "Knight Despoiler" : {"f": [9], "s": [{"min": 0, "o": [[5], [8], [7]]}, {"min": 1, "o": [[10, 11], [3, 6], [2, 4], [1]]}, {"min": 1, "o": [[12, 13], [3, 6], [2, 4], [1]]}, {"min": 1, "o": [[0], [4]]}]},
+ "Knight Tyrant" : {"f": [8, 3, 2, 4], "s": [{"min": 1, "o": [[0, 6, 7], [1, 5]]}], "n": {"3": 2, "2": 2, "4": 2}},
+ "War Dog Brigand" : {"f": [4, 0, 1], "s": [{"min": 1, "o": [[2], [3]]}]},
+ "War Dog Executioner" : {"f": [2, 3], "s": [{"min": 1, "o": [[1], [0]]}], "n": {"2": 2}},
+ "War Dog Huntsman" : {"f": [1, 3, 4], "s": [{"min": 1, "o": [[2], [0]]}]},
+ "War Dog Karnivore" : {"f": [2, 3], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "War Dog Moirax" : {"f": [5], "s": [{"min": 1, "o": [[4], [0], [1], [2], [3, 6]]}, {"min": 1, "o": [[4], [0], [1], [2], [3, 6]]}]},
+ "War Dog Stalker" : {"f": [], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[4], [5, 6]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

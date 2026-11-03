@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1691,7 +1692,26 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Blightlord Terminators" : {"f": [5], "s": [{"min": 1, "o": [[1], [2]], "nb": 1, "qui": "Blightlord Champion"}, {"min": 1, "o": [[1, 5], [5, 2], [7], [5, 0], [4, 5], [5, 3], [6, 3]], "qui": "Figurines", "omax": [0, 6, 2, 2, 2, 2, 1], "onom": ["Blightlord Terminator w/ combi-bolter", "Blightlord Terminator w/ combi-weapon", "Blightlord Terminator w/ flail", "Blightlord Terminator w/ blight launcher", "Blightlord Terminator w/ reaper autocannon", "Blightlord Terminator w/ plague spewer and bubotic blade", "Blightlord Terminator w/ plague spewer and CCW"], "nb": -1}], "nf": {"5": 1}},
+ "Chaos Land Raider" : {"f": [5, 3, 4], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2}},
+ "Chaos Predator Annihilator" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Predator Destructor" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Rhino" : {"f": [3], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[0]]}, {"min": 0, "o": [[2]]}]},
+ "Death Guard Chaos Lord" : {"f": [], "s": [{"min": 1, "o": [[5], [6], [7]]}, {"min": 1, "o": [[2], [3, 4], [1], [6], [7], [8], [0]]}]},
+ "Death Guard Chaos Lord in Terminator Armour" : {"f": [], "s": [{"min": 1, "o": [[0], [1], [4]]}, {"min": 1, "o": [[4], [3], [5], [2]]}]},
+ "Death Guard Cultists" : {"f": [0, 5], "s": [{"min": 1, "o": [[0], [1], [2], [3, 4]], "qui": "Figurines", "omax": [0, 1, 1, 1], "onom": ["Cultist", "Cultist w/ flamer", "Cultist w/ heavy stubber", "Cultist w/ grenade launcher"], "nb": -1}], "nf": {"0": 1}},
+ "Death Guard Sorcerer in Terminator Armour" : {"f": [3, 2], "s": [{"min": 1, "o": [[0], [1], [7]]}, {"min": 1, "o": [[5], [4], [6], [8], [7]]}]},
+ "Deathshroud Terminators" : {"f": [0, 1, 2], "s": []},
+ "Defiler" : {"f": [10, 11], "s": [{"min": 1, "o": [[7, 8], [9], [3], [5]]}, {"min": 1, "o": [[2], [0]]}, {"min": 1, "o": [[4], [9], [3], [5]]}, {"min": 1, "o": [[1], [6]]}], "n": {"1": 2, "6": 2}},
+ "Foetid Bloat-drone" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}], "n": {"0": 2}},
+ "Great Unclean One" : {"f": [1], "s": [{"min": 1, "o": [[0], [2]]}, {"min": 1, "o": [[4, 5], [3]]}]},
+ "Helbrute" : {"f": [9], "s": [{"min": 1, "o": [[10, 0], [10, 1], [12], [7, 8], [11]]}, {"min": 1, "o": [[2], [4], [10, 1], [10, 0], [3], [5], [6], [12], [11], [7, 8]]}]},
+ "Plague Drones" : {"f": [0, 1, 2], "s": []},
+ "Plague Marines" : {"f": [12], "s": [{"min": 1, "o": [[12], [13], [10], [2], [1], [6, 7], [8, 9]], "nb": 1, "qui": "Plague Champion"}, {"min": 1, "o": [[12], [13], [10], [2], [1], [6, 7], [8, 9]], "nb": 1, "qui": "Plague Champion"}, {"min": 1, "o": [[2], [10], [11], [0], [5], [3], [6, 7], [4]], "qui": "Figurines", "omax": [0, 4, 4, 2, 2, 2, 2, 2], "onom": ["Plague Marine w/ boltgun", "Plague Marine w/ bubotic weapons", "Plague Marine w/ heavy plague weapon", "Plague Marine w/ blight launcher", "Plague Marine w/ plague spewer", "Plague Marine w/ meltagun", "Plague Marine w/ plasma gun", "Plague Marine w/ plague belcher"], "nb": -1}], "nf": {"12": -1}},
+ "Plaguebearers" : {"f": [0], "s": [], "nf": {"0": 10}},
+ "Plagueburst Crawler" : {"f": [2, 5], "s": [{"min": 1, "o": [[1], [4]]}, {"min": 1, "o": [[0], [3]]}], "n": {"0": 2, "3": 2}}
+};
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};

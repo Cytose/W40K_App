@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1778,7 +1779,30 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Archon" : {"f": [], "s": [{"min": 1, "o": [[1], [0], []], "onom": ["", "", "Soul Trap"]}, {"min": 1, "o": [[3], [2], [4]]}]},
+ "Beastmaster" : {"f": [0, 1, 2, 3, 4], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 2, "4": 3}},
+ "Court of the Archon" : {"f": [0, 1, 2, 3, 4, 5, 6], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1}},
+ "Cronos" : {"f": [0, 2], "s": [{"min": 0, "o": [[1]]}]},
+ "Grotesques" : {"f": [], "s": [{"min": 1, "o": [[2], [0, 1]], "qui": "Figurines", "onom": ["Grotesque w/ paired monstrous weapons", "Grotesque w/ Liquifier"]}]},
+ "Hand of the Archon" : {"f": [9], "s": [{"min": 1, "o": [[7], [0], [6]], "nb": 1, "qui": "Kabalite Archsybarite"}, {"min": 1, "o": [[9], [11]], "nb": 1, "qui": "Kabalite Archsybarite"}, {"min": 1, "o": [[7], [8], [1], [4], [2], [5], [3], [10], [12, 6]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1, 1, 1, 1, 1], "onom": ["Kabalite Agent", "Kabalite Agent with stinger pistol", "Kabalite Agent with special weapon : Blaster", "Kabalite Agent with special weapon : Shredder", "Kabalite Agent with heavy weapon : Dark Lance", "Kabalite Agent with heavy weapon : Splinter Cannon", "Kabalite Agent with shardcarbine", "Kabalite Agent with pain sculptors", "Kabalite Agent with razorflail"], "nb": -1}], "nf": {"9": -1}},
+ "Hellions" : {"f": [1, 2], "s": [{"min": 1, "o": [[2], [3, 0], [4, 0]], "nb": 1, "qui": "Heliarch"}], "nf": {"2": -1}},
+ "Incubi" : {"f": [0], "s": [{"min": 1, "o": [[1, 2], [0]], "nb": 1, "qui": "Klaivex"}], "nf": {"0": -1}},
+ "Kabalite Warriors" : {"f": [7], "s": [{"min": 1, "o": [[6], [0], [5]], "nb": 1, "qui": "Sybarite"}, {"min": 1, "o": [[7], [8]], "nb": 1, "qui": "Sybarite"}, {"min": 1, "o": [[6], [3], [1], [4], [2]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1], "onom": ["Kabalite Warrior", "Kabalite Warrior with Shredder", "Kabalite Warrior with Blaster", "Kabalite Warrior with Splinter Cannon", "Kabalite Warrior with Dark Lance"], "nb": -1}], "nf": {"7": -1}},
+ "Mandrakes" : {"f": [0, 1], "s": []},
+ "Raider" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Ravager" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[0], [1]]}]},
+ "Raven Strike Fighter" : {"f": [2, 0, 1], "s": [], "n": {"0": 2}},
+ "Razorwing Jetfighter" : {"f": [7, 4, 5, 6], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[3], [2]]}], "n": {"0": 2, "1": 2}},
+ "Reavers" : {"f": [2, 4], "s": [{"min": 1, "o": [[3], [0], [1]], "omax": [0, 1, 1], "nb": 1, "qui": "Arena Champion"}, {"min": 1, "o": [[3], [0], [1]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Reaver", "Reaver with Blaster", "Reaver with Heat Lance"], "nb": -1}]},
+ "Scourges with Heavy Weapons" : {"f": [9, 0, 8, 10], "s": [{"min": 1, "o": [[5], []], "onom": ["", "1 Blast pistol and 1 Power weapon"], "nb": 1, "qui": "Solarite"}, {"min": 1, "o": [[7], [1], [4], [6], [2], [3]], "nb": -1, "qui": "Scourge with Heavy Weapon"}]},
+ "Scourges with Shardcarbines" : {"f": [2, 5, 0, 4, 6], "s": [{"min": 1, "o": [[2], []], "onom": ["", "1 Blast pistol and 1 Power weapon"], "nb": 1, "qui": "Solarite"}, {"min": 1, "o": [[2], [1], [3]], "nb": -5, "qui": "Scourge with Special Weapon"}], "nf": {"2": 4}},
+ "Talos" : {"f": [], "s": [{"min": 1, "o": [[6], [8], [2]]}, {"min": 1, "o": [[6], [5], [7]]}, {"min": 1, "o": [[3], [1], [4], [0]]}]},
+ "Venom" : {"f": [2, 0], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Voidraven Bomber" : {"f": [4], "s": [{"min": 0, "o": [[2, 3]]}, {"min": 1, "o": [[1], [0]]}], "n": {"1": 2, "0": 2}},
+ "Wracks" : {"f": [], "s": [{"min": 1, "o": [[6], [4, 5], [4, 0], [4, 1], [4, 2], [4, 3], [5], [5, 0], [5, 1], [5, 2], [5, 3]], "nb": 1, "qui": "Acothyst"}, {"min": 1, "o": [[6], [5, 0], [5, 1], [5, 2], [5, 3]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2], "onom": ["Wrack", "Wrack with Hexrifle", "Wrack with Liquifier Gun", "Wrack with Ossefactor", "Wrack with Stinger Pistol"], "nb": -1}]},
+ "Wyches" : {"f": [], "s": [{"min": 1, "o": [[1], [0]], "nb": 1, "qui": "Hekatrix"}, {"min": 1, "o": [[3], [4]], "nb": 1, "qui": "Hekatrix"}, {"min": 1, "o": [[1, 3], [2]], "qui": "Figurines", "omax": [0, 3], "onom": ["Wych", "Wych w/ Gladiatorial weapons"], "nb": -1}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

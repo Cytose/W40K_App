@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1461,7 +1462,25 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Acastus Knight Asterius" : {"f": [2, 0, 1, 3], "s": [], "n": {"2": 2, "0": 2}},
+ "Acastus Knight Porphyrion" : {"f": [4, 5], "s": [{"min": 1, "o": [[0], [0, 3], [3]]}, {"min": 1, "o": [[1], [2]]}], "n": {"4": 2, "0": 2, "3": 2}},
+ "Armiger Helverin" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}], "n": {"0": 2}},
+ "Armiger Moirax" : {"f": [5], "s": [{"min": 1, "o": [[4], [1], [2], [0], [6, 3]]}, {"min": 1, "o": [[4], [1], [2], [0], [6, 3]]}]},
+ "Armiger Warglaive" : {"f": [3, 4, 2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Canis Rex" : {"f": [0, 1, 2, 3, 4, 5, 6], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1}},
+ "Knight Castellan" : {"f": [4, 5, 3, 6, 1, 0, 2], "s": [], "n": {"1": 2, "0": 2, "2": 2}},
+ "Knight Crusader" : {"f": [0, 1, 9], "s": [{"min": 1, "o": [[8], [5, 6]]}, {"min": 0, "o": [[2], [3], [7]]}, {"min": 1, "o": [[4], [5]]}]},
+ "Knight Destrier" : {"f": [2, 3], "s": [{"min": 1, "o": [[0], [4, 5], [6, 7]]}, {"min": 1, "o": [[1], [6, 7], [4, 5]]}]},
+ "Knight Errant" : {"f": [5], "s": [{"min": 0, "o": [[0], [1], [4]]}, {"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[6, 7], [8, 9]]}]},
+ "Knight Gallant" : {"f": [6, 5, 7, 8], "s": [{"min": 0, "o": [[0], [1], [4]]}, {"min": 1, "o": [[2], [3]]}]},
+ "Knight Paladin" : {"f": [3, 4], "s": [{"min": 0, "o": [[0], [1], [5]]}, {"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[6, 7], [8, 9]]}]},
+ "Knight Preceptor" : {"f": [6, 7], "s": [{"min": 1, "o": [[3], [4], [2]]}, {"min": 0, "o": [[0], [1], [5]]}, {"min": 1, "o": [[8, 9], [10, 11]]}]},
+ "Knight Valiant" : {"f": [0, 2, 5, 3, 1, 4], "s": [], "n": {"3": 2, "1": 2, "4": 2}},
+ "Knight Warden" : {"f": [0, 1], "s": [{"min": 0, "o": [[2], [3], [6]]}, {"min": 1, "o": [[4], [5]]}, {"min": 1, "o": [[7, 8], [9, 10]]}]},
+ "Questoris Knight Magaera" : {"f": [1, 0], "s": [{"min": 1, "o": [[5, 6], [3, 4, 2]]}]},
+ "Questoris Knight Styrix" : {"f": [0, 2], "s": [{"min": 1, "o": [[5, 6], [3, 4, 1]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

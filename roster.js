@@ -164,9 +164,10 @@ function normaliseListe(L){
     slots.forEach((sl, si)=>{
       if(sl.min < 1) return;
       const lot = loSlot(ru, si), tot = lot.reduce((a, l) => a + l.n, 0);
-      if(tot < ru.size){
-        if(lot.length) lot[0].n += ru.size - tot;
-        else ru.lo.push({s:si, o:0, n:ru.size});
+      const cible = figSlot(sl, ru.size);
+      if(tot < cible){
+        if(lot.length) lot[0].n += cible - tot;
+        else ru.lo.push({s:si, o:0, n:cible});
         MIGRE = true;
       }
     });
@@ -925,6 +926,21 @@ const armSlots = nom => { const a = armRow(nom); return a ? a.s : []; };
    ecrit tel que la fiche l'ecrit, et le nombre vit ici. */
 const armPort = nom => { const a = armRow(nom); return (a && a.n) || null; };
 const nPort = (n, i) => (n && n[i]) || 1;
+/* Une escouade a figurines differentes -- un sergent, des marines, un
+   porteur d'arme speciale -- se decrit par deux champs de plus
+   (outils/armement.py) :
+   · `nb` sur un emplacement : combien de figurines il couvre. Positif,
+     un nombre fixe (le sergent : 1) ; negatif, l'effectif moins tant
+     (les marines : tous sauf le sergent). Absent : toute l'unite.
+   · `nf` sur la fiche : combien d'exemplaires d'une arme d'office, avec
+     la meme convention. Le pistolet du sergent compte un, le fusil des
+     marines l'effectif moins un. */
+const parEffectif = (v, taille) => v > 0 ? Math.min(v, taille) : Math.max(0, taille + v);
+const figSlot = (sl, taille) => (sl && sl.nb) ? parEffectif(sl.nb, taille) : taille;
+const nFixe = (nom, i, taille) => {
+  const a = armRow(nom), v = a && a.nf && a.nf[i];
+  return v ? parEffectif(v, taille) : null;
+};
 const aDesChoix = nom => armSlots(nom).length > 0;
 
 /* ==========================================================
@@ -982,7 +998,8 @@ function portParArme(ru){
        l'Arche Fantome porte deux batteries a elle seule, et le Roi
        Silencieux deux faisceaux pour ses deux Menhirs. Le plafonner a
        l'effectif ramenait les vehicules a un seul exemplaire. */
-    out[i] = (n && n[i]) ? n[i] : ru.size;
+    const k = nFixe(ru.name, i, ru.size);
+    out[i] = k !== null ? k : ((n && n[i]) ? n[i] : ru.size);
   });
   (ru.lo || []).forEach(l => {
     const s = slots[l.s]; if(!s || l.n <= 0) return;
@@ -1072,7 +1089,8 @@ function loParDefaut(nom, taille){
        a une figurine ne peut pas etre l'armement de depart */
     let oi = sl.o.findIndex((o, k) => !optMax(sl, k));
     if(oi < 0) oi = 0;
-    out.push({s:si, o:oi, n:taille});
+    const n = figSlot(sl, taille);
+    if(n > 0) out.push({s:si, o:oi, n:n});
   });
   return out;
 }
@@ -1331,12 +1349,14 @@ function validate(){
         "or il n'y en a plus.");
     }
     armSlots(ru.name).forEach((sl, si)=>{
-      const tot = totalSlot(ru, si);
-      if(tot > ru.size)
-        w.push("<b>" + nom + "</b> : " + tot + " armes réparties pour " + ru.size + " figurines.");
-      else if(sl.min >= 1 && tot < ru.size)
-        w.push("<b>" + nom + "</b> : " + (ru.size - tot) + " figurine" + (ru.size - tot > 1 ? "s" : "") +
-          " sans arme sur " + ru.size + ".");
+      const tot = totalSlot(ru, si), cible = figSlot(sl, ru.size);
+      const qui = sl.qui ? " (" + sl.qui + ")" : "";
+      if(tot > cible)
+        w.push("<b>" + nom + "</b>" + qui + " : " + tot + " armes réparties pour " + cible + " figurine" +
+          (cible > 1 ? "s" : "") + ".");
+      else if(sl.min >= 1 && tot < cible)
+        w.push("<b>" + nom + "</b>" + qui + " : " + (cible - tot) + " figurine" + (cible - tot > 1 ? "s" : "") +
+          " sans arme sur " + cible + ".");
     });
     ru.chars.forEach(c => {
       if(peutRejoindre(c.name, ru.name) === false)
@@ -2104,8 +2124,8 @@ function uniteSuspecte(ru){
   /* une escouade a moitie equipee est la faute la plus courante :
      elle merite le meme signal que les autres */
   if(armSlots(ru.name).some((sl, si)=>{
-       const tot = totalSlot(ru, si);
-       if(tot > ru.size || (sl.min >= 1 && tot < ru.size)) return true;
+       const tot = totalSlot(ru, si), cible = figSlot(sl, ru.size);
+       if(tot > cible || (sl.min >= 1 && tot < cible)) return true;
        return sl.o.some((opt, oi)=>{
          const m = optMax(sl, oi);
          const l = (ru.lo || []).find(x => x.s === si && x.o === oi);
@@ -3972,15 +3992,15 @@ const membreVu = ru => {
 function changeEffectif(ru, sz){
   ru.size = sz;
   armSlots(ru.name).forEach((sl, si)=>{
-    const lot = loSlot(ru, si);
+    const lot = loSlot(ru, si), cible = figSlot(sl, sz);
     let tot = lot.reduce((a, l) => a + l.n, 0);
-    for(let k = lot.length - 1; k >= 0 && tot > sz; k--){
-      const baisse = Math.min(lot[k].n, tot - sz);
+    for(let k = lot.length - 1; k >= 0 && tot > cible; k--){
+      const baisse = Math.min(lot[k].n, tot - cible);
       lot[k].n -= baisse; tot -= baisse;
     }
-    if(sl.min >= 1 && tot < sz){
-      if(lot.length) lot[0].n += sz - tot;
-      else ru.lo.push({s:si, o:0, n:sz});
+    if(sl.min >= 1 && tot < cible){
+      if(lot.length) lot[0].n += cible - tot;
+      else ru.lo.push({s:si, o:0, n:cible});
     }
   });
   ru.lo = ru.lo.filter(l => l.n > 0);
@@ -4098,6 +4118,7 @@ function renderRoster(){
     armFixes(ru.name).forEach(i=>{
       const g = groupeDe(ru.name, i);
       if(g && g.principal !== i) return;      /* un seul rang par arme */
+      if(portFixe[i] === 0) return;           /* le sergent seul, et il n'y en a pas */
       const row = document.createElement("div");
       row.className = "lo lo-fixe";
       row.innerHTML = '<span class="ln">' + (g ? g.libelle : (wl[i] ? wl[i][1] : "?")) +
@@ -4114,7 +4135,9 @@ function renderRoster(){
        ce qu'une repartition unique ne savait pas exprimer. */
     armSlots(ru.name).forEach((sl, si)=>{
       const pris = () => totalSlot(ru, si);
-      const reste = ru.size - pris();
+      const cible = figSlot(sl, ru.size);
+      if(!cible) return;
+      const reste = cible - pris();
       const rep = document.createElement("div");
       /* Un emplacement d'equipement ne repartit pas des armes entre des
          figurines : il se prend ou non. Compter « 0 / 1 figurine » pour
@@ -4122,12 +4145,14 @@ function renderRoster(){
       const eq = slotEquip(sl);
       rep.className = "repart" + (eq ? (pris() ? " ok" : "")
                                     : (reste === 0 ? " ok" : (sl.min >= 1 || reste < 0 ? " todo" : "")));
-      rep.innerHTML = eq
+      /* `qui` nomme la figurine que l'emplacement equipe : le sergent n'a
+         pas les choix de ses marines */
+      rep.innerHTML = (sl.qui ? '<b>' + sl.qui + '</b> · ' : '') + (eq
         ? '<b>Équipement</b>' + (sl.min >= 1 ? '' : ' · facultatif')
-        : '<b>' + pris() + ' / ' + ru.size + '</b> figurine' + (ru.size > 1 ? 's' : '') +
+        : '<b>' + pris() + ' / ' + cible + '</b> figurine' + (cible > 1 ? 's' : '') +
           (sl.min >= 1 ? '' : ' · facultatif') +
           (reste < 0 ? ' · <span>' + (-reste) + ' de trop</span>'
-                     : (sl.min >= 1 && reste > 0 ? ' · <span>' + reste + ' sans arme</span>' : ''));
+                     : (sl.min >= 1 && reste > 0 ? ' · <span>' + reste + ' sans arme</span>' : '')));
       div.appendChild(rep);
 
       sl.o.forEach((opt, oi)=>{
@@ -4135,7 +4160,7 @@ function renderRoster(){
         const n = () => { const l = ligne(); return l ? l.n : 0; };
         const omax = optMax(sl, oi);
         const pose = v => {
-          let plafond = Math.max(0, n() + (ru.size - pris()));
+          let plafond = Math.max(0, n() + (cible - pris()));
           if(omax) plafond = Math.min(plafond, omax);
           const val = Math.max(0, Math.min(v, plafond));
           const l = ligne();
@@ -4150,7 +4175,7 @@ function renderRoster(){
         /* une figurine seule ne repartit rien : elle choisit. Un
            equipement facultatif se prend ET se rend — d'ou le second
            test : une arme obligatoire, elle, ne se decoche pas. */
-        if((ru.size === 1 && sl.min >= 1) || (eq && sl.o.length === 1)){
+        if((cible === 1 && sl.min >= 1) || (eq && sl.o.length === 1)){
           const b = document.createElement("button");
           b.type = "button"; b.className = "chip" + (n() ? " on" : "");
           b.textContent = n() ? "prise" : "prendre";
@@ -4162,7 +4187,7 @@ function renderRoster(){
           });
           row.appendChild(b);
         } else {
-          row.appendChild(stepper(n, pose, 0, omax ? Math.min(omax, ru.size) : ru.size));
+          row.appendChild(stepper(n, pose, 0, omax ? Math.min(omax, cible) : cible));
         }
         div.appendChild(row);
       });
@@ -5993,10 +6018,10 @@ let topPhaseV = "T", topQuoiV = "arme", topOuV = "tout", topTriV = "brut";
 /* combien de figurines peuvent porter chaque arme, au maximum */
 function portMax(nom, taille){
   const out = {}, slots = armSlots(nom);
-  armFixes(nom).forEach(i => { out[i] = taille; });
+  armFixes(nom).forEach(i => { const k = nFixe(nom, i, taille); out[i] = k !== null ? k : taille; });
   slots.forEach((sl, si)=>{
     (sl.o || []).forEach((opt, oi)=>{
-      const cap = optMax(sl, oi) || taille;
+      const cap = Math.min(optMax(sl, oi) || taille, figSlot(sl, taille));
       (opt || []).forEach(i => { out[i] = Math.max(out[i] || 0, cap); });
     });
   });
