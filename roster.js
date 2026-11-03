@@ -237,9 +237,18 @@ function loadR(){
    endroits differents, dont deux une fois la liste ouverte ; ils tiennent
    maintenant dans un seul ecran, et on en sort directement dans le
    catalogue — c'est ce qu'on venait faire. */
+/* Six des armees imperiales sont des Space Marines : le Codex et ses
+   chapitres a supplement. Etalees parmi les autres, elles faisaient la
+   moitie de la rubrique Imperium ; elles tiennent maintenant derriere une
+   seule tuile, qui se deplie. L'Adeptus Titanicus reste charge (ses fiches
+   servent ailleurs) mais ne se choisit plus comme armee : ce n'est pas une
+   armee jouable a 40 000. */
+const SPACE_MARINES = ["spacemarines","blacktemplars","bloodangels","darkangels","deathwatch","spacewolves"];
+const HORS_ARMEES = ["titanicus"];
+const listeArmees = () => (typeof listeFactions === "function" ? listeFactions() : [])
+  .filter(f => HORS_ARMEES.indexOf(f.cle) < 0);
 const FAMILLE_FACTION = {
-  imperium: ["spacemarines","blacktemplars","bloodangels","darkangels","deathwatch","spacewolves",
-             "greyknights","custodes","sororitas","mechanicus","astra","agents","chevaliers","titanicus"],
+  imperium: SPACE_MARINES.concat(["greyknights","custodes","sororitas","mechanicus","astra","agents","chevaliers"]),
   chaos:    ["csm","deathguard","thousandsons","worldeaters","emperorschildren","demons","chevalierschaos"],
   xenos:    ["aeldari","drukhari","necrons","orks","tau","tyranides","gsc","votann"]
 };
@@ -249,12 +258,14 @@ const FORMATS = [[1000, "Incursion"], [2000, "Strike Force"], [3000, "Onslaught"
 let NL = null;   // ce qu'on est en train de choisir dans l'ecran « Nouvelle liste »
 
 function nouvelleListe(apres){
-  const dispo = (typeof listeFactions === "function") ? listeFactions() : [];
+  const dispo = listeArmees();
   if(dispo.length < 2){ creeListe(dispo.length ? dispo[0].cle : FACTION_DEFAUT, apres); return; }
   /* l'armee proposee d'office : celle de la derniere liste touchee */
   const recente = LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0))[0];
-  NL = { faction: (recente && recente.faction) || "", cap: (R && R.cap) || 2000,
-         detach: "", nom: "", nomTouche: false, apres };
+  const fac = (recente && recente.faction) || "";
+  NL = { faction: HORS_ARMEES.indexOf(fac) < 0 ? fac : "", cap: (R && R.cap) || 2000,
+         detach: "", nom: "", nomTouche: false, apres,
+         sm: SPACE_MARINES.indexOf(fac) >= 0 };
   el("nlQ").value = "";
   renderNouvelle();
   openSheet("sheetNewList");
@@ -271,7 +282,7 @@ function nomAuto(){
 }
 function renderNouvelle(){
   const q = norm(el("nlQ").value.trim());
-  const dispo = listeFactions();
+  const dispo = listeArmees();
   /* les armees deja jouees d'abord : c'est presque toujours l'une d'elles */
   const jouees = [];
   LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0)).forEach(L=>{
@@ -291,25 +302,59 @@ function renderNouvelle(){
     });
     return b;
   };
-  const bloc = (titre, lot) => {
+  /* la tuile qui replie les Space Marines : elle dit combien de chapitres
+     elle cache, et lequel est choisi quand c'en est un */
+  const tuileSM = lot => {
+    const b = document.createElement("button");
+    const choisi = lot.find(f => f.cle === NL.faction);
+    b.type = "button";
+    b.className = "nl-fac nl-groupe" + (NL.sm ? " ouvert" : "") + (choisi ? " on" : "");
+    b.style.setProperty("--fac", COULEUR_FACTION.spacemarines || "#5D656B");
+    b.innerHTML = 'Space Marines<small>' + (choisi ? choisi.nom : lot.length + ' armées') + '</small>';
+    b.setAttribute("aria-expanded", NL.sm ? "true" : "false");
+    b.addEventListener("click", ()=>{ NL.sm = !NL.sm; renderNouvelle(); });
+    return b;
+  };
+  const bloc = (titre, lot, grouper) => {
     if(!lot.length) return;
     if(titre){
       const t = document.createElement("div");
       t.className = "nl-sous"; t.textContent = titre; host.appendChild(t);
     }
+    const sm = grouper ? lot.filter(f => SPACE_MARINES.indexOf(f.cle) >= 0) : [];
+    /* la tuile en tete, sur toute la largeur, et ses chapitres juste
+       dessous : deplies en fin de rubrique, on ne voyait plus d'ou ils
+       sortaient */
+    if(sm.length){
+      const t = document.createElement("div");
+      t.className = "nl-grille"; t.appendChild(tuileSM(sm)); host.appendChild(t);
+      if(NL.sm){
+        const c = document.createElement("div");
+        c.className = "nl-grille nl-chapitres";
+        /* le Codex d'abord, les chapitres ensuite */
+        sm.sort((a, b) => (a.cle === "spacemarines" ? -1 : b.cle === "spacemarines" ? 1 : a.nom.localeCompare(b.nom)))
+          .forEach(f => c.appendChild(bouton(f)));
+        host.appendChild(c);
+      }
+    }
+    const reste = lot.filter(f => sm.indexOf(f) < 0);
+    if(!reste.length) return;
     const g = document.createElement("div");
-    g.className = "nl-grille";
-    lot.forEach(f => g.appendChild(bouton(f)));
+    g.className = "nl-grille" + (sm.length ? " nl-suite" : "");
+    reste.forEach(f => g.appendChild(bouton(f)));
     host.appendChild(g);
   };
   if(q){
-    bloc("", dispo.filter(f => norm(f.nom).includes(q) || norm(f.cle).includes(q)));
+    /* « space » ou « marine » trouve aussi les chapitres */
+    const smq = norm("space marines").includes(q) || q.includes("marine");
+    bloc("", dispo.filter(f => norm(f.nom).includes(q) || norm(f.cle).includes(q) ||
+                               (smq && SPACE_MARINES.indexOf(f.cle) >= 0)));
     if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucune armée ne correspond.</div>';
   } else {
     bloc("Tes armées", jouees.map(c => dispo.find(f => f.cle === c)).filter(Boolean));
     FAMILLES.forEach(([k, nom]) =>
       bloc(nom, dispo.filter(f => familleDe(f.cle) === k && jouees.indexOf(f.cle) < 0)
-                     .sort((a, b) => a.nom.localeCompare(b.nom))));
+                     .sort((a, b) => a.nom.localeCompare(b.nom)), k === "imperium"));
     bloc("Autres", dispo.filter(f => familleDe(f.cle) === "autre" && jouees.indexOf(f.cle) < 0));
   }
 
@@ -3373,7 +3418,10 @@ function renderLists(){
   if(cap && document.activeElement !== cap) cap.value = R.cap;
   const fac = el("listFaction"), rowFac = el("rowFaction");
   if(fac && rowFac){
-    const dispo = listeFactions();
+    /* une vieille liste Titanicus garde sa faction dans le menu */
+    const dispo = listeArmees();
+    if(R.faction && FACTIONS[R.faction] && !dispo.some(f => f.cle === R.faction))
+      dispo.push({ cle: R.faction, nom: factionNom(R.faction) });
     rowFac.hidden = dispo.length < 2;
     const voulu = dispo.map(f => f.cle).join("|");
     /* on ne refait le menu que si les factions ont change : le refaire a

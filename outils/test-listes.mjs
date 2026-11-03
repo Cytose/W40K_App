@@ -75,6 +75,29 @@ eq('puis à mes listes', (await etat()).editeur, false);
 await retour();
 eq('et enfin hors de l\'application', p.url(), 'about:blank');
 
+console.log('\n== 5. les Space Marines tiennent dans une tuile ==');
+await p.goto(base + 'index.html'); await p.waitForTimeout(900);
+await p.evaluate(() => localStorage.clear());
+await p.reload(); await p.waitForTimeout(900);
+await p.click('#btnNewList2'); await p.waitForTimeout(300);
+const noms = () => p.locator('#nlFactions .nl-fac').allInnerTexts()
+  .then(t => t.map(x => x.split('\n')[0].trim()));
+let vus = await noms();
+eq('une seule tuile Space Marines', vus.filter(n => n === 'Space Marines').length, 1);
+eq('les chapitres sont repliés', ['Blood Angels','Dark Angels','Space Wolves','Black Templars','Deathwatch']
+  .filter(n => vus.indexOf(n) >= 0).length, 0);
+eq('le Titanicus ne se choisit plus', vus.some(n => /Titanicus/.test(n)), false);
+eq('les Grey Knights restent à part', vus.indexOf('Grey Knights') >= 0, true);
+await p.locator('#nlFactions .nl-groupe').click();
+vus = await noms();
+eq('la tuile déplie les six', vus.filter(n => /Blood Angels|Dark Angels|Space Wolves|Black Templars|Deathwatch/.test(n)).length, 5);
+await p.locator('#nlFactions .nl-chapitres .nl-fac').filter({hasText: 'Blood Angels'}).click();
+eq('un chapitre se choisit', await p.locator('#nlGo').isDisabled(), false);
+eq('la tuile dit lequel', (await p.locator('#nlFactions .nl-groupe').innerText()).includes('Blood Angels'), true);
+await p.fill('#nlQ', 'marine');
+vus = await noms();
+eq('« marine » trouve les chapitres', vus.filter(n => /Blood Angels|Dark Angels|Space Wolves|Black Templars|Deathwatch/.test(n)).length, 5);
+
 await b.close();
 console.log([...ok, ...ko].join('\n'));
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
