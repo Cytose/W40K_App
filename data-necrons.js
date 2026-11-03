@@ -523,7 +523,7 @@ const DETACHMENTS = [
 ["Awakened Dynasty",3,"DYNASTY","Protocoles de Commandement",
  "+1 au jet de touche pour toute unité menée par un PERSONNAGE nécron. Texte du codex, non repris par le pack de faction : à vérifier sur ta fiche.",
  "led_hit1",0,"Dynastie Éveillée","Take and Hold"],
-["Canoptek Court",3,"","Matrice Énergétique",
+["Canoptek Court",2,"","Matrice Énergétique",
  "Relance des 1 pour toucher pour CRYPTEK et CANOPTEK ; relance totale dans la Matrice Énergétique. Texte du codex, non repris par le pack de faction : à vérifier sur ta fiche. Errata du pack : s'il n'y a aucun pion d'objectif dans le No Man's Land ou la zone de déploiement adverse, ces zones ne peuvent pas être dans la Matrice Énergétique.",
  "canoptek_rr",1,"Cour Canoptek","Take and Hold"],
 ["Annihilation Legion",2,"","Protocole d'Annihilation",
