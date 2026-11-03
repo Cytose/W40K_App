@@ -67,6 +67,23 @@ const u = await p.evaluate(() => JSON.parse(localStorage.getItem('mathhammer.lis
 eq('le Warboss mène les Boyz', u.length === 1 && u[0].chars.map(c => c.name).join(), 'Warboss');
 eq('il n\'est plus compté à part', u.length, 1);
 await retour();
+/* Rattaché, le meneur disparaissait de la liste : il ne restait qu'un
+   « avec Warboss » sous les Boyz. Il garde maintenant sa ligne. */
+eq('le Warboss garde sa ligne sous les Boyz',
+  await p.locator('#padUnits .membre-l .pl-n b').first().textContent(), '↳Warboss');
+await p.locator('#padUnits .membre-l .pl-n').first().click(); await p.waitForTimeout(300);
+eq('sa ligne ouvre le réglage sur lui',
+  await p.locator('#rosterList .membre.on .mn').first().textContent(), 'Warboss');
+await retour();
+await p.locator('#padUnits .membre-l .pl-x').first().click(); await p.waitForTimeout(300);
+eq('« ⋯ » propose sa fiche',
+  await p.locator('#listActList .opt .o1').filter({hasText: /^Fiche$/}).count(), 1);
+await p.locator('#listActList .opt').filter({hasText: 'Détacher'}).click(); await p.waitForTimeout(300);
+let u2 = await p.evaluate(() => JSON.parse(localStorage.getItem('mathhammer.lists.v1')).listes.slice(-1)[0].units);
+eq('détaché, il reprend sa ligne à part', u2.map(x => x.name + ':' + x.chars.length).join(), 'Boyz:0,Warboss:0');
+await p.locator('#padUnits .uligne .pl-n').filter({hasText: 'Boyz'}).click(); await p.waitForTimeout(300);
+await p.locator('.men-p .chip').filter({hasText: 'Warboss'}).click(); await p.waitForTimeout(300);
+await retour();
 e = await etat();
 eq('le retour ramène à la liste', e.panneau, false);
 eq('sans quitter l\'éditeur', e.editeur, true);

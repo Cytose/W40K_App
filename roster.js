@@ -2391,6 +2391,103 @@ const sousLigne = ru => {
     .concat(d.filter(x => x.cl !== "dp").map(x => x.t));
 };
 
+/* LES PERSONNAGES RATTACHES GARDENT LEUR LIGNE
+   Rattacher un meneur le faisait disparaitre de la liste : il ne
+   restait qu'un « avec Warboss » sous le nom de l'escouade, sans ses
+   points, sans son amelioration, sans moyen d'ouvrir sa fiche. Chaque
+   personnage a maintenant sa propre ligne, en retrait sous l'unite
+   qu'il mene : toucher son nom ouvre le reglage de l'unite sur lui,
+   « ⋯ » donne sa fiche ou le detache. La ligne de l'unite ne dit plus
+   que ce qui est a elle ; ses points restent ceux du groupe entier. */
+const roleLibelle = nom =>
+  ({Leader:"Meneur", Support:"Appui"}[roleDe(nom)] || roleDe(nom) || "Personnage");
+/* ce qui se lit sous le nom de l'escouade elle-meme */
+function sousLigneUnite(ru){
+  const out = Object.keys(equipPris(ru, ru.name));
+  const p = porteurRetenu(ru);
+  if(ru.enh && !(p && ru.chars.some(c => c.name === p))) out.push(nomEnh(ru.enh));
+  const tv = entraveDe(ru);
+  if(tv) out.push(tv[0]);
+  const i = armePrincipale(ru), wl = unitWeps(ru.name);
+  if(wl && wl[i]){
+    const g = groupeDe(ru.name, i);
+    out.push(g ? g.libelle : wl[i][1]);
+  }
+  return out;
+}
+/* une ligne par personnage rattache : son role, son amelioration s'il
+   la porte, son equipement, et ce qu'il coute dans le total du groupe */
+function membresDe(ru){
+  const rg = rangsArmee(), p = porteurRetenu(ru);
+  return ru.chars.map((c, i)=>{
+    const cu = unitRow(c.name);
+    const sous = [roleLibelle(c.name)];
+    let pts = cu ? ptsPour(cu, cu[6][0], rg["c" + ru.id + "." + i]) : 0;
+    pts += optionsPtsPerso(c);
+    if(ru.enh && p === c.name){
+      sous.push(nomEnh(ru.enh));
+      const e = enhRow(ru.enh);
+      if(e && typeof e[1] === "number") pts += e[1];
+    }
+    Object.keys(equipPris(c, c.name)).forEach(e => sous.push(e));
+    return { c, i, sous, pts };
+  });
+}
+/* ouvrir le reglage de l'unite directement sur un de ses membres */
+function ouvreMembre(ru, nom){
+  vueMembre[ru.id] = nom || "";
+  ouvrePanneau("cardUnits", ru.id);
+}
+/* le detacher le repose a part dans la liste, avec ses armes et son
+   amelioration : on le change d'escouade, on ne le perd pas */
+function detacheMembre(ru, ci){
+  const c = ru.chars[ci]; if(!c) return;
+  const cu = unitRow(c.name); if(!cu) return;
+  const avant = JSON.parse(JSON.stringify(ru));
+  const p = porteurRetenu(ru);
+  ru.chars.splice(ci, 1);
+  const seul = {id:nextId++, name:c.name, size:cu[6][0],
+    lo:(c.lo || []).map(l => ({s:l.s, o:l.o, n:1})), chars:[], sel:true,
+    grp:nomGroupe(), enh:null};
+  if(ru.enh && p === c.name){ seul.enh = ru.enh; ru.enh = null; ru.enhP = ""; }
+  const ui = R.units.indexOf(ru);
+  R.units.splice(ui + 1, 0, seul);
+  vueMembre[ru.id] = "";
+  saveR(); renderList();
+  toast(c.name + " détaché : il reprend sa ligne à part.", "Annuler", ()=>{
+    const k = R.units.indexOf(seul); if(k >= 0) R.units.splice(k, 1);
+    const j = R.units.indexOf(ru); if(j >= 0) R.units[j] = avant;
+    saveR(); renderList();
+  });
+}
+/* les sous-lignes d'un groupe, pour la liste de l'editeur comme pour
+   « Ma liste » a cote du catalogue */
+function lignesMembres(host, ru, cls, ouvre){
+  membresDe(ru).forEach(({c, i, sous, pts})=>{
+    const l = document.createElement("div");
+    l.className = cls + " membre-l";
+    const n = document.createElement("button");
+    n.type = "button"; n.className = "pl-n";
+    n.innerHTML = '<b><span class="ml-fl" aria-hidden="true">↳</span>' + c.name + '</b>' +
+      '<i>' + sous.join(" · ") + '</i>';
+    n.setAttribute("aria-label", "Régler " + c.name + ", rattaché à " + nomAffiche(ru));
+    appuiLong(n, ()=> ouvreActionsMembre(ru, i));
+    n.addEventListener("click", ()=> ouvre(ru, c.name));
+    l.appendChild(n);
+    const pp = document.createElement("span");
+    pp.className = "pl-pts ml-pts"; pp.textContent = pts;
+    pp.title = "Compté dans les " + pointsUnite(ru) + " pts du groupe";
+    l.appendChild(pp);
+    const m = document.createElement("button");
+    m.type = "button"; m.className = "pl-x";
+    m.textContent = "⋯";
+    m.setAttribute("aria-label", "Actions sur " + c.name);
+    m.addEventListener("click", ()=> ouvreActionsMembre(ru, i));
+    l.appendChild(m);
+    host.appendChild(l);
+  });
+}
+
 /* L'armement d'une unite en une ligne : « 2× Destructeur gauss ·
    1× Exterminateur enmitique ». C'est souvent la seule chose qui
    distingue deux escouades du meme nom et du meme effectif, et ni le
@@ -2506,7 +2603,8 @@ function renderPad(){
     const suspecte = uniteSuspecte(ru);
     const rg = rangUnite(ru);
     const rang = (prixEvolue(u) && rg > 1) ? rg + "\u1d49 copie" : "";
-    const sous = sousLigne(ru);
+    /* hors reorganisation, les personnages ont leur propre ligne */
+    const sous = modeRange ? sousLigne(ru) : sousLigneUnite(ru);
     if(rang) sous.push(rang);
     const titre = '<b>' + nomAffiche(ru) +
       (nomAffiche(ru) !== ru.name ? ' <small>' + ru.name + '</small>' : '') + '</b>' +
@@ -2566,6 +2664,7 @@ function renderPad(){
     m.addEventListener("click", ()=> ouvreActionsUnite(ru));
     l.appendChild(m);
     gu.appendChild(l);
+    lignesMembres(gu, ru, "uligne", ouvreMembre);
   };
 
   const vues = R.units.map((ru, iu)=>({ru, iu})).filter(x => retenue(x.ru));
@@ -2646,7 +2745,8 @@ function renderPad(){
        de la liste et on croit a un bug */
     hint.textContent = padGroupe === "tac"
       ? "Une unité qui fait deux métiers compte dans les deux : les points de chaque ligne se recoupent."
-      : "Toucher une unité pour la régler · « ⋯ » ou appui long : fiche, dupliquer, retirer.";
+      : "Toucher une unité pour la régler · « ⋯ » ou appui long : fiche, dupliquer, retirer." +
+        (R.units.some(x => x.chars.length) ? " Un personnage rattaché a sa ligne en retrait ; ses points sont comptés dans ceux du groupe." : "");
   }
   if(modeRange){ gt.innerHTML = ""; return; }
   if(q){ if(hint) hint.hidden = true; gt.innerHTML = ""; return; }
@@ -2764,6 +2864,10 @@ function ouvreActionsUnite(ru){
   };
   item("Régler", "Effectif, armement, personnages", ()=> ouvrePanneau("cardUnits", ru.id));
   item("Fiche", "Profil, armes et aptitudes de " + ru.name, ()=> ouvreFiche(ru.name));
+  ru.chars.forEach(c=>{
+    if(unitRow(c.name)) item("Fiche de " + c.name, roleLibelle(c.name) + " rattaché : profil, armes et aptitudes",
+      ()=> ouvreFiche(c.name));
+  });
   item("Dupliquer", "Une seconde, armement et rattachements compris", ()=>{
     const copie = JSON.parse(JSON.stringify(ru));
     copie.id = nextId++;
@@ -2773,6 +2877,37 @@ function ouvreActionsUnite(ru){
     toast(ru.name + " dupliqué.", "", null);
   });
   item("Retirer", pointsUnite(ru) + " pts rendus au budget", ()=> retireUnite(ru), true);
+  openSheet("sheetListAct");
+}
+
+/* « ⋯ » sur la ligne d'un personnage rattache */
+function ouvreActionsMembre(ru, ci){
+  const c = ru.chars[ci]; if(!c) return;
+  el("listActTitle").textContent = c.name;
+  const host = el("listActList");
+  host.innerHTML = "";
+  const item = (titre, sous, action, danger) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "opt";
+    b.innerHTML = '<span class="oi"><span class="o1"' + (danger ? ' style="color:var(--warn)"' : '') +
+      '>' + titre + '</span><span class="o2">' + sous + '</span></span>';
+    b.addEventListener("click", ()=>{ closeSheet("sheetListAct"); action(); });
+    host.appendChild(b);
+  };
+  /* depuis « Ma liste », on quitte d'abord le catalogue */
+  const va = nom => {
+    const s = el("sheetUnit");
+    if(s && s.classList.contains("open")){
+      ajoutees = 0;
+      const b = s.querySelector("[data-close]");
+      if(b) b.click(); else closeSheet("sheetUnit");
+    }
+    ouvreMembre(ru, nom);
+  };
+  item("Régler", "Armes et amélioration de " + c.name, ()=> va(c.name));
+  item("Fiche", "Profil, armes et aptitudes de " + c.name, ()=> ouvreFiche(c.name));
+  item("Voir " + nomAffiche(ru), "L'unité qu'il mène", ()=> va(""));
+  item("Détacher", "Il reprend sa ligne à part dans la liste, avec ses armes", ()=> detacheMembre(ru, ci), true);
   openSheet("sheetListAct");
 }
 
@@ -3997,14 +4132,7 @@ function blocMeneurs(ru){
     b.type = "button"; b.className = "chip on";
     b.textContent = "✓ " + c.name;
     b.title = "Détacher " + c.name;
-    b.addEventListener("click", ()=>{
-      ru.chars.splice(ci, 1);
-      vueMembre[ru.id] = "";
-      saveR(); renderList();
-      toast(c.name + " détaché.", "Annuler", ()=>{
-        ru.chars.splice(Math.min(ci, ru.chars.length), 0, c); saveR(); renderList();
-      });
-    });
+    b.addEventListener("click", ()=> detacheMembre(ru, ci));
     puces.appendChild(b);
   });
   candidats.slice(0, 8).forEach(c=>{
@@ -4331,11 +4459,7 @@ function renderRoster(){
       const det = document.createElement("button");
       det.type = "button"; det.className = "btn danger detache";
       det.textContent = "Détacher " + c.name;
-      det.addEventListener("click", ()=>{
-        ru.chars.splice(ci, 1);
-        vueMembre[ru.id] = "";
-        saveR(); renderList();
-      });
+      det.addEventListener("click", ()=> detacheMembre(ru, ci));
       div.appendChild(det);
     });
 
@@ -5286,7 +5410,7 @@ function renderPickListe(){
       l.className = "pl-l" + (ru.id === derniereAjoutee ? " neuve" : "");
       const n = document.createElement("button");
       n.type = "button"; n.className = "pl-n";
-      const sous = sousLigne(ru);
+      const sous = sousLigneUnite(ru);
       n.innerHTML = '<b>' + nomAffiche(ru) + (nomAffiche(ru) !== ru.name ? ' <small style="font-weight:500;color:var(--tx3)">' + ru.name + '</small>' : '') + '</b>' +
         (sous.length ? '<i' + (uniteSuspecte(ru) ? ' class="alerte"' : '') + '>' + sous.join(" · ") + '</i>' : '');
       n.setAttribute("aria-label", "Régler " + nomAffiche(ru));
@@ -5329,6 +5453,12 @@ function renderPickListe(){
       x.addEventListener("click", ()=>{ retireUnite(ru); renderPick(); });
       l.appendChild(x);
       corps.appendChild(l);
+      lignesMembres(corps, ru, "pl-l", (g, nom)=>{
+        ajoutees = 0;
+        const b = el("sheetUnit").querySelector("[data-close]");
+        if(b) b.click(); else closeSheet("sheetUnit");
+        ouvreMembre(g, nom);
+      });
     });
   });
 }
