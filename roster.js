@@ -476,7 +476,7 @@ function auraValable(a){
 }
 function auraCle(a){ return a.source || a.detach || "armee"; }
 
-function conditionsDe(ru, ph){
+function conditionsDe(ru, ph, ficheSeule){
   const port = (ph === "C") ? "C" : "T";
   const out = [];
   const tbl = (typeof APTIS_COND !== "undefined") ? APTIS_COND : {};
@@ -492,12 +492,16 @@ function conditionsDe(ru, ph){
   (tbl[ru.name] || []).forEach((a, i) => ajoute(ru.name, a, i));
   ru.chars.forEach(c => (tbl[c.name] || []).forEach((a, i) => ajoute(c.name, a, i)));
 
-  /* les auras d'une autre figurine de l'armee : la source doit y etre */
+  /* les auras d'une autre figurine de l'armee : la source doit y etre.
+     Une arme mesuree seule (`ficheSeule`) n'a pas d'armee autour d'elle :
+     elle garde la regle d'armee (les ka'tah), pas les auras ni le
+     detachement. */
   const armee = (typeof AURAS_ARMEE !== "undefined") ? AURAS_ARMEE : [];
   armee.forEach((a, i)=>{
     /* les auras defensives ne retouchent pas les attaques de l'unite
        mais celles qui la visent : elles vivent dans l'onglet Encaisser */
     if(a.sens === "def") return;
+    if(ficheSeule && (a.source || a.detach)) return;
     if(!auraValable(a)) return;
     if(a.port && a.port !== port) return;
     if(a.kw && a.kw.length && !a.kw.some(k => groupeA(ru, k))) return;
@@ -602,6 +606,22 @@ window.ROSTER = {
                         enh:ru.enh || "", entrave: t ? t[0] : "",
                         entravePts: t ? t[1] : 0 };
              }) };
+  },
+  /* ---- le mode « par arme » : ce que la fiche donne a UNE arme ----
+     `auto` joue d'office (l'aptitude de la fiche, celles qui visent un
+     genre de cible) ; `conditions` attend que le joueur la declare (« si
+     l'unite est a portee d'un objectif »). Ni liste ni detachement : une
+     arme du catalogue mesuree seule ne connait que sa fiche. Avant ce
+     crochet, la Defense Impenetrable des Gardes Custodiens — leurs
+     Touches Soutenues — n'existait qu'en mode unite. */
+  aptisArme: function(nom, idx){
+    const w = unitWeps(nom)[idx];
+    if(!w) return { auto: [], conditions: [] };
+    const psychique = !!parseFlags(w[8] || "").psychic;
+    const auto = aptisFiche(nom, w).filter(o => !o.psy || psychique);
+    const conditions = conditionsDe({ name: nom, chars: [] }, w[2], true)
+      .filter(c => (!c.arme || c.arme === w[1]) && (!c.psy || psychique));
+    return { auto: auto, conditions: conditions };
   },
   /* ---- ce que le simulateur charge : une unite entiere, tous profils ----
      Les armes de l'escouade et celles des personnages rattaches, avec les
@@ -1490,35 +1510,12 @@ const porteMot = (k, nom) => (typeof KW !== "undefined" && KW[k]) ? has(k, nom) 
    CRYPTEK l'unite qu'il mene */
 const groupeA = (ru, k) => porteMot(k, ru.name) || ru.chars.some(c => porteMot(k, c.name));
 
-/* Ce qui s'ajoute a une arme donnee. `porteur` est le nom de la figurine
-   qui la porte — "" pour l'escouade elle-meme. */
-function octroisArme(ru, porteur, w){
-  if(!ru) return [];
-  const out = [], fig = porteur || ru.name;
-  const tbl = (typeof OCTROIS_DETACH !== "undefined") ? OCTROIS_DETACH : {};
-  R.detach.forEach(dn=>{
-    (tbl[dn] || []).forEach(o=>{
-      if(o.port && o.port !== w[2]) return;
-      /* « figurine » ne vise que le porteur ; « unite » vise tout le groupe
-         des lors qu'un de ses membres remplit la condition */
-      const ok = o.qui === "figurine"
-        ? (!o.kw.length || o.kw.some(k => porteMot(k, fig)))
-        : (!o.kw.length || o.kw.some(k => groupeA(ru, k)));
-      if(ok) out.push({ psy:o.psy, mot:o.mot, champ:o.champ, val:o.val,
-                        nom:o.nom, texte:o.texte, source:nomDetach(dn) });
-    });
-  });
-  /* « tant que cette figurine mene une unite » : seul un personnage
-     rattache remplit la condition, jamais une figurine seule */
-  const auras = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
-  ru.chars.forEach(c=>{
-    (auras[c.name] || []).forEach(a=>{
-      if(a.port && a.port !== w[2]) return;
-      if(a.sens === "def") return;
-      out.push({ psy:a.psy, mot:a.mot, champ:a.champ, val:a.val,
-                 nom:a.nom, texte:a.texte, source:c.name });
-    });
-  });
+/* L'aptitude de la fiche, et celles qui jouent d'elles-memes contre une
+   cible donnee. Elles ne dependent ni de la liste ni du detachement :
+   le mode « par arme » du simulateur les lit aussi, sans quoi une arme
+   mesuree seule perdait tout ce que sa fiche lui donne. */
+function aptisFiche(fig, w){
+  const out = [];
   /* L'aptitude de la fiche elle-meme. Les Immortels relancent leurs
      blessures de 1 sans que rien ne soit coche, parce que leur fiche le
      dit : c'est une propriete du profil, pas une case a penser. Elle ne
@@ -1551,6 +1548,38 @@ function octroisArme(ru, porteur, w){
                       (a.sauf ? "cible ni " + libelleCible(a.sauf).replace(/^cible /, "").replace(" ou ", " ni ")
                               : libelleCible(a.vs)) });
   });
+  return out;
+}
+/* Ce qui s'ajoute a une arme donnee. `porteur` est le nom de la figurine
+   qui la porte — "" pour l'escouade elle-meme. */
+function octroisArme(ru, porteur, w){
+  if(!ru) return [];
+  const out = [], fig = porteur || ru.name;
+  const tbl = (typeof OCTROIS_DETACH !== "undefined") ? OCTROIS_DETACH : {};
+  R.detach.forEach(dn=>{
+    (tbl[dn] || []).forEach(o=>{
+      if(o.port && o.port !== w[2]) return;
+      /* « figurine » ne vise que le porteur ; « unite » vise tout le groupe
+         des lors qu'un de ses membres remplit la condition */
+      const ok = o.qui === "figurine"
+        ? (!o.kw.length || o.kw.some(k => porteMot(k, fig)))
+        : (!o.kw.length || o.kw.some(k => groupeA(ru, k)));
+      if(ok) out.push({ psy:o.psy, mot:o.mot, champ:o.champ, val:o.val,
+                        nom:o.nom, texte:o.texte, source:nomDetach(dn) });
+    });
+  });
+  /* « tant que cette figurine mene une unite » : seul un personnage
+     rattache remplit la condition, jamais une figurine seule */
+  const auras = (typeof AURAS_PERSO !== "undefined") ? AURAS_PERSO : {};
+  ru.chars.forEach(c=>{
+    (auras[c.name] || []).forEach(a=>{
+      if(a.port && a.port !== w[2]) return;
+      if(a.sens === "def") return;
+      out.push({ psy:a.psy, mot:a.mot, champ:a.champ, val:a.val,
+                 nom:a.nom, texte:a.texte, source:c.name });
+    });
+  });
+  aptisFiche(fig, w).forEach(o => out.push(o));
   /* `psy` : l'octroi ne vaut que pour une arme psychique. Le Grand
      Coven donne +1 pour blesser aux sorts des Thousand Sons, pas a
      leurs bolters. */
@@ -1566,9 +1595,12 @@ function libelleCible(kws){
 /* les mots-cles octroyes, ajoutes a la chaine de drapeaux de l'arme */
 function drapeauxAvecOctrois(ru, porteur, w){
   const base = String(w[8] || "");
+  /* les cablages ecrivent « ignoresCover » ou « ignorescover » : le
+     drapeau de l'arme, lui, est en minuscules, et la premiere graphie
+     n'arrivait jamais jusqu'au profil */
   const ajouts = octroisArme(ru, porteur, w)
-    .filter(o => o.mot && !parseFlags(base)[o.mot])
-    .map(o => o.mot);
+    .map(o => o.mot === "ignoresCover" ? "ignorescover" : o.mot)
+    .filter(m => m && !parseFlags(base)[m.split(":")[0]]);
   return ajouts.length ? (base ? base + " " : "") + ajouts.join(" ") : base;
 }
 

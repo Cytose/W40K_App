@@ -1441,6 +1441,25 @@ const ARMEMENT = {
  "Tzaangor Enlightened with Fatecaster greatbows" : {"f": [0, 1], "s": []},
  "Tzaangors" : {"f": [], "s": [{"min": 1, "o": [[2], [1, 0]], "nb": 1, "qui": "Twistbray"}, {"min": 1, "o": [[2], [1, 0]], "qui": "Figurines", "onom": ["Tzaangor w/ Tzaangor blades", "Tzaangor w/ pistol and chainsword"], "nb": -1}]}
 };
+const RETINUE = {};
+const ENH_ANCIENS = {};
+const GRPN = {};
+const MOMENTS = {};
+const MOMENTS_ARMEE = [];
+const COMPO = {};
+const ROLES_UNITE = {};
+const OCTROIS_DETACH = {
+ "Hexwarp Thrallband": [
+  {
+   "psy": true,
+   "champ": "rrW",
+   "val": "ones",
+   "kw": [],
+   "nom": "Flux de Magie",
+   "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
+  }
+ ]
+};
 
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
 const OPTIONS_PTS = {

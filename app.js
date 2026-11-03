@@ -30,7 +30,11 @@ const S = {
   kwCible:{}
 };
 let viewMode = "auto";
-let curUnit = "Immortals", curWeapon = 0, curSize = 10;
+/* l'unite du mode « par arme ». Elle n'est plus figee sur les Immortels :
+   tant que le joueur n'en a pas choisi une, c'est la premiere unite de
+   ligne de son armee (voir uniteParDefaut). */
+let curUnit = "", curWeapon = 0, curSize = 10;
+let uniteChoisie = "";       /* la faction ou le joueur a choisi lui-meme */
 let tgtTab = "generic";
 
 /* ==========================================================
@@ -48,6 +52,7 @@ let atkUnitId = null;
 let atkUnit = null;          /* ce que ROSTER.simUnite a rendu */
 let atkOff = {};             /* profils decoches, par etiquette */
 let condOn = {};             /* aptitudes conditionnelles declarees */
+let condArme = {};           /* les memes, en mode « par arme » */
 
 /* ==========================================================
    DÉS
@@ -233,7 +238,40 @@ const libelleAnti = a => "Anti-" + (a.kw ? nomMotCible(a.kw) : "X") + " " + a.se
 const unitRow  = n => UNITS.find(u => u[0] === n);
 const unitWeps = n => WEAPONS.filter(w => w[0] === n);
 
+/* La premiere unite de ligne (BATTLELINE) de l'armee : d'abord dans la
+   liste ouverte, puis dans le catalogue de la faction. A defaut, la
+   premiere unite de la liste, puis du catalogue. */
+const estLigne = n => (typeof CATMAP !== "undefined") && CATMAP[n] === "Battleline";
+function uniteParDefaut(){
+  const r = window.ROSTER && window.ROSTER.actives && window.ROSTER.actives();
+  const dansListe = ((r && r.unites) || []).filter(x => !x.perso && unitRow(x.nom) &&
+                                                   unitWeps(x.nom).length);
+  const ligneListe = dansListe.find(x => estLigne(x.nom));
+  if(ligneListe) return ligneListe.nom;
+  const armees = UNITS.filter(u => unitWeps(u[0]).length);
+  const ligne = armees.find(u => estLigne(u[0]) && !u[10]);
+  if(ligne) return ligne[0];
+  if(dansListe.length) return dansListe[0].nom;
+  return armees.length ? armees[0][0] : "";
+}
+/* L'unite de l'ecran doit appartenir a la faction en service. Une liste
+   custodes ouverte montrait des Immortels necrons ; une unite choisie a
+   la main, elle, reste tant qu'on ne change pas de faction. */
+function verifieUnite(){
+  if(curUnit && unitRow(curUnit) && uniteChoisie === FACTION_ACTIVE) return false;
+  const n = uniteParDefaut();
+  if(!n || n === curUnit) return false;
+  curUnit = n; curWeapon = 0; uniteChoisie = "";
+  const u = unitRow(n); curSize = u[6][u[6].length-1];
+  condArme = {};
+  return true;
+}
+let condArmeDe = "";
 function applyWeapon(){
+  verifieUnite();
+  /* les conditions declarees valent pour une unite : on les oublie
+     quand on en change */
+  if(condArmeDe !== curUnit){ condArme = {}; condArmeDe = curUnit; }
   const u = unitRow(curUnit), list = unitWeps(curUnit);
   if(!u || !list.length) return;
   if(curWeapon >= list.length) curWeapon = 0;
@@ -648,6 +686,7 @@ function renderUnitList(){
           (x.perso ? '<span class="otag">RATTACHÉ</span>' : '');
         b.addEventListener("click", ()=>{
           curUnit = x.nom; curWeapon = x.arme; curSize = x.taille;
+          uniteChoisie = FACTION_ACTIVE;
           const sizes = unitRow(x.nom)[6];
           if(sizes.indexOf(curSize) < 0) curSize = sizes[sizes.length-1];
           closeSheet("sheetUnit"); applyWeapon();
@@ -661,8 +700,12 @@ function renderUnitList(){
     }
   }
 
+  /* les unites de ligne d'abord : c'est par elles qu'une armee commence */
   const list = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
-    unitWeps(u[0]).some(w => norm(w[1]).includes(q)));
+    unitWeps(u[0]).some(w => norm(w[1]).includes(q)))
+    .map((u, i) => [u, i])
+    .sort((a, b) => (estLigne(b[0][0]) - estLigne(a[0][0])) || (a[1] - b[1]))
+    .map(x => x[0]);
   if(!list.length && !host.children.length){
     host.innerHTML = '<div class="sheet-empty">Aucune unité trouvée.</div>'; return;
   }
@@ -678,6 +721,7 @@ function renderUnitList(){
       (u[10] ? '<span class="otag">LEGENDS</span>' : (u[9] ? '<span class="otag">' + u[9].toUpperCase() + '</span>' : ""));
     b.addEventListener("click", ()=>{
       curUnit = u[0]; curWeapon = 0; curSize = u[6][u[6].length-1];
+      uniteChoisie = FACTION_ACTIVE;
       closeSheet("sheetUnit"); applyWeapon();
     });
     host.appendChild(b);
@@ -791,6 +835,72 @@ function condPour(p){
        [SOUTENUES] */
     (!c.siMot || !!p[c.siMot === "sust" ? "sustainedOn" : c.siMot]));
 }
+/* Ce qu'une regle — condition declaree, aptitude de fiche — fait a un
+   profil deja pret pour le moteur. Le mode unite l'applique a chacun de
+   ses profils, le mode « par arme » a l'ecran lui-meme : un seul
+   vocabulaire, une seule traduction. */
+function appliqueRegles(q, regles){
+  /* « tout jet REUSSI devient critique » n'est pas un seuil fixe : il
+     suit la caracteristique et ses modificateurs. La Faim de Chair des
+     Ecorcheurs, notee 2+, faisait toucher l'unite sur 2+ au lieu de 3+,
+     puisqu'une touche critique reussit toujours. La demande reste donc
+     en attente et se resout apres la boucle, modificateurs connus. */
+  let toutH = false, toutW = false;
+  regles.forEach(c=>{
+    /* « sust » ou « sust:N » : Touches Soutenues N. La forme avec N
+       posait q["sust:1"], que le moteur ne lit pas. */
+    if(c.mot && /^sust(:|$)/.test(c.mot)){
+      const n = c.mot.split(":")[1] || "1";
+      /* une arme deja Soutenue garde son N s'il est meilleur, ou s'il est
+         un de (D3), qu'on ne compare pas a un chiffre */
+      if(!q.sustainedOn || (+q.sustainedN && +n > +q.sustainedN)) q.sustainedN = n;
+      q.sustainedOn = true;
+    }
+    /* « heavy » pose par une condition : le +1 suit, si l'unite est
+       restee immobile et que l'arme ne l'avait pas deja */
+    else if(c.mot === "heavy"){ if(!q.heavy && S.immobile) q.hitMod = borne1(q.hitMod + 1);
+                                q.heavy = true; }
+    /* les autres mots poses tels quels : lethal, dev, ignoresCover,
+       et depuis le 30/10/2026 ignoreMalus et lance */
+    /* « ignorescover » s'ecrit aussi en minuscules dans les cablages :
+       le moteur ne lit que ignoresCover */
+    else if(c.mot === "ignorescover") q.ignoresCover = true;
+    else if(c.mot) q[c.mot] = true;
+    else if(c.champ === "anti"){
+      /* « 4:veh » : un Anti-X prete par une condition, qui ne mord que
+         si la cible porte le mot-cle */
+      const a = antiDe({anti: c.val});
+      if(antiActif(a, S.kwCible)) q.critW = Math.min(q.critW, a.seuil);
+    }
+    /* « un » : UNE relance, qui s'ajoute a la politique de l'arme */
+    else if((c.champ === "rrH" || c.champ === "rrW") && c.val === "un") q[c.champ + "1"] = true;
+    else if(c.champ === "rrD") q.rrD = plusFortD(q.rrD, c.val);
+    else if(c.champ === "rrA") q.rrA = "tous";
+    else if(c.champ === "toughMod") q.toughMod = (q.toughMod || 0) + c.val;
+    else if(c.champ === "bsMod") q.bsMod = (q.bsMod || 0) + c.val;
+    else if(c.champ === "apCrit") q.apCrit = (q.apCrit || 0) + c.val;
+    else if(c.champ === "bsSet" || c.champ === "strSet" ||
+            c.champ === "atkSet" || c.champ === "dmgSet") q[c.champ] = c.val;
+    else if(c.champ === "critH") { if(c.val === "tous") toutH = true;
+                                   else q.critH = Math.min(q.critH, c.val); }
+    else if(c.champ === "critW") { if(c.val === "tous") toutW = true;
+                                   else q.critW = Math.min(q.critW, c.val); }
+    else if(c.champ === "rrH") q.rrH = plusFort(q.rrH, c.val);
+    else if(c.champ === "rrW") q.rrW = plusFort(q.rrW, c.val);
+    else if(c.champ === "hitMod") q.hitMod = borne1(q.hitMod + c.val);
+    else if(c.champ === "wndMod") q.wndMod = borne1(q.wndMod + c.val);
+    else if(c.champ === "apMod") q.apMod = (q.apMod || 0) + c.val;
+    else if(c.champ === "strMod") q.str = Math.max(1, q.str + c.val);
+    else if(c.champ === "dmgMod") q.dmgMod = (q.dmgMod || 0) + c.val;
+    else if(c.champ === "atkMod") q.atkMod = (q.atkMod || 0) + c.val;
+  });
+  /* le plus petit jet qui reussisse : la caracteristique moins le
+     modificateur, et jamais moins de 2 puisqu'un 1 rate toujours */
+  const plancher = (cible, mod) => Math.max(2, cible - Math.max(-1, Math.min(1, mod || 0)));
+  if(toutH) q.critH = Math.min(q.critH, plancher(ENG.ctEffective(q), q.hitMod));
+  if(toutW) q.critW = Math.min(q.critW, plancher(ENG.woundTarget(ENG.force(q), ENG.endurance(q)), q.wndMod));
+  return q;
+}
 function profilPourMoteur(p){
   const q = Object.assign({}, p, {
     tough:S.tough, sv:S.sv, inv:S.inv, wounds:S.wounds, models:S.models,
@@ -851,63 +961,7 @@ function profilPourMoteur(p){
        le joueur declare qu'il tire sans voir */
     indirect: !!p.indirectCap && !!S.indirect
   });
-  /* « tout jet REUSSI devient critique » n'est pas un seuil fixe : il
-     suit la caracteristique et ses modificateurs. La Faim de Chair des
-     Ecorcheurs, notee 2+, faisait toucher l'unite sur 2+ au lieu de 3+,
-     puisqu'une touche critique reussit toujours. La demande reste donc
-     en attente et se resout apres la boucle, modificateurs connus. */
-  let toutH = false, toutW = false;
-  condPour(p).forEach(c=>{
-    /* « sust » ou « sust:N » : Touches Soutenues N. La forme avec N
-       posait q["sust:1"], que le moteur ne lit pas. */
-    if(c.mot && /^sust(:|$)/.test(c.mot)){
-      const n = c.mot.split(":")[1] || "1";
-      /* une arme deja Soutenue garde son N s'il est meilleur, ou s'il est
-         un de (D3), qu'on ne compare pas a un chiffre */
-      if(!q.sustainedOn || (+q.sustainedN && +n > +q.sustainedN)) q.sustainedN = n;
-      q.sustainedOn = true;
-    }
-    /* « heavy » pose par une condition : le +1 suit, si l'unite est
-       restee immobile et que l'arme ne l'avait pas deja */
-    else if(c.mot === "heavy"){ if(!q.heavy && S.immobile) q.hitMod = borne1(q.hitMod + 1);
-                                q.heavy = true; }
-    /* les autres mots poses tels quels : lethal, dev, ignoresCover,
-       et depuis le 30/10/2026 ignoreMalus et lance */
-    else if(c.mot) q[c.mot] = true;
-    else if(c.champ === "anti"){
-      /* « 4:veh » : un Anti-X prete par une condition, qui ne mord que
-         si la cible porte le mot-cle */
-      const a = antiDe({anti: c.val});
-      if(antiActif(a, S.kwCible)) q.critW = Math.min(q.critW, a.seuil);
-    }
-    /* « un » : UNE relance, qui s'ajoute a la politique de l'arme */
-    else if((c.champ === "rrH" || c.champ === "rrW") && c.val === "un") q[c.champ + "1"] = true;
-    else if(c.champ === "rrD") q.rrD = plusFortD(q.rrD, c.val);
-    else if(c.champ === "rrA") q.rrA = "tous";
-    else if(c.champ === "toughMod") q.toughMod = (q.toughMod || 0) + c.val;
-    else if(c.champ === "bsMod") q.bsMod = (q.bsMod || 0) + c.val;
-    else if(c.champ === "apCrit") q.apCrit = (q.apCrit || 0) + c.val;
-    else if(c.champ === "bsSet" || c.champ === "strSet" ||
-            c.champ === "atkSet" || c.champ === "dmgSet") q[c.champ] = c.val;
-    else if(c.champ === "critH") { if(c.val === "tous") toutH = true;
-                                   else q.critH = Math.min(q.critH, c.val); }
-    else if(c.champ === "critW") { if(c.val === "tous") toutW = true;
-                                   else q.critW = Math.min(q.critW, c.val); }
-    else if(c.champ === "rrH") q.rrH = plusFort(q.rrH, c.val);
-    else if(c.champ === "rrW") q.rrW = plusFort(q.rrW, c.val);
-    else if(c.champ === "hitMod") q.hitMod = borne1(q.hitMod + c.val);
-    else if(c.champ === "wndMod") q.wndMod = borne1(q.wndMod + c.val);
-    else if(c.champ === "apMod") q.apMod = (q.apMod || 0) + c.val;
-    else if(c.champ === "strMod") q.str = Math.max(1, q.str + c.val);
-    else if(c.champ === "dmgMod") q.dmgMod = (q.dmgMod || 0) + c.val;
-    else if(c.champ === "atkMod") q.atkMod = (q.atkMod || 0) + c.val;
-  });
-  /* le plus petit jet qui reussisse : la caracteristique moins le
-     modificateur, et jamais moins de 2 puisqu'un 1 rate toujours */
-  const plancher = (cible, mod) => Math.max(2, cible - Math.max(-1, Math.min(1, mod || 0)));
-  if(toutH) q.critH = Math.min(q.critH, plancher(ENG.ctEffective(q), q.hitMod));
-  if(toutW) q.critW = Math.min(q.critW, plancher(ENG.woundTarget(ENG.force(q), ENG.endurance(q)), q.wndMod));
-  return q;
+  return appliqueRegles(q, condPour(p));
 }
 const profilsActifs = () => !atkUnit ? [] :
   atkUnit.profils.filter(p => !atkOff[p.label]);
@@ -1312,17 +1366,34 @@ function renderPresets(){
       host.appendChild(b);
     });
   }
-  const cond = (atkMode === "unite" && atkUnit && atkUnit.conditions) || [];
-  if(cond.length) sep("Aptitudes de " + atkUnit.nom);
+  /* En mode « par arme », les aptitudes de la fiche de l'unite choisie :
+     celles qui jouent d'office se lisent, celles qui attendent une
+     condition se declarent — exactement comme en mode unite. */
+  const parArme = atkMode !== "unite";
+  const apA = parArme ? aptisArmeCourante() : null;
+  if(parArme && apA.auto.length){
+    sep("Ce que fait la fiche de " + curUnit);
+    apA.auto.forEach(o=>{
+      const d = document.createElement("div");
+      d.className = "vinfo";
+      d.innerHTML = '<b>' + o.nom + '</b><i>' + (o.source || curUnit) + ' · appliqué</i>' +
+        '<span>' + (o.texte || "") + '</span>';
+      host.appendChild(d);
+    });
+  }
+  const cond = parArme ? apA.conditions
+                       : ((atkUnit && atkUnit.conditions) || []);
+  const etat = parArme ? condArme : condOn;
+  if(cond.length) sep("Aptitudes de " + (parArme ? curUnit : atkUnit.nom));
   cond.forEach(c=>{
-    const on = !!condOn[c.id];
+    const on = !!etat[c.id];
     const b = document.createElement("button");
     b.type = "button";
     b.className = "vpre vcond" + (on ? " on" : "");
     b.title = c.texte;
     b.innerHTML = c.nom + '<small>' + c.quand + '</small>';
     b.addEventListener("click", ()=>{
-      condOn[c.id] = !on;
+      etat[c.id] = !on;
       /* les lignes de profil montrent le profil retouche : sans ce
          redessin, le calcul changeait et l'affichage mentait */
       renderAtkUnite(); majVite(); render();
@@ -1367,7 +1438,8 @@ function majVite(){
     ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase)
         .filter(x => x.situ && x.situOn).length : 0;
   const haut = nSit + nStr + presetsVisibles().filter(pr => pr.lis()).length +
-               Object.keys(condOn).filter(k => condOn[k]).length;
+               Object.keys(atkMode === "unite" ? condOn : condArme)
+                 .filter(k => (atkMode === "unite" ? condOn : condArme)[k]).length;
   const bas = (S.hitMod ? 1 : 0) + (S.wndMod ? 1 : 0) + (S.apMod ? 1 : 0) +
               (S.dmgMod ? 1 : 0) + (S.atkMod ? 1 : 0) + (S.strMod ? 1 : 0) +
               (S.rrH !== "none" ? 1 : 0) +
@@ -1489,9 +1561,21 @@ function drawBars(svg, data, color, tipFmt){
    +1 ne part qu'aux armes LOURDES. En mode unite c'est profilPourMoteur
    qui s'en charge, profil par profil ; ici, pour l'arme unique de
    l'ecran. */
+/* Ce que la fiche donne a l'arme choisie, en mode « par arme » : ce
+   qui joue d'office, et ce qui attend d'etre declare. */
+function aptisArmeCourante(){
+  if(!window.ROSTER || !window.ROSTER.aptisArme || !unitRow(curUnit))
+    return { auto: [], conditions: [] };
+  return window.ROSTER.aptisArme(curUnit, curWeapon);
+}
 function etatMoteur(){
-  if(!S.immobile || !faitsAttaquant().lourd) return S;
-  return Object.assign({}, S, {hitMod: borne1((S.hitMod || 0) + 1)});
+  const ap = aptisArmeCourante();
+  const regles = ap.auto.concat(ap.conditions.filter(c => condArme[c.id]));
+  const lourd = S.immobile && faitsAttaquant().lourd;
+  if(!regles.length && !lourd) return S;
+  const q = Object.assign({}, S);
+  if(lourd) q.hitMod = borne1((S.hitMod || 0) + 1);
+  return appliqueRegles(q, regles);
 }
 let lastSim = null, lastData = null;
 function render(){
@@ -1808,6 +1892,9 @@ if(el("pickRosterUnit")) el("pickRosterUnit").addEventListener("click", ()=>{
    d'arme, en montrant l'unite complete au lieu d'une arme a la fois. */
 window.__relitUniteChargee = function(){
   if(atkMode === "unite" && atkUnitId !== null) rechargeUnite();
+  /* une autre liste, peut-etre une autre faction : l'unite du mode
+     « par arme » doit en etre */
+  if(verifieUnite()) applyWeapon();
 };
 
 /* Plein ecran — la barre d'adresse du navigateur mange une bonne part de
@@ -1912,6 +1999,27 @@ global.SIM = {S, DEFAUT_STRAT, unitRow, unitWeps, parseFlags, antiDe, antiActif,
     condOn[c.id] = on !== false;
     renderAtkUnite(); majVite(); render();
     return true;
+  },
+  /* le mode « par arme » : l'unite a l'ecran, ce que sa fiche donne, et
+     ce que le moteur recoit vraiment */
+  arme: function(){
+    const ap = aptisArmeCourante(), E = ENG.normalise(etatMoteur());
+    return { unite: curUnit, arme: S.wName,
+             auto: ap.auto.map(o => o.nom),
+             conditions: ap.conditions.map(c => (condArme[c.id] ? "✓ " : "· ") + c.nom),
+             moteur: { sustainedOn: !!E.sustainedOn, sustainedN: E.sustainedN,
+                       lethal: !!E.lethal, dev: !!E.dev, hitMod: E.hitMod, wndMod: E.wndMod,
+                       rrH: E.rrH, rrW: E.rrW, critH: E.critH, critW: E.critW,
+                       ignoresCover: !!E.ignoresCover },
+             degats: +ENG.analytic(etatMoteur()).rawDmg.toFixed(4) };
+  },
+  choisitArme: function(nom, idx){ curUnit = nom; curWeapon = idx || 0;
+    uniteChoisie = FACTION_ACTIVE; const u = unitRow(nom); if(u) curSize = u[6][u[6].length-1];
+    applyWeapon(); },
+  condArme: function(nom, on){
+    const c = aptisArmeCourante().conditions.find(x => x.nom === nom);
+    if(!c) return false;
+    condArme[c.id] = on !== false; majVite(); render(); return true;
   },
   /* l'esperance de chaque profil actif, telle que le moteur la calcule */
   esperances: function(){

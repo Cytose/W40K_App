@@ -94,7 +94,12 @@ const simu = await p.evaluate(() => {
      touche sans rien signaler. */
   const lance = ENG.analytic(Object.assign({}, SIM.S, {
     attacks: '5', kind: 'C', bs: 2, str: 7, ap: 2, dmg: '2', models: 5,
-    tough: 4, sv: 3, inv: 0, wounds: 2, fnp: 0, cover: false, lethal: false
+    tough: 4, sv: 3, inv: 0, wounds: 2, fnp: 0, cover: false, lethal: false,
+    /* l'ecran ouvre desormais sur la premiere unite de ligne de l'armee :
+       ses mots-cles d'arme (Tir Rapide de la lance au tir) ne doivent pas
+       deborder sur ce profil de melee */
+    rapidOn: false, meltaOn: false, sustainedOn: false, torrent: false,
+    blast: false, dev: false
   }));
   return { armes: w.length, profil: [u[1], u[2], u[3], u[4], u[5], u[12]],
            champs: lance ? Object.keys(lance) : [],
@@ -195,6 +200,28 @@ T('le Plateau propose de poser les trois unités', n, 3);
 T('et pose leurs 9 figurines, chacune sur son socle',
   plateau && plateau.figurines, 3 + 3 + 3);
 T('dessinées à l\'écran', await p.locator('#mapSvg [data-unite]').count(), 9);
+
+/* ---- le mode « par arme » lit la fiche de l'unité ----
+   Il ne la lisait pas : la Défense Impénétrable des Gardes Custodiens —
+   leurs Touches Soutenues — n'existait qu'en mode « unité de la liste ».
+   Et l'écran ouvrait sur des Immortels nécrons, même liste custodes
+   ouverte. */
+await p.click('#tabs button[data-s="scSim"]'); await p.waitForTimeout(400);
+T('le mode par arme ouvre sur la première unité de ligne de l\'armée',
+  await p.evaluate(() => SIM.arme().unite), 'Custodian Guard Sodality');
+T('les deux modes disent ce qu\'ils simulent',
+  await p.evaluate(() => [...document.querySelectorAll('#atkModeChips .chip')].map(b => b.textContent)),
+  ['Simuler par arme', 'Simuler une unité de la liste']);
+T('la Défense Impénétrable se propose en mode par arme',
+  await p.evaluate(() => SIM.arme().conditions), v => v.includes('· Défense Impénétrable'));
+const avantDI = await p.evaluate(() => SIM.arme());
+await p.evaluate(() => SIM.condArme('Défense Impénétrable'));
+const apresDI = await p.evaluate(() => SIM.arme());
+T('déclarée, elle donne les Touches Soutenues 1 à l\'arme',
+  [apresDI.moteur.sustainedOn, apresDI.moteur.sustainedN], [true, '1']);
+T('et le calcul y gagne', apresDI.degats > avantDI.degats, true);
+T('une autre unité oublie la déclaration', await p.evaluate(() => {
+  SIM.choisitArme('Allarus Custodians', 0); return SIM.arme().moteur.sustainedOn; }), false);
 
 /* ---- retour aux Nécrons : rien n'a bougé de leur côté ---- */
 const retour = await p.evaluate(() => {
