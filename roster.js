@@ -1243,7 +1243,9 @@ function prixOption(nom, si, oi){
   t.forEach(([objet, pts, opts]) => opts.forEach(([s, o, n]) => {
     if(s === si && o === oi){ p += pts * n; quoi.push(objet); }
   }));
-  return p ? ' <b class="omax" title="' + quoi.join(", ") + '">+' + p + ' pts</b>' : "";
+  /* l'objet paye se nomme en clair : « Pyrithite Spear » seul ne dit pas
+     que le Praesidium Shield vient avec, et c'est lui qui coute */
+  return p ? ' <b class="omax">' + quoi.join(" + ") + ' +' + p + ' pts</b>' : "";
 }
 
 /* KWSET et CATMAP se construisaient ici, une fois pour toutes. Ils
