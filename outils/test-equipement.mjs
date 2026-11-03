@@ -62,7 +62,7 @@ await p.click('#tabs button[data-s="scList"]'); await p.waitForTimeout(400);
 await p.evaluate(()=>{ const e = [...document.querySelectorAll('#scList *')]
   .find(x => /^S$/.test(x.textContent.trim())); e.closest('button,div[class]').click(); });
 await p.waitForTimeout(700);
-const cases = await p.evaluate(() => [...document.querySelectorAll('.tile')]
+const cases = await p.evaluate(() => [...document.querySelectorAll('.tile, .uligne')]
   .map(t => t.textContent.replace(/\s+/g, ' ')));
 eq('la case du porteur le montre', /Orbe de Résurrection/.test(cases[0] || ''), true);
 eq('celle de l\'autre non', /Orbe de Résurrection/.test(cases[1] || ''), false);

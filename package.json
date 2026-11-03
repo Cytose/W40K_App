@@ -22,6 +22,7 @@
     "regles": "node outils/test-regles.mjs",
     "equipement": "node outils/test-equipement.mjs",
     "factions": "node outils/test-factions.mjs",
+    "listes": "node outils/test-listes.mjs",
     "sources": "git clone --depth 1 https://github.com/BSData/wh40k-11e.git build/bsdata && git clone --depth 1 https://github.com/BSData/wh40k-11e-mfm.git build/mfm",
     "extraction": "python3 outils/extraction.py",
     "wahapedia": "python3 outils/test-wahapedia.py",
