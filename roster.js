@@ -4726,8 +4726,12 @@ function renderRoster(){
     pied.className = "unitfoot";
     const fic = document.createElement("button");
     fic.type = "button"; fic.className = "btn";
-    fic.textContent = "Fiche";
-    fic.addEventListener("click", ()=> ouvreFiche(ru.name));
+    /* la fiche du membre qu'on regarde : sur l'onglet du Shield-Captain,
+       c'est la sienne qu'on veut, pas celle de l'escouade qu'il mene */
+    const ficNom = membreVu(ru) || ru.name;
+    fic.textContent = ru.chars.length ? "Fiche · " + ficNom : "Fiche";
+    fic.title = "Fiche de " + ficNom;
+    fic.addEventListener("click", ()=> ouvreFiche(ficNom));
     const dup = document.createElement("button");
     dup.type = "button"; dup.className = "btn";
     dup.textContent = "Dupliquer";

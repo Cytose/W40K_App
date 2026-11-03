@@ -74,6 +74,8 @@ eq('le Warboss garde sa ligne sous les Boyz',
 await p.locator('#padUnits .membre-l .pl-n').first().click(); await p.waitForTimeout(300);
 eq('sa ligne ouvre le réglage sur lui',
   await p.locator('#rosterList .membre.on .mn').first().textContent(), 'Warboss');
+eq('le bouton Fiche du panneau vise le Warboss',
+  await p.locator('.unitfoot .btn').first().textContent(), 'Fiche · Warboss');
 await retour();
 await p.locator('#padUnits .membre-l .pl-x').first().click(); await p.waitForTimeout(300);
 eq('« ⋯ » propose sa fiche',
