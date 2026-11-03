@@ -4376,11 +4376,13 @@ function renderRoster(){
         mb.appendChild(b);
       };
       const rgM = rangsArmee();
-      case1(ru.name, "", "×" + ru.size + " · " + ptsPour(u, ru.size, rgM["u" + ru.id]) + " pts");
+      /* chaque case dit ce que coute ce membre, equipement paye compris :
+         le bouclier d'un Shield-Captain fait partie de son prix */
+      case1(ru.name, "", "×" + ru.size + " · " + (ptsPour(u, ru.size, rgM["u" + ru.id]) + optionsPtsUnite(ru)) + " pts");
       ru.chars.forEach((c, i)=>{
         const cu = unitRow(c.name);
         case1(c.name, c.name, ({Leader:"Meneur", Support:"Appui"}[roleDe(c.name)] || roleDe(c.name) || "Personnage") +
-          (cu ? " · " + ptsPour(cu, cu[6][0], rgM["c" + ru.id + "." + i]) + " pts" : ""));
+          (cu ? " · " + (ptsPour(cu, cu[6][0], rgM["c" + ru.id + "." + i]) + optionsPtsPerso(c)) + " pts" : ""));
       });
       div.appendChild(mb);
     }
@@ -4531,7 +4533,7 @@ function renderRoster(){
         (cu[2] ? ' · E' + cu[2] + ' · Svg ' + cu[3] + '+' + (cu[4] ? '/' + cu[4] + '++' : '') +
                  ' · ' + cu[5] + ' PV' : '') +
         (scc ? ' · socle ' + scc + ' mm' : '') + '</i></div>' +
-        '<span class="rpts">' + ptsPour(cu, cu[6][0], rangsArmee()["c" + ru.id + "." + ci]) + ' pts</span>';
+        '<span class="rpts">' + (ptsPour(cu, cu[6][0], rangsArmee()["c" + ru.id + "." + ci]) + optionsPtsPerso(c)) + ' pts</span>';
       div.appendChild(head);
       /* ce qu'il apporte au groupe, en plus de ses armes */
       const auras = (typeof AURAS_PERSO !== "undefined" && AURAS_PERSO[c.name]) || [];
@@ -6547,7 +6549,7 @@ function listeEnTexte(L){
       });
       ru.chars.forEach((c, ic) => {
         const cu = unitRow(c.name); if(!cu) return;
-        lignes.push("  ‣ " + c.name + " (" + ptsPour(cu, cu[6][0], rgExp["c" + ru.id + "." + ic]) + " pts)");
+        lignes.push("  ‣ " + c.name + " (" + (ptsPour(cu, cu[6][0], rgExp["c" + ru.id + "." + ic]) + optionsPtsPerso(c)) + " pts)");
         groupesPortes(c.name, portParArmePerso(c)).forEach(g =>
           lignes.push("      • " + g.libelle));
       });

@@ -49,7 +49,23 @@ eq('Terminator Assault Squad : 4 boucliers à 5', await p.evaluate(() => ROSTER.
   {name: "Terminator Assault Squad", size: 5, chars: [],
    lo: [{s:0, o:1, n:1}, {s:1, o:0, n:3}, {s:1, o:1, n:1}]})), 20);
 
-console.log('\n== 3. chaque entrée tombe sur une vraie option ==');
+console.log('\n== 3. le réglage montre ce que coûte le membre, bouclier compris ==');
+await p.evaluate(lo => { localStorage.setItem('mathhammer.lists.v1',
+  JSON.stringify({v:1, actif:'l', listes:[{id:'l', nom:'T', faction:'custodes', cap:2000, detach:[],
+    nextId:9, units:[{id:1, name:'Custodian Guard Sodality', size:3, lo, sel:true, grp:'', enh:null,
+      chars:[{name:'Shield-Captain', lo:[{s:0, o:1, n:1}]}]}]}]})); }, lo3);
+await p.reload(); await p.waitForTimeout(1000);
+await p.evaluate(() => document.querySelector('.uligne[data-uid="1"] .pl-n').click());
+await p.waitForTimeout(300);
+const cases = await p.evaluate(() => [...document.querySelectorAll('#cardUnits .membre')].map(e => e.innerText));
+eq('la case du meneur : 180 + 25', cases.some(t => /Shield-Captain[\s\S]*\b205 pts/.test(t)), true);
+await p.evaluate(() => [...document.querySelectorAll('#cardUnits .membre')]
+  .find(e => /Shield-Captain/.test(e.innerText)).click());
+await p.waitForTimeout(300);
+eq('son en-tête aussi', await p.evaluate(() =>
+  document.querySelector('#cardUnits .rhead .rpts').innerText.trim()), '205 pts');
+
+console.log('\n== 4. chaque entrée tombe sur une vraie option ==');
 eq('aucune entrée orpheline', (await p.evaluate(() => ROSTER.optionsOrphelines())).join(' '), '');
 
 await b.close();
