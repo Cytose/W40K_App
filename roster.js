@@ -239,8 +239,8 @@ function loadR(){
    catalogue — c'est ce qu'on venait faire. */
 /* Six des armees imperiales sont des Space Marines : le Codex et ses
    chapitres a supplement. Etalees parmi les autres, elles faisaient la
-   moitie de la rubrique Imperium ; elles tiennent maintenant derriere une
-   seule tuile, qui se deplie. L'Adeptus Titanicus reste charge (ses fiches
+   moitie de la rubrique Imperium ; elles ont maintenant leur propre
+   rubrique, au meme rang qu'Imperium, Chaos et Xenos. L'Adeptus Titanicus reste charge (ses fiches
    servent ailleurs) mais ne se choisit plus comme armee : ce n'est pas une
    armee jouable a 40 000. */
 const SPACE_MARINES = ["spacemarines","blacktemplars","bloodangels","darkangels","deathwatch","spacewolves"];
@@ -248,11 +248,12 @@ const HORS_ARMEES = ["titanicus"];
 const listeArmees = () => (typeof listeFactions === "function" ? listeFactions() : [])
   .filter(f => HORS_ARMEES.indexOf(f.cle) < 0);
 const FAMILLE_FACTION = {
-  imperium: SPACE_MARINES.concat(["greyknights","custodes","sororitas","mechanicus","astra","agents","chevaliers"]),
+  spacemarines: SPACE_MARINES,
+  imperium: ["greyknights","custodes","sororitas","mechanicus","astra","agents","chevaliers"],
   chaos:    ["csm","deathguard","thousandsons","worldeaters","emperorschildren","demons","chevalierschaos"],
   xenos:    ["aeldari","drukhari","necrons","orks","tau","tyranides","gsc","votann"]
 };
-const FAMILLES = [["imperium","Imperium"], ["chaos","Chaos"], ["xenos","Xenos"]];
+const FAMILLES = [["spacemarines","Space Marines"], ["imperium","Imperium"], ["chaos","Chaos"], ["xenos","Xenos"]];
 const familleDe = cle => (FAMILLES.find(f => FAMILLE_FACTION[f[0]].indexOf(cle) >= 0) || ["autre"])[0];
 const FORMATS = [[1000, "Incursion"], [2000, "Strike Force"], [3000, "Onslaught"]];
 let NL = null;   // ce qu'on est en train de choisir dans l'ecran « Nouvelle liste »
@@ -264,8 +265,7 @@ function nouvelleListe(apres){
   const recente = LISTS.slice().sort((a, b) => (b.maj || 0) - (a.maj || 0))[0];
   const fac = (recente && recente.faction) || "";
   NL = { faction: HORS_ARMEES.indexOf(fac) < 0 ? fac : "", cap: (R && R.cap) || 2000,
-         detach: [], nom: "", nomTouche: false, apres,
-         sm: SPACE_MARINES.indexOf(fac) >= 0 };
+         detach: [], nom: "", nomTouche: false, apres };
   el("nlQ").value = "";
   renderNouvelle();
   openSheet("sheetNewList");
@@ -323,48 +323,19 @@ function renderNouvelle(){
     });
     return b;
   };
-  /* la tuile qui replie les Space Marines : elle dit combien de chapitres
-     elle cache, et lequel est choisi quand c'en est un */
-  const tuileSM = lot => {
-    const b = document.createElement("button");
-    const choisi = lot.find(f => f.cle === NL.faction);
-    b.type = "button";
-    b.className = "nl-fac nl-groupe" + (NL.sm ? " ouvert" : "") + (choisi ? " on" : "");
-    b.style.setProperty("--fac", COULEUR_FACTION.spacemarines || "#5D656B");
-    b.innerHTML = 'Space Marines<small>' + (choisi ? choisi.nom : lot.length + ' armées') + '</small>';
-    b.setAttribute("aria-expanded", NL.sm ? "true" : "false");
-    b.addEventListener("click", ()=>{ NL.sm = !NL.sm; renderNouvelle(); });
-    return b;
-  };
-  const bloc = (titre, lot, grouper) => {
+  const bloc = (titre, lot) => {
     if(!lot.length) return;
     if(titre){
       const t = document.createElement("div");
       t.className = "nl-sous"; t.textContent = titre; host.appendChild(t);
     }
-    const sm = grouper ? lot.filter(f => SPACE_MARINES.indexOf(f.cle) >= 0) : [];
-    /* la tuile en tete, sur toute la largeur, et ses chapitres juste
-       dessous : deplies en fin de rubrique, on ne voyait plus d'ou ils
-       sortaient */
-    if(sm.length){
-      const t = document.createElement("div");
-      t.className = "nl-grille"; t.appendChild(tuileSM(sm)); host.appendChild(t);
-      if(NL.sm){
-        const c = document.createElement("div");
-        c.className = "nl-grille nl-chapitres";
-        /* le Codex d'abord, les chapitres ensuite */
-        sm.sort((a, b) => (a.cle === "spacemarines" ? -1 : b.cle === "spacemarines" ? 1 : a.nom.localeCompare(b.nom)))
-          .forEach(f => c.appendChild(bouton(f)));
-        host.appendChild(c);
-      }
-    }
-    const reste = lot.filter(f => sm.indexOf(f) < 0);
-    if(!reste.length) return;
     const g = document.createElement("div");
-    g.className = "nl-grille" + (sm.length ? " nl-suite" : "");
-    reste.forEach(f => g.appendChild(bouton(f)));
+    g.className = "nl-grille";
+    lot.forEach(f => g.appendChild(bouton(f)));
     host.appendChild(g);
   };
+  /* le Codex en tete de sa rubrique, les chapitres ensuite */
+  const ordre = (a, b) => (a.cle === "spacemarines" ? -1 : b.cle === "spacemarines" ? 1 : a.nom.localeCompare(b.nom));
   if(q){
     /* « space » ou « marine » trouve aussi les chapitres */
     const smq = norm("space marines").includes(q) || q.includes("marine");
@@ -375,7 +346,7 @@ function renderNouvelle(){
     bloc("Tes armées", jouees.map(c => dispo.find(f => f.cle === c)).filter(Boolean));
     FAMILLES.forEach(([k, nom]) =>
       bloc(nom, dispo.filter(f => familleDe(f.cle) === k && jouees.indexOf(f.cle) < 0)
-                     .sort((a, b) => a.nom.localeCompare(b.nom)), k === "imperium"));
+                     .sort(ordre)));
     bloc("Autres", dispo.filter(f => familleDe(f.cle) === "autre" && jouees.indexOf(f.cle) < 0));
   }
 
