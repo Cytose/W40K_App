@@ -5254,7 +5254,49 @@ const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""
    l'ouverture : le catalogue s'ouvre sur son sommaire. Etat d'affichage,
    remis a zero a chaque ouverture, jamais enregistre. */
 let catOuverte = "";
+/* Preferences du catalogue, retenues sur cet appareil. Les Legends sont
+   affichees par defaut (comportement d'avant) ; qui ne joue qu'en
+   competitif peut les masquer d'un geste, depuis la roue de la feuille. */
+const PKEY = "mathhammer.prefs-catalogue";
+let PREFS = { legends: true };
+try{ Object.assign(PREFS, JSON.parse(localStorage.getItem(PKEY) || "{}")); }catch(e){}
+function savePrefs(){ try{ localStorage.setItem(PKEY, JSON.stringify(PREFS)); }catch(e){} }
+/* une unite a sa place dans le catalogue selon les preferences */
+const voirUnite = u => PREFS.legends || !u[10];
+/* le rappel en bas de liste : des unites sont la, mais masquees */
+function noteLegendsMasquees(host, n){
+  if(!n) return;
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "legmasq";
+  b.innerHTML = n + ' unité' + (n > 1 ? 's' : '') + ' Legends masquée' + (n > 1 ? 's' : '') +
+    ' · <b>Afficher</b>';
+  b.addEventListener("click", ()=>{ PREFS.legends = true; savePrefs(); majPrefs(); renderPick(); });
+  host.appendChild(b);
+}
+function majPrefs(){
+  const btn = el("uPrefsBtn"), box = el("prefLegends");
+  if(box) box.checked = !!PREFS.legends;
+  /* la roue s'allume quand un filtre est actif : on sait pourquoi il manque des unites */
+  if(btn){
+    btn.classList.toggle("on", !PREFS.legends);
+    /* les ameliorations ne sont pas des unites : rien a regler la */
+    btn.hidden = pickMode === "enh" || pickMode === "cmp:roster";
+    if(btn.hidden){ el("uPrefs").hidden = true; btn.setAttribute("aria-expanded", "false"); }
+  }
+}
+if(el("uPrefsBtn")){
+  el("uPrefsBtn").addEventListener("click", ()=>{
+    const pan = el("uPrefs"); pan.hidden = !pan.hidden;
+    el("uPrefsBtn").setAttribute("aria-expanded", pan.hidden ? "false" : "true");
+  });
+  el("prefLegends").addEventListener("change", e=>{
+    PREFS.legends = e.target.checked; savePrefs(); majPrefs();
+    const zone = el("uList"), haut = zone.scrollTop;
+    renderPick(); zone.scrollTop = haut;
+  });
+}
 function renderPick(){
+  majPrefs();
   renderPickListe();
   const q = norm(el("uSearch").value.trim());
   const host = el("uList"); host.innerHTML = "";
@@ -5272,9 +5314,11 @@ function renderPick(){
        unite. La Catacomb Command Barge est un PERSONNAGE — elle peut porter
        une optimisation — mais c'est un VEHICULE : elle ne se rattache a
        personne, et elle n'a donc rien a faire dans cette liste. */
-    const candidats = UNITS.filter(u =>
+    const tous = UNITS.filter(u =>
       (estAttachable(u) || RETINUE[u[0]]) &&
       (!q || norm(u[0]).includes(q)));
+    const candidats = tous.filter(voirUnite);
+    const legMasq = tous.length - candidats.length;
     const ok = candidats.filter(u => peutRejoindre(u[0], cible) === true);
     const inconnu = candidats.filter(u => peutRejoindre(u[0], cible) === null);
     const non = candidats.filter(u => peutRejoindre(u[0], cible) === false);
@@ -5312,6 +5356,7 @@ function renderPick(){
     if(inconnu.length){ titre("Sans règle de rattachement connue"); inconnu.forEach(u => host.appendChild(bouton(u, "?"))); }
     if(non.length){ titre("Hors règles — cette unité n'est pas dans leur liste"); non.forEach(u => host.appendChild(bouton(u, "non"))); }
     if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Aucun personnage ne correspond.</div>';
+    noteLegendsMasquees(host, legMasq);
     return;
   }
   if(pickMode === "enh"){
@@ -5415,8 +5460,8 @@ function renderPick(){
         '<div class="sheet-empty">Ta liste est vide, ou rien ne correspond.</div>';
       return;
     }
-    UNITS.map(u => ({name:u[0], size:u[6][u[6].length-1], w:0}))
-      .filter(c => !q || norm(c.name).includes(q)).forEach(c=>{
+    const cmpQ = UNITS.filter(u => !q || norm(u[0]).includes(q));
+    cmpQ.filter(voirUnite).map(u => ({name:u[0], size:u[6][u[6].length-1], w:0})).forEach(c=>{
       const u = unitRow(c.name); if(!u) return;
       const b = document.createElement("button");
       b.type="button"; b.className="opt";
@@ -5429,6 +5474,7 @@ function renderPick(){
       host.appendChild(b);
     });
     if(!host.children.length) host.innerHTML = '<div class="sheet-empty">Rien à ajouter ici.</div>';
+    noteLegendsMasquees(host, cmpQ.filter(u => !voirUnite(u)).length);
     return;
   }
   head.textContent = "Ajouter une unité";
@@ -5437,10 +5483,11 @@ function renderPick(){
      rarement un nom précis dans une liste de cinquante-deux entrées.
      La recherche prend aussi les mots-cles et le role : « canoptek »,
      « leader », « battleline » ramenent ce qu'il faut. */
-  const retenues = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
+  const trouvees = UNITS.filter(u => !q || norm(u[0]).includes(q) ||
     unitWeps(u[0]).some(w => norm(w[1]).includes(q)) || norm(categorie(u[0])).includes(q) ||
     norm(u[9] || "").includes(q) ||
     Object.keys(KW).some(k => has(k, u[0]) && norm(k).includes(q)));
+  const retenues = trouvees.filter(voirUnite);
   const parCat = {};
   /* les Legends en fin de categorie : jouables, mais pas en competitif */
   retenues.sort((x, y) => (x[10] ? 1 : 0) - (y[10] ? 1 : 0));
@@ -5526,6 +5573,7 @@ function renderPick(){
   });
   if(!host.querySelector(".catbar")) host.innerHTML =
     '<div class="sheet-empty">Aucune unité trouvée.</div>';
+  noteLegendsMasquees(host, trouvees.length - retenues.length);
 }
 
 /* ==========================================================
@@ -7068,6 +7116,8 @@ document.querySelectorAll('[data-close="sheetUnit"]').forEach(b=>
     }
     pickMode = null; ajoutees = 0;
     const bar = el("uBudget"); if(bar) bar.hidden = true;
+    /* la roue se replie : on la retrouve fermee a la prochaine ouverture */
+    const pp = el("uPrefs"); if(pp){ pp.hidden = true; el("uPrefsBtn").setAttribute("aria-expanded", "false"); }
   }));
 
 /* le simulateur possede sa propre liste d'unites : on remet son mode
