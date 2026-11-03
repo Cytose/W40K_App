@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -3854,7 +3855,73 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Autarch" : {"f": [], "s": [{"min": 1, "o": [[8], [7], [6]]}, {"min": 1, "o": [[3], [4, 5], [0], [1], [2]]}]},
+ "Autarch Skyrunner" : {"f": [4, 2], "s": [{"min": 1, "o": [[1, 5], [0], [3]]}]},
+ "Autarch Wayleaper" : {"f": [], "s": [{"min": 1, "o": [[8], [7], [6]]}, {"min": 1, "o": [[3], [4, 5], [0], [1], [2]]}]},
+ "Cobra" : {"f": [1, 7], "s": [{"min": 1, "o": [[3], [5, 6], [0], [2], [4]]}]},
+ "Corsair Cloud Dancer Band" : {"f": [0, 7], "s": [{"min": 1, "o": [[6], [4], [1], [2], [5]], "qui": "Figurines", "onom": ["Cloud Dancer Felarch : Twin shuriken catapult", "Cloud Dancer Felarch : Shuriken cannon", "Cloud Dancer Felarch : Dark lance", "Cloud Dancer Felarch : Dissonance cannon", "Cloud Dancer Felarch : Splinter cannon"]}, {"min": 0, "o": [[8], [3]], "qui": "Cloud Dancer Felarch"}]},
+ "Corsair Reaver Band" : {"f": [1, 12], "s": [{"min": 1, "o": [[2], [13], [3], [0], [5], [6], [7], [8], [9], [11, 10]], "qui": "Figurines", "omax": [0, 0, 2, 2, 2, 2, 2, 2, 2, 2], "onom": ["Reaver w/ corsair firearm", "Reaver w/ sparglaive", "Reaver w/ dark lance", "Reaver w/ blaster", "Reaver w/ flamer", "Reaver w/ fusion gun", "Reaver w/ shredder", "Reaver w/ shuriken cannon", "Reaver w/ splinter cannon", "Reaver w/ Aeldari missile launcher"]}, {"min": 0, "o": [[14], [4]], "qui": "Reaver Felarch"}]},
+ "Corsair Skyreavers" : {"f": [9], "s": [{"min": 1, "o": [[7], [4], [0]], "nb": 1, "qui": "Skyreaver Felarch"}, {"min": 1, "o": [[9, 6], [1, 8], [2, 8], [3, 8], [5, 8]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1], "onom": ["Skyreaver w/ pistol and blade", "Skyreaver w/ blaster", "Skyreaver w/ flamer", "Skyreaver w/ fusion gun", "Skyreaver w/ shredder"], "nb": -1}], "nf": {"9": 1}},
+ "Corsair Voidreavers" : {"f": [8, 9], "s": [{"min": 1, "o": [[5], [2], [6]], "nb": 1, "qui": "Voidreaver Felarch"}, {"min": 1, "o": [[6], [3, 9], [0, 3], [1, 3], [4], [7]], "qui": "Figurines", "omax": [0, 0, 2, 2, 1, 1], "onom": ["Voidreaver with Shuriken rifle", "Voidreaver with sword and pistol", "Voidreaver with Blaster", "Voidreaver with Shredder", "Voidreaver with Heavy weapon : Shuriken cannon", "Voidreaver with Heavy weapon : Wraithcannon"], "nb": -1}], "nf": {"9": 1}},
+ "Corsair Voidscarred" : {"f": [11, 13], "s": [{"min": 1, "o": [[8], [5], [9]], "nb": 1, "qui": "Voidscarred Felarch"}, {"min": 1, "o": [[13, 6], [9], [12, 6], [2, 14, 6], [3, 6], [7], [10], [4], [1], [0]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1, 1, 1, 1, 1, 1], "onom": ["Voidscarred w/ pistol and sword", "Voidscarred w/ rifle", "Shade Runner", "Way Seeker", "Voidscarred with fusion pistol", "Voidscarred with heavy weapon : Shuriken cannon", "Voidscarred with heavy weapon : Wraithcannon", "Voidscarred with ranger long rifle", "Voidscarred with special weapon : Corsair shredder", "Voidscarred with special weapon : Corsair blaster"], "nb": -1}], "nf": {"13": 1}},
+ "Crimson Hunter" : {"f": [1, 3], "s": [{"min": 1, "o": [[2], [0]]}], "n": {"2": 2, "0": 2}},
+ "Dark Reapers" : {"f": [4, 5, 6], "s": [{"min": 1, "o": [[4, 5], [0], [1], [2, 3]], "nb": 1, "qui": "Dark Reaper Exarch"}], "nf": {"4": -1, "5": -1}},
+ "Dire Avengers" : {"f": [0, 2], "s": [{"min": 1, "o": [[0], [1, 3], [1, 4], [3], [4]], "nb": 1, "qui": "Dire Avenger Exarch"}], "nf": {"0": -1}},
+ "Dragon Knights" : {"f": [0, 1, 2, 3], "s": []},
+ "Falcon" : {"f": [1, 8], "s": [{"min": 1, "o": [[5], [3]]}, {"min": 1, "o": [[3], [6, 7], [0], [2], [4]]}]},
+ "Farseer" : {"f": [0, 1], "s": [{"min": 1, "o": [[4], [2, 3]]}]},
+ "Farseer Skyrunner" : {"f": [0, 1, 3], "s": [{"min": 1, "o": [[5], [2, 4]]}]},
+ "Fire Dragons" : {"f": [0, 5], "s": [{"min": 1, "o": [[3], [2], [4], [6, 1]], "nb": 1, "qui": "Fire Dragon Exarch"}], "nf": {"0": -1}},
+ "Fire Prism" : {"f": [2, 3, 4], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Firestorm" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}]},
+ "Guardian Defenders" : {"f": [3, 7], "s": [{"min": 1, "o": [[2], [5, 6], [0], [1], [4]], "nb": 1, "qui": "Heavy Weapon Platform"}], "nf": {"3": 10, "7": 11}},
+ "Hemlock Wraithfighter" : {"f": [1, 0], "s": [], "n": {"0": 2}},
+ "Hornet" : {"f": [7], "s": [{"min": 1, "o": [[1], [5, 6], [0], [2], [3], [4]]}, {"min": 1, "o": [[1], [5, 6], [0], [2], [3], [4]]}]},
+ "Howling Banshees" : {"f": [0, 2], "s": [{"min": 1, "o": [[2, 0], [3, 0], [5, 1, 0], [4]], "nb": 1, "qui": "Howling Banshee Exarch"}], "nf": {"0": -1, "2": -1}},
+ "Lynx" : {"f": [1, 7], "s": [{"min": 1, "o": [[3], [5, 6], [0], [2], [4]]}]},
+ "Night Spinner" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}]},
+ "Phantom Titan" : {"f": [5, 4], "s": [{"min": 1, "o": [[0], [1], [2, 6, 7], [3, 6, 7], [3, 6, 7, 2]]}, {"min": 1, "o": [[1], [0], [2, 6, 7], [3, 6, 7], [3, 6, 7, 2]]}, {"min": 1, "o": [[2], [3]]}], "n": {"2": 2, "3": 2}},
+ "Revenant Titan" : {"f": [0, 3], "s": [{"min": 1, "o": [[1], [2]]}, {"min": 1, "o": [[2], [1]]}]},
+ "Scorpion" : {"f": [4, 7], "s": [{"min": 1, "o": [[2], [5, 6], [0], [1], [3]]}]},
+ "Shadow Spectres" : {"f": [0, 1, 2], "s": []},
+ "Shadowseer" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Shining Spears" : {"f": [0, 3, 4], "s": [{"min": 1, "o": [[0, 4], [5], [2, 6]], "nb": 1, "qui": "Shining Spear Exarch"}, {"min": 1, "o": [[3], [1]], "nb": 1, "qui": "Shining Spear Exarch"}], "nf": {"0": -1, "3": -1, "4": -1}},
+ "Skathach Wraithknight" : {"f": [6], "s": [{"min": 1, "o": [[], [4, 5], [0]], "onom": ["Scattershield", "", ""]}, {"min": 1, "o": [[0], [4, 5]]}, {"min": 0, "o": [[1], [2], [3]]}, {"min": 0, "o": [[1], [2], [3]]}]},
+ "Skyweavers" : {"f": [3], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[2], [4]]}]},
+ "Starweaver" : {"f": [1, 0], "s": [], "n": {"0": 2}},
+ "Storm Guardians" : {"f": [3], "s": [{"min": 1, "o": [[3, 2], [3, 0], [3, 1], [2, 4], [0, 4], [4, 1]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2, 2], "onom": ["Storm Guardian", "Storm Guardian with Flamer", "Storm Guardian with Fusion Gun", "Storm Guardian with Power Sword", "Storm Guardian with Flamer & Power Sword", "Storm Guardian with Fusion Gun & Power Sword"], "nb": -1}], "nf": {"3": 1}},
+ "Striking Scorpions" : {"f": [1, 4], "s": [{"min": 1, "o": [[4, 5, 1], [3, 0], [2, 1]], "nb": 1, "qui": "Striking Scorpion Exarch"}], "nf": {"1": -1, "4": -1}},
+ "Swooping Hawks" : {"f": [2, 5], "s": [{"min": 1, "o": [[1], [0], [3], [6, 4]], "nb": 1, "qui": "Swooping Hawk Exarch"}], "nf": {"2": -1}},
+ "Troupe" : {"f": [], "s": [{"min": 1, "o": [[3], [4], [5]], "nb": 1, "qui": "Lead Player"}, {"min": 1, "o": [[2], [0], [1]], "nb": 1, "qui": "Lead Player"}, {"min": 1, "o": [[2, 3], [2, 4], [0, 3], [0, 4], [1, 3], [1, 4]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1, 1], "onom": ["Player with Harlequin's Blade", "Player with Harlequin's Special Weapon", "Player with Fusion Pistol : Fusion Pistol + Harlequin's Blade", "Player with Fusion Pistol : Fusion Pistol + Harlequin's Special Weapon", "Player with Neuro Disruptor : Neuro Disruptor + Harlequin's Blade", "Player with Neuro Disruptor : Neuro Disruptor + Harlequin's Special Weapon"], "nb": -1}]},
+ "Troupe Master" : {"f": [], "s": [{"min": 1, "o": [[3], [4]]}, {"min": 1, "o": [[2], [0], [1]]}]},
+ "Vampire Hunter" : {"f": [0, 1, 2, 3], "s": [], "n": {"1": 2}},
+ "Vampire Raider" : {"f": [0, 1, 2], "s": [], "n": {"1": 2}},
+ "Voidweaver" : {"f": [4, 0], "s": [{"min": 1, "o": [[1], [2, 3]]}], "n": {"0": 2}},
+ "War Walkers" : {"f": [6], "s": [{"min": 1, "o": [[2], [4, 5], [0], [1], [3]]}]},
+ "Warlock" : {"f": [0, 1], "s": [{"min": 1, "o": [[4], [2, 3]]}]},
+ "Warlock Conclave" : {"f": [0, 1], "s": [{"min": 1, "o": [[4], [2, 3]], "qui": "Figurines", "onom": ["Warlock with Witchblade", "Warlock with Singing Spear"]}]},
+ "Warlock Skyrunners" : {"f": [0, 1, 3], "s": [{"min": 1, "o": [[5], [2, 4]], "qui": "Figurines", "onom": ["Warlock Skyrunner with Witchblade", "Warlock Skyrunner with Singing Spear"]}]},
+ "Warp Hunter" : {"f": [2, 3, 4], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Warp Spiders" : {"f": [1, 4], "s": [{"min": 1, "o": [[2], [0, 3], [6, 0], [5]], "nb": 1, "qui": "Warp Spider Exarch"}], "nf": {"1": -1}},
+ "Wasp Assault Walker" : {"f": [6], "s": [{"min": 1, "o": [[2], [4, 5], [0], [1], [3]]}]},
+ "Wave Serpent" : {"f": [8], "s": [{"min": 1, "o": [[4], [0]]}, {"min": 1, "o": [[3], [6, 7], [1], [2], [5]]}]},
+ "Windriders" : {"f": [3], "s": [{"min": 1, "o": [[2], [0], [1]], "qui": "Figurines", "onom": ["Windrider with Twin Shuriken Catapult", "Windrider with Scatter Laser", "Windrider with Shuriken Cannon"]}]},
+ "Wraithblades" : {"f": [], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Wraithguard" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Wraithknight" : {"f": [5], "s": [{"min": 1, "o": [[], [0]], "onom": ["Scattershield", ""]}, {"min": 1, "o": [[4], [0]]}, {"min": 0, "o": [[1], [2], [3]]}, {"min": 0, "o": [[1], [2], [3]]}]},
+ "Wraithknight with Ghostglaive" : {"f": [4, 5], "s": [{"min": 1, "o": [[], [0]], "onom": ["Scattershield", ""]}, {"min": 0, "o": [[1], [2], [3]]}, {"min": 0, "o": [[1], [2], [3]]}]},
+ "Wraithlord" : {"f": [8], "s": [{"min": 0, "o": [[9, 10]]}, {"min": 1, "o": [[4], [1]]}, {"min": 1, "o": [[4], [1]]}, {"min": 0, "o": [[6, 7], [0], [2], [3], [5]]}, {"min": 0, "o": [[6, 7], [0], [2], [3], [5]]}]},
+ "Wraithseer" : {"f": [1, 8, 9], "s": [{"min": 1, "o": [[5], [6, 7], [0], [2], [3], [4]]}]},
+ "Ynnari Archon" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Ynnari Incubi" : {"f": [0], "s": [{"min": 1, "o": [[0], [1, 2]], "nb": 1, "qui": "Klaivex"}], "nf": {"0": -1}},
+ "Ynnari Kabalite Warriors" : {"f": [7], "s": [{"min": 1, "o": [[6], [0], [5]], "nb": 1, "qui": "Sybarite"}, {"min": 1, "o": [[7], [8]], "nb": 1, "qui": "Sybarite"}, {"min": 1, "o": [[6], [3], [1], [4], [2]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1], "onom": ["Kabalite Warrior", "Kabalite Warrior with Shredder", "Kabalite Warrior with Blaster", "Kabalite Warrior with Splinter Cannon", "Kabalite Warrior with Dark Lance"], "nb": -1}], "nf": {"7": -1}},
+ "Ynnari Raider" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Ynnari Reavers" : {"f": [2, 5], "s": [{"min": 0, "o": [[4]], "nb": 1, "qui": "Arena Champion"}, {"min": 1, "o": [[3], [0], [1]], "nb": 1, "qui": "Arena Champion"}, {"min": 1, "o": [[3], [0], [1]], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Reaver", "Reaver with Blaster", "Reaver with Heat Lance"], "nb": -1}]},
+ "Ynnari Succubus" : {"f": [2], "s": [{"min": 0, "o": [[1], [0]]}]},
+ "Ynnari Venom" : {"f": [2, 0], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Ynnari Wyches" : {"f": [1, 2], "s": [{"min": 0, "o": [[1], [0]], "nb": 1, "qui": "Hekatrix"}], "nf": {"1": 9, "2": 10}}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

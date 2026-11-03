@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -5097,7 +5098,45 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Battlewagon" : {"f": [1], "s": [{"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}, {"min": 0, "o": [[0]]}]},
+ "Beast Snagga Boyz" : {"f": [0], "s": [{"min": 1, "o": [[4, 3], [1, 4, 3], [2]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Beast Snagga Boy", "Beast Snagga Boy w/ Thump gun", "Nob"]}]},
+ "Beastboss on Squigosaur" : {"f": [2, 3, 4, 0], "s": [{"min": 0, "o": [[1]]}]},
+ "Big Mek" : {"f": [], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[0], [1]]}]},
+ "Big Mek in Mega Armour" : {"f": [8], "s": [{"min": 0, "o": [[1], []], "onom": ["", "Kustom Force Field"]}, {"min": 1, "o": [[5, 6], [3, 2, 4], [0], [7]]}]},
+ "Big Trakk" : {"f": [0, 5], "s": [{"min": 0, "o": [[4, 3], [2, 1]]}], "n": {"0": 2}},
+ "Boyz" : {"f": [], "s": [{"min": 1, "o": [[12, 4, 3], [0, 12, 4], [10, 9, 12, 4], [1, 12, 4], [13, 8, 7], [13, 2], [13, 5, 6], [14, 8, 7], [14, 2], [14, 5, 6], [11]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "onom": ["Boy", "Boy w/ Big shoota", "Boy w/ Rokkit launcha", "Boy w/ Burna", "Nob : Kustom Choppa + Kombi-skorcha", "Nob : Kustom Choppa + Kustom Shoota", "Nob : Kustom Choppa + Kombi-rokkit", "Nob : Power Klaw + Kombi-skorcha", "Nob : Power Klaw + Kustom Shoota", "Nob : Power Klaw + Kombi-rokkit", "Nob : Big Choppa"]}]},
+ "Breaka Boyz" : {"f": [1], "s": [{"min": 1, "o": [[4, 5], [0]], "nb": 1, "qui": "Nob"}, {"min": 1, "o": [[4, 5], [0]], "nb": 1, "qui": "Nob"}, {"min": 1, "o": [[4, 5], [3], [2]], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Breaka Boy", "Breaka Boy w/ Tankhammer", "Breaka Boy w/ Knucklebustas"], "nb": -1}], "nf": {"1": 1}},
+ "Burna Boyz" : {"f": [1, 5, 6], "s": [{"min": 1, "o": [[0], [2], [4, 3]], "nb": 1, "qui": "Spanner"}], "nf": {"1": 4, "5": 4, "6": 1}},
+ "Burna-bommer" : {"f": [1, 0, 3], "s": [{"min": 0, "o": [[2]]}]},
+ "Dakkajet" : {"f": [1, 0], "s": [], "n": {"0": 2}},
+ "Deff Dread" : {"f": [5], "s": [{"min": 1, "o": [[0], [6], [1], [4, 3]]}, {"min": 1, "o": [[2], [0], [6], [1], [4, 3]]}]},
+ "Deffkoptas" : {"f": [1, 4, 5], "s": [{"min": 1, "o": [[3, 2], [0]], "qui": "Figurines", "omax": [0, 2], "onom": ["Deffkopta", "Deffkopta w/ Kustom mega-blasta"]}]},
+ "Flash Gitz" : {"f": [0, 1, 2, 3], "s": []},
+ "Gargantuan Squiggoth" : {"f": [3], "s": [{"min": 1, "o": [[2, 1], [0]]}, {"min": 0, "o": [[2, 1], [0]]}]},
+ "Gorkanaut" : {"f": [3, 2, 6, 5, 4, 1, 0], "s": [], "n": {"5": 2, "4": 2, "0": 2}},
+ "Grot Mega-Tank" : {"f": [7, 4], "s": [{"min": 1, "o": [[0], [1], [2], [6, 5], [3]]}, {"min": 1, "o": [[0], [1], [2], [6, 5], [3]]}]},
+ "Grot Tanks" : {"f": [6], "s": [{"min": 1, "o": [[0], [1], [2], [4, 5], [3], [0, 3], [0, 4, 5], [0, 2], [0, 1], [3, 0], [3, 4, 5], [3, 2], [3, 1], [4, 5, 0], [4, 5, 3]], "qui": "Figurines", "omax": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], "onom": ["Grot Tank w/ Grot tank shoota", "Grot Tank w/ Grotzooka", "Grot Tank w/ Kustom mega-blasta", "Grot Tank w/ Rokkit launcha", "Grot Tank w/ Skorcha", "Grot Tank w/ additional weapon : Grot Tank Shoota + Skorcha", "Grot Tank w/ additional weapon : Grot Tank Shoota + Rokkit Launcha", "Grot Tank w/ additional weapon : Grot Tank Shoota + Kustom Mega-blasta", "Grot Tank w/ additional weapon : Grot Tank Shoota + Grotzooka", "Grot Tank w/ additional weapon : Skorcha + Grot Tank Shoota", "Grot Tank w/ additional weapon : Skorcha + Rokkit Launcha", "Grot Tank w/ additional weapon : Skorcha + Kustom Mega-blasta", "Grot Tank w/ additional weapon : Skorcha + Grotzooka", "Grot Tank w/ additional weapon : Rokkit Launcha + Grot Tank Shoota", "Grot Tank w/ additional weapon : Rokkit Launcha + Skorcha"]}]},
+ "Gunwagon" : {"f": [6], "s": [{"min": 0, "o": [[2]]}, {"min": 1, "o": [[5, 4], [1], [3]]}, {"min": 0, "o": [[0]]}, {"min": 0, "o": [[7]]}, {"min": 0, "o": [[8]]}]},
+ "Kill Tank" : {"f": [], "s": [{"min": 1, "o": [[0], [7, 6], [2]]}, {"min": 0, "o": [[0]]}, {"min": 1, "o": [[9, 8, 10], [11, 3], [11, 1], [11, 5, 4]]}], "n": {"0": 2, "6": 2, "7": 2, "2": 2, "3": 2}},
+ "Kommandos" : {"f": [2], "s": [{"min": 1, "o": [[7], [8], [5]], "nb": 1, "qui": "Nob"}, {"min": 1, "o": [[7], [1, 7], [6], [0, 7], [4, 3, 7]], "qui": "Figurines", "omax": [0, 2, 1, 1, 1], "onom": ["Kommandos w/ Slugga and choppa", "Kommandos w/ Kustom shoota", "Kommandos w/ Breacha ram", "Kommandos w/ Burna", "Kommandos w/ Rokkit launcha"], "nb": -1}]},
+ "Lifta Wagon" : {"f": [1, 4], "s": [{"min": 0, "o": [[5]]}, {"min": 0, "o": [[6]]}, {"min": 0, "o": [[0], [3, 2], [0, 3, 2]]}], "n": {"0": 2, "2": 2, "3": 2}},
+ "Lootas" : {"f": [1, 5], "s": [{"min": 1, "o": [[0], [2], [4, 3]], "nb": 1, "qui": "Spanner"}], "nf": {"1": 4, "5": 5}},
+ "Meganobz" : {"f": [], "s": [{"min": 1, "o": [[3, 4, 6], [1, 0, 2, 6], [1, 0, 2, 5], [3, 4, 5], [7]], "qui": "Figurines", "onom": ["Meganob w/ Kustom Shoota and Power Klaw", "Meganob w/ Kombi-weapon and Power Klaw", "Meganob w/ Kombi-weapon and Killsaw", "Meganob w/ Kustom Shoota and Killsaw", "Meganob w/ Twin Killsaw"]}]},
+ "Mek Gunz" : {"f": [4], "s": [{"min": 1, "o": [[2], [0], [1], [3]], "qui": "Figurines", "onom": ["Mek Gun w/ Smasha Gun", "Mek Gun w/ Bubblechukka", "Mek Gun w/ Kustom Mega-kannon", "Mek Gun w/ Traktor Kannon"]}]},
+ "Morkanaut" : {"f": [5, 2, 0, 1, 4, 3], "s": [], "n": {"0": 2, "4": 2, "3": 2}},
+ "Nobz" : {"f": [], "s": [{"min": 1, "o": [[7, 2], [7, 3, 4], [5], [0, 6], [1, 6], [7]], "qui": "Figurines", "omax": [0, 0, 2, 2, 2, 2], "onom": ["Nob w/ Kustom Shoota and Kustom Krumpa", "Nob w/ Kombi-rokkit and Kustom Krumpa", "Nob w/ Big Choppa", "Nob w/ Big Skorcha and Kustom Choppa", "Nob w/ Kustom Big Shoota and Kustom Choppa", "Nob w/ Kustom Krumpa and Paired Krumpas"]}]},
+ "Squighog Boyz" : {"f": [4], "s": [{"min": 1, "o": [[5, 2, 0], [3, 1]], "qui": "Figurines", "omax": [0, 2], "onom": ["Squighog Boy", "Nob on Smasha Squig"]}]},
+ "Stompa" : {"f": [1, 6, 5, 4, 2, 0, 3], "s": [], "n": {"0": 5}},
+ "Stormboyz" : {"f": [0, 1], "s": [{"min": 1, "o": [[2], [3]], "nb": 1, "qui": "Nob"}], "nf": {"1": -1}},
+ "Tankbustas" : {"f": [1, 2, 3, 4], "s": [{"min": 1, "o": [[0], [5, 6]], "nb": 1, "qui": "Nob"}, {"min": 1, "o": [[0], [5, 6]], "nb": 1, "qui": "Nob"}], "nf": {"1": -1, "2": -1, "3": 1, "4": -1}},
+ "Trukk" : {"f": [5], "s": [{"min": 1, "o": [[0], [2, 1]]}, {"min": 0, "o": [[4], [3]]}]},
+ "Warbikers" : {"f": [0, 1, 2, 3, 4], "s": [], "nf": {"0": -1, "1": 1, "2": 1, "3": -1, "4": 1}},
+ "Warboss" : {"f": [], "s": [{"min": 1, "o": [[5], [6]]}, {"min": 1, "o": [[0], [4, 3], [1, 2]]}]},
+ "Warboss on Warbike" : {"f": [0], "s": [{"min": 1, "o": [[2], [1], [3]]}]},
+ "Warbuggies" : {"f": [0, 5], "s": [{"min": 1, "o": [[4, 3], [2, 1]], "qui": "Figurines", "onom": ["Warbuggies w/ Rivet Kannon", "Warbuggies w/ Mek Speshul"]}]},
+ "Wazbom Blastajet" : {"f": [3, 4], "s": [{"min": 1, "o": [[2], [1]]}, {"min": 0, "o": [[0]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

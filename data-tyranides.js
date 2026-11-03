@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -2169,7 +2170,27 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Barbed Hierodule" : {"f": [0, 1], "s": [], "n": {"0": 2}},
+ "Carnifexes" : {"f": [9], "s": [{"min": 0, "o": [[0]]}, {"min": 0, "o": [[4]]}, {"min": 1, "o": [[8], [1], [2], [6]]}, {"min": 1, "o": [[7], [3], [5], [1], [2], [6]]}]},
+ "Harpy" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}]},
+ "Harridan" : {"f": [0, 1], "s": [], "n": {"0": 2}},
+ "Hierophant" : {"f": [0, 1, 2, 3], "s": [], "n": {"1": 2}},
+ "Hive Guard" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]], "qui": "Figurines", "onom": ["Hive Guard w/ shockcannon", "Hive Guard w/ impaler cannon"]}]},
+ "Hive Tyrant" : {"f": [], "s": [{"min": 1, "o": [[2], [0], [1], [3]]}, {"min": 1, "o": [[3], [1], [0]]}]},
+ "Hyperadapted Raveners" : {"f": [0, 1, 2], "s": [], "nf": {"0": 1, "1": 1, "2": 4}},
+ "Neurogaunts" : {"f": [0], "s": []},
+ "Ripper Swarms" : {"f": [1], "s": [{"min": 0, "o": [[0]]}]},
+ "Sky-slasher Swarms" : {"f": [1], "s": [{"min": 1, "o": [[], [0]], "qui": "Figurines", "onom": ["Sky-slasher swarm", "Sky-slasher swarm w/ spinemaws"]}]},
+ "Termagants" : {"f": [6], "s": [{"min": 1, "o": [[0], [5], [4], [1], [2], [3]], "qui": "Figurines", "omax": [0, 0, 0, 2, 2, 2], "onom": ["Termagants : Fleshborer", "Termagants : Termagant spinefist", "Termagants : Termagant devourer", "Termagant w/ Shardlauncher", "Termagant w/ Spike rifle", "Termagant w/ Strangleweb"]}]},
+ "Tervigon" : {"f": [0], "s": [{"min": 1, "o": [[2, 3], [1]]}]},
+ "Tyranid Warriors with Melee Bio-Weapons" : {"f": [0], "s": []},
+ "Tyranid Warriors with Ranged Bio-Weapons" : {"f": [5], "s": [{"min": 1, "o": [[2], [1], [3], [4], [0]], "omax": [0, 0, 0, 1, 1], "nb": 1, "qui": "Tyranid Prime"}, {"min": 1, "o": [[2], [1], [3], [4], [0]], "omax": [0, 0, 0, 1, 1], "nb": -1, "qui": "Tyranid Warrior"}]},
+ "Tyrannofex" : {"f": [4, 3], "s": [{"min": 1, "o": [[1], [2], [0]]}]},
+ "Tyrant Guard" : {"f": [], "s": [{"min": 1, "o": [[2], [0], [1]]}]},
+ "Winged Hive Tyrant" : {"f": [4], "s": [{"min": 1, "o": [[2], [3], [1], [0]]}]},
+ "Zoanthropes" : {"f": [0, 1, 2], "s": []}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

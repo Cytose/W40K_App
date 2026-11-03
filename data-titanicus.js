@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -232,7 +233,12 @@ const FACTION = [
    ce qui est faux par défaut plutôt que faux par invention. */
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Reaver Titan" : {"f": [5, 0], "s": [{"min": 1, "o": [[1], [2], [3], [4], [6, 7]]}, {"min": 1, "o": [[1], [2], [3], [4], [6, 7]]}]},
+ "Warbringer Nemesis Titan" : {"f": [0, 1, 8], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 1, "o": [[4], [5], [6], [7]]}, {"min": 1, "o": [[4], [5], [6], [7]]}], "n": {"0": 2, "1": 3}},
+ "Warhound Titan" : {"f": [5], "s": [{"min": 1, "o": [[2], [0], [3, 4], [1]]}, {"min": 1, "o": [[2], [0], [3, 4], [1]]}]},
+ "Warlord Titan" : {"f": [1, 2, 10], "s": [{"min": 1, "o": [[3, 11, 12], [4], [6], [7], [8, 9]]}, {"min": 1, "o": [[3, 11, 12], [4], [6], [7], [8, 9]]}, {"min": 1, "o": [[0], [5]]}], "n": {"1": 2, "2": 2, "0": 2, "5": 2}}
+};
 const STRAT_SIMU = [];
 const APTIS_CIBLE = {};
 const RETINUE = {};

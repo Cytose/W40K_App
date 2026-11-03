@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1416,25 +1417,29 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
-const RETINUE = {};
-const ENH_ANCIENS = {};
-const GRPN = {};
-const MOMENTS = {};
-const MOMENTS_ARMEE = [];
-const COMPO = {};
-const ROLES_UNITE = {};
-const OCTROIS_DETACH = {
- "Hexwarp Thrallband": [
-  {
-   "psy": true,
-   "champ": "rrW",
-   "val": "ones",
-   "kw": [],
-   "nom": "Flux de Magie",
-   "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
-  }
- ]
+const ARMEMENT = {
+ "Chaos Land Raider" : {"f": [5, 3, 4], "s": [{"min": 0, "o": [[1], [2]]}, {"min": 0, "o": [[0]]}], "n": {"3": 2}},
+ "Chaos Predator Annihilator" : {"f": [5, 6], "s": [{"min": 0, "o": [[1], [2]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[0]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Predator Destructor" : {"f": [5, 6], "s": [{"min": 0, "o": [[1], [2]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[0]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Rhino" : {"f": [3, 1], "s": [{"min": 0, "o": [[1], [2]]}, {"min": 0, "o": [[0]]}]},
+ "Chaos Vindicator" : {"f": [0, 4], "s": [{"min": 0, "o": [[2], [3]]}, {"min": 0, "o": [[1]]}]},
+ "Defiler" : {"f": [10, 11], "s": [{"min": 1, "o": [[7, 8], [9], [3], [5]]}, {"min": 1, "o": [[2], [0]]}, {"min": 1, "o": [[4], [9], [3], [5]]}, {"min": 1, "o": [[1], [6]]}], "n": {"1": 2, "6": 2}},
+ "Exalted Sorcerer" : {"f": [0, 2, 1], "s": [{"min": 0, "o": [[3]]}]},
+ "Exalted Sorcerer on Disc of Tzeentch" : {"f": [0, 2, 1], "s": [{"min": 0, "o": [[3]]}]},
+ "Flamers" : {"f": [0, 1], "s": []},
+ "Forgefiend" : {"f": [], "s": [{"min": 1, "o": [[1], [0]]}, {"min": 1, "o": [[3], [2, 0]]}], "n": {"1": 2, "0": 2}},
+ "Helbrute" : {"f": [9], "s": [{"min": 1, "o": [[7, 8], [10, 2], [10, 0], [11], [12]]}, {"min": 1, "o": [[3], [4], [10, 0], [10, 2], [1], [5], [6]]}]},
+ "Heldrake" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Lord of Change" : {"f": [2, 1, 4], "s": [{"min": 0, "o": [[0], [3]]}]},
+ "Maulerfiend" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}], "n": {"0": 2}},
+ "Rubric Marines" : {"f": [2, 6, 7], "s": [{"min": 1, "o": [[0], [4]], "nb": 1, "qui": "Aspiring Sorcerer"}, {"min": 1, "o": [[1], [5], [3]], "qui": "Figurines", "omax": [0, 0, 1], "onom": ["Rubric Marine w/ inferno boltgun", "Rubric Marine w/ warpflamer", "Rubric Marine w/ soulreaper cannon"], "nb": -1}], "nf": {"2": 1, "6": -1, "7": 1}},
+ "Scarab Occult Terminators" : {"f": [3, 5, 6, 1], "s": [{"min": 1, "o": [[2], [6]], "nb": 1, "qui": "Scarab Occult Sorcerer"}, {"min": 1, "o": [[2], [0], [4]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Scarab Occult Terminator", "Scarab Occult Terminator w/ heavy warpflamer", "Scarab Occult Terminator w/ soulreaper cannon"], "nb": -1}], "nf": {"3": 1, "5": 1, "6": -1}},
+ "Sekhetar Robots" : {"f": [0, 1, 4], "s": [{"min": 1, "o": [[2], [5, 3]], "qui": "Figurines", "onom": ["Sekhetar Robot w/ pyreflux meltagun", "Sekhetar Robot w/ warpflame projector and claw"]}]},
+ "Sorcerer" : {"f": [1, 2, 0], "s": [{"min": 0, "o": [[3]]}]},
+ "Sorcerer in Terminator Armour" : {"f": [0, 3], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Tzaangor Enlightened" : {"f": [], "s": [{"min": 1, "o": [[2], [0, 1]], "nb": 1, "qui": "Aviarch"}, {"min": 1, "o": [[2], [0, 1]], "qui": "Figurines", "onom": ["Divining spear Enlightened", "Pistol and chainsword Enlightened"], "nb": -1}]},
+ "Tzaangor Enlightened with Fatecaster greatbows" : {"f": [0, 1], "s": []},
+ "Tzaangors" : {"f": [], "s": [{"min": 1, "o": [[2], [1, 0]], "nb": 1, "qui": "Twistbray"}, {"min": 1, "o": [[2], [1, 0]], "qui": "Figurines", "onom": ["Tzaangor w/ Tzaangor blades", "Tzaangor w/ pistol and chainsword"], "nb": -1}]}
 };
 
 enregistreFaction({

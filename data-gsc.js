@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1132,7 +1133,17 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Aberrants" : {"f": [0], "s": []},
+ "Achilles Ridgerunners" : {"f": [4, 3], "s": [{"min": 1, "o": [[1], [0], [2]]}]},
+ "Acolyte Hybrids with Autopistols" : {"f": [0], "s": [{"min": 1, "o": [[1], [3]], "nb": 1, "qui": "Acolyte Leader"}, {"min": 1, "o": [[0, 1], [2], [1]], "qui": "Figurines", "omax": [0, 6, 1], "onom": ["Acolyte Hybrid w/ Auto Pistol", "Acolyte Hybrid w/ Heavy Mining Tool", "Acolyte Hybrid w/ Cult Icon"], "nb": -1}], "nf": {"0": 1}},
+ "Acolyte Hybrids with Hand Flamers" : {"f": [1, 2], "s": [{"min": 1, "o": [[2], [3]], "nb": 1, "qui": "Acolyte Leader"}, {"min": 1, "o": [[0], [1], []], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Acolyte Hybrid w/ Demolition Charge, and Cult Claws and Knife", "Acolyte Hybrid w/ Hand Flamer", "Acolyte Hybrid w/ Cult Icon"], "nb": -1}], "nf": {"1": 1, "2": -1}},
+ "Atalan Jackals" : {"f": [1, 7], "s": [{"min": 1, "o": [[2], [3], [0]], "nb": 1, "qui": "Atalan Wolfquad"}, {"min": 1, "o": [[7, 1], [1, 6], [4, 5, 7], [4, 5, 6]], "qui": "Figurines", "omax": [0, 4, 2, 2], "onom": ["Atalan Jackal", "Atalan Jackal w/ Atalan power weapon", "Atalan Jackal w/ Grenade launcher", "Atalan Jackal w/ Grenade launcher & power weapon"], "nb": -1}], "nf": {"1": 1, "7": 1}},
+ "Goliath Rockgrinder" : {"f": [5, 4, 1], "s": [{"min": 1, "o": [[2], [0], [3]]}]},
+ "Hybrid Metamorphs" : {"f": [2, 3, 4], "s": [{"min": 1, "o": [[0], [1]], "nb": 1, "qui": "Metamorph Leader"}, {"min": 1, "o": [[0], [], [1]], "qui": "Figurines", "onom": ["Hybrid Metamorph w/ Autopistol", "Hybrid Metamorph w/ Cult Icon", "Hybrid Metamorph w/ Hand Flamer"], "nb": -1}], "nf": {"2": 1, "3": -1, "4": -1}},
+ "Neophyte Hybrids" : {"f": [1, 11], "s": [{"min": 1, "o": [[4, 11, 1], [12, 0, 1], [10, 0, 1]], "nb": 1, "qui": "Neophyte Leader"}, {"min": 1, "o": [[4], [5], [6], [3], [7], [2], [8, 9]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1, 1, 1], "onom": ["Neophyte Hybrid w/ Hybrid Firearm", "Neophyte Hybrid w/ Heavy Weapon : Mining laser", "Neophyte Hybrid w/ Heavy Weapon : Seismic cannon", "Neophyte Hybrid w/ Heavy Weapon : Heavy stubber", "Neophyte Hybrid w/ Special Weapon : Webber", "Neophyte Hybrid w/ Special Weapon : Flamer", "Neophyte Hybrid w/ Special Weapon : Grenade launcher"], "nb": -1}], "nf": {"1": -1, "11": -1}},
+ "Sanctus" : {"f": [], "s": [{"min": 1, "o": [[2], [0, 1]]}]}
+};
 const APTIS_CIBLE = {};
 const RETINUE = {};
 const ENH_ANCIENS = {};

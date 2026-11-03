@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -3075,7 +3076,20 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Bloodcrushers" : {"f": [0, 1], "s": []},
+ "Bloodletters" : {"f": [0], "s": [], "nf": {"0": 10}},
+ "Bloodthirster" : {"f": [1], "s": [{"min": 1, "o": [[5, 6], [3, 4, 0], [3, 4, 2]]}]},
+ "Daemonettes" : {"f": [0], "s": [], "nf": {"0": 10}},
+ "Flamers" : {"f": [0, 1], "s": []},
+ "Flesh Hounds" : {"f": [0, 1], "s": [], "nf": {"0": 1}},
+ "Great Unclean One" : {"f": [1], "s": [{"min": 1, "o": [[4, 5], [3]]}, {"min": 1, "o": [[0], [2]]}]},
+ "Keeper of Secrets" : {"f": [2, 1, 4, 5], "s": [{"min": 0, "o": [[0], [3], []], "onom": ["", "", "Shining aegis"]}]},
+ "Lord of Change" : {"f": [2, 1, 4], "s": [{"min": 0, "o": [[0], [3]]}]},
+ "Plague Drones" : {"f": [0, 1, 2], "s": []},
+ "Plaguebearers" : {"f": [0], "s": [], "nf": {"0": 10}},
+ "Seekers" : {"f": [0, 1], "s": []}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -5305,7 +5306,62 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Accursed Cultists" : {"f": [], "s": [{"min": 1, "o": [[0], [1]], "qui": "Figurines", "omax": [0, 6], "onom": ["Mutant", "Torment"]}]},
+ "Chaos Bikers" : {"f": [1, 11], "s": [{"min": 1, "o": [[0], [9], [10], [7, 8], [12]], "nb": 1, "qui": "Biker Champion"}, {"min": 1, "o": [[1, 0], [1, 10], [1, 3, 0], [1, 3, 10], [1, 4, 0], [1, 4, 10], [1, 5, 6, 0], [1, 5, 6, 10], [2, 0], [2, 10]], "qui": "Figurines", "omax": [0, 0, 2, 2, 2, 2, 2, 2, 2, 2], "onom": ["Biker w/ combi-bolter and bolt pistol", "Biker w/ combi-bolter and chainsword", "Biker w/ flamer : Combi-bolter + Flamer + Bolt pistol", "Biker w/ flamer : Combi-bolter + Flamer + Astartes chainsword", "Biker w/ meltagun : Combi-bolter + Meltagun + Bolt pistol", "Biker w/ meltagun : Combi-bolter + Meltagun + Astartes chainsword", "Biker w/ plasma gun : Combi-bolter + Plasma gun + Bolt pistol", "Biker w/ plasma gun : Combi-bolter + Plasma gun + Astartes chainsword", "Biker w/ combi-weapon : Combi-weapon + Bolt pistol", "Biker w/ combi-weapon : Combi-weapon + Astartes chainsword"], "nb": -1}], "nf": {"1": 1}},
+ "Chaos Deimos Predator" : {"f": [], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[6, 7], [1], [5], [3]]}, {"min": 0, "o": [[2], [4], []], "onom": ["", "", "2 heavy flamers"]}], "n": {"2": 2, "4": 2}},
+ "Chaos Land Raider" : {"f": [5, 3, 4], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2}},
+ "Chaos Lord" : {"f": [], "s": [{"min": 1, "o": [[4], [2], [3]]}, {"min": 1, "o": [[0, 1], [5]]}]},
+ "Chaos Lord in Terminator Armour" : {"f": [], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[3], [2], [4], [5]]}]},
+ "Chaos Lord on Bike" : {"f": [7, 1], "s": [{"min": 1, "o": [[6], [5], [9], [8], [0], [3, 4]]}, {"min": 1, "o": [[0], [5], [9], [1], [2], [3, 4]]}]},
+ "Chaos Lord on Disc of Tzeentch" : {"f": [7], "s": [{"min": 1, "o": [[6], [5], [9], [8], [0], [3, 4]]}, {"min": 1, "o": [[0], [5], [9], [1], [2], [3, 4]]}]},
+ "Chaos Lord on Juggernaut" : {"f": [7, 8], "s": [{"min": 1, "o": [[6], [5], [10], [9], [0], [3, 4]]}, {"min": 1, "o": [[0], [5], [10], [1], [2], [3, 4]]}]},
+ "Chaos Lord on Palanquin of Nurgle" : {"f": [7, 8], "s": [{"min": 1, "o": [[6], [5], [10], [9], [0], [3, 4]]}, {"min": 1, "o": [[0], [5], [10], [1], [2], [3, 4]]}]},
+ "Chaos Lord on Steed of Slaanesh" : {"f": [7, 8], "s": [{"min": 1, "o": [[6], [5], [10], [9], [0], [3, 4]]}, {"min": 1, "o": [[0], [5], [10], [1], [2], [3, 4]]}]},
+ "Chaos Lord with Jump Pack" : {"f": [], "s": [{"min": 1, "o": [[3], [4], [5]]}, {"min": 1, "o": [[0], [1, 2]]}]},
+ "Chaos Predator Annihilator" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Predator Destructor" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Rhino" : {"f": [3, 0], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}]},
+ "Chaos Terminator Squad" : {"f": [], "s": [{"min": 1, "o": [[4, 0], [4, 1], [5, 0], [5, 1], [7, 0], [7, 1], [6]], "nb": 1, "qui": "Terminator Champion"}, {"min": 1, "o": [[0, 4], [4, 1], [7, 1], [0, 7], [5, 0], [2, 4], [2, 5], [2, 7], [3, 4], [3, 5], [3, 7], [5, 1], [6]], "qui": "Figurines", "omax": [0, 0, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 2], "onom": ["Accursed weapon and combi-bolter", "Accursed weapon and combi-weapon", "Power fist and combi-weapon", "Power fist and combi-bolter", "Chainfist and combi-bolter", "Heavy weapon : Heavy flamer + Accursed weapon", "Heavy weapon : Heavy flamer + Chainfist", "Heavy weapon : Heavy flamer + Power fist", "Heavy weapon : Reaper autocannon + Accursed weapon", "Heavy weapon : Reaper autocannon + Chainfist", "Heavy weapon : Reaper autocannon + Power fist", "Chainfist and combi-weapon", "Paired accursed weapons"], "nb": -1}]},
+ "Chaos Vindicator" : {"f": [2, 4], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3]]}]},
+ "Chosen" : {"f": [], "s": [{"min": 1, "o": [[0], [3, 4]], "nb": 1, "qui": "Chosen Champion"}, {"min": 1, "o": [[1, 5], [1, 7], [2, 5], [2, 7], [6]], "nb": 1, "qui": "Chosen Champion"}, {"min": 1, "o": [[0, 1, 5], [3, 4, 5, 1], [5, 0, 2], [5, 3, 4, 2], [3, 4, 6], [1, 0, 7], [0, 6], [1, 3, 4, 7]], "qui": "Figurines", "omax": [0, 4, 4, 4, 2, 2, 2, 2], "onom": ["Chosen w/ boltgun", "Chosen w/ boltgun and plasma pistol", "Chosen w/ combi-weapon and bolt pistol", "Chosen w/ combi-weapon and plasma pistol", "Chosen w/ paired accursed weapons and plasma pistol", "Chosen w/ power fist and bolt pistol", "Chosen w/ paired accursed weapons and bolt pistol", "Chosen w/ power fist and plasma pistol"], "nb": -1}]},
+ "Cultist Mob" : {"f": [0, 2], "s": [{"min": 1, "o": [[0], [1]], "nb": 1, "qui": "Cultist Champion"}], "nf": {"0": -1}},
+ "Cultist Mob with Firearms" : {"f": [], "s": [{"min": 1, "o": [[7, 2], [7, 1], [8, 0]], "nb": 1, "qui": "Cultist Champion"}, {"min": 1, "o": [[1, 7], [8, 0], [8, 3], [5, 6, 8], [4, 8]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1], "onom": ["Cultist w/ autopistol and brutal assault weapon", "Cultist w/ autogun and close combat weapon", "Cultist w/ flamer", "Cultist w/ cultist grenade launcher", "Cultist w/ heavy stubber"], "nb": -1}]},
+ "Dark Apostle" : {"f": [0, 1, 2], "s": [], "nf": {"0": 1, "1": 1, "2": 2}},
+ "Dark Commune" : {"f": [0, 1, 2, 3, 4, 5], "s": [], "nf": {"0": 2, "1": 1, "2": 1, "3": 2, "4": 2, "5": 1}},
+ "Defiler" : {"f": [10, 11], "s": [{"min": 1, "o": [[7, 8], [9], [3], [5]]}, {"min": 1, "o": [[2], [0]]}, {"min": 1, "o": [[4], [9], [3], [5]]}, {"min": 1, "o": [[1], [6]]}], "n": {"1": 2, "6": 2}},
+ "Fabius Bile" : {"f": [0, 1, 2, 3], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 1}},
+ "Fellgor Beastmen" : {"f": [0, 5], "s": [{"min": 1, "o": [[1], [3, 4]], "nb": 1, "qui": "Fellgor Champion"}, {"min": 1, "o": [[6], [8], [7, 2]], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Beastman", "Beastman w/ great weapon", "Beastman w/ corrupted stave"], "nb": -1}], "nf": {"0": -1, "5": 1}},
+ "Forgefiend" : {"f": [], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[3], [2, 0]]}], "n": {"0": 2, "1": 2}},
+ "Gellerpox Infected" : {"f": [0, 1, 2], "s": [], "nf": {"0": 1, "1": 3, "2": 4}},
+ "Havocs" : {"f": [15], "s": [{"min": 1, "o": [[14], [13], [16]], "nb": 1, "qui": "Havoc Champion"}, {"min": 1, "o": [[1], [11, 12], [13], [16], [0], [6], [9, 10]], "nb": 1, "qui": "Havoc Champion"}, {"min": 1, "o": [[2], [4], [7, 8], [5], [3]], "qui": "Figurines", "onom": ["Havoc w/ autocannon", "Havoc w/ lascannon", "Havoc w/ missile launcher", "Havoc w/ reaper chaincannon", "Havoc w/ heavy bolter"], "nb": -1}], "nf": {"15": -1}},
+ "Helbrute" : {"f": [9], "s": [{"min": 1, "o": [[7, 8], [10, 0], [10, 1], [11], [12]]}, {"min": 1, "o": [[3], [4], [10, 1], [10, 0], [2], [5], [6]]}]},
+ "Heldrake" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Hell Blade" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}], "n": {"0": 2, "1": 2}},
+ "Hell Talon" : {"f": [3, 2], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Khorne Lord of Skulls" : {"f": [5, 6], "s": [{"min": 1, "o": [[2], [4]]}, {"min": 1, "o": [[1], [0], [3]]}]},
+ "Legionaries" : {"f": [1, 17], "s": [{"min": 1, "o": [[1], [15], [16], [18], [13, 14]], "nb": 1, "qui": "Aspiring Champion"}, {"min": 1, "o": [[2], [15], [16], [18], [13, 14]], "nb": 1, "qui": "Aspiring Champion"}, {"min": 1, "o": [[2], [16], [4], [5], [6], [9, 10], [8], [16, 13, 14], [7], [3], [11, 12], [18], [0]], "qui": "Figurines", "omax": [0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1], "onom": ["Legionary w/ boltgun", "Legionary w/ chainsword", "Legionary w/ other weapon : Havoc autocannon", "Legionary w/ other weapon : Heavy bolter", "Legionary w/ other weapon : Lascannon", "Legionary w/ other weapon : Missile launcher", "Legionary w/ other weapon : Reaper chaincannon", "Legionary w/ other weapon : Astartes chainsword + Plasma pistol", "Legionary w/ other weapon : Meltagun", "Legionary w/ other weapon : Flamer", "Legionary w/ other weapon : Plasma gun", "Legionary w/ heavy melee weapon", "Legionary w/ balefire tome"], "nb": -1}], "nf": {"1": -1}},
+ "Lord Discordant on Helstalker" : {"f": [4, 5, 1], "s": [{"min": 1, "o": [[2], [0]]}, {"min": 1, "o": [[6], [3]]}]},
+ "Masters of the Maelstrom" : {"f": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "s": [], "nf": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1, "9": 1}},
+ "Maulerfiend" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}], "n": {"0": 2}},
+ "Nemesis Claw" : {"f": [0, 13], "s": [{"min": 1, "o": [[14], [11], [17]], "nb": 1, "qui": "Visionary"}, {"min": 1, "o": [[0], [9, 10]], "nb": 1, "qui": "Visionary"}, {"min": 1, "o": [[1], [12], [3], [5, 6], [4], [7, 8], [2], [11], [15], [16]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1, 1, 1, 1, 1, 1], "onom": ["Legionary w/ boltgun", "Legionary w/ chainsword", "Legionary w/ heavy weapon : Heavy bolter", "Legionary w/ heavy weapon : Missile launcher", "Legionary w/ special weapon : Meltagun", "Legionary w/ special weapon : Plasma gun", "Legionary w/ special weapon : Flamer", "Legionary w/ accursed weapon", "Legionary w/ Nostraman chainglaive", "Legionary w/ paired accursed weapons"], "nb": -1}], "nf": {"0": -1, "13": -1}},
+ "Raptors" : {"f": [], "s": [{"min": 1, "o": [[8], [7], [10]], "nb": 1, "qui": "Raptor Champion"}, {"min": 1, "o": [[0], [5, 6]], "nb": 1, "qui": "Raptor Champion"}, {"min": 1, "o": [[0, 8], [8, 5, 6], [10, 0], [11, 0], [9, 0, 2], [9, 0, 3, 4], [1, 9, 0]], "qui": "Figurines", "omax": [0, 4, 4, 2, 2, 2, 2], "onom": ["Raptor", "Raptor w/ plasma pistol", "Raptor w/ heavy melee weapon", "Raptor w/ mutations", "Raptor w/ meltagun", "Raptor w/ plasma gun", "Raptor w/ flamer"], "nb": -1}]},
+ "Red Corsairs Raiders" : {"f": [0, 1, 5], "s": [{"min": 1, "o": [[0], [2]], "nb": 1, "qui": "Red Corsairs Raider Champion"}, {"min": 1, "o": [[1, 5], [3, 5], [1, 4], [3, 4]], "qui": "Figurines", "omax": [0, 2, 2, 2], "onom": ["Red Corsairs Raider", "Red Corsairs Raider w/ meltagun", "Red Corsairs Raider w/ power fist", "Red Corsairs Raider w/ power fist and meltagun"], "nb": -1}], "nf": {"0": -1, "1": 1, "5": 1}},
+ "Red Corsairs Reave-captain" : {"f": [0], "s": [{"min": 1, "o": [[4], [3]]}, {"min": 0, "o": [[1, 2]]}]},
+ "Renegade Enforcer" : {"f": [], "s": [{"min": 1, "o": [[4], [6], [5]]}, {"min": 1, "o": [[1], [0], [2], [3]]}]},
+ "Renegade Heavy Weapons Squad" : {"f": [5, 8], "s": [{"min": 1, "o": [[2], [1], [0], [3], [6, 7], [4]]}]},
+ "Renegade Ogryn Beast Handler" : {"f": [0, 1], "s": [], "nf": {"0": -1, "1": 1}},
+ "Renegade Ogryn Brutes" : {"f": [], "s": [{"min": 1, "o": [[1], [0]], "qui": "Figurines", "omax": [0, 1], "onom": ["Brute w/ Ogryn weapon", "Brute w/ power drill"]}]},
+ "Sorcerer in Terminator Armour" : {"f": [3, 2, 4], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Sorcerer on Bike" : {"f": [1, 4, 3, 9], "s": [{"min": 1, "o": [[0], [7], [1], [10], [2], [8], [5, 6]]}]},
+ "Sorcerer on Disc of Tzeentch" : {"f": [4, 3, 9], "s": [{"min": 1, "o": [[0], [7], [1], [10], [2], [8], [5, 6]]}]},
+ "Sorcerer on Palanquin of Nurgle" : {"f": [10, 4, 3, 9], "s": [{"min": 1, "o": [[0], [7], [1], [11], [8], [2], [5, 6]]}]},
+ "Sorcerer on Steed of Slaanesh" : {"f": [10, 4, 3, 9], "s": [{"min": 1, "o": [[0], [7], [1], [11], [2], [8], [5, 6]]}]},
+ "Traitor Enforcer" : {"f": [0, 1, 2], "s": [], "nf": {"0": 1, "1": 1, "2": 1}},
+ "Traitor Guardsmen Squad" : {"f": [11], "s": [{"min": 1, "o": [[11], [10], [12]], "nb": 1, "qui": "Traitor Sergeant"}, {"min": 1, "o": [[1], [0]], "nb": 1, "qui": "Traitor Sergeant"}, {"min": 1, "o": [[4], [3], [8, 9], [5], [2], [6, 7]], "qui": "Figurines", "omax": [0, 1, 1, 1, 1, 1], "onom": ["Guardsman w/ lasgun", "Guardsman w/ flamer", "Guardsman w/ plasma gun", "Guardsman w/ meltagun", "Guardsman w/ Cultist sniper rifle", "Guardsman w/ Cultist grenade launcher"], "nb": -1}], "nf": {"11": -1}},
+ "Venomcrawler" : {"f": [0, 1], "s": [], "n": {"0": 2}},
+ "Warp Talons" : {"f": [0], "s": []}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

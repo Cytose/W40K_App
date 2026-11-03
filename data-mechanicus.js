@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -2105,7 +2106,32 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Archaeopter Stratoraptor" : {"f": [0, 1, 2, 3], "s": [], "n": {"0": 2, "1": 2}},
+ "Hastarii Exterminators" : {"f": [0, 1, 2, 3, 4], "s": [], "nf": {"0": 5, "1": 5, "2": 5, "3": 4, "4": 1}},
+ "Hastarii Fusiliers" : {"f": [0, 1, 2, 3], "s": [], "nf": {"0": 5, "1": 5, "2": 4, "3": 1}},
+ "Ironstrider Ballistarii" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]], "qui": "Figurines", "onom": ["Ironstrider Ballistarius (Twin cognis autocannon)", "Ironstrider Ballistarius (Twin cognis lascannon)"]}]},
+ "Kastelan Robots" : {"f": [], "s": [{"min": 1, "o": [[6], [4, 3], [5, 2]]}, {"min": 1, "o": [[1], [0]]}]},
+ "Kataphron Breachers" : {"f": [], "s": [{"min": 1, "o": [[2, 0], [3, 0], [2, 1], [3, 1]], "qui": "Figurines", "onom": ["Kataphron Breacher (Heavy arc rifle & arc claw)", "Kataphron Breacher (Heavy arc rifle & hydraulic claw)", "Kataphron Breacher (Torsion cannon & arc claw)", "Kataphron Breacher (Torsion cannon & hydraulic claw)"]}]},
+ "Kataphron Destroyers" : {"f": [5], "s": [{"min": 1, "o": [[1, 0], [1, 2], [2, 3, 4], [0, 3, 4]], "qui": "Figurines", "onom": ["Kataphron Destroyer (Heavy grav-cannon & Cognis flamer)", "Kataphron Destroyer (Heavy grav-cannon & phosphor blaster)", "Kataphron Destroyer (Kataphron plasma culverin & Phosphor blaster)", "Kataphron Destroyer (Kataphron plasma culverin & Cognis flamer)"]}]},
+ "Onager Dunecrawler" : {"f": [7], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[5, 6], [1, 2], [0, 3], [4]]}]},
+ "Pteraxii Skystalkers" : {"f": [0, 1, 2, 3], "s": [], "nf": {"0": 1, "1": -1, "2": -1, "3": 1}},
+ "Pteraxii Sterylizors" : {"f": [0, 1, 2, 3], "s": [], "nf": {"0": 1, "1": -1, "3": 1}},
+ "Secutarii Hoplites" : {"f": [0, 3], "s": [{"min": 0, "o": [[2]], "nb": 1, "qui": "Secutarii Hoplite Alpha"}, {"min": 1, "o": [[3, 0], [1]], "nb": 1, "qui": "Secutarii Hoplite Alpha"}], "nf": {"0": -1, "3": -1}},
+ "Secutarii Peltasts" : {"f": [1, 2, 4], "s": [{"min": 0, "o": [[3]], "nb": 1, "qui": "Secutarii Peltast Alpha"}, {"min": 1, "o": [[1, 2], [0]], "nb": 1, "qui": "Secutarii Peltast Alpha"}], "nf": {"1": -1, "2": -1}},
+ "Serberys Raiders" : {"f": [0, 1, 2], "s": [], "nf": {"1": 1}},
+ "Serberys Sulphurhounds" : {"f": [0, 2, 3, 4, 5], "s": [{"min": 1, "o": [[], [1]], "qui": "Figurines", "onom": ["Serberys Sulphurhound (Twin phosphor pistols)", "Serberys Sulphurhound (Phosphor blast carbine & Phosphor pistol)"], "nb": -1}], "nf": {"0": 1, "2": -1, "4": 1}},
+ "Servitor Battleclade" : {"f": [0, 1, 3, 6, 7], "s": [{"min": 1, "o": [[5], [2], [4]], "qui": "Figurines", "omax": [0, 3, 1], "onom": ["Combat Servitor w/ phophor blaster", "Combat Servitor w/ incendine igniter", "Combat Servitor w/ meltagun"], "nb": -3}], "nf": {"0": 1, "1": 1, "3": 1, "6": 1, "7": -1}},
+ "Sicarian Infiltrators" : {"f": [], "s": [{"min": 1, "o": [[2, 1], [0, 3], [3, 0]], "qui": "Figurines", "onom": ["Sicarian Infiltrator (Power weapon & stubcarbine)", "Sicarian Infiltrator (Taser goad & flechette blaster)", "Sicarian Infiltrator Princeps (Taser goad & flechette blaster)"]}]},
+ "Sicarian Ruststalkers" : {"f": [], "s": [{"min": 1, "o": [[2], [0], [1]], "qui": "Figurines", "onom": ["Sicarian Ruststalker (Transonic razor & chordclaw)", "Sicarian Ruststalker (Transonic blades)", "Sicarian Ruststalker Princeps (Transonic blades & chordclaw)"]}]},
+ "Skitarii Rangers" : {"f": [1, 7], "s": [{"min": 0, "o": [[6]], "nb": 1, "qui": "Skitarii Ranger Alpha"}, {"min": 1, "o": [[1], [2]], "nb": 1, "qui": "Skitarii Ranger Alpha"}, {"min": 1, "o": [[3], [0], [4, 5], [1]], "qui": "Figurines", "onom": ["Skitarii Ranger w/ transuranic arquebus", "Skitarii Ranger w/ arc rifle", "Skitarii Ranger w/ plasma caliver", "Skitarii Ranger w/ data-tether"], "nb": -10}], "nf": {"1": 9}},
+ "Skitarii Vanguard" : {"f": [2, 7], "s": [{"min": 0, "o": [[6]], "nb": 1, "qui": "Skitarii Vanguard Alpha"}, {"min": 1, "o": [[2], [1]], "nb": 1, "qui": "Skitarii Vanguard Alpha"}, {"min": 1, "o": [[3], [0], [4, 5], [2]], "qui": "Figurines", "onom": ["Skitarii Vanguard w/ transuranic arquebus", "Skitarii Vanguard w/ arc rifle", "Skitarii Vanguard w/ plasma caliver", "Skitarii Vanguard w/ omnispex"], "nb": -10}], "nf": {"2": 9}},
+ "Skorpius Disintegrator" : {"f": [1, 2, 4], "s": [{"min": 1, "o": [[0], [3]]}], "n": {"1": 3}},
+ "Sydonian Skatros" : {"f": [3, 0], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Tech-Priest Dominus" : {"f": [5], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[2], [3, 4]]}]},
+ "Tech-Priest Manipulus" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Terrax-Pattern Termite" : {"f": [4, 2], "s": [{"min": 1, "o": [[0], [1], [3]]}], "n": {"0": 2, "1": 2, "3": 2}}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

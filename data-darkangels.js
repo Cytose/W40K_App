@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -3848,7 +3849,85 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Aggressor Squad" : {"f": [4], "s": [{"min": 1, "o": [[2, 3], [1, 0]], "nb": 1, "qui": "Aggressor Sergeant"}, {"min": 1, "o": [[3, 2], [1, 0]], "nb": -1, "qui": "Aggressors"}]},
+ "Ancient" : {"f": [0, 3], "s": [{"min": 1, "o": [[4], [1, 2]]}]},
+ "Ancient in Terminator Armour" : {"f": [], "s": [{"min": 0, "o": [[0], [1]]}]},
+ "Assault Intercessor Squad" : {"f": [1, 4], "s": [{"min": 1, "o": [[1], [0], [3, 2]], "nb": 1, "qui": "Assault Intercessor Sergeant"}, {"min": 1, "o": [[4], [6], [5], [7]], "nb": 1, "qui": "Assault Intercessor Sergeant"}], "nf": {"1": -1, "4": -1}},
+ "Assault Intercessors with Jump Packs" : {"f": [4], "s": [{"min": 1, "o": [[1], [0], [3, 2]], "nb": 1, "qui": "Assault Intercessor Sergeant with Jump Pack"}, {"min": 1, "o": [[4], [6], [5]], "nb": 1, "qui": "Assault Intercessor Sergeant with Jump Pack"}, {"min": 1, "o": [[1], [3, 2]], "qui": "Figurines", "omax": [0, 2], "onom": ["Assault Intercessors with Jump Pack", "Assault Intercessors with Jump Pack w/ Plasma Pistol"], "nb": -1}], "nf": {"4": -1}},
+ "Astraeus" : {"f": [5, 8, 1, 2], "s": [{"min": 1, "o": [[3], [4]]}, {"min": 1, "o": [[0], [6, 7]]}], "n": {"0": 2, "6": 2, "7": 2}},
+ "Bladeguard Veteran Squad" : {"f": [0, 4], "s": [{"min": 1, "o": [[0], [1], [3, 2]], "nb": 1, "qui": "Bladeguard Veteran Sergeant"}], "nf": {"0": -1}},
+ "Brutalis Dreadnought" : {"f": [1], "s": [{"min": 1, "o": [[4, 0], [5]]}, {"min": 1, "o": [[2], [3]]}]},
+ "Captain" : {"f": [], "s": [{"min": 1, "o": [[6, 0, 1], [5, 0, 1], [5, 0], [4, 3, 6], [4, 3, 5], [2, 6], [2, 5]]}]},
+ "Captain in Gravis Armour" : {"f": [], "s": [{"min": 1, "o": [[1, 3], [0, 2, 5], [0, 2, 4], [0, 2, 6]]}]},
+ "Captain in Terminator Armour" : {"f": [], "s": [{"min": 1, "o": [[0], [2, 3, 1]]}, {"min": 1, "o": [[5], [4]]}]},
+ "Captain on Bike" : {"f": [6], "s": [{"min": 1, "o": [[0], [1], [11], [4], [12], [], [5], [2], [3], [8, 7], [13]], "onom": ["", "", "", "", "", "Relic Shield", "", "", "", "", ""]}, {"min": 1, "o": [[9], [10], [11], [12]]}, {"min": 0, "o": [[14]]}]},
+ "Captain with Jump Pack" : {"f": [], "s": [{"min": 1, "o": [[1, 4], [1, 5], [1, 6], [0, 4], [0, 5], [0, 6], [3, 2, 4], [3, 2, 5], [3, 2, 6], [7], [4, 1]]}]},
+ "Centurion Assault Squad" : {"f": [3], "s": [{"min": 1, "o": [[], [0]], "onom": ["Centurion Assault Launchers", ""], "nb": 1, "qui": "Assault Centurion Sergeant"}, {"min": 1, "o": [[1], [2]], "nb": 1, "qui": "Assault Centurion Sergeant"}, {"min": 1, "o": [[0], []], "onom": ["", "Centurion Assault Launchers"], "nb": -1, "qui": "Assault Centurion"}, {"min": 1, "o": [[1], [2]], "nb": -1, "qui": "Assault Centurion"}]},
+ "Centurion Devastator Squad" : {"f": [5], "s": [{"min": 1, "o": [[0], [1]], "nb": 1, "qui": "Devastator Centurion Sergeant"}, {"min": 1, "o": [[2], [3], [4]], "nb": 1, "qui": "Devastator Centurion Sergeant"}, {"min": 1, "o": [[0], [1]], "nb": -1, "qui": "Devastator Centurion"}, {"min": 1, "o": [[2], [3], [4]], "nb": -1, "qui": "Devastator Centurion"}]},
+ "Chaplain in Terminator Armour" : {"f": [1], "s": [{"min": 1, "o": [[0], []], "onom": ["", "Relic Shield"]}]},
+ "Company Heroes" : {"f": [0, 1, 2, 3, 4], "s": [], "nf": {"0": 4, "1": 2, "2": 1, "3": 3, "4": 1}},
+ "Deathwing Command Squad" : {"f": [1, 7, 8, 9], "s": [{"min": 1, "o": [[1, 9], [1, 7], [12], [11], [2, 3, 4, 9], [2, 3, 4, 7], [0, 9], [0, 7], [5, 6, 9], [5, 6, 7], [1, 10]], "qui": "Figurines", "omax": [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1], "onom": ["Deathwing Command Terminator", "Deathwing Terminator w/ Chainfist", "Deathwing Command Terminator w/ Twin Claws", "Deathwing Command Terminator w/ Hammer & Shield", "Deathwing Terminator w/ Heavy Weapon : Storm bolter + Cyclone missile launcher + Power Fist", "Deathwing Terminator w/ Heavy Weapon : Storm bolter + Cyclone missile launcher + Chainfist", "Deathwing Terminator w/ Heavy Weapon : Heavy Flamer + Power Fist", "Deathwing Terminator w/ Heavy Weapon : Heavy Flamer + Chainfist", "Deathwing Terminator w/ Heavy Weapon : Plasma cannon + Power Fist", "Deathwing Terminator w/ Heavy Weapon : Plasma cannon + Chainfist", "Deathwing Command Terminator w/ Power Weapon"], "nb": -3}], "nf": {"1": 2, "7": 1, "8": 1, "9": 1}},
+ "Deathwing Knights" : {"f": [], "s": [{"min": 1, "o": [[1], [2]], "nb": 4, "qui": "Deathwing Knight"}, {"min": 1, "o": [[0], [3]], "nb": 1, "qui": "Knight Master"}]},
+ "Deathwing Strikemaster" : {"f": [], "s": [{"min": 1, "o": [[0], [3], [1], [2], [4], [5], [], [6]], "onom": ["", "", "", "", "", "", "Storm Shield", ""]}, {"min": 0, "o": [[0], [3], [1], [2], [4], [5], [], [6]], "onom": ["", "", "", "", "", "", "Storm Shield", ""]}]},
+ "Deathwing Terminator Squad" : {"f": [2], "s": [{"min": 1, "o": [[8], [7], [10, 9]], "nb": 1, "qui": "Deathwing Sergeant"}, {"min": 1, "o": [[2, 8], [2, 10, 9], [3, 4, 2, 8], [3, 4, 2, 10, 9], [5, 6, 8], [5, 6, 10, 9], [0, 8], [0, 10, 9], [1, 8], [1, 10, 9]], "qui": "Figurines", "omax": [0, 0, 2, 2, 2, 2, 2, 2, 2, 2], "onom": ["Deathwing Terminator", "Deathwing Terminator w/ Chainfist", "Deathwing Terminator w/ Heavy Weapon : Cyclone missile launcher + Storm bolter + Power fist", "Deathwing Terminator w/ Heavy Weapon : Cyclone missile launcher + Storm bolter + Chainfist", "Deathwing Terminator w/ Heavy Weapon : Plasma cannon + Power fist", "Deathwing Terminator w/ Heavy Weapon : Plasma cannon + Chainfist", "Deathwing Terminator w/ Heavy Weapon : Assault Cannon + Power fist", "Deathwing Terminator w/ Heavy Weapon : Assault Cannon + Chainfist", "Deathwing Terminator w/ Heavy Weapon : Heavy Flamer + Power fist", "Deathwing Terminator w/ Heavy Weapon : Heavy Flamer + Chainfist"], "nb": -1}], "nf": {"2": 1}},
+ "Desolation Squad" : {"f": [0, 1, 5], "s": [{"min": 1, "o": [[2], [3]], "nb": 4, "qui": "Desolation Marine"}, {"min": 1, "o": [[2], [3], [4]], "nb": 1, "qui": "Desolation Sergeant"}], "nf": {"0": 5, "1": 5, "5": 5}},
+ "Dreadnought" : {"f": [], "s": [{"min": 1, "o": [[10, 3], [10, 1], [7, 8, 9]]}, {"min": 1, "o": [[0], [2], [4], [6, 5]]}]},
+ "Eliminator Squad" : {"f": [1, 4], "s": [{"min": 1, "o": [[0], [2], [3]], "nb": 1, "qui": "Eliminator Sergeant"}, {"min": 1, "o": [[0], [3]], "nb": 2, "qui": "Eliminator"}], "nf": {"1": 3, "4": 3}},
+ "Eradicator Squad with Heavy Bolters" : {"f": [0, 1, 2], "s": []},
+ "Eradicator Squad with Melta Rifles" : {"f": [0, 1, 2, 5], "s": [{"min": 1, "o": [[2, 1], [3, 4]], "qui": "Figurines", "omax": [0, 1], "onom": ["Eradicator", "Eradicator with Multi-melta"], "nb": -1}], "nf": {"1": 1, "2": 1}},
+ "Firestrike Servo-Turrets" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Gladiator Valiant" : {"f": [2, 3, 1, 0], "s": [], "n": {"1": 2}},
+ "Hammerfall Bunker" : {"f": [2, 3], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Heavy Intercessor Squad" : {"f": [0, 1, 3], "s": [{"min": 1, "o": [[1], [2]], "qui": "Figurines", "omax": [0, 1], "onom": ["Heavy Intercessors", "Heavy Intercessor w/Heavy Bolter"], "nb": -1}], "nf": {"1": 1}},
+ "Hellblaster Squad" : {"f": [0, 1, 2, 5], "s": [{"min": 1, "o": [[0], [4, 3]], "nb": 1, "qui": "Hellblaster Sergeant"}], "nf": {"0": -1}},
+ "Impulsor" : {"f": [7], "s": [{"min": 0, "o": [[], [2], [4, 5, 6]], "onom": ["Orbital Comms Array", "", ""]}, {"min": 1, "o": [[0], [3]]}, {"min": 0, "o": [[1]]}]},
+ "Inceptor Squad" : {"f": [3], "s": [{"min": 1, "o": [[0], [1, 2]], "nb": 1, "qui": "Inceptor Sergeant"}, {"min": 1, "o": [[0], [1, 2]], "nb": -1, "qui": "Inceptor"}]},
+ "Incursor Squad" : {"f": [0, 1, 2], "s": []},
+ "Infernus Squad" : {"f": [0, 1, 2], "s": []},
+ "Infiltrator Squad" : {"f": [0, 1, 2], "s": []},
+ "Intercessor Squad" : {"f": [0, 2, 3, 9], "s": [{"min": 1, "o": [[2, 3], [1], [11], [7, 6], [8], [12]], "nb": 1, "qui": "Intercessor Sergeant"}, {"min": 1, "o": [[9], [11], [8], [10], [12]], "nb": 1, "qui": "Intercessor Sergeant"}, {"min": 1, "o": [[], [5, 4]], "qui": "Figurines", "omax": [0, 2], "onom": ["Intercessor", "Intercessor w/ Grenade Launcher"], "nb": -1}], "nf": {"2": -1, "3": -1, "9": -1}},
+ "Invader ATVs" : {"f": [4, 3, 0], "s": [{"min": 1, "o": [[2], [1]]}]},
+ "Invictor Tactical Warsuit" : {"f": [5, 3, 0, 1], "s": [{"min": 1, "o": [[2], [4]]}]},
+ "Land Raider" : {"f": [5, 4, 0], "s": [{"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2}},
+ "Land Raider Crusader" : {"f": [1, 5, 4], "s": [{"min": 0, "o": [[0]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}], "n": {"1": 2}},
+ "Land Raider Excelsior" : {"f": [2, 6, 1], "s": [{"min": 0, "o": [[0]]}, {"min": 0, "o": [[3]]}, {"min": 0, "o": [[4]]}, {"min": 0, "o": [[5]]}], "n": {"1": 2}},
+ "Land Raider Redeemer" : {"f": [0, 5, 4], "s": [{"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2}},
+ "Land Speeder" : {"f": [3, 4, 0], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Land Speeder Vengeance" : {"f": [2, 3, 4], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Lieutenant" : {"f": [1], "s": [{"min": 1, "o": [[0, 6, 2], [0, 6, 5, 4], [0, 6, 8], [0, 6, 9], [0, 8, 2], [0, 8, 5, 4], [0, 8], [0, 8, 9], [0, 9, 2], [0, 9, 5, 4], [0, 9, 8], [0, 9], [7, 8, 3], [7, 9, 3], [7, 6, 3]]}], "n": {"8": 2, "9": 2}},
+ "Lieutenant in Phobos Armour" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Nephilim Jetfighter" : {"f": [1, 0, 4], "s": [{"min": 1, "o": [[3], [2]]}]},
+ "Outrider Squad" : {"f": [1, 4], "s": [{"min": 1, "o": [[4], [5], [6]], "nb": 1, "qui": "Outrider Sergeant"}, {"min": 1, "o": [[0], [3, 2]], "nb": 1, "qui": "Outrider Sergeant"}, {"min": 1, "o": [[0], [3, 2]], "qui": "Figurines", "omax": [0, 1], "onom": ["Outrider", "Outrider w/ Plasma Pistol"], "nb": -1}], "nf": {"4": -1}},
+ "Predator Annihilator" : {"f": [3, 5], "s": [{"min": 0, "o": [[2], [0]]}, {"min": 0, "o": [[1]]}, {"min": 0, "o": [[4]]}], "n": {"2": 2, "0": 2}},
+ "Predator Destructor" : {"f": [3, 5], "s": [{"min": 0, "o": [[2], [0]]}, {"min": 0, "o": [[1]]}, {"min": 0, "o": [[4]]}], "n": {"2": 2, "0": 2}},
+ "Ravenwing Black Knights" : {"f": [0, 5], "s": [{"min": 1, "o": [[3, 4], [2, 1]], "nb": 1, "qui": "Ravenwing Huntmaster"}, {"min": 1, "o": [[3, 4], [2, 1]], "qui": "Figurines", "omax": [0, 2], "onom": ["Ravenwing Black Knight w/ Plasma Talon", "Ravenwing Black Knight w/ Grenade Launcher"], "nb": -1}]},
+ "Ravenwing Command Squad" : {"f": [0, 1, 6, 7], "s": [{"min": 1, "o": [[4, 5], [3, 2]], "nb": 1, "qui": "Ravenwing Ancient"}, {"min": 1, "o": [[4, 5], [3, 2]], "nb": 1, "qui": "Ravenwing Apothecary"}, {"min": 1, "o": [[4, 5], [3, 2]], "nb": 1, "qui": "Ravenwing Champion"}], "nf": {"0": 2, "1": 1, "6": 2, "7": 1}},
+ "Ravenwing Dark Talon" : {"f": [0, 1, 2], "s": [], "n": {"0": 2}},
+ "Ravenwing Darkshroud" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Razorback" : {"f": [4], "s": [{"min": 1, "o": [[2], [3]]}, {"min": 0, "o": [[0]]}, {"min": 0, "o": [[1]]}]},
+ "Redemptor Dreadnought" : {"f": [8], "s": [{"min": 1, "o": [[2], [6, 7]]}, {"min": 1, "o": [[1], [4]]}, {"min": 1, "o": [[5], [0]]}, {"min": 0, "o": [[3]]}]},
+ "Reiver Squad" : {"f": [0, 1, 2], "s": []},
+ "Relic Razorback" : {"f": [6], "s": [{"min": 1, "o": [[3], [4], [5], [1]]}, {"min": 0, "o": [[0]]}, {"min": 0, "o": [[2]]}]},
+ "Repulsor" : {"f": [6, 2, 0], "s": [{"min": 1, "o": [[4], [5]]}, {"min": 1, "o": [[1], [3]]}]},
+ "Repulsor Executioner" : {"f": [6, 2, 3, 0], "s": [{"min": 1, "o": [[4, 5], [1]]}]},
+ "Rhino" : {"f": [2, 1], "s": [{"min": 0, "o": [[0]]}]},
+ "Rhino Primaris" : {"f": [2, 1, 3], "s": [{"min": 0, "o": [[0]]}]},
+ "Scout Bike Squad" : {"f": [0, 14], "s": [{"min": 1, "o": [[8], [10, 9]], "nb": 1, "qui": "Scout Biker Sergeant"}, {"min": 1, "o": [[1], [2], [3], [5], [4], [6], [12, 11], [7], [16], [15], [17], [13]], "nb": 1, "qui": "Scout Biker Sergeant"}, {"min": 1, "o": [[10, 9], [8]], "qui": "Figurines", "onom": ["Scout Biker w/ Astartes Grenade Launcher", "Scout Biker w/ Twin Boltgun"], "nb": -1}]},
+ "Scout Squad" : {"f": [0, 8], "s": [{"min": 1, "o": [[1], [3]], "nb": 1, "qui": "Scout Sergeant"}, {"min": 1, "o": [[8], [7]], "nb": 1, "qui": "Scout Sergeant"}, {"min": 1, "o": [[1], [3], [2], [5, 6], [4]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1], "onom": ["Scouts w/ Boltgun", "Scouts w/ Shotgun", "Scout w/ Heavy Weapon : Heavy Bolter", "Scout w/ Heavy Weapon : Missile Launcher", "Scout w/ Sniper Rifle"], "nb": -1}], "nf": {"8": -1}},
+ "Sternguard Veteran Squad" : {"f": [0, 3, 4, 5, 7, 6], "s": [{"min": 0, "o": [[], [9], [8]], "onom": ["Chainsword", "", ""], "nb": 1, "qui": "Sternguard Veteran Sergeant"}, {"min": 1, "o": [[4, 5, 3], [1], [2]], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Sternguard Veteran w/ Artificer Firearm", "Sternguard Veteran w/ Special Weapon : Heavy Bolter", "Sternguard Veteran w/ Special Weapon : Pyrecannon"], "nb": -1}], "nf": {"3": 1, "4": 1, "5": 1, "7": -1}},
+ "Stormhawk Interceptor" : {"f": [7, 3], "s": [{"min": 1, "o": [[1], [0]]}, {"min": 1, "o": [[2], [4], [5, 6]]}]},
+ "Stormraven Gunship" : {"f": [1, 10], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[2], [6, 7], [4]]}, {"min": 1, "o": [[8, 9], [3], [5]]}], "n": {"1": 2, "0": 2}},
+ "Stormtalon Gunship" : {"f": [6, 1], "s": [{"min": 1, "o": [[0], [4, 5], [2], [3]]}]},
+ "Terminator Assault Squad" : {"f": [], "s": [{"min": 1, "o": [[1], [0]], "nb": 1, "qui": "Assault Terminator Sergeant"}, {"min": 1, "o": [[0], [1]], "qui": "Figurines", "onom": ["Assault Terminator w/ Thunder Hammer & Storm Shield", "Assault Terminator w/ Twin Lightning Claws"], "nb": -1}]},
+ "Terminator Squad" : {"f": [2], "s": [{"min": 1, "o": [[5], [6], [8, 7]], "nb": 1, "qui": "Terminator Sergeant"}, {"min": 1, "o": [[5, 2], [2, 8, 7], [2, 3, 4, 5], [2, 3, 4, 8, 7], [1, 5], [1, 8, 7], [0, 5], [0, 8, 7]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1, 1, 1, 1], "onom": ["Terminator w/ Power Fist", "Terminator w/ Chain Fist", "Terminator w/ Heavy Weapon : Storm bolter + Cyclone missile launcher + Power fist", "Terminator w/ Heavy Weapon : Storm bolter + Cyclone missile launcher + Chainfist", "Terminator w/ Heavy Weapon : Heavy Flamer + Power fist", "Terminator w/ Heavy Weapon : Heavy Flamer + Chainfist", "Terminator w/ Heavy Weapon : Assault Cannon + Power fist", "Terminator w/ Heavy Weapon : Assault Cannon + Chainfist"], "nb": -1}], "nf": {"2": 1}},
+ "Thunderhawk Gunship" : {"f": [3], "s": [{"min": 1, "o": [[], [0]], "onom": ["Thunderhawk cluster bombs", ""]}, {"min": 1, "o": [[1], [2]]}], "n": {"3": 4}},
+ "Vanguard Veteran Squad" : {"f": [6], "s": [{"min": 1, "o": [[0], [], [5, 4], [3], [2], [1]], "onom": ["", "Storm Shield", "", "", "", ""], "nb": 1, "qui": "Vanguard Veteran Sergeant"}, {"min": 0, "o": [[7]], "nb": 1, "qui": "Vanguard Veteran Sergeant"}, {"min": 1, "o": [[0], [], [5, 4], [3], [2], [1]], "onom": ["", "Storm Shield", "", "", "", ""], "nb": -1, "qui": "Vanguard Veterans"}], "nf": {"6": -1}},
+ "Vanguard Veteran Squad with Jump Packs" : {"f": [3], "s": [{"min": 1, "o": [[0], [2, 1], []], "onom": ["", "", "Combat Shield"], "nb": 1, "qui": "Vanguard Veteran Sergeant with Jump Pack"}, {"min": 1, "o": [[5], [4], [6]], "nb": 1, "qui": "Vanguard Veteran Sergeant with Jump Pack"}, {"min": 1, "o": [[0], [], [2, 1]], "qui": "Figurines", "omax": [0, 0, 2], "onom": ["Vanguard Veteran with Jump Packs", "Vanguard Veteran wtih Jump Packs w/ Shield", "Vanguard Veteran with Jump Pack w/ Plasma Pistol"], "nb": -1}], "nf": {"3": -1}},
+ "Venerable Dreadnought" : {"f": [9], "s": [{"min": 1, "o": [[11, 4], [11, 2], [7, 8, 10]]}, {"min": 1, "o": [[0], [3], [6, 5], [1]]}]},
+ "Vindicator" : {"f": [0, 3], "s": [{"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}]},
+ "Whirlwind" : {"f": [2, 3], "s": [{"min": 0, "o": [[0]]}, {"min": 0, "o": [[1]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};

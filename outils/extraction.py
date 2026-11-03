@@ -670,9 +670,8 @@ def ecrit(faction, T, stats):
     A('     ne les donne, il faut lire chaque règle et décider ce qu\'elle')
     A('     fait au calcul. Le simulateur tourne donc sur les')
     A('     caractéristiques nues pour cette faction.')
-    A('   · ARMEMENT est vide : toutes les armes de la fiche comptent, il')
-    A('     n\'y a pas de panachage. C\'est faux pour les unités à choix')
-    A('     d\'arme, et c\'est signalé plutôt que deviné.')
+    import armement
+    for l in armement.ENTETE: A(l)
     A('   · Les aptitudes et les optimisations sont EN ANGLAIS, texte du')
     A('     catalogue. C\'est la convention du dépôt : une règle mal')
     A('     traduite se paie en partie.')
@@ -751,6 +750,9 @@ def ecrit(faction, T, stats):
                 'ROLES_UNITE', 'OCTROIS_DETACH', 'APTIS_UNITE', 'APTIS_COND',
                 'AURAS_ARMEE', 'AURAS_PERSO']:
         if nom in T.get('CABLAGE', {}): continue
+        if nom == 'ARMEMENT' and T.get('ARMEMENT'):
+            A(armement.ecritTable(T['ARMEMENT']))
+            continue
         vide = '[]' if nom in ('STRAT_SIMU', 'MOMENTS_ARMEE', 'AURAS_ARMEE') else '{}'
         A('const %s = %s;' % (nom, vide))
     A('')
@@ -1066,7 +1068,13 @@ def extrait(faction):
         KW[m] = sorted(u[0] for u in UNITS if m.lower() in MOTS.get(u[0], ()))
     KW.update(CAB.pop('KW', {}))
 
-    T = dict(UNITS=UNITS, WEAPONS=WEAPONS, CAT=CAT, ATTACH=ATTACH,
+    # Ce qui se choisit et ce qui est d'office : voir outils/armement.py
+    import armement
+    armesU = {}
+    for w in WEAPONS: armesU.setdefault(w[0], []).append((w[1], w[2]))
+    ARMEMENT = armement.tableFaction(faction, armesU)
+
+    T = dict(UNITS=UNITS, WEAPONS=WEAPONS, CAT=CAT, ATTACH=ATTACH, ARMEMENT=ARMEMENT,
              APTITUDES=APTITUDES, DETACHMENTS=DETACHMENTS,
              ENHANCEMENTS=ENHANCEMENTS, KW=KW, TRANSPORTS=TRANSPORTS,
              FACTION=faction_regle, SOCLES=SOCLES, ABIMEES=ABIMEES,

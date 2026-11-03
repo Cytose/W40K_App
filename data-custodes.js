@@ -26,9 +26,10 @@
      ne les donne, il faut lire chaque règle et décider ce qu'elle
      fait au calcul. Le simulateur tourne donc sur les
      caractéristiques nues pour cette faction.
-   · ARMEMENT est vide : toutes les armes de la fiche comptent, il
-     n'y a pas de panachage. C'est faux pour les unités à choix
-     d'arme, et c'est signalé plutôt que deviné.
+   · ARMEMENT est déduit de BSData par outils/armement.py : armes
+     d'office et emplacements de choix, sergent et armes spéciales
+     compris. Les plafonds qui dépendent de l'effectif (« 1 sur 5 »)
+     sont lus à l'effectif de base.
    · Les aptitudes et les optimisations sont EN ANGLAIS, texte du
      catalogue. C'est la convention du dépôt : une règle mal
      traduite se paie en partie.
@@ -1655,7 +1656,28 @@ const STRAT_SIMU = [
 ];
 
 /* Vides, faute de câblage : voir l'en-tête. */
-const ARMEMENT = {};
+const ARMEMENT = {
+ "Allarus Custodians" : {"f": [0], "s": [{"min": 1, "o": [[3, 1], [4, 2]]}]},
+ "Anathema Psykana Rhino" : {"f": [1], "s": [{"min": 0, "o": [[0]]}]},
+ "Aquilon Terminators with Solarite Power Talons" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Ares Gunship" : {"f": [0, 1, 2], "s": [], "n": {"0": 2}},
+ "Caladius Annihilator Grav-tank" : {"f": [0, 3], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Caladius Grav-tank" : {"f": [0, 3], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Contemptor-Achillus Dreadnought" : {"f": [1, 4], "s": [{"min": 1, "o": [[2], [3], [0]]}, {"min": 1, "o": [[2], [3], [0]]}]},
+ "Coronus Grav-carrier" : {"f": [3, 0], "s": [{"min": 1, "o": [[1], [2]]}]},
+ "Custodian Wardens" : {"f": [], "s": [{"min": 1, "o": [[3, 1], [2, 0]]}]},
+ "Gyrfalcon Jetbike Sodality" : {"f": [4], "s": [{"min": 1, "o": [[2], [0], [3], [1]]}]},
+ "Knight-Centura" : {"f": [], "s": [{"min": 1, "o": [[2], [0, 3], [1, 3]]}]},
+ "Orion Assault Dropship" : {"f": [0, 3, 1, 2], "s": [], "n": {"0": 2, "1": 2, "2": 2}},
+ "Pallas Grav-attack" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}]},
+ "Shield-Captain" : {"f": [], "s": [{"min": 1, "o": [[6, 2], [4], [5, 1], [3, 0]]}]},
+ "Shield-Captain in Allarus Terminator Armour" : {"f": [0], "s": [{"min": 1, "o": [[4, 2], [3, 1]]}]},
+ "Shield-Captain on Dawneagle Jetbike" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
+ "Telemon Heavy Dreadnought" : {"f": [3], "s": [{"min": 1, "o": [[6, 4], [0, 5, 4], [1, 5, 4], [2, 5, 4]]}], "n": {"4": 2}},
+ "Venerable Contemptor Dreadnought" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}]},
+ "Venerable Land Raider" : {"f": [4, 0, 3], "s": [{"min": 0, "o": [[2]]}, {"min": 0, "o": [[1]]}], "n": {"0": 2}},
+ "Vertus Praetors" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]}
+};
 const RETINUE = {};
 const ENH_ANCIENS = {};
 const GRPN = {};
