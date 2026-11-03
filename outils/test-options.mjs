@@ -38,7 +38,7 @@ eq('la hache rend le bouclier', await ess([SC([{s:0, o:3, n:1}])]), 180);
 eq('la lame Paragon le garde', await ess([SC([{s:0, o:1, n:1}])]), 205);
 eq('le second Shield-Captain : 200 + 25', await ess([SC([{s:0, o:0, n:1}]),
   {...SC([{s:0, o:0, n:1}]), id: 2}]), 205 + 225);
-eq('l\'option annonce son prix', /\+25 pts/.test(await p.evaluate(() => ROSTER.prixOption("Shield-Captain", 0, 0))), true);
+eq('l\'option annonce son prix et ce qu\'il paie', /Praesidium Shield \+25 pts/.test(await p.evaluate(() => ROSTER.prixOption("Shield-Captain", 0, 0))), true);
 eq('une option gratuite n\'annonce rien', await p.evaluate(() => ROSTER.prixOption("Shield-Captain", 0, 2)), '');
 const lo3 = await p.evaluate(() => ROSTER.loDefaut("Custodian Guard Sodality", 3));
 eq('rattaché comme personnage, il paie aussi', await ess([{id: 3, name: "Custodian Guard Sodality", size: 3,
