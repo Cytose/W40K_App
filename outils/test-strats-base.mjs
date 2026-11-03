@@ -40,13 +40,14 @@ const moteur = await p.evaluate(() => {
   const imp = Object.assign({}, cible, { mortels: { des: 12, seuil: 5, max: 6 } });
   const fnp = Object.assign({}, exp, { fnp: 5 });
   return {
-    exp: ENG.analytic(exp).rawDmg, expSim: ENG.simulate(exp, 40000).meanDealt,
+    exp: ENG.analytic(exp).rawDmg, expW: [ENG.analytic(exp).wounds, ENG.analytic(exp).unsaved], expSim: ENG.simulate(exp, 40000).meanDealt,
     impCap: ENG.moyenneMortels(imp.mortels), impSim: ENG.simulate(imp, 40000),
     fnp: ENG.analytic(fnp).rawDmg,
     seul: ENG.simulateCombined([exp], 20000).meanSlain
   };
 });
 T('Explosifs : 6D6 à 4+ = 3 blessures mortelles en moyenne', moteur.exp, v => pres(v, 3, 1e-9));
+T('ni blessure ni sauvegarde : seulement des dégâts bruts', moteur.expW, [0, 0]);
 T('… et la simulation le confirme', moteur.expSim, v => pres(v, 3, 0.05));
 T('Impact écrasant E12 : 12D6 à 5+, plafonné à 6 (sous 4)', moteur.impCap, v => v < 4 && v > 3.5);
 T("… la simulation ne dépasse jamais six", Math.max(...Object.keys(moteur.impSim.dmgDist)
@@ -87,21 +88,28 @@ const ecran = await p.evaluate(() => {
   SIM.charge(1, 'T');
   const lit = () => parseFloat(document.getElementById('sumDmg').textContent.replace(',', '.'));
   const avant = lit();
+  const etape = nom => {
+    const r = [...document.querySelectorAll('#funnel .fstep')].find(x => x.querySelector('.fl').textContent === nom);
+    return r ? r.querySelector('.fv').textContent : '';
+  };
+  const blessAvant = etape('Blessures'), sauvAvant = etape('Non sauv.');
   const b = [...document.querySelectorAll('.vstrat')].find(x => /Explosifs/.test(x.textContent));
   if (!b) return null;
   b.click();
   const b2 = [...document.querySelectorAll('.vstrat')].find(x => /Explosifs/.test(x.textContent));
   const apres = lit();
-  const funnel = document.getElementById('funnel').textContent;
+  const funnel = etape('Dégâts bruts');
+  const memes = [etape('Blessures') === blessAvant, etape('Non sauv.') === sauvAvant];
   b2.click();
-  return { avant, apres, coche: b2.classList.contains('on'), funnel,
+  return { avant, apres, coche: b2.classList.contains('on'), funnel, memes,
            retour: lit(), compte: document.getElementById('viteCount').textContent };
 });
 T('la pastille Explosifs est à l\'écran', !!ecran, true);
 if (ecran){
   T('cochée, elle ajoute des dégâts', ecran.apres - ecran.avant, v => v > 1);
   T('elle se voit cochée', ecran.coche, true);
-  T("l'entonnoir dit la part des mortelles", ecran.funnel, v => /dont 3,0 mortelles/.test(v));
+  T("les mortelles comptent aux dégâts bruts, et le disent", ecran.funnel, v => /dont 3,0 mortelles/.test(v));
+  T("… pas aux blessures ni aux non sauvegardées", ecran.memes, [true, true]);
   T('décochée, le résultat revient', Math.abs(ecran.retour - ecran.avant), v => v < 0.3);
 }
 T('aucune erreur dans la page', errs, []);

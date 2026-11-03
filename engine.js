@@ -299,7 +299,9 @@ function moyenneMortels(m){
 function analyticMortels(s){
   const mw = moyenneMortels(s.mortels);
   const keep = s.fnp ? 1 - passProb(s.fnp) : 1;
-  return {A:0, hits:0, wounds:mw, unsaved:mw, rawDmg:mw * keep,
+  /* ni touche, ni blessure, ni sauvegarde : elles ne comptent qu'aux
+     degats bruts, l'entonnoir ne les melange pas aux jets d'armes */
+  return {A:0, hits:0, wounds:0, unsaved:0, rawDmg:mw * keep,
           wt:woundTarget(force(s), endurance(s)), st:saveTarget(s), mortels:mw};
 }
 

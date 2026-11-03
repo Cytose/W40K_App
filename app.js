@@ -1677,9 +1677,10 @@ function render(){
   const steps = [
     ["Attaques", a.A, lot ? nArmes + " profil" + (nArmes > 1 ? "s" : "") : ""],
     ["Touches", a.hits, lot ? "" : (S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,Sn.bs - Sn.hitMod))+"+")],
-    ["Blessures", a.wounds, lot ? (bm ? "dont " + num(bm) + " mortelles" : "") : "sur "+a.wt+"+"],
+    ["Blessures", a.wounds, lot ? "" : "sur "+a.wt+"+"],
     ["Non sauv.", a.unsaved, lot ? "" : (a.st>=7 ? "aucune svg" : "svg "+a.st+"+")],
-    ["Dégâts bruts", a.rawDmg, S.fnp ? "après FNP" : (S.dmgRed ? "après -"+S.dmgRed : "")]
+    ["Dégâts bruts", a.rawDmg, (bm ? "dont " + num(bm) + " mortelles" + (S.fnp ? " (avant FNP)" : "") + (S.fnp || S.dmgRed ? " · " : "") : "") +
+                               (S.fnp ? "après FNP" : (S.dmgRed ? "après -"+S.dmgRed : ""))]
   ];
   const mx = Math.max.apply(null, steps.map(s=>s[1])) || 1;
   el("funnel").innerHTML = steps.map(([k,v,sub])=>
