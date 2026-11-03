@@ -3257,11 +3257,27 @@ const KW = {
  ],
  "infantry": [
   "Accursed Cultists",
+  "Chaos Lord",
+  "Chaos Lord with Jump Pack",
   "Chaos Terminator Squad",
   "Chosen",
+  "Cultist Firebrand",
+  "Cultist Mob",
+  "Cultist Mob with Firearms",
+  "Cypher",
+  "Dark Apostle",
+  "Dark Commune",
+  "Exalted Champion",
+  "Fabius Bile",
   "Fellgor Beastmen",
   "Gellerpox Infected",
+  "Haarken Worldclaimer",
   "Havocs",
+  "Huron Blackheart",
+  "Kravek Morne",
+  "Legionaries",
+  "Master of Executions",
+  "Masters of the Maelstrom",
   "Mutilators",
   "Negavolt Cultists",
   "Nemesis Claw",
@@ -3269,11 +3285,16 @@ const KW = {
   "Possessed",
   "Raptors",
   "Red Corsairs Raiders",
+  "Renegade Enforcer",
   "Renegade Heavy Weapons Squad",
   "Renegade Ogryn Brutes",
   "Renegade Plague Ogryns",
+  "Rogue Psyker",
+  "Sorcerer",
+  "Traitor Enforcer",
   "Traitor Guardsmen Squad",
-  "Warp Talons"
+  "Warp Talons",
+  "Warpsmith"
  ],
  "character": [
   "Chaos Lord",
@@ -3285,9 +3306,15 @@ const KW = {
   "Chaos Lord on Steed of Slaanesh",
   "Chaos Lord with Jump Pack",
   "Cultist Firebrand",
+  "Cypher",
   "Dark Apostle",
   "Dark Commune",
   "Exalted Champion",
+  "Fabius Bile",
+  "Haarken Worldclaimer",
+  "Heretic Astartes Daemon Prince",
+  "Huron Blackheart",
+  "Kravek Morne",
   "Lord Discordant on Helstalker",
   "Master of Executions",
   "Master of Possession",
@@ -3550,6 +3577,32 @@ const APTIS_COND = {
    "quand": "La cible est l'ennemi juré désigné au début de la bataille",
    "texte": "At the start of the battle, select one unit in your opponent’s army to be this model’s hated foe. Each time this model makes an attack that targets its hated foe, you can re-roll the Wound roll. Each time this model’s hated foe is destroyed, you can select a new unit from your opponent’s army to be its hated foe."
   }
+ ],
+ "Master of Possession": [
+  {
+   "psy": true,
+   "champ": "hitMod",
+   "val": 1,
+   "aussi": [
+    {
+     "champ": "wndMod",
+     "val": 1
+    }
+   ],
+   "nom": "Dague Sacrificielle",
+   "quand": "Une fois par phase : l'unité subit 1 blessure mortelle",
+   "texte": "Until the end of the phase, each time this model makes a Psychic Attack, add 1 to the Hit roll and add 1 to the Wound roll."
+  }
+ ],
+ "Sorcerer on Bike": [
+  {
+   "psy": true,
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Puissance Impie",
+   "quand": "L'unité a fait un Pacte Sombre cette phase",
+   "texte": "Each time this model's unit makes a Dark Pact, until the end of the phase, each time this model makes a Psychic Attack, add 1 to the Wound roll."
+  }
  ]
 };
 const APTIS_CIBLE = {
@@ -3586,6 +3639,19 @@ const APTIS_CIBLE = {
    "port": "T",
    "nom": "Intercepteur",
    "texte": "Each time this model makes a ranged attack that targets a unit that can FLY, add 1 to the Hit roll."
+  }
+ ],
+ "Chaos Predator Annihilator": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Annihilateur",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ]
 };

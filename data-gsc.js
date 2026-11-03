@@ -688,7 +688,8 @@ const KW = {
  "vehicle": [
   "Achilles Ridgerunners",
   "Goliath Rockgrinder",
-  "Goliath Truck"
+  "Goliath Truck",
+  "Tectonic Fragdrill"
  ],
  "monster": [],
  "battleline": [
@@ -699,8 +700,22 @@ const KW = {
  "epic": [],
  "infantry": [
   "Aberrants",
+  "Abominant",
+  "Acolyte Iconward",
+  "Benefictus",
+  "Biophagus",
+  "Clamavus",
   "Hybrid Metamorphs",
-  "Purestrain Genestealers"
+  "Kelermorph",
+  "Locus",
+  "Magus",
+  "Neophyte Hybrids",
+  "Nexos",
+  "Patriarch",
+  "Primus",
+  "Purestrain Genestealers",
+  "Reductus Saboteur",
+  "Sanctus"
  ],
  "character": [
   "Abominant",
@@ -778,6 +793,16 @@ const APTIS_UNITE = {
    "val": "ones",
    "nom": "Destruction Industrielle",
    "texte": "Each time a model in this unit makes an attack, re-roll a Wound Roll of 1."
+  }
+ ],
+ "Aberrants": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "quand": "Un PERSONNAGE mène l'unité",
+   "nom": "Gardes du Corps Massifs",
+   "texte": "While a CHARACTER is leading this unit, each time an attack targets this unit, if the Strength characteristic of that attack is greater than the Toughness characteristic of this unit, subtract 1 from the Wound roll."
   }
  ]
 };

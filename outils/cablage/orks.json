@@ -749,6 +749,14 @@
       "nom": "Cass' et Pillage",
       "quand": "L'unité ou la cible est à portée d'un objectif",
       "texte": "In your Shooting phase, when a friendly Breaka Boyz/Flash Gitz/Tankbustas unit is selected to shoot, if any of the following apply, that unit’s attacks can re-roll hit rolls of 1: ▪ That unit is within range of an objective. ▪ The target of that attack is within range of an objective."
+    },
+    {
+      "source": "Burna-bommer",
+      "port": "T",
+      "mot": "ignorescover",
+      "nom": "Bombe Burna",
+      "quand": "La cible a été bombardée par le Burna-bommer (sur 2+)",
+      "texte": "Ranged attacks that target that enemy unit have [IGNORES COVER] until the end of your next turn."
     }
   ],
   "OCTROIS_DETACH": {

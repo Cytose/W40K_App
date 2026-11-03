@@ -3138,6 +3138,7 @@ const KW = {
   "Centaur RSV",
   "Chimera",
   "Colossus",
+  "Commissar Graves",
   "Crassus",
   "Cyclops Demolition Vehicle",
   "Deathstrike",
@@ -3152,6 +3153,7 @@ const KW = {
   "Hippogriff AFV",
   "Hydra",
   "Leman Russ Battle Tank",
+  "Leman Russ Commander",
   "Leman Russ Demolisher",
   "Leman Russ Eradicator",
   "Leman Russ Executioner",
@@ -3172,6 +3174,7 @@ const KW = {
   "Minotaur",
   "Praetor",
   "Rogal Dorn Battle Tank",
+  "Rogal Dorn Commander",
   "Salamander Command Vehicle",
   "Salamander Scout Vehicle",
   "Scout Sentinels",
@@ -3219,42 +3222,76 @@ const KW = {
  "infantry": [
   "Artillery Team",
   "Bullgryn Squad",
+  "Cadian Castellan",
+  "Cadian Command Squad",
   "Cadian Heavy Weapons Squad",
   "Cadian Recon Squad",
+  "Cadian Shock Troops",
+  "Catachan Command Squad",
   "Catachan Heavy Weapons Squad",
+  "Catachan Jungle Fighters",
+  "Commissar",
+  "Commissar Graves on Foot",
+  "Commissar Yarrick",
   "Death Korps Grenadier Squad",
   "Earthshaker Carriage Battery",
   "Elysian Sniper Squad",
   "Field Ordnance Battery",
+  "Gaunt’s Ghosts",
   "Heavy Mortar Team",
   "Heavy Quad Launcher Team",
   "Kasrkin",
   "Krieg Combat Engineers",
+  "Krieg Command Squad",
   "Krieg Heavy Weapons Squad",
   "Medusa Carriage Battery",
+  "Militarum Tempestus Command Squad",
+  "Ministorum Priest",
   "Munitorum Servitors",
+  "Nork Deddog",
+  "Ogryn Bodyguard",
   "Ogryn Squad",
+  "Primaris Psyker",
+  "Provisionally Prepared",
+  "Quartermaster Cadre Squad",
   "Rapier Laser Destroyer Battery",
   "Ratlings",
   "Regimental Attachés",
+  "Sergeant Harker",
+  "Sly Marbo",
+  "Tech-Priest Enginseer",
   "Tempestus Aquilons",
-  "Tempestus Scions"
+  "Tempestus Scions",
+  "Ursula Creed",
+  "‘Iron Hand’ Straken"
  ],
  "character": [
   "Cadian Castellan",
   "Cadian Command Squad",
   "Catachan Command Squad",
   "Commissar",
+  "Commissar Graves",
+  "Commissar Graves on Foot",
+  "Commissar Yarrick",
   "Death Rider Commissar",
+  "Gaunt’s Ghosts",
   "Krieg Command Squad",
   "Leman Russ Commander",
+  "Lord Marshal Dreir",
+  "Lord Solar Leontus",
   "Militarum Tempestus Command Squad",
   "Ministorum Priest",
+  "Nork Deddog",
   "Ogryn Bodyguard",
   "Primaris Psyker",
+  "Provisionally Prepared",
   "Quartermaster Cadre Squad",
   "Rogal Dorn Commander",
-  "Tech-Priest Enginseer"
+  "Sergeant Harker",
+  "Sly Marbo",
+  "Tech-Priest Enginseer",
+  "Ursula Creed",
+  "‘Iron Hand’ Straken"
  ]
 };
 
@@ -3566,6 +3603,82 @@ const APTIS_COND = {
    "quand": "L'unité a débarqué de ce Taurox ce tour, et vise l'unité qu'il a touchée",
    "texte": "In your Shooting phase, after this model has shot, select one enemy unit that was hit. Each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Hit roll."
   }
+ ],
+ "Sergeant Harker": [
+  {
+   "arme": "Payback",
+   "port": "T",
+   "champ": "atkSet",
+   "val": 6,
+   "aussi": [
+    {
+     "mot": "sust:3"
+    }
+   ],
+   "nom": "L'Heure de la Revanche",
+   "quand": "Une fois par bataille, quand Harker tire (A6, [TOUCHES SOUTENUES 3])",
+   "texte": "Once per battle, when this model is selected to shoot, it can use this ability. If it does, until the end of the phase, its Payback weapon has an Attacks characteristic of 6 and the [SUSTAINED HITS 3] ability instead of the [SUSTAINED HITS 1] ability."
+  }
+ ],
+ "Malcador Annihilator": [
+  {
+   "port": "T",
+   "mot": "ignorescover",
+   "nom": "Domination du Champ de Bataille",
+   "quand": "La cible est à mi-portée",
+   "texte": "Ranged weapons equipped by this model have the [IGNORES COVER] ability while targeting an enemy unit within half range."
+  }
+ ],
+ "Colossus": [
+  {
+   "arme": "Colossus siege mortar",
+   "port": "T",
+   "champ": "anti",
+   "val": "5:mon",
+   "aussi": [
+    {
+     "champ": "anti",
+     "val": "5:veh"
+    }
+   ],
+   "nom": "Cible Verrouillée",
+   "quand": "Le Colossus est resté immobile ce tour ([ANTI-MONSTRE 5+], [ANTI-VÉHICULE 5+])",
+   "texte": "Each time this model is selected to shoot, provided it Remained Stationary this turn, its Colossus siege mortar has the [ANTI-MONSTER 5+] and [ANTI-VEHICLE 5+] abilities while resolving those attacks."
+  }
+ ],
+ "Rein and Raus": [
+  {
+   "port": "T",
+   "champ": "rrH",
+   "val": "failed",
+   "aussi": [
+    {
+     "champ": "rrW",
+     "val": "failed"
+    }
+   ],
+   "nom": "Les Jumeaux Ratlings",
+   "quand": "Les deux figurines sont encore en jeu",
+   "texte": "While this unit contains 2 models, each time a model in this unit makes a ranged attack, you can re-roll the Hit roll and you can re-roll the Wound roll."
+  }
+ ],
+ "Heavy Mortar Team": [
+  {
+   "port": "T",
+   "mot": "sust",
+   "nom": "Réarmer, Recharger, Feu",
+   "quand": "L'unité est sous un Ordre et est restée immobile",
+   "texte": "While this model is being affected by an Order, provided it Remained Stationary this turn, ranged weapons equipped by this model have the [SUSTAINED HITS 1] ability"
+  }
+ ],
+ "Hell's Last": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "nom": "Exemple Héroïque",
+   "quand": "Minka Lesk est sur le champ de bataille",
+   "texte": "While this unit's Minka Lesk model is on the battlefield, each time a model in this unit makes an attack, you can re-roll the Hit roll."
+  }
  ]
 };
 const APTIS_CIBLE = {
@@ -3815,6 +3928,17 @@ const AURAS_ARMEE = [
   "nom": "Bombardement Incendiaire",
   "quand": "Ce soutien est choisi ce round, et la cible est dispersée",
   "texte": "Until the end of the battle round, those enemy units are scattered. While a unit is scattered, it cannot have the Benefit of Cover."
+ },
+ {
+  "source": "Trojan Support Vehicle",
+  "kw": [
+   "vehicle"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "nom": "Véhicule de Soutien",
+  "quand": "Ce VÉHICULE a été choisi par le Trojan à la phase de Commandement",
+  "texte": "Until the start of your next Command phase, each time that VEHICLE model makes an attack, re-roll a Hit roll of 1."
  }
 ];
 const STRAT_SIMU = [

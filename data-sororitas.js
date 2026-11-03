@@ -1151,7 +1151,9 @@ const KW = {
   "Castigator",
   "Exorcist",
   "Immolator",
+  "Intranzia Fraye",
   "Mortifiers",
+  "Morvenn Vahl",
   "Paragon Warsuits",
   "Penitent Engines",
   "Repressor",
@@ -1173,13 +1175,25 @@ const KW = {
  ],
  "infantry": [
   "Arco-Flagellants",
+  "Battle Sisters Squad",
+  "Canoness",
+  "Canoness with Jump Pack",
   "Celestian Insidiants",
+  "Celestian Sacresant Aveline",
   "Celestian Sacresants",
   "Crusaders",
+  "Daemonifuge",
   "Death Cult Assassins",
+  "Dialogus",
+  "Dogmata",
   "Dominion Squad",
+  "Hospitaller",
+  "Imagifier",
+  "Ministorum Priest",
+  "Palatine",
   "Repentia Squad",
   "Retributor Squad",
+  "Saint Celestine",
   "Sanctifiers",
   "Seraphim Squad",
   "Sisters Novitiate Squad",
@@ -1188,12 +1202,18 @@ const KW = {
  "character": [
   "Canoness",
   "Canoness with Jump Pack",
+  "Celestian Sacresant Aveline",
+  "Daemonifuge",
   "Dialogus",
   "Dogmata",
   "Hospitaller",
   "Imagifier",
+  "Intranzia Fraye",
+  "Junith Eruita",
   "Ministorum Priest",
-  "Palatine"
+  "Morvenn Vahl",
+  "Palatine",
+  "Saint Celestine"
  ]
 };
 
@@ -1396,6 +1416,22 @@ const APTIS_COND = {
    "quand": "La cible est la proie désignée en début de bataille",
    "texte": "Each time a model in this unit makes an attack that targets its quarry, that attack has the [Precision] ability and you can re-roll the Hit roll."
   }
+ ],
+ "Zephyrim Squad": [
+  {
+   "port": "C",
+   "mot": "sust",
+   "nom": "Prophétie Incarnée — Soutenues",
+   "quand": "Choisie quand l'unité combat (les deux après une charge)",
+   "texte": "Each time this unit is selected to fight, select one of the following abilities to apply to melee weapons equipped by models in this unit until the end of the phase: - Sustained Hits 1 - Lethal Hits If this unit made a Charge move this turn, until the end of the phase, select both abilities above."
+  },
+  {
+   "port": "C",
+   "mot": "lethal",
+   "nom": "Prophétie Incarnée — Létales",
+   "quand": "Choisie quand l'unité combat (les deux après une charge)",
+   "texte": "- Lethal Hits"
+  }
  ]
 };
 const APTIS_CIBLE = {
@@ -1419,6 +1455,26 @@ const APTIS_CIBLE = {
    "val": 1,
    "nom": "Parangons Vertueux",
    "texte": "... and add 1 to the Wound roll."
+  }
+ ],
+ "Celestian Sacresant Aveline": [
+  {
+   "champ": "rrH",
+   "val": "failed",
+   "vs": [
+    "demon"
+   ],
+   "nom": "Briseuse de Démons",
+   "texte": "Each time this model makes an attack that targets a DAEMON unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
+  },
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "vs": [
+    "demon"
+   ],
+   "nom": "Briseuse de Démons",
+   "texte": "Each time this model makes an attack that targets a DAEMON unit, you can re-roll the Hit roll and you can re-roll the Wound roll."
   }
  ]
 };

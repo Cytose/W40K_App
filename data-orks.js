@@ -3872,6 +3872,7 @@ const STRATS = [
 const KW = {
  "vehicle": [
   "Battlewagon",
+  "Big Mek Dakkarig",
   "Big Trakk",
   "Blitza-bommer",
   "Burna-bommer",
@@ -3885,18 +3886,21 @@ const KW = {
   "Killa Kans",
   "Lifta Wagon",
   "Mek Gunz",
+  "Mekboy Workshop",
   "Morkanaut",
   "Rukkatrukk Squigbuggies",
   "Stompa",
   "Trukk",
   "Warbuggies",
-  "Wazbom Blastajet"
+  "Wazbom Blastajet",
+  "Wazdakka Gutsmek"
  ],
  "monster": [
   "Beastboss on Squigosaur",
   "Gargantuan Squiggoth",
   "Hunta Rig",
-  "Kill Rig"
+  "Kill Rig",
+  "Mozrog Skragbad"
  ],
  "battleline": [
   "Beast Snagga Boyz",
@@ -3914,33 +3918,63 @@ const KW = {
   "Zodgrod Wortsnagga"
  ],
  "infantry": [
+  "Bannernob",
+  "Beast Snagga Boyz",
+  "Beastboss",
+  "Big Mek",
+  "Bigboss",
+  "Boss Snikrot",
+  "Boss Zagstruk",
+  "Boyz",
   "Breaka Boyz",
   "Burna Boyz",
   "Flash Gitz",
+  "Ghazghkull Thraka",
   "Gretchin",
+  "Kaptin Badrukk",
   "Kommandos",
   "Lootas",
+  "Mad Dok Grotsnik",
   "Meganobz",
+  "Mek",
+  "Nazdreg",
   "Nobz",
+  "Painboss",
+  "Painboy",
+  "Runtherd",
   "Stormboyz",
-  "Tankbustas"
+  "Tankbustas",
+  "Warboss",
+  "Weirdboy",
+  "Zodgrod Wortsnagga"
  ],
  "character": [
   "Bannernob",
   "Beastboss",
+  "Beastboss on Squigosaur",
   "Big Mek",
   "Big Mek Dakkarig",
   "Big Mek in Mega Armour",
   "Big Mek with Shokk Attack Gun",
   "Bigboss",
+  "Boss Snikrot",
+  "Boss Zagstruk",
   "Deffkilla Wartrike",
+  "Ghazghkull Thraka",
+  "Kaptin Badrukk",
+  "Mad Dok Grotsnik",
   "Mek",
+  "Mozrog Skragbad",
+  "Nazdreg",
   "Painboss",
   "Painboy",
+  "Runtherd",
   "Warboss",
   "Warboss in Mega Armour",
   "Warboss on Warbike",
-  "Weirdboy"
+  "Wazdakka Gutsmek",
+  "Weirdboy",
+  "Zodgrod Wortsnagga"
  ]
 };
 
@@ -4749,6 +4783,14 @@ const AURAS_ARMEE = [
   "nom": "Cass' et Pillage",
   "quand": "L'unité ou la cible est à portée d'un objectif",
   "texte": "In your Shooting phase, when a friendly Breaka Boyz/Flash Gitz/Tankbustas unit is selected to shoot, if any of the following apply, that unit’s attacks can re-roll hit rolls of 1: ▪ That unit is within range of an objective. ▪ The target of that attack is within range of an objective."
+ },
+ {
+  "source": "Burna-bommer",
+  "port": "T",
+  "mot": "ignorescover",
+  "nom": "Bombe Burna",
+  "quand": "La cible a été bombardée par le Burna-bommer (sur 2+)",
+  "texte": "Ranged attacks that target that enemy unit have [IGNORES COVER] until the end of your next turn."
  }
 ];
 const OCTROIS_DETACH = {

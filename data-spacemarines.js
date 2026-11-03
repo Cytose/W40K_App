@@ -1947,7 +1947,9 @@ const KW = {
   "Gladiator Lancer",
   "Gladiator Reaper",
   "Gladiator Valiant",
+  "Hammerfall Bunker",
   "Impulsor",
+  "Invader ATVs",
   "Invictor Tactical Warsuit",
   "Land Raider",
   "Land Raider Crusader",
@@ -1983,22 +1985,37 @@ const KW = {
  "epic": [],
  "infantry": [
   "Aggressor Squad",
+  "Ancient",
+  "Apothecary",
+  "Apothecary Biologis",
+  "Assault Intercessor Squad",
   "Assault Intercessors with Jump Packs",
+  "Bladeguard Ancient",
   "Bladeguard Veteran Squad",
+  "Captain",
   "Centurion Assault Squad",
   "Centurion Devastator Squad",
+  "Chaplain",
+  "Company Heroes",
   "Desolation Squad",
   "Eliminator Squad",
   "Eradicator Squad with Heavy Bolters",
   "Eradicator Squad with Melta Rifles",
+  "Heavy Intercessor Squad",
   "Hellblaster Squad",
   "Inceptor Squad",
   "Incursor Squad",
   "Infernus Squad",
   "Infiltrator Squad",
+  "Intercessor Squad",
+  "Judiciar",
+  "Librarian",
+  "Lieutenant",
+  "Lieutenant with Combi-weapon",
   "Reiver Squad",
   "Scout Squad",
   "Sternguard Veteran Squad",
+  "Techmarine",
   "Terminator Assault Squad",
   "Terminator Squad",
   "Vanguard Veteran Squad",
@@ -2028,7 +2045,8 @@ const KW = {
   "Lieutenant",
   "Lieutenant in Phobos Armour",
   "Lieutenant with Combi-weapon",
-  "Techmarine"
+  "Techmarine",
+  "Venerable Dreadnought"
  ],
  "gravis": [
   "Aggressor Squad",
@@ -2576,6 +2594,19 @@ const APTIS_CIBLE = {
     "mon",
     "veh"
    ]
+  }
+ ],
+ "Predator Annihilator": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Annihilateur",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ]
 };

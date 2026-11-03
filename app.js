@@ -846,6 +846,11 @@ function appliqueRegles(q, regles){
      puisqu'une touche critique reussit toujours. La demande reste donc
      en attente et se resout apres la boucle, modificateurs connus. */
   let toutH = false, toutW = false;
+  /* `aussi` : une aptitude qui fait plusieurs choses a la fois — la Main
+     d'Asuryan fixe les degats ET prete Anti-Infanterie et Devastatrices —
+     se declare d'une seule pastille ; ses effets suivants s'appliquent
+     comme s'ils etaient des regles a part */
+  regles = regles.reduce((acc, c) => acc.concat([c], (c.aussi || [])), []);
   regles.forEach(c=>{
     /* « sust » ou « sust:N » : Touches Soutenues N. La forme avec N
        posait q["sust:1"], que le moteur ne lit pas. */

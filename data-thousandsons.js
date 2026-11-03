@@ -966,6 +966,7 @@ const KW = {
  "monster": [
   "Daemon Prince of Tzeentch",
   "Daemon Prince of Tzeentch with wings",
+  "Kairos Fateweaver",
   "Lord of Change",
   "Mutalith Vortex Beast"
  ],
@@ -980,14 +981,27 @@ const KW = {
   "Magnus the Red"
  ],
  "infantry": [
+  "Ahriman",
+  "Blue Horrors",
+  "Exalted Sorcerer",
+  "Exalted Sorcerer on Disc of Tzeentch",
   "Flamers",
+  "Infernal Master",
+  "Pink Horrors",
+  "Rubric Marines",
   "Scarab Occult Terminators",
+  "Sorcerer",
+  "Tzaangor Shaman",
   "Tzaangors"
  ],
  "character": [
+  "Ahriman",
+  "Daemon Prince of Tzeentch",
   "Exalted Sorcerer",
   "Exalted Sorcerer on Disc of Tzeentch",
   "Infernal Master",
+  "Kairos Fateweaver",
+  "Lord of Change",
   "Sorcerer",
   "Sorcerer in Terminator Armour",
   "Tzaangor Shaman"

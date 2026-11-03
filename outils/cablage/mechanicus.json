@@ -101,6 +101,42 @@
         "quand": "Un VÉHICULE ami a été détruit à 12\" (hache A 3 → 6)",
         "texte": "If a friendly Adeptus Mechanicus Vehicle model is destroyed within 12\" of this model, this model’s Omnissian axe has an Attacks characteristic of 6."
       }
+    ],
+    "Skitarii Rangers": [
+      {
+        "port": "T",
+        "mot": "ignorescover",
+        "nom": "Omnispex",
+        "quand": "Une figurine de l'unité porte un omnispex",
+        "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+      }
+    ],
+    "Skitarii Vanguard": [
+      {
+        "port": "T",
+        "mot": "ignorescover",
+        "nom": "Omnispex",
+        "quand": "Une figurine de l'unité porte un omnispex",
+        "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+      }
+    ],
+    "Secutarii Hoplites": [
+      {
+        "port": "T",
+        "mot": "ignorescover",
+        "nom": "Omnispex",
+        "quand": "Une figurine de l'unité porte un omnispex",
+        "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+      }
+    ],
+    "Secutarii Peltasts": [
+      {
+        "port": "T",
+        "mot": "ignorescover",
+        "nom": "Omnispex",
+        "quand": "Une figurine de l'unité porte un omnispex",
+        "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+      }
     ]
   },
   "APTIS_CIBLE": {

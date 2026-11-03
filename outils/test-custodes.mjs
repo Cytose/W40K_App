@@ -160,12 +160,13 @@ T('un stratagème dit quand, sur quoi et ce qu\'il fait', await p.evaluate(() =>
 }), [true, true, true, false]);
 
 /* ---- le câblage du simulateur, tenu dans outils/cablage/custodes.json ----
-   Huit fiches à conditions, dix-huit entrées d'armée (ka'tah, auras,
+   Douze fiches à conditions (huit, plus les quatre du relevé du
+   03/11/2026), dix-huit entrées d'armée (ka'tah, auras,
    détachements), et aucun octroi d'office : toutes les règles de
    détachement custodes dépendent d'un fait de table. */
 T('et les tables du simulateur sont câblées', await p.evaluate(() =>
   [Object.keys(APTIS_COND).length, AURAS_ARMEE.length, Object.keys(OCTROIS_DETACH).length]),
-  [8, 18, 0]);
+  [12, 18, 0]);
 
 /* ---- qui porte une amélioration ----
    Les deux améliorations de la Puissance des Moritoi sont réservées aux

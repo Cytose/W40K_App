@@ -486,7 +486,7 @@ function conditionsDe(ru, ph, ficheSeule){
        pour le canon d'un char s'appliquait a toutes ses armes */
     out.push({ id: fig + "|" + a.nom + "|" + i, sur: fig, nom: a.nom,
                quand: a.quand, texte: a.texte, arme: a.arme,
-               psy: a.psy, siMot: a.siMot,
+               psy: a.psy, siMot: a.siMot, aussi: a.aussi,
                champ: a.champ, mot: a.mot, val: a.val });
   };
   (tbl[ru.name] || []).forEach((a, i) => ajoute(ru.name, a, i));
@@ -511,7 +511,7 @@ function conditionsDe(ru, ph, ficheSeule){
        Touches Soutenues qu'il n'a pas. */
     if(a.sauf && a.sauf.some(k => groupeA(ru, k))) return;
     const cond = { nom: a.nom, quand: a.quand, texte: a.texte, arme: a.arme,
-                   psy: a.psy, siMot: a.siMot,
+                   psy: a.psy, siMot: a.siMot, aussi: a.aussi,
                    champ: a.champ, mot: a.mot, val: a.val };
     /* `qui: "figurine"` : la regle ne vaut que pour les figurines qui
        portent un des `kw` (« les PERSONNAGES de l'unite »), pas pour
@@ -1599,7 +1599,7 @@ function drapeauxAvecOctrois(ru, porteur, w){
      drapeau de l'arme, lui, est en minuscules, et la premiere graphie
      n'arrivait jamais jusqu'au profil */
   const ajouts = octroisArme(ru, porteur, w)
-    .map(o => o.mot === "ignoresCover" ? "ignorescover" : o.mot)
+    .map(o => o.mot === "ignoresCover" ? "ignorescover" : (o.mot === "sust" ? "sust:1" : o.mot))
     .filter(m => m && !parseFlags(base)[m.split(":")[0]]);
   return ajouts.length ? (base ? base + " " : "") + ajouts.join(" ") : base;
 }

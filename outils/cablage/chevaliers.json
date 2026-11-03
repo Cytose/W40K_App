@@ -154,6 +154,19 @@
         "nom": "Protocoles de Macro-Extinction",
         "texte": "Each time this model makes an attack that targets a MONSTER or VEHICLE unit, add 1 to the Hit roll."
       }
+    ],
+    "Knight Castellan": [
+      {
+        "port": "T",
+        "champ": "rrD",
+        "val": "tous",
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "nom": "Chasseur de Titans",
+        "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
+      }
     ]
   },
   "AURAS_ARMEE": [

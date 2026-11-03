@@ -2677,9 +2677,11 @@ const KW = {
   "Ynnari Venom"
  ],
  "monster": [
+  "Avatar of Khaine",
   "Phantom Titan",
   "Revenant Titan",
   "Skathach Wraithknight",
+  "The Yncarne",
   "Wraithknight",
   "Wraithknight with Ghostglaive",
   "Wraithlord",
@@ -2713,44 +2715,94 @@ const KW = {
   "Yvraine"
  ],
  "infantry": [
+  "Amallyn Shadowguide",
+  "Asurmen",
+  "Autarch",
+  "Autarch Wayleaper",
+  "Baharroth",
+  "Bonesinger",
   "Corsair Reaver Band",
   "Corsair Skyreavers",
+  "Corsair Voidreavers",
   "Corsair Voidscarred",
   "D-Cannon Platform",
   "Dark Reapers",
+  "Death Jester",
   "Dire Avengers",
+  "Eldrad Ulthran",
+  "Farseer",
   "Fire Dragons",
+  "Fuegan",
+  "Guardian Defenders",
   "Howling Banshees",
+  "Illic Nightspear",
+  "Irillyth",
+  "Jain Zar",
+  "Karandras",
+  "Kharseth",
+  "Lhykhis",
+  "Maugan Ra",
+  "Prince Yriel",
   "Rangers",
   "Shadow Spectres",
   "Shadow Weaver Platform",
+  "Shadowseer",
+  "Solitaire",
+  "Spiritseer",
+  "Storm Guardians",
   "Striking Scorpions",
   "Swooping Hawks",
+  "The Visarch",
   "Troupe",
+  "Troupe Master",
   "Vibro Cannon Platform",
+  "Warlock",
   "Warlock Conclave",
   "Warp Spiders",
   "Wraithblades",
   "Wraithguard",
-  "Ynnari Incubi"
+  "Ynnari Archon",
+  "Ynnari Incubi",
+  "Ynnari Kabalite Warriors",
+  "Ynnari Succubus",
+  "Ynnari Wyches",
+  "Yvraine"
  ],
  "character": [
+  "Amallyn Shadowguide",
+  "Asurmen",
   "Autarch",
   "Autarch Skyrunner",
   "Autarch Wayleaper",
+  "Avatar of Khaine",
+  "Baharroth",
   "Bonesinger",
   "Clanblade",
   "Death Jester",
+  "Eldrad Ulthran",
   "Farseer",
   "Farseer Skyrunner",
+  "Fuegan",
+  "Illic Nightspear",
+  "Irillyth",
+  "Jain Zar",
+  "Karandras",
+  "Kharseth",
   "Leystalker",
+  "Lhykhis",
+  "Maugan Ra",
+  "Prince Yriel",
   "Shadowseer",
+  "Solitaire",
   "Spiritseer",
   "Stonesinger",
+  "The Visarch",
+  "The Yncarne",
   "Troupe Master",
   "Warlock",
   "Ynnari Archon",
-  "Ynnari Succubus"
+  "Ynnari Succubus",
+  "Yvraine"
  ]
 };
 
@@ -2924,6 +2976,16 @@ const APTIS_UNITE = {
    "nom": "Faveur de Cegorach",
    "texte": "Each time this model makes a melee attack you can re-roll a Hit roll of 1 and add 1 to the Wound roll."
   }
+ ],
+ "Wave Serpent": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "quand": "L'attaque est une attaque de tir",
+   "nom": "Bouclier du Wave Serpent",
+   "texte": "Each time a ranged attack targets this model, if the Strength characteristic of that attack is greater than the Toughness characteristic of this model, subtract 1 from the Wound roll."
+  }
  ]
 };
 const APTIS_COND = {
@@ -3067,6 +3129,90 @@ const APTIS_COND = {
    "nom": "Blitz",
    "quand": "Le Blitz est utilisé ce tour (une fois par bataille)",
    "texte": "Once per battle, in your Movement phase, before this model makes a Normal move it can use this ability. If it does, until the end of the turn, add 2D6\" to this model’s Move characteristic and add 3 to the Attacks characteristic of this model’s Solitaire weapons."
+  }
+ ],
+ "Asurmen": [
+  {
+   "arme": "The Bloody Twins",
+   "port": "T",
+   "champ": "dmgSet",
+   "val": 3,
+   "aussi": [
+    {
+     "champ": "anti",
+     "val": "5:inf"
+    },
+    {
+     "mot": "dev"
+    }
+   ],
+   "nom": "Main d'Asuryan",
+   "quand": "Une fois par bataille, quand Asurmen tire (D3, [ANTI-INFANTERIE 5+], [DÉVASTATRICES])",
+   "texte": "Once per battle, when this model is selected to shoot, it can use this ability. If it does, until the end of the phase, its Bloody Twins weapon has a Damage characteristic of 3 and the [ANTI-INFANTRY 5+] and [DEVASTATING WOUNDS] abilities."
+  }
+ ],
+ "Warlock": [
+  {
+   "arme": "Destructor",
+   "port": "T",
+   "champ": "atkMod",
+   "val": 1,
+   "aussi": [
+    {
+     "champ": "strMod",
+     "val": 1
+    }
+   ],
+   "nom": "Communion Psychique +1",
+   "quand": "Un autre PSYKER aeldari ami à 6\" du Warlock",
+   "texte": "Add 1 to the Attacks and Strength characteristics of its Destructor weapon for each other friendly Aeldari Psyker model within 6\" of this model (to a maximum of +2)."
+  },
+  {
+   "arme": "Destructor",
+   "port": "T",
+   "champ": "atkMod",
+   "val": 2,
+   "aussi": [
+    {
+     "champ": "strMod",
+     "val": 2
+    }
+   ],
+   "nom": "Communion Psychique +2",
+   "quand": "Deux autres PSYKER aeldari amis à 6\" du Warlock",
+   "texte": "Add 1 to the Attacks and Strength characteristics of its Destructor weapon for each other friendly Aeldari Psyker model within 6\" of this model (to a maximum of +2)."
+  }
+ ],
+ "Warlock Conclave": [
+  {
+   "arme": "Destructor",
+   "port": "T",
+   "champ": "atkMod",
+   "val": 1,
+   "aussi": [
+    {
+     "champ": "strMod",
+     "val": 1
+    }
+   ],
+   "nom": "Communion Psychique +1",
+   "quand": "Un autre PSYKER aeldari ami à 6\" du Warlock",
+   "texte": "Add 1 to the Attacks and Strength characteristics of its Destructor weapon for each other friendly Aeldari Psyker model within 6\" of this model (to a maximum of +2)."
+  },
+  {
+   "arme": "Destructor",
+   "port": "T",
+   "champ": "atkMod",
+   "val": 2,
+   "aussi": [
+    {
+     "champ": "strMod",
+     "val": 2
+    }
+   ],
+   "nom": "Communion Psychique +2",
+   "quand": "Deux autres PSYKER aeldari amis à 6\" du Warlock",
+   "texte": "Add 1 to the Attacks and Strength characteristics of its Destructor weapon for each other friendly Aeldari Psyker model within 6\" of this model (to a maximum of +2)."
   }
  ]
 };
@@ -3398,6 +3544,20 @@ const AURAS_ARMEE = [
   "nom": "Bergers des Morts",
   "quand": "La cible porte un jeton Mort Vengeresse",
   "texte": "Each time a Wraith Construct model from your army makes an attack that targets a unit with one or more Vengeful Dead tokens, add 1 to the Hit roll and add 1 to the Wound roll."
+ },
+ {
+  "source": "Spiritseer",
+  "kw": [
+   "Wraithblades",
+   "Wraithguard",
+   "Wraithlord",
+   "Wraithseer",
+   "Hemlock Wraithfighter"
+  ],
+  "mot": "sust",
+  "nom": "Marque Spirituelle",
+  "quand": "La cible est l'unité ennemie marquée par le Spiritseer",
+  "texte": "Until the start of your next Movement phase, weapons equipped by models in that friendly unit have the [Sustained Hits 1] ability while targeting that enemy unit."
  }
 ];
 const OCTROIS_DETACH = {

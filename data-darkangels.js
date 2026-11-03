@@ -2383,7 +2383,9 @@ const KW = {
   "Gladiator Lancer",
   "Gladiator Reaper",
   "Gladiator Valiant",
+  "Hammerfall Bunker",
   "Impulsor",
+  "Invader ATVs",
   "Invictor Tactical Warsuit",
   "Land Raider",
   "Land Raider Crusader",
@@ -2431,10 +2433,21 @@ const KW = {
  ],
  "infantry": [
   "Aggressor Squad",
+  "Ancient",
+  "Apothecary",
+  "Apothecary Biologis",
+  "Asmodai",
+  "Assault Intercessor Squad",
   "Assault Intercessors with Jump Packs",
+  "Azrael",
+  "Belial",
+  "Bladeguard Ancient",
   "Bladeguard Veteran Squad",
+  "Captain",
   "Centurion Assault Squad",
   "Centurion Devastator Squad",
+  "Chaplain",
+  "Company Heroes",
   "Deathwing Command Squad",
   "Deathwing Knights",
   "Deathwing Terminator Squad",
@@ -2442,15 +2455,24 @@ const KW = {
   "Eliminator Squad",
   "Eradicator Squad with Heavy Bolters",
   "Eradicator Squad with Melta Rifles",
+  "Ezekiel",
+  "Heavy Intercessor Squad",
   "Hellblaster Squad",
   "Inceptor Squad",
   "Incursor Squad",
   "Infernus Squad",
   "Infiltrator Squad",
   "Inner Circle Companions",
+  "Intercessor Squad",
+  "Judiciar",
+  "Lazarus",
+  "Librarian",
+  "Lieutenant",
+  "Lieutenant with Combi-weapon",
   "Reiver Squad",
   "Scout Squad",
   "Sternguard Veteran Squad",
+  "Techmarine",
   "Terminator Assault Squad",
   "Terminator Squad",
   "Vanguard Veteran Squad",
@@ -2461,6 +2483,9 @@ const KW = {
   "Ancient in Terminator Armour",
   "Apothecary",
   "Apothecary Biologis",
+  "Asmodai",
+  "Azrael",
+  "Belial",
   "Bladeguard Ancient",
   "Captain",
   "Captain in Gravis Armour",
@@ -2474,7 +2499,9 @@ const KW = {
   "Chaplain with Jump Pack",
   "Company Heroes",
   "Deathwing Strikemaster",
+  "Ezekiel",
   "Judiciar",
+  "Lazarus",
   "Librarian",
   "Librarian in Phobos Armour",
   "Librarian in Terminator Armour",
@@ -2483,7 +2510,9 @@ const KW = {
   "Lieutenant with Combi-weapon",
   "Ravenwing Command Squad",
   "Ravenwing Talonmaster",
-  "Techmarine"
+  "Sammael",
+  "Techmarine",
+  "Venerable Dreadnought"
  ],
  "gravis": [
   "Aggressor Squad",
@@ -3128,6 +3157,19 @@ const APTIS_CIBLE = {
     "mon",
     "veh"
    ]
+  }
+ ],
+ "Predator Annihilator": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Annihilateur",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ],
  "Belial": [

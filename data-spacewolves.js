@@ -2761,13 +2761,16 @@ const KW = {
   "Gladiator Lancer",
   "Gladiator Reaper",
   "Gladiator Valiant",
+  "Hammerfall Bunker",
   "Impulsor",
+  "Invader ATVs",
   "Invictor Tactical Warsuit",
   "Land Raider",
   "Land Raider Crusader",
   "Land Raider Excelsior",
   "Land Raider Redeemer",
   "Land Speeder",
+  "Murderfang",
   "Predator Annihilator",
   "Predator Destructor",
   "Razorback",
@@ -2815,31 +2818,54 @@ const KW = {
  ],
  "infantry": [
   "Aggressor Squad",
+  "Ancient",
+  "Arjac Rockfist",
+  "Assault Intercessor Squad",
   "Assault Intercessors with Jump Packs",
+  "Bladeguard Ancient",
   "Bladeguard Veteran Squad",
+  "Blood Claws",
+  "Captain",
   "Centurion Assault Squad",
   "Centurion Devastator Squad",
+  "Chaplain",
+  "Company Heroes",
   "Desolation Squad",
   "Eliminator Squad",
   "Eradicator Squad with Heavy Bolters",
   "Eradicator Squad with Melta Rifles",
+  "Grey Hunters",
+  "Heavy Intercessor Squad",
   "Hellblaster Squad",
   "Hounds of Morkai",
   "Inceptor Squad",
   "Incursor Squad",
   "Infernus Squad",
   "Infiltrator Squad",
+  "Intercessor Squad",
+  "Iron Priest",
+  "Judiciar",
+  "Librarian",
+  "Lieutenant",
+  "Lieutenant with Combi-weapon",
+  "Logan Grimnar",
   "Long Fangs",
+  "Njal Stormcaller",
+  "Ragnar Blackmane",
   "Reiver Squad",
   "Scout Squad",
   "Skyclaws",
   "Sternguard Veteran Squad",
+  "Techmarine",
   "Terminator Assault Squad",
   "Terminator Squad",
   "Vanguard Veteran Squad",
   "Vanguard Veteran Squad with Jump Packs",
   "Wolf Guard",
+  "Wolf Guard Battle Leader",
+  "Wolf Guard Headtakers",
   "Wolf Guard Terminators",
+  "Wolf Priest",
   "Wolf Scouts",
   "Wulfen",
   "Wulfen with Storm Shields"
@@ -2847,6 +2873,7 @@ const KW = {
  "character": [
   "Ancient",
   "Ancient in Terminator Armour",
+  "Arjac Rockfist",
   "Bladeguard Ancient",
   "Captain",
   "Captain in Gravis Armour",
@@ -2868,7 +2895,12 @@ const KW = {
   "Lieutenant",
   "Lieutenant in Phobos Armour",
   "Lieutenant with Combi-weapon",
+  "Logan Grimnar",
+  "Murderfang",
+  "Njal Stormcaller",
+  "Ragnar Blackmane",
   "Techmarine",
+  "Venerable Dreadnought",
   "Wolf Guard Battle Leader",
   "Wolf Guard Battle Leader in Terminator Armour",
   "Wolf Guard Battle Leader on Thunderwolf",
@@ -3201,6 +3233,15 @@ const APTIS_UNITE = {
    "port": "C",
    "nom": "Lié par Serment",
    "texte": "This unit's melee attacks have +1 to hit rolls. - Or: This unit's melee attacks that target this unit's slayer's oath have +1 to hit rolls and wound rolls."
+  }
+ ],
+ "Wolf Guard Terminators": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Robustesse",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than the Toughness characteristic of this unit, subtract 1 from the Wound roll."
   }
  ]
 };
@@ -3627,6 +3668,19 @@ const APTIS_CIBLE = {
     "mon",
     "veh"
    ]
+  }
+ ],
+ "Predator Annihilator": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Annihilateur",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ],
  "Arjac Rockfist": [

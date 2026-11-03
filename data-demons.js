@@ -2105,9 +2105,14 @@ const KW = {
   "Daemon Prince of Chaos with wings",
   "Giant Chaos Spawn",
   "Great Unclean One",
+  "Kairos Fateweaver",
   "Keeper of Secrets",
   "Lord of Change",
-  "Spined Chaos Beast"
+  "Rotigus",
+  "Shalaxi Helbane",
+  "Skarbrand",
+  "Spined Chaos Beast",
+  "Zarakynel"
  ],
  "battleline": [
   "Bloodletters",
@@ -2137,25 +2142,58 @@ const KW = {
   "Zarakynel"
  ],
  "infantry": [
+  "Bloodletters",
+  "Bloodmaster",
+  "Blue Horrors",
+  "Changecaster",
+  "Contorted Epitome",
+  "Daemonettes",
+  "Epidemius",
+  "Exalted Flamer",
   "Flamers",
-  "Furies"
+  "Furies",
+  "Infernal Enrapturess",
+  "Pink Horrors",
+  "Plaguebearers",
+  "Poxbringer",
+  "Skulltaker",
+  "Sloppity Bilepiper",
+  "Spoilpox Scrivener",
+  "The Changeling",
+  "Tranceweaver"
  ],
  "character": [
   "Bloodmaster",
+  "Bloodthirster",
   "Changecaster",
   "Contorted Epitome",
+  "Daemon Prince of Chaos",
+  "Epidemius",
   "Exalted Flamer",
   "Fateskimmer",
   "Fluxmaster",
+  "Great Unclean One",
   "Herald of Slaanesh on Steed of Slaanesh",
+  "Horticulous Slimux",
   "Infernal Enrapturess",
+  "Kairos Fateweaver",
+  "Karanak",
+  "Keeper of Secrets",
+  "Lord of Change",
   "Poxbringer",
   "Rendmaster on Blood Throne",
+  "Rotigus",
+  "Shalaxi Helbane",
+  "Skarbrand",
   "Skullmaster",
+  "Skulltaker",
   "Sloppity Bilepiper",
   "Spoilpox Scrivener",
+  "The Blue Scribes",
+  "The Changeling",
   "Tormentbringer",
-  "Tranceweaver"
+  "Tranceweaver",
+  "Zarakynel"
  ]
 };
 
@@ -2258,6 +2296,105 @@ const APTIS_UNITE = {
    "val": "ones",
    "nom": "Tisseuse de Transe",
    "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1. If the target of that attack is within range of an objective marker, you can re-roll the Hit roll instead."
+  }
+ ],
+ "Great Unclean One": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Sloppity Bilepiper": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Plaguebearers": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Nurglings": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Beasts of Nurgle": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Feculent Gnarlmaw": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Giant Chaos Spawn": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Spined Chaos Beast": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Pox Riders": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Plague Toads": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+  }
+ ],
+ "Furies": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "nom": "Pourriture Crépusculaire",
+   "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
   }
  ]
 };

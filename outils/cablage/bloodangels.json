@@ -209,6 +209,46 @@
         "quand": "L'unité est sous son effectif de départ",
         "texte": "Each time a model in this unit makes an attack, that attack has the [SUSTAINED HITS 1] ability if this unit is below its Starting Strength, or the [SUSTAINED HITS 2] ability if this unit is Below Half-strength."
       }
+    ],
+    "Captain Tycho": [
+      {
+        "arme": "Dead Man's Hand",
+        "port": "C",
+        "champ": "atkSet",
+        "val": 12,
+        "nom": "Amertume",
+        "quand": "Une attaque a déjà été allouée à Tycho cette bataille",
+        "texte": "The first time an attack is allocated to this model, after the attacking unit has finished making its attacks, until the end of the battle, change the Attacks characteristic of this model's Dead Man's Hand to 12"
+      }
+    ],
+    "Gabriel Seth": [
+      {
+        "arme": "Blood Reaver",
+        "port": "C",
+        "champ": "atkMod",
+        "val": 1,
+        "nom": "Tourbillon de Rage +1",
+        "quand": "5 à 9 figurines ennemies à 6\" de Seth",
+        "texte": "Each time this model fights, until that fight is resolved, add 1 to the Attacks characteristic of this model's Blood Reaver for every 5 enemy models within 6\" of this model."
+      },
+      {
+        "arme": "Blood Reaver",
+        "port": "C",
+        "champ": "atkMod",
+        "val": 2,
+        "nom": "Tourbillon de Rage +2",
+        "quand": "10 à 14 figurines ennemies à 6\" de Seth",
+        "texte": "Each time this model fights, until that fight is resolved, add 1 to the Attacks characteristic of this model's Blood Reaver for every 5 enemy models within 6\" of this model."
+      },
+      {
+        "arme": "Blood Reaver",
+        "port": "C",
+        "champ": "atkMod",
+        "val": 3,
+        "nom": "Tourbillon de Rage +3",
+        "quand": "15 à 19 figurines ennemies à 6\" de Seth",
+        "texte": "Each time this model fights, until that fight is resolved, add 1 to the Attacks characteristic of this model's Blood Reaver for every 5 enemy models within 6\" of this model."
+      }
     ]
   },
   "AURAS_ARMEE": [
