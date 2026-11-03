@@ -3975,6 +3975,27 @@ const KW = {
   "Wazdakka Gutsmek",
   "Weirdboy",
   "Zodgrod Wortsnagga"
+ ],
+ "explosives": [
+  "Big Mek",
+  "Boss Snikrot",
+  "Boyz",
+  "Breaka Boyz",
+  "Deffkoptas",
+  "Flash Gitz",
+  "Ghazghkull Thraka",
+  "Kommandos",
+  "Meganobz",
+  "Mek",
+  "Nobz",
+  "Rukkatrukk Squigbuggies",
+  "Squighog Boyz",
+  "Stormboyz",
+  "Tankbustas",
+  "Warbikers",
+  "Warboss",
+  "Warboss on Warbike",
+  "Warbuggies"
  ]
 };
 

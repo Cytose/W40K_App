@@ -3039,7 +3039,48 @@ const KW = {
  "kill team": [],
  "death company": [],
  "deathwing": [],
- "ravenwing": []
+ "ravenwing": [],
+ "grenades": [
+  "Land Raider Crusader",
+  "Land Raider Redeemer"
+ ],
+ "explosives": [
+  "Ancient",
+  "Assault Intercessor Squad",
+  "Bladeguard Ancient",
+  "Bladeguard Veteran Squad",
+  "Blood Claws",
+  "Captain",
+  "Captain on Bike",
+  "Chaplain",
+  "Company Heroes",
+  "Desolation Squad",
+  "Eliminator Squad",
+  "Eradicator Squad with Heavy Bolters",
+  "Eradicator Squad with Melta Rifles",
+  "Grey Hunters",
+  "Heavy Intercessor Squad",
+  "Hellblaster Squad",
+  "Incursor Squad",
+  "Infernus Squad",
+  "Infiltrator Squad",
+  "Intercessor Squad",
+  "Land Raider Crusader",
+  "Land Raider Redeemer",
+  "Librarian",
+  "Lieutenant",
+  "Lieutenant with Combi-weapon",
+  "Outrider Squad",
+  "Ragnar Blackmane",
+  "Reiver Squad",
+  "Scout Bike Squad",
+  "Scout Squad",
+  "Sternguard Veteran Squad",
+  "Techmarine",
+  "Thunderwolf Cavalry",
+  "Vanguard Veteran Squad",
+  "Wolf Scouts"
+ ]
 };
 
 /* SOCLES : le relevé du Base Size Guide, rapproché des noms de fiche.

@@ -1005,6 +1005,12 @@ const KW = {
   "Sorcerer",
   "Sorcerer in Terminator Armour",
   "Tzaangor Shaman"
+ ],
+ "grenades": [
+  "Exalted Sorcerer",
+  "Exalted Sorcerer on Disc of Tzeentch",
+  "Infernal Master",
+  "Sorcerer"
  ]
 };
 

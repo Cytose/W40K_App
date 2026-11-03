@@ -739,6 +739,14 @@ const KW = {
   "Lucius the Eternal",
   "Shalaxi Helbane",
   "Sorcerer"
+ ],
+ "grenades": [
+  "Flawless Blades",
+  "Infractors",
+  "Lord Exultant",
+  "Lord Kakophonist",
+  "Sorcerer",
+  "Tormentors"
  ]
 };
 

@@ -53,6 +53,7 @@ let atkUnit = null;          /* ce que ROSTER.simUnite a rendu */
 let atkOff = {};             /* profils decoches, par etiquette */
 let condOn = {};             /* aptitudes conditionnelles declarees */
 let condArme = {};           /* les memes, en mode « par arme » */
+let bmOn = {};               /* stratagemes de base a blessures mortelles coches */
 
 /* ==========================================================
    DÉS
@@ -970,6 +971,16 @@ function profilPourMoteur(p){
 }
 const profilsActifs = () => !atkUnit ? [] :
   atkUnit.profils.filter(p => !atkOff[p.label]);
+/* Les stratagemes de base coches (Explosifs, Impact ecrasant) : leurs
+   blessures mortelles passent AVANT les armes, comme en partie — la
+   grenade part avant le tir, l'impact avant le combat. Le profil ne
+   porte que la cible et le jet de des. */
+function mortelsActifs(){
+  if(atkMode !== "unite" || !atkUnit || !window.ROSTER || !window.ROSTER.stratsSimu) return [];
+  return window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase)
+    .filter(x => x.mortels && bmOn[x.id])
+    .map(x => Object.assign({}, S, {mortels: x.mortels, label: x.nom}));
+}
 
 /* Ce que le moteur va reellement faire de ce profil, dit en clair.
    Un crit 5+ applique mais invisible ne se verifie pas, et un joueur
@@ -1196,7 +1207,7 @@ function renderRosterUnitList(){
       x.nC + ' au corps à corps</span></span>' +
       (n ? '' : '<span class="otag">RIEN ICI</span>');
     b.addEventListener("click", ()=>{
-      atkOff = {}; condOn = {};
+      atkOff = {}; condOn = {}; bmOn = {};
       closeSheet("sheetRosterUnit");
       chargeUnite(x.id);
     });
@@ -1382,7 +1393,8 @@ function renderPresets(){
          Renforcement Synergetique est du second genre : il ne touche
          aucun jet, il fait de l'unite une unite de CRYPTEK, et ce sont
          les regles du detachement qui changent derriere. */
-      const on = x.situ ? x.situOn : (cles.length > 0 && cles.every(k => S[k] === x.effet[k]));
+      const on = x.mortels ? !!bmOn[x.id]
+               : x.situ ? x.situOn : (cles.length > 0 && cles.every(k => S[k] === x.effet[k]));
       const b = document.createElement("button");
       b.type = "button";
       b.className = "vpre vstrat" + (on ? " on" : "");
@@ -1391,6 +1403,9 @@ function renderPresets(){
         '<small>' + x.aide + '</small>' +
         (x.enAttente ? '<small class="vattente">en attente : ' + x.enAttente + '</small>' : '');
       b.addEventListener("click", ()=>{
+        /* Explosifs, Impact ecrasant : des blessures mortelles qui
+           s'ajoutent a la sequence, pas un champ de l'ecran */
+        if(x.mortels){ bmOn[x.id] = !on; renderAtkUnite(); majVite(); render(); return; }
         if(x.situ){
           window.ROSTER.poseSituation(x.situ, !on);
           /* ce qui change, ce sont les regles qui s'appliquent : les
@@ -1473,7 +1488,7 @@ function majVite(){
      chiffre : les autres se comptent deja par ce qu'ils ont pose */
   const nStr = (atkMode === "unite" && atkUnit && window.ROSTER && window.ROSTER.stratsSimu)
     ? window.ROSTER.stratsSimu(atkUnit.unite, atkUnit.persos, atkPhase)
-        .filter(x => x.situ && x.situOn).length : 0;
+        .filter(x => (x.situ && x.situOn) || (x.mortels && bmOn[x.id])).length : 0;
   const haut = nSit + nStr + presetsVisibles().filter(pr => pr.lis()).length +
                Object.keys(atkMode === "unite" ? condOn : condArme)
                  .filter(k => (atkMode === "unite" ? condOn : condArme)[k]).length;
@@ -1627,7 +1642,7 @@ function render(){
      profils coches tirent dans l'ordre sur le meme vivier de figurines,
      de sorte que la surtue de l'arme lourde profite — ou nuit — aux
      suivantes, exactement comme en partie. */
-  const lot = (atkMode === "unite") ? profilsActifs().map(profilPourMoteur) : null;
+  const lot = (atkMode === "unite") ? mortelsActifs().concat(profilsActifs().map(profilPourMoteur)) : null;
   /* En mode « une arme », l'ecran est le profil : « reste immobile »
      n'avait aucun chemin jusqu'au moteur et ne faisait rien. Il en prend
      un, au meme prix qu'en mode unite — seule une arme LOURDE y gagne. */
@@ -1657,10 +1672,12 @@ function render(){
      le couvert et le tir indirect passent par la normalisation, pas par
      le modificateur de l'ecran */
   const Sn = ENG.normalise(E || S);
+  const nArmes = lot ? lot.filter(p => !p.mortels).length : 0;
+  const bm = lot ? lot.filter(p => p.mortels).reduce((t, p) => t + ENG.moyenneMortels(p.mortels), 0) : 0;
   const steps = [
-    ["Attaques", a.A, lot ? lot.length + " profil" + (lot.length > 1 ? "s" : "") : ""],
+    ["Attaques", a.A, lot ? nArmes + " profil" + (nArmes > 1 ? "s" : "") : ""],
     ["Touches", a.hits, lot ? "" : (S.torrent ? "auto" : "sur "+Math.max(2,Math.min(6,Sn.bs - Sn.hitMod))+"+")],
-    ["Blessures", a.wounds, lot ? "" : "sur "+a.wt+"+"],
+    ["Blessures", a.wounds, lot ? (bm ? "dont " + num(bm) + " mortelles" : "") : "sur "+a.wt+"+"],
     ["Non sauv.", a.unsaved, lot ? "" : (a.st>=7 ? "aucune svg" : "svg "+a.st+"+")],
     ["Dégâts bruts", a.rawDmg, S.fnp ? "après FNP" : (S.dmgRed ? "après -"+S.dmgRed : "")]
   ];

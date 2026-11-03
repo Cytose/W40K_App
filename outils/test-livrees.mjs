@@ -396,7 +396,10 @@ for (let i = 0; i < registre.length; i++) {
     const attendus = STRAT_SIMU.filter(x => x.detach === det);
     /* la première unité de la liste, dans les deux phases */
     const u = ROSTER.simListe().unites[0];
-    const vus = ['T', 'C'].flatMap(ph => ROSTER.stratsSimu(u.unite, u.persos, ph));
+    /* les stratagèmes de base (Explosifs, Impact écrasant) ne viennent
+       d'aucun détachement : ils ne se comptent pas ici */
+    const vus = ['T', 'C'].flatMap(ph => ROSTER.stratsSimu(u.unite, u.persos, ph))
+      .filter(x => !x.mortels);
     return { cable: attendus.length, vus: new Set(vus.map(x => x.nom)).size,
              champs: [...new Set(vus.flatMap(x => Object.keys(x.effet)))]
                .filter(k => !(k in SIM.DEFAUT_STRAT)),

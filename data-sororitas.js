@@ -1214,6 +1214,28 @@ const KW = {
   "Morvenn Vahl",
   "Palatine",
   "Saint Celestine"
+ ],
+ "grenades": [
+  "Battle Sisters Squad",
+  "Canoness",
+  "Canoness with Jump Pack",
+  "Celestian Insidiants",
+  "Celestian Sacresant Aveline",
+  "Celestian Sacresants",
+  "Daemonifuge",
+  "Dogmata",
+  "Dominion Squad",
+  "Imagifier",
+  "Ministorum Priest",
+  "Palatine",
+  "Paragon Warsuits",
+  "Repentia Squad",
+  "Retributor Squad",
+  "Saint Celestine",
+  "Sanctifiers",
+  "Seraphim Squad",
+  "Sisters Novitiate Squad",
+  "Zephyrim Squad"
  ]
 };
 

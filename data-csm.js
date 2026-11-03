@@ -3329,6 +3329,31 @@ const KW = {
   "Sorcerer on Steed of Slaanesh",
   "Traitor Enforcer",
   "Warpsmith"
+ ],
+ "grenades": [
+  "Chaos Bikers",
+  "Chaos Lord",
+  "Chaos Lord with Jump Pack",
+  "Chosen",
+  "Cultist Firebrand",
+  "Cultist Mob",
+  "Cultist Mob with Firearms",
+  "Dark Apostle",
+  "Dark Commune",
+  "Exalted Champion",
+  "Fellgor Beastmen",
+  "Legionaries",
+  "Masters of the Maelstrom",
+  "Nemesis Claw",
+  "Raptors",
+  "Red Corsairs Raiders",
+  "Renegade Enforcer",
+  "Renegade Heavy Weapons Squad",
+  "Sorcerer",
+  "Traitor Enforcer",
+  "Traitor Guardsmen Squad",
+  "Warp Talons",
+  "Warpsmith"
  ]
 };
 

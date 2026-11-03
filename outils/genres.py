@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LES SIX GENRES DE KW, D'APRÈS LES MOTS-CLÉS DE LA FICHE
+"""LES SIX GENRES DE KW (ET LES GRENADES), D'APRÈS LES MOTS-CLÉS DE LA FICHE
 
 extraction.py remplit vehicle, monster, battleline, epic, infantry et
 character depuis la CATÉGORIE de l'unité, qui est unique : une escouade
@@ -18,6 +18,10 @@ import csv, glob, json, os, re, sys
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MOTS = {'vehicle': 'vehicle', 'monster': 'monster', 'battleline': 'battleline',
         'epic': 'epic hero', 'infantry': 'infantry', 'character': 'character'}
+# Les mots-clés d'équipement que les stratagèmes de base demandent :
+# EXPLOSIFS vise une unité GRENADES ou EXPLOSIVES. extraction.py ne les
+# connaît pas ; on CRÉE donc le groupe quand une fiche de la faction le porte.
+CREES = {'grenades': 'grenades', 'explosives': 'explosives'}
 
 def motsWahapedia():
     def un(nom):
@@ -44,6 +48,11 @@ def traite(chemin, mots):
         if g not in kw: continue
         neuf = sorted(set(kw[g]) | {u for u in unites if mot in mots.get(u, ())})
         ajout += len(neuf) - len(kw[g])
+        kw[g] = neuf
+    for g, mot in CREES.items():
+        neuf = sorted(set(kw.get(g, [])) | {u for u in unites if mot in mots.get(u, ())})
+        if not neuf: continue
+        ajout += len(neuf) - len(kw.get(g, []))
         kw[g] = neuf
     if ajout:
         txt = json.dumps(kw, ensure_ascii=False, indent=1)

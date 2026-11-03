@@ -1033,6 +1033,12 @@ const KW = {
   "Lelith Hesperax",
   "Succubus",
   "Urien Rakarth"
+ ],
+ "grenades": [
+  "Hand of the Archon",
+  "Scourges with Heavy Weapons",
+  "Scourges with Shardcarbines",
+  "Wyches"
  ]
 };
 

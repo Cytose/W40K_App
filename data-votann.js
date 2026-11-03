@@ -891,6 +891,11 @@ const KW = {
   "Kâhl",
   "Memnyr Strategist",
   "Ûthar the Destined"
+ ],
+ "grenades": [
+  "Hearthkyn Warriors",
+  "Hernkyn Pioneers",
+  "Hernkyn Yaegirs"
  ]
 };
 

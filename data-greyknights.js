@@ -952,6 +952,25 @@ const KW = {
   "Grand Master in Nemesis Dreadknight",
   "Kaldor Draigo",
   "Venerable Dreadnought"
+ ],
+ "grenades": [
+  "Brotherhood Champion",
+  "Brotherhood Techmarine",
+  "Brotherhood Terminator Squad",
+  "Castellan Crowe",
+  "Grand Master",
+  "Interceptor Squad",
+  "Kaldor Draigo",
+  "Land Raider Crusader",
+  "Land Raider Redeemer",
+  "Paladin Squad",
+  "Purgation Squad",
+  "Purifier Squad",
+  "Strike Squad"
+ ],
+ "explosives": [
+  "Land Raider Crusader",
+  "Land Raider Redeemer"
  ]
 };
 

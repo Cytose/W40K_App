@@ -1561,6 +1561,44 @@ const KW = {
   "Vindicare Assassin",
   "Watch Captain Artemis",
   "Watch Master"
+ ],
+ "grenades": [
+  "Culexus Assassin",
+  "Damned Legionnaires",
+  "Eversor Assassin",
+  "Exaction Squad",
+  "Fortis Kill Team",
+  "Grey Knights Terminator Squad",
+  "Imperial Navy Breachers",
+  "Indomitor Kill Team",
+  "Inquisitor",
+  "Inquisitor Draxus",
+  "Inquisitor Eisenhorn",
+  "Inquisitor Greyfax",
+  "Inquisitor Kroyle",
+  "Inquisitor Ostromandeus",
+  "Inquisitorial Agents",
+  "Janus Draik",
+  "Kill Team Cassius",
+  "Ministorum Priest",
+  "Neyam Shai Murad",
+  "Proteus Kill Team",
+  "Rogue Trader Entourage",
+  "Sanctifiers",
+  "Sisters of Battle Squad",
+  "Spectrus Kill Team",
+  "Subductor Squad",
+  "Veteran Bike Squad",
+  "Vigilant Squad"
+ ],
+ "explosives": [
+  "Aquila Kill Team",
+  "Deathwatch Kill Team",
+  "Fortis Kill Team",
+  "Indomitor Kill Team",
+  "Spectrus Kill Team",
+  "Watch Captain Artemis",
+  "Watch Master"
  ]
 };
 
