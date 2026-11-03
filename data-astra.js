@@ -4140,6 +4140,20 @@ const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Field Ordnance Battery" : [["Bombast field gun", 10, [[0, 1, 1]], []]],
+ "Krieg Heavy Weapons Squad" : [["Krieg heavy flamer", 5, [[0, 0, 1]], []]],
+ "Leman Russ Battle Tank" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
+ "Leman Russ Commander" : [["Demolisher battle cannon", 15, [[0, 1, 1]], []], ["Multi-melta", 5, [[2, 2, 2]], []], ["Lascannon", 5, [[1, 0, 1]], []], ["Plasma cannon", 5, [[2, 3, 2]], []]],
+ "Leman Russ Demolisher" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
+ "Leman Russ Eradicator" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
+ "Leman Russ Executioner" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
+ "Leman Russ Exterminator" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
+ "Leman Russ Punisher" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
+ "Leman Russ Vanquisher" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]]
+};
+
 enregistreFaction({
   cle : "astra",
   nom : "Astra Militarum",
@@ -4148,7 +4162,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

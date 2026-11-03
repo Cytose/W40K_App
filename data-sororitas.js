@@ -1879,6 +1879,14 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Dominion Squad" : [["Meltagun", 5, [[2, 2, 1]], []]],
+ "Immolator" : [["Twin Multi-melta", 15, [[0, 2, 1]], []]],
+ "Paragon Warsuits" : [["Multi-melta", 10, [[2, 1, 1], [5, 1, 1]], []]],
+ "Retributor Squad" : [["Multi-melta", 5, [[2, 2, 1]], []]]
+};
+
 enregistreFaction({
   cle : "sororitas",
   nom : "Adepta Sororitas",
@@ -1887,7 +1895,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

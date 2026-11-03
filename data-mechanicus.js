@@ -2140,6 +2140,12 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Ironstrider Ballistarii" : [["Twin Cognis Lascannon", 10, [[0, 1, 1]], []]],
+ "Skorpius Disintegrator" : [["Ferrumite cannon", 10, [[0, 1, 1]], []]]
+};
+
 enregistreFaction({
   cle : "mechanicus",
   nom : "Adeptus Mechanicus",
@@ -2148,7 +2154,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

@@ -2793,6 +2793,16 @@ const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Broadside Battlesuits" : [["High-yield Missile Pods", 5, [[0, 1, 1], [5, 1, 1]], []]],
+ "Crisis Fireknife Battlesuits" : [["Missile pod", 5, [[0, 1, 1], [1, 1, 1], [2, 1, 1], [3, 1, 1], [4, 0, 1], [5, 0, 1], [6, 2, 1], [7, 2, 1]], []]],
+ "Crisis Starscythe Battlesuits" : [["T'au flamer", 5, [[0, 1, 1], [1, 1, 1], [4, 1, 1], [5, 1, 1]], []]],
+ "Ghostkeel Battlesuit" : [["Cyclic Ion Raker", 15, [[1, 1, 1]], []]],
+ "Pathfinder Team" : [["Ion Rifle", 5, [[4, 0, 1]], []]],
+ "Riptide Battlesuit" : [["Ion Accelerator", 25, [[0, 1, 1]], []]]
+};
+
 enregistreFaction({
   cle : "tau",
   nom : "Empire T'au",
@@ -2801,7 +2811,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

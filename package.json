@@ -29,6 +29,8 @@
     "wahapedia": "python3 outils/test-wahapedia.py",
     "etalonnage": "python3 outils/extraction.py necrons --sortie build/etalon-necrons.js && node outils/etalonnage.js build/etalon-necrons.js",
     "custodes": "node outils/test-custodes.mjs",
+    "options": "python3 outils/options.py",
+    "options-test": "node outils/test-options.mjs",
     "livrees": "node outils/test-livrees.mjs",
     "socles": "python3 outils/socles.py build/base-size.pdf build/base-size-2.pdf",
     "triage": "node outils/triage.js",

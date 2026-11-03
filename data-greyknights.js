@@ -1506,6 +1506,16 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Brotherhood Terminator Squad" : [["Psycannon", 5, [[0, 2, 1]], []]],
+ "Grand Master in Nemesis Dreadknight" : [["Sublimator", 15, [[1, 0, 1], [2, 0, 1]], []], ["Heavy psycannon", 15, [[1, 3, 1], [2, 3, 1]], []]],
+ "Nemesis Dreadknight" : [["Heavy psycannon", 15, [[1, 1, 1], [2, 1, 1]], []]],
+ "Paladin Squad" : [["Psycannon", 5, [[0, 2, 1]], []]],
+ "Purgation Squad" : [["Psycannon", 5, [[0, 3, 1]], []]],
+ "Stormraven Gunship" : [["Hurricane Bolter", 10, [[0, 0, 2]], []]]
+};
+
 enregistreFaction({
   cle : "greyknights",
   nom : "Grey Knights",
@@ -1514,7 +1524,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

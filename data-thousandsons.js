@@ -1442,6 +1442,12 @@ const ARMEMENT = {
  "Tzaangors" : {"f": [], "s": [{"min": 1, "o": [[2], [1, 0]], "nb": 1, "qui": "Twistbray"}, {"min": 1, "o": [[2], [1, 0]], "qui": "Figurines", "onom": ["Tzaangor w/ Tzaangor blades", "Tzaangor w/ pistol and chainsword"], "nb": -1}]}
 };
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Defiler" : [["Hades Lascannon", 15, [[0, 2, 1], [2, 2, 1]], []], ["Heavy Reaper Autocannon", 15, [[0, 3, 1], [2, 3, 1]], []]],
+ "Forgefiend" : [["Ectoplasma cannon", 5, [[0, 1, 2], [1, 1, 2]], []]]
+};
+
 enregistreFaction({
   cle : "thousandsons",
   nom : "Thousand Sons",
@@ -1450,7 +1456,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

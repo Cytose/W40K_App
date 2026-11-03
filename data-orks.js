@@ -5145,6 +5145,13 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Gunwagon" : [["Zzap Gun", 10, [[1, 2, 1]], []]],
+ "Meganobz" : [["Twin Killsaws", 5, [[0, 4, 1]], []], ["Killsaw", 5, [[0, 2, 1], [0, 3, 1]], []]],
+ "Nobz" : [["Paired Krumpas", 5, [[0, 5, 1]], []]]
+};
+
 enregistreFaction({
   cle : "orks",
   nom : "Orks",
@@ -5153,7 +5160,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();

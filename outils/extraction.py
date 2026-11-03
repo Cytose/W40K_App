@@ -1095,6 +1095,10 @@ def main():
 
     T, stats = extrait(faction)
     open(sortie, 'w', encoding='utf-8').write(ecrit(faction, T, stats))
+    # les options payantes du Munitorum : voir outils/options.py
+    import options
+    for o in options.injecte(faction, sortie, bavard=False):
+        print('  option payante sans lien : ' + o)
 
     jouables = [u for u in T['UNITS'] if not u[10]]
     print('%s → %s' % (FACTIONS[faction]['nom'], os.path.relpath(sortie, RACINE)))

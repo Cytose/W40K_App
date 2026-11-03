@@ -1813,6 +1813,13 @@ const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
 
+/* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
+const OPTIONS_PTS = {
+ "Ravager" : [["Dark Lance", 5, [[0, 0, 1], [1, 0, 1]], []]],
+ "Scourges with Heavy Weapons" : [["Haywire blaster", 5, [[1, 5, 1]], []], ["Dark Lance", 5, [[1, 4, 1]], []]],
+ "Talos" : [["Twin haywire blaster", 5, [[2, 1, 1]], []]]
+};
+
 enregistreFaction({
   cle : "drukhari",
   nom : "Drukhari",
@@ -1821,7 +1828,8 @@ enregistreFaction({
     DETACHMENTS, ATTACH, RETINUE, ENHANCEMENTS, ENH_ANCIENS, SOCLES,
     GRPN, STRATS, MOMENTS, MOMENTS_ARMEE, CAT, COMPO, ROLES_UNITE,
     APTITUDES, TRANSPORTS, FACTION, OCTROIS_DETACH, APTIS_UNITE,
-    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO
+    APTIS_COND, AURAS_ARMEE, ABIMEES, AURAS_PERSO,
+    OPTIONS_PTS
   }
 });
 })();
