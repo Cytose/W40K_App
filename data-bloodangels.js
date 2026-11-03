@@ -2425,7 +2425,9 @@ const KW = {
   "Gladiator Lancer",
   "Gladiator Reaper",
   "Gladiator Valiant",
+  "Hammerfall Bunker",
   "Impulsor",
+  "Invader ATVs",
   "Invictor Tactical Warsuit",
   "Land Raider",
   "Land Raider Crusader",
@@ -2472,10 +2474,24 @@ const KW = {
  ],
  "infantry": [
   "Aggressor Squad",
+  "Ancient",
+  "Apothecary",
+  "Apothecary Biologis",
+  "Assault Intercessor Squad",
   "Assault Intercessors with Jump Packs",
+  "Astorath",
+  "Bladeguard Ancient",
   "Bladeguard Veteran Squad",
+  "Blood Angels Captain",
+  "Captain",
   "Centurion Assault Squad",
   "Centurion Devastator Squad",
+  "Chaplain",
+  "Chief Librarian Mephiston",
+  "Commander Dante",
+  "Company Heroes",
+  "Death Company Captain",
+  "Death Company Captain with Jump Pack",
   "Death Company Marines",
   "Death Company Marines with Boltguns",
   "Death Company Marines with Boltguns and Jump Packs",
@@ -2484,17 +2500,27 @@ const KW = {
   "Eliminator Squad",
   "Eradicator Squad with Heavy Bolters",
   "Eradicator Squad with Melta Rifles",
+  "Heavy Intercessor Squad",
   "Hellblaster Squad",
   "Inceptor Squad",
   "Incursor Squad",
   "Infernus Squad",
   "Infiltrator Squad",
+  "Intercessor Squad",
+  "Judiciar",
+  "Lemartes",
+  "Librarian",
+  "Lieutenant",
+  "Lieutenant with Combi-weapon",
   "Reiver Squad",
   "Sanguinary Guard",
+  "Sanguinary Priest",
   "Scout Squad",
   "Sternguard Veteran Squad",
+  "Techmarine",
   "Terminator Assault Squad",
   "Terminator Squad",
+  "The Sanguinor",
   "Vanguard Veteran Squad",
   "Vanguard Veteran Squad with Jump Packs"
  ],
@@ -2503,6 +2529,7 @@ const KW = {
   "Ancient in Terminator Armour",
   "Apothecary",
   "Apothecary Biologis",
+  "Astorath",
   "Bladeguard Ancient",
   "Blood Angels Captain",
   "Captain",
@@ -2515,10 +2542,13 @@ const KW = {
   "Chaplain in Terminator Armour",
   "Chaplain on Bike",
   "Chaplain with Jump Pack",
+  "Chief Librarian Mephiston",
+  "Commander Dante",
   "Company Heroes",
   "Death Company Captain",
   "Death Company Captain with Jump Pack",
   "Judiciar",
+  "Lemartes",
   "Librarian",
   "Librarian in Phobos Armour",
   "Librarian in Terminator Armour",
@@ -2527,7 +2557,9 @@ const KW = {
   "Lieutenant with Combi-weapon",
   "Sanguinary Priest",
   "Sanguinary Priest with Jump Pack",
-  "Techmarine"
+  "Techmarine",
+  "The Sanguinor",
+  "Venerable Dreadnought"
  ],
  "gravis": [
   "Aggressor Squad",
@@ -3174,6 +3206,46 @@ const APTIS_COND = {
    "quand": "L'unité est sous son effectif de départ",
    "texte": "Each time a model in this unit makes an attack, that attack has the [SUSTAINED HITS 1] ability if this unit is below its Starting Strength, or the [SUSTAINED HITS 2] ability if this unit is Below Half-strength."
   }
+ ],
+ "Captain Tycho": [
+  {
+   "arme": "Dead Man's Hand",
+   "port": "C",
+   "champ": "atkSet",
+   "val": 12,
+   "nom": "Amertume",
+   "quand": "Une attaque a déjà été allouée à Tycho cette bataille",
+   "texte": "The first time an attack is allocated to this model, after the attacking unit has finished making its attacks, until the end of the battle, change the Attacks characteristic of this model's Dead Man's Hand to 12"
+  }
+ ],
+ "Gabriel Seth": [
+  {
+   "arme": "Blood Reaver",
+   "port": "C",
+   "champ": "atkMod",
+   "val": 1,
+   "nom": "Tourbillon de Rage +1",
+   "quand": "5 à 9 figurines ennemies à 6\" de Seth",
+   "texte": "Each time this model fights, until that fight is resolved, add 1 to the Attacks characteristic of this model's Blood Reaver for every 5 enemy models within 6\" of this model."
+  },
+  {
+   "arme": "Blood Reaver",
+   "port": "C",
+   "champ": "atkMod",
+   "val": 2,
+   "nom": "Tourbillon de Rage +2",
+   "quand": "10 à 14 figurines ennemies à 6\" de Seth",
+   "texte": "Each time this model fights, until that fight is resolved, add 1 to the Attacks characteristic of this model's Blood Reaver for every 5 enemy models within 6\" of this model."
+  },
+  {
+   "arme": "Blood Reaver",
+   "port": "C",
+   "champ": "atkMod",
+   "val": 3,
+   "nom": "Tourbillon de Rage +3",
+   "quand": "15 à 19 figurines ennemies à 6\" de Seth",
+   "texte": "Each time this model fights, until that fight is resolved, add 1 to the Attacks characteristic of this model's Blood Reaver for every 5 enemy models within 6\" of this model."
+  }
  ]
 };
 const APTIS_CIBLE = {
@@ -3249,6 +3321,19 @@ const APTIS_CIBLE = {
     "mon",
     "veh"
    ]
+  }
+ ],
+ "Predator Annihilator": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Annihilateur",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ]
 };

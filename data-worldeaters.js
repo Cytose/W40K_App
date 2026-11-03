@@ -831,9 +831,11 @@ const KW = {
   "Maulerfiend"
  ],
  "monster": [
+  "Angron",
   "Bloodthirster",
   "Daemon Prince of Khorne",
-  "Daemon Prince of Khorne with wings"
+  "Daemon Prince of Khorne with wings",
+  "Skarbrand"
  ],
  "battleline": [
   "Bloodletters",
@@ -846,15 +848,24 @@ const KW = {
   "Skarbrand"
  ],
  "infantry": [
+  "Bloodletters",
   "Chaos Terminators",
   "Eightbound",
   "Exalted Eightbound",
   "Goremongers",
-  "Jakhals"
+  "Jakhals",
+  "Khorne Berzerkers",
+  "Master of Executions",
+  "Slaughterbound"
  ],
  "character": [
+  "Angron",
+  "Bloodthirster",
+  "Daemon Prince of Khorne",
+  "Lord Invocatus",
   "Lord on Juggernaut",
   "Master of Executions",
+  "Skarbrand",
   "Slaughterbound"
  ]
 };

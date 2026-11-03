@@ -39,7 +39,8 @@
     "  Gladiator Lancer, de l'Ironstorm Spearhead, de la Colère de Méduse.",
     "  Le moteur ne connaît que « les 1 » et « les ratés » ; écrire une",
     "  relance unique en « ratés » la surestimerait beaucoup ;",
-    "· les relances de DÉGÂTS (Eradicators, Predator Annihilator) ;",
+    "· les relances de DÉGÂTS des Eradicators (celle du Predator",
+    "  Annihilator est câblée depuis le 03/11/2026, APTIS_CIBLE rrD) ;",
     "· la défense : Armour of Contempt, Duty Eternal, les -1 pour blesser",
     "  quand F > E, le Refuse to Yield du Capitaine Gravis. Le moteur les lit",
     "  sur la CIBLE ; seul un -1 en PA s'y déclare, et aucun ne s'y réduit ;",
@@ -165,6 +166,19 @@
           "mon",
           "veh"
         ]
+      }
+    ],
+    "Predator Annihilator": [
+      {
+        "port": "T",
+        "champ": "rrD",
+        "val": "tous",
+        "vs": [
+          "mon",
+          "veh"
+        ],
+        "nom": "Annihilateur",
+        "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
       }
     ]
   },

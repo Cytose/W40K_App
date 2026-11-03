@@ -58,6 +58,15 @@
         "nom": "Lié par Serment",
         "texte": "This unit's melee attacks have +1 to hit rolls. - Or: This unit's melee attacks that target this unit's slayer's oath have +1 to hit rolls and wound rolls."
       }
+    ],
+    "Wolf Guard Terminators": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Robustesse",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than the Toughness characteristic of this unit, subtract 1 from the Wound roll."
+      }
     ]
   },
   "AURAS_PERSO": {

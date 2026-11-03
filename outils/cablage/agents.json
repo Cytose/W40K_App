@@ -62,6 +62,14 @@
         "nom": "Sermon du Ministorum",
         "texte": "While this unit contains a Ministorum Priest, each time a model in this unit makes a melee attack, add 1 to the Wound roll."
       }
+    ],
+    "Kill Team Cassius": [
+      {
+        "port": "C",
+        "mot": "dev",
+        "nom": "Catéchisme de Mort",
+        "texte": "While this unit contains Chaplain Cassius, melee weapons equipped by models in this unit have the [DEVASTATING WOUNDS] ability."
+      }
     ]
   },
   "APTIS_COND": {
@@ -217,6 +225,15 @@
         "nom": "Tox-Cycleur — dégâts",
         "quand": "Le tox-cycleur a déjà touché dans la bataille",
         "texte": "... add 2 to the Damage characteristic."
+      }
+    ],
+    "Corvus Blackstar": [
+      {
+        "port": "T",
+        "mot": "ignorescover",
+        "nom": "Réseau Auspex",
+        "quand": "Le Corvus Blackstar porte un réseau auspex",
+        "texte": "Ranged weapons equipped by the bearer have the [IGNORES COVER] ability."
       }
     ]
   },

@@ -1114,6 +1114,10 @@ def main():
     import options
     for o in options.injecte(faction, sortie, bavard=False):
         print('  option payante sans lien : ' + o)
+    # les six genres de KW complétés par les mots-clés de la fiche : une
+    # escouade de LIGNE est aussi INFANTERIE (outils/genres.py)
+    import genres
+    genres.traite(sortie, genres.motsWahapedia())
 
     jouables = [u for u in T['UNITS'] if not u[10]]
     print('%s → %s' % (FACTIONS[faction]['nom'], os.path.relpath(sortie, RACINE)))

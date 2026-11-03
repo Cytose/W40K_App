@@ -1767,6 +1767,17 @@ const APTIS_UNITE = {
  "Skorpekh Destroyers" : [
    { champ:"rrH", val:"ones", port:"C", nom:"Assaut Tourbillonnant",
      texte:"À chaque attaque de mêlée d'une figurine de cette unité, relancez tout jet de Touche de 1." }
+ ],
+ /* les defenses de fiche : comptees dans Encaisser, d'office ou a
+    declarer quand elles portent un `quand` (03/11/2026) */
+ "Catacomb Command Barge" : [
+   { sens:"def", champ:"defWndFE", val:-1, nom:"Bouclier Quantique Avancé",
+     texte:"Each time an attack targets this model, if the Strength characteristic of that attack is greater than this model's Toughness characteristic, subtract 1 from the Wound roll." }
+ ],
+ "Lychguard" : [
+   { sens:"def", champ:"defWndFE", val:-1, nom:"Protocoles de Garde",
+     quand:"Un NOBLE mène l'unité",
+     texte:"While a NOBLE model is leading this unit, each time an attack targets this unit, if the Strength characteristic of that attack is greater than the Toughness characteristic of this unit, subtract 1 from the Wound roll." }
  ]
 };
 
@@ -1774,6 +1785,11 @@ const APTIS_UNITE = {
    et l'effet qu'elles produisent si le joueur declare la condition
    remplie. Elles n'agissent jamais d'elles-memes. */
 const APTIS_COND = {
+ "Tomb Blades" : [
+   { mot:"ignorescover", port:"T", nom:"Nébuloscope",
+     quand:"Les Tomb Blades portent un nébuloscope",
+     texte:"Ranged weapons equipped by the bearer have the [IGNORES COVER] ability." }
+ ],
  "Immortals" : [
    { champ:"rrW", val:"failed", port:"", nom:"Éradication Implacable",
      quand:"La cible est à portée d'un objectif",

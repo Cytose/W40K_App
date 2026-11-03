@@ -32,6 +32,105 @@
         "nom": "Tisseuse de Transe",
         "texte": "Each time a model in this unit makes an attack, re-roll a Hit roll of 1. If the target of that attack is within range of an objective marker, you can re-roll the Hit roll instead."
       }
+    ],
+    "Great Unclean One": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Sloppity Bilepiper": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Plaguebearers": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Nurglings": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Beasts of Nurgle": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Feculent Gnarlmaw": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Giant Chaos Spawn": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Spined Chaos Beast": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Pox Riders": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Plague Toads": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
+    ],
+    "Furies": [
+      {
+        "sens": "def",
+        "champ": "defWndFE",
+        "val": -1,
+        "nom": "Pourriture Crépusculaire",
+        "texte": "Each time an attack targets this unit, if the Strength characteristic of that attack is greater than this unit's Toughness characteristic, subtract 1 from the Wound roll."
+      }
     ]
   },
 

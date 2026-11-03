@@ -1847,14 +1847,17 @@ const KW = {
   "AX-1-0 Tiger Shark",
   "Barracuda",
   "Broadside Battlesuits",
+  "Commander Farsight",
   "Crisis Battlesuits",
   "Crisis Fireknife Battlesuits",
   "Crisis Starscythe Battlesuits",
   "Crisis Sunforge Battlesuits",
   "Devilfish",
+  "Drone Sentry Turret",
   "Ghostkeel Battlesuit",
   "Hammerhead Gunship",
   "Heavy Gun Drones",
+  "Longstrike",
   "Manta",
   "Orca Dropship",
   "Piranhas",
@@ -1868,6 +1871,10 @@ const KW = {
   "TX42 Piranha",
   "Ta'unar Supremacy Armour",
   "Tetras",
+  "The Twin Lance",
+  "Tidewall Droneport",
+  "Tidewall Gunrig",
+  "Tidewall Shieldline",
   "Tiger Shark",
   "XV9 Hazard Battlesuits",
   "Y'vahra Battlesuit"
@@ -1890,23 +1897,38 @@ const KW = {
   "The Twin Lance"
  ],
  "infantry": [
+  "Breacher Team",
+  "Cadre Fireblade",
+  "Commander Shadowsun",
+  "Darkstrider",
+  "Ethereal",
+  "Firesight Team",
   "Kroot Carnivores",
   "Kroot Farstalkers",
+  "Kroot Flesh Shaper",
+  "Kroot Trail Shaper",
+  "Kroot War Shaper",
   "Pathfinder Team",
   "Stealth Battlesuits",
+  "Strike Team",
   "Vespid Stingwings"
  ],
  "character": [
   "Cadre Fireblade",
+  "Commander Farsight",
+  "Commander Shadowsun",
   "Commander in Coldstar Battlesuit",
   "Commander in Crisis Battlesuit",
   "Commander in Enforcer Battlesuit",
+  "Darkstrider",
   "Ethereal",
   "Firesight Team",
   "Kroot Flesh Shaper",
   "Kroot Lone-spear",
   "Kroot Trail Shaper",
-  "Kroot War Shaper"
+  "Kroot War Shaper",
+  "Longstrike",
+  "The Twin Lance"
  ]
 };
 
@@ -2007,6 +2029,16 @@ const APTIS_UNITE = {
    "port": "T",
    "nom": "Fireknife",
    "texte": "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "R'varna Battlesuit": [
+  {
+   "sens": "def",
+   "champ": "defWndFE",
+   "val": -1,
+   "quand": "Une fois par bataille, ciblé par une attaque de tir",
+   "nom": "Bouclier Nova",
+   "texte": "Once per battle, when this model is selected as the target of a ranged attack, it can use this ability. If it does, until the end of the phase, each time an attack targets this model, if the Strength characteristic of that attack is greater than the Toughness characteristic of this model, subtract 1 from the Wound roll."
   }
  ]
 };
@@ -2121,6 +2153,55 @@ const APTIS_COND = {
    "nom": "Exemples du Mont'ka",
    "quand": "La cible est la cible éligible la plus proche",
    "texte": "Each time a model in this unit makes a ranged attack that targets the closest eligible target, that attack has the [SUSTAINED HITS 1] and [IGNORES COVER] abilities."
+  }
+ ],
+ "Aun'shi": [
+  {
+   "arme": "Fidelity",
+   "port": "C",
+   "mot": "dev",
+   "nom": "Frappe Puissante",
+   "quand": "Posture choisie quand Aun'shi combat",
+   "texte": "Forceful Strike: Fidelity has the [DEVASTATING WOUNDS] ability."
+  },
+  {
+   "arme": "Fidelity",
+   "port": "C",
+   "mot": "sust:2",
+   "nom": "Posture Tourbillonnante",
+   "quand": "Posture choisie quand Aun'shi combat",
+   "texte": "Whirling Stance: Fidelity has the [SUSTAINED HITS 2] ability instead of [SUSTAINED HITS 1]."
+  }
+ ],
+ "AX-1-0 Tiger Shark": [
+  {
+   "arme": "Twin heavy rail cannon",
+   "port": "T",
+   "champ": "anti",
+   "val": "3:titan",
+   "nom": "Chasseur de Titans",
+   "quand": "La cible TITANESQUE est à mi-portée",
+   "texte": "This model's twin heavy rail cannon and seeker missiles have the [ANTI-TITANIC 3+] ability while targeting a unit within half range."
+  },
+  {
+   "arme": "Seeker missile",
+   "port": "T",
+   "champ": "anti",
+   "val": "3:titan",
+   "nom": "Chasseur de Titans",
+   "quand": "La cible TITANESQUE est à mi-portée",
+   "texte": "This model's twin heavy rail cannon and seeker missiles have the [ANTI-TITANIC 3+] ability while targeting a unit within half range."
+  }
+ ],
+ "Knarloc Riders": [
+  {
+   "arme": "Knarloc beak and talons",
+   "port": "C",
+   "champ": "wndMod",
+   "val": 1,
+   "nom": "Bond Fracassant",
+   "quand": "L'unité a chargé ce tour ([LANCE] : +1 pour blesser)",
+   "texte": "Each time this unit ends a Charge move, until the end of the turn, Knarloc beak and talons equipped by models in this unit have the [LANCE] ability."
   }
  ]
 };

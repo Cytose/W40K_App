@@ -1536,13 +1536,13 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <h2>Attaquant <span class="chev">▾</span></h2>
     <div class="body">
       <div class="chips tight" id="atkModeChips">
-        <button type="button" class="chip on" data-am="profil">Une arme</button>
-        <button type="button" class="chip" data-am="unite">Une unité entière</button>
+        <button type="button" class="chip on" data-am="profil">Simuler par arme</button>
+        <button type="button" class="chip" data-am="unite">Simuler une unité de la liste</button>
       </div>
 
       <div id="atkProfil">
         <button class="picker" id="pickUnit" type="button">
-          <span class="pk"><span class="p1" id="puName">Immortals</span><span class="p2" id="puSub">—</span></span>
+          <span class="pk"><span class="p1" id="puName">—</span><span class="p2" id="puSub">—</span></span>
           <span class="arrow">›</span>
         </button>
         <div class="chips" id="weaponChips"></div>
@@ -1582,7 +1582,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <h2><span id="cardAbilTitre">Capacités et modifications</span><span id="capCount"></span> <span class="chev">▾</span></h2>
     <div class="body">
       <p class="hint">Tout ce que le jeu permet de changer à une séquence d'attaque, <b>que tu le possèdes ou non</b>. De quoi essayer une combinaison avant de la chercher dans une liste — ce que tu possèdes vraiment est au-dessus, dans <b>Retouches de partie</b>.</p>
-      <p class="hint" id="abilNote" hidden>Une unité entière est chargée : ces capacités <b>s'ajoutent à toutes ses armes</b> et n'enlèvent rien. Une arme qui a déjà Léthal la garde ; un « Touche critique 5+ » coché ici descend le seuil de toutes les armes qui étaient encore à 6+.</p>
+      <p class="hint" id="abilNote" hidden>Une unité de la liste est chargée : ces capacités <b>s'ajoutent à toutes ses armes</b> et n'enlèvent rien. Une arme qui a déjà Léthal la garde ; un « Touche critique 5+ » coché ici descend le seuil de toutes les armes qui étaient encore à 6+.</p>
       <div class="vitegrid">
         <div class="vc"><span class="vk">Toucher</span><div class="seg small" id="segHitMod"></div></div>
         <div class="vc"><span class="vk">Blesser</span><div class="seg small" id="segWndMod"></div></div>

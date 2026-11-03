@@ -703,7 +703,9 @@ const KW = {
  "monster": [
   "Daemon Prince of Slaanesh",
   "Daemon Prince of Slaanesh with Wings",
-  "Keeper of Secrets"
+  "Fulgrim",
+  "Keeper of Secrets",
+  "Shalaxi Helbane"
  ],
  "battleline": [
   "Daemonettes",
@@ -717,12 +719,25 @@ const KW = {
  ],
  "infantry": [
   "Chaos Terminators",
+  "Daemonettes",
   "Flawless Blades",
-  "Noise Marines"
- ],
- "character": [
+  "Infractors",
   "Lord Exultant",
   "Lord Kakophonist",
+  "Lucius the Eternal",
+  "Noise Marines",
+  "Sorcerer",
+  "Tormentors"
+ ],
+ "character": [
+  "Daemon Prince of Slaanesh",
+  "Daemon Prince of Slaanesh with Wings",
+  "Fulgrim",
+  "Keeper of Secrets",
+  "Lord Exultant",
+  "Lord Kakophonist",
+  "Lucius the Eternal",
+  "Shalaxi Helbane",
   "Sorcerer"
  ]
 };

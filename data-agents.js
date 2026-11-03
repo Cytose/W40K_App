@@ -1468,6 +1468,7 @@ const KW = {
  "vehicle": [
   "Corvus Blackstar",
   "Imperial Rhino",
+  "Inquisitor Karamazov",
   "Inquisitorial Chimera",
   "Sisters of Battle Immolator"
  ],
@@ -1497,28 +1498,68 @@ const KW = {
   "Watch Captain Artemis"
  ],
  "infantry": [
+  "Aquila Kill Team",
+  "Callidus Assassin",
+  "Culexus Assassin",
   "Daemonhost",
   "Damned Legionnaires",
+  "Deathwatch Kill Team",
   "Deathwatch Terminator Squad",
+  "Eversor Assassin",
   "Exaction Squad",
   "Fortis Kill Team",
   "Grey Knights Terminator Squad",
+  "Imperial Navy Breachers",
   "Indomitor Kill Team",
+  "Inquisitor",
+  "Inquisitor Coteaz",
+  "Inquisitor Draxus",
+  "Inquisitor Eisenhorn",
+  "Inquisitor Greyfax",
+  "Inquisitor Ostromandeus",
   "Inquisitorial Agents",
+  "Janus Draik",
+  "Jokaero Weaponsmith",
+  "Kill Team Cassius",
+  "Ministorum Priest",
+  "Navigator",
+  "Neyam Shai Murad",
   "Proteus Kill Team",
+  "Rogue Trader Entourage",
   "Sanctifiers",
   "Sisters of Battle Squad",
   "Spectrus Kill Team",
   "Subductor Squad",
-  "Voidsmen-at-Arms"
+  "UR-025",
+  "Vigilant Squad",
+  "Vindicare Assassin",
+  "Voidsmen-at-Arms",
+  "Watch Captain Artemis",
+  "Watch Master"
  ],
  "character": [
+  "Callidus Assassin",
+  "Culexus Assassin",
+  "Eversor Assassin",
   "Inquisitor",
+  "Inquisitor Coteaz",
+  "Inquisitor Draxus",
+  "Inquisitor Eisenhorn",
+  "Inquisitor Greyfax",
+  "Inquisitor Karamazov",
+  "Inquisitor Kroyle",
+  "Inquisitor Ostromandeus",
   "Inquisitor in Terminator Armour",
+  "Janus Draik",
   "Jokaero Weaponsmith",
+  "Kill Team Cassius",
   "Ministorum Priest",
   "Navigator",
+  "Neyam Shai Murad",
   "Rogue Trader Entourage",
+  "UR-025",
+  "Vindicare Assassin",
+  "Watch Captain Artemis",
   "Watch Master"
  ]
 };
@@ -1615,6 +1656,14 @@ const APTIS_UNITE = {
    "port": "C",
    "nom": "Sermon du Ministorum",
    "texte": "While this unit contains a Ministorum Priest, each time a model in this unit makes a melee attack, add 1 to the Wound roll."
+  }
+ ],
+ "Kill Team Cassius": [
+  {
+   "port": "C",
+   "mot": "dev",
+   "nom": "Catéchisme de Mort",
+   "texte": "While this unit contains Chaplain Cassius, melee weapons equipped by models in this unit have the [DEVASTATING WOUNDS] ability."
   }
  ]
 };
@@ -1771,6 +1820,15 @@ const APTIS_COND = {
    "nom": "Tox-Cycleur — dégâts",
    "quand": "Le tox-cycleur a déjà touché dans la bataille",
    "texte": "... add 2 to the Damage characteristic."
+  }
+ ],
+ "Corvus Blackstar": [
+  {
+   "port": "T",
+   "mot": "ignorescover",
+   "nom": "Réseau Auspex",
+   "quand": "Le Corvus Blackstar porte un réseau auspex",
+   "texte": "Ranged weapons equipped by the bearer have the [IGNORES COVER] ability."
   }
  ]
 };

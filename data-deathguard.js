@@ -1114,9 +1114,12 @@ const KW = {
  "monster": [
   "Daemon Prince of Nurgle",
   "Daemon Prince of Nurgle with wings",
-  "Great Unclean One"
+  "Great Unclean One",
+  "Mortarion",
+  "Rotigus"
  ],
  "battleline": [
+  "Nurglings",
   "Plague Marines",
   "Plaguebearers"
  ],
@@ -1126,17 +1129,12 @@ const KW = {
   "Typhus"
  ],
  "infantry": [
+  "Biologus Putrifier",
   "Blightlord Terminators",
+  "Death Guard Chaos Lord",
   "Death Guard Cultists",
   "Death Guard Possessed",
   "Deathshroud Terminators",
-  "Poxwalkers"
- ],
- "character": [
-  "Biologus Putrifier",
-  "Death Guard Chaos Lord",
-  "Death Guard Chaos Lord in Terminator Armour",
-  "Death Guard Sorcerer in Terminator Armour",
   "Foul Blightspawn",
   "Icon Bearer",
   "Lord of Contagion",
@@ -1144,8 +1142,32 @@ const KW = {
   "Lord of Virulence",
   "Malignant Plaguecaster",
   "Noxious Blightbringer",
+  "Plague Marines",
   "Plague Surgeon",
-  "Tallyman"
+  "Plaguebearers",
+  "Poxwalkers",
+  "Tallyman",
+  "Typhus"
+ ],
+ "character": [
+  "Biologus Putrifier",
+  "Daemon Prince of Nurgle",
+  "Death Guard Chaos Lord",
+  "Death Guard Chaos Lord in Terminator Armour",
+  "Death Guard Sorcerer in Terminator Armour",
+  "Foul Blightspawn",
+  "Great Unclean One",
+  "Icon Bearer",
+  "Lord of Contagion",
+  "Lord of Poxes",
+  "Lord of Virulence",
+  "Malignant Plaguecaster",
+  "Mortarion",
+  "Noxious Blightbringer",
+  "Plague Surgeon",
+  "Rotigus",
+  "Tallyman",
+  "Typhus"
  ]
 };
 

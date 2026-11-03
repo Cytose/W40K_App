@@ -1006,19 +1006,33 @@ const KW = {
   "Urien Rakarth"
  ],
  "infantry": [
+  "Archon",
   "Court of the Archon",
+  "Drazhar",
   "Grotesques",
+  "Haemonculus",
   "Hand of the Archon",
   "Incubi",
+  "Kabalite Warriors",
+  "Lady Malys",
+  "Lelith Hesperax",
   "Mandrakes",
   "Scourges with Heavy Weapons",
-  "Scourges with Shardcarbines"
+  "Scourges with Shardcarbines",
+  "Succubus",
+  "Urien Rakarth",
+  "Wracks",
+  "Wyches"
  ],
  "character": [
   "Archon",
   "Beastmaster",
+  "Drazhar",
   "Haemonculus",
-  "Succubus"
+  "Lady Malys",
+  "Lelith Hesperax",
+  "Succubus",
+  "Urien Rakarth"
  ]
 };
 

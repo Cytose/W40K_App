@@ -481,7 +481,7 @@ def injecte(faction):
     src, armes = armesDuFichier(chemin)
     T = tableFaction(faction, armes)
     neuf = ecritTable(T)
-    src2, k = re.subn(r'^const ARMEMENT = \{.*?^\};|^const ARMEMENT = \{\};', neuf.replace('\\', '\\\\'),
+    src2, k = re.subn(r'^const ARMEMENT = \{\};|^const ARMEMENT = \{\n.*?^\};', neuf.replace('\\', '\\\\'),
                       src, count=1, flags=re.S | re.M)
     if not k: sys.exit('ARMEMENT introuvable dans %s' % chemin)
     src2 = src2.replace(ANCIENNE, '\n'.join(ENTETE) + '\n')

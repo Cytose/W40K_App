@@ -110,6 +110,60 @@
         "quand": "Déclenchée ce tour — une fois par bataille",
         "texte": "(Once per battle, per army) This model’s Watcher’s Axe weapon has +3 A until the end of the phase."
       }
+    ],
+    "Aleya": [
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "nom": "Esprit Tenace — entamée",
+        "quand": "L'unité est sous son effectif de départ",
+        "texte": "While this unit is below starting strength, this unit's attacks have +1 to hit rolls."
+      },
+      {
+        "champ": "hitMod",
+        "val": 1,
+        "aussi": [
+          {
+            "champ": "wndMod",
+            "val": 1
+          }
+        ],
+        "nom": "Esprit Tenace — moitié",
+        "quand": "L'unité est sous la moitié de son effectif (+1 touche et +1 blessure)",
+        "texte": "While this unit is below half-strength, this unit's attacks have +1 to wound rolls."
+      }
+    ],
+    "Custodian Guard Sodality with Adrasite Spears": [
+      {
+        "champ": "rrW",
+        "val": "failed",
+        "nom": "Veille Inébranlable — objectif",
+        "quand": "L'unité est à portée d'un objectif (relance toutes les blessures au lieu des 1)",
+        "texte": "Or: If this unit is within range of an objective, re-roll wound rolls"
+      }
+    ],
+    "Sagittarum Custodians Sodality": [
+      {
+        "port": "T",
+        "mot": "dev",
+        "nom": "Rayons Désintégrateurs",
+        "quand": "Une fois par bataille, à la phase de Tir",
+        "texte": "(Once per battle, per unit) In your Shooting phase, you can use this ability. If you do, this unit's ranged attacks have [DEVASTATING WOUNDS]."
+      }
+    ],
+    "Custodian Guard Sodality with Pyrithite Spears": [
+      {
+        "port": "T",
+        "mot": "lethal",
+        "aussi": [
+          {
+            "mot": "ignorescover"
+          }
+        ],
+        "nom": "Nul Ennemi ne Tiendra",
+        "quand": "Une fois par bataille ([TOUCHES LÉTALES] et [IGNORE LE COUVERT])",
+        "texte": "(Once per battle, per unit) This unit's ranged attacks have [LETHAL HITS] and [IGNORES COVER]."
+      }
     ]
   },
   "APTIS_CIBLE": {
@@ -389,6 +443,16 @@
       "texte": "This unit has a 4+ InSv against ranged attacks."
     }
   ],
+  "APTIS_UNITE": {
+    "Custodian Guard Sodality with Adrasite Spears": [
+      {
+        "champ": "rrW",
+        "val": "ones",
+        "nom": "Veille Inébranlable",
+        "texte": "This unit's attacks can: - Re-roll wound rolls of 1."
+      }
+    ]
+  },
   "STRAT_SIMU": [
     {
       "nom": "Tip of the Talon",

@@ -16,5 +16,15 @@
     "  critiques ; l'appliquer à toutes les blessures surestimerait.",
     "· « Striding Colossus », « God-machine », « Flank Speed », « Wrath of",
     "  the Omnissiah » touchent les PC, le mouvement ou le moral."
+  ],
+  "AURAS_ARMEE": [
+    {
+      "source": "Warbringer Nemesis Titan",
+      "champ": "apCrit",
+      "val": 1,
+      "nom": "Appui de Feu Titanesque",
+      "quand": "La cible a été touchée par le Warbringer à cette phase",
+      "texte": "Until the end of the phase, each time a friendly IMPERIUM model makes an attack that targets that enemy unit, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."
+    }
   ]
 }

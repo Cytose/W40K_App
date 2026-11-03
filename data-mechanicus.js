@@ -1065,6 +1065,7 @@ const KW = {
   "Archaeopter Fusilave",
   "Archaeopter Stratoraptor",
   "Archaeopter Transvector",
+  "Cybernetica Datasmith",
   "Ironstrider Ballistarii",
   "Kastelan Robots",
   "Onager Dunecrawler",
@@ -1074,7 +1075,10 @@ const KW = {
   "Sydonian Dragoons with taser lances",
   "Terrax-Pattern Termite"
  ],
- "monster": [],
+ "monster": [
+  "Belisarius Cawl",
+  "Thulia Ghuld"
+ ],
  "battleline": [
   "Skitarii Rangers",
   "Skitarii Vanguard"
@@ -1096,16 +1100,24 @@ const KW = {
   "Secutarii Peltasts",
   "Servitor Battleclade",
   "Sicarian Infiltrators",
-  "Sicarian Ruststalkers"
+  "Sicarian Ruststalkers",
+  "Skitarii Marshal",
+  "Skitarii Rangers",
+  "Skitarii Vanguard",
+  "Sydonian Skatros",
+  "Tech-Priest Enginseer",
+  "Technoarcheologist"
  ],
  "character": [
+  "Belisarius Cawl",
   "Cybernetica Datasmith",
   "Skitarii Marshal",
   "Sydonian Skatros",
   "Tech-Priest Dominus",
   "Tech-Priest Enginseer",
   "Tech-Priest Manipulus",
-  "Technoarcheologist"
+  "Technoarcheologist",
+  "Thulia Ghuld"
  ]
 };
 
@@ -1249,6 +1261,42 @@ const APTIS_COND = {
    "nom": "Vengeance pour l'Omnimessie",
    "quand": "Un VÉHICULE ami a été détruit à 12\" (hache A 3 → 6)",
    "texte": "If a friendly Adeptus Mechanicus Vehicle model is destroyed within 12\" of this model, this model’s Omnissian axe has an Attacks characteristic of 6."
+  }
+ ],
+ "Skitarii Rangers": [
+  {
+   "port": "T",
+   "mot": "ignorescover",
+   "nom": "Omnispex",
+   "quand": "Une figurine de l'unité porte un omnispex",
+   "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+  }
+ ],
+ "Skitarii Vanguard": [
+  {
+   "port": "T",
+   "mot": "ignorescover",
+   "nom": "Omnispex",
+   "quand": "Une figurine de l'unité porte un omnispex",
+   "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+  }
+ ],
+ "Secutarii Hoplites": [
+  {
+   "port": "T",
+   "mot": "ignorescover",
+   "nom": "Omnispex",
+   "quand": "Une figurine de l'unité porte un omnispex",
+   "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
+  }
+ ],
+ "Secutarii Peltasts": [
+  {
+   "port": "T",
+   "mot": "ignorescover",
+   "nom": "Omnispex",
+   "quand": "Une figurine de l'unité porte un omnispex",
+   "texte": "Ranged weapons equipped by models in the bearer's unit have the IGNORES COVER ability."
   }
  ]
 };

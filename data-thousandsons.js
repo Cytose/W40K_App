@@ -966,6 +966,7 @@ const KW = {
  "monster": [
   "Daemon Prince of Tzeentch",
   "Daemon Prince of Tzeentch with wings",
+  "Kairos Fateweaver",
   "Lord of Change",
   "Mutalith Vortex Beast"
  ],
@@ -980,14 +981,27 @@ const KW = {
   "Magnus the Red"
  ],
  "infantry": [
+  "Ahriman",
+  "Blue Horrors",
+  "Exalted Sorcerer",
+  "Exalted Sorcerer on Disc of Tzeentch",
   "Flamers",
+  "Infernal Master",
+  "Pink Horrors",
+  "Rubric Marines",
   "Scarab Occult Terminators",
+  "Sorcerer",
+  "Tzaangor Shaman",
   "Tzaangors"
  ],
  "character": [
+  "Ahriman",
+  "Daemon Prince of Tzeentch",
   "Exalted Sorcerer",
   "Exalted Sorcerer on Disc of Tzeentch",
   "Infernal Master",
+  "Kairos Fateweaver",
+  "Lord of Change",
   "Sorcerer",
   "Sorcerer in Terminator Armour",
   "Tzaangor Shaman"
@@ -1440,6 +1454,25 @@ const ARMEMENT = {
  "Tzaangor Enlightened" : {"f": [], "s": [{"min": 1, "o": [[2], [0, 1]], "nb": 1, "qui": "Aviarch"}, {"min": 1, "o": [[2], [0, 1]], "qui": "Figurines", "onom": ["Divining spear Enlightened", "Pistol and chainsword Enlightened"], "nb": -1}]},
  "Tzaangor Enlightened with Fatecaster greatbows" : {"f": [0, 1], "s": []},
  "Tzaangors" : {"f": [], "s": [{"min": 1, "o": [[2], [1, 0]], "nb": 1, "qui": "Twistbray"}, {"min": 1, "o": [[2], [1, 0]], "qui": "Figurines", "onom": ["Tzaangor w/ Tzaangor blades", "Tzaangor w/ pistol and chainsword"], "nb": -1}]}
+};
+const RETINUE = {};
+const ENH_ANCIENS = {};
+const GRPN = {};
+const MOMENTS = {};
+const MOMENTS_ARMEE = [];
+const COMPO = {};
+const ROLES_UNITE = {};
+const OCTROIS_DETACH = {
+ "Hexwarp Thrallband": [
+  {
+   "psy": true,
+   "champ": "rrW",
+   "val": "ones",
+   "kw": [],
+   "nom": "Flux de Magie",
+   "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
+  }
+ ]
 };
 
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */

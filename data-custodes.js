@@ -1047,25 +1047,37 @@ const KW = {
   "Valerian"
  ],
  "infantry": [
+  "Aleya",
   "Allarus Custodians",
   "Aquilon Terminators with Solarite Power Gauntlets",
   "Aquilon Terminators with Solarite Power Talons",
+  "Blade Champion",
+  "Custodian Guard Sodality",
   "Custodian Guard Sodality with Adrasite Spears",
   "Custodian Guard Sodality with Pyrithite Spears",
   "Custodian Wardens",
+  "Knight-Centura",
   "Prosecutor Squad",
   "Sagittarum Custodians Sodality",
+  "Sentinel Guard Sodality",
+  "Shield-Captain",
+  "Shield-Captain in Allarus Terminator Armour",
+  "Trajann Valoris",
+  "Valerian",
   "Venatari with Kinetic Destroyers",
   "Venatari with Verutum Lances",
   "Vigilator Squad",
   "Witchseeker Squad"
  ],
  "character": [
+  "Aleya",
   "Blade Champion",
   "Knight-Centura",
   "Shield-Captain",
   "Shield-Captain in Allarus Terminator Armour",
-  "Shield-Captain on Dawneagle Jetbike"
+  "Shield-Captain on Dawneagle Jetbike",
+  "Trajann Valoris",
+  "Valerian"
  ]
 };
 
@@ -1210,6 +1222,60 @@ const APTIS_COND = {
    "nom": "Entrave Temporelle",
    "quand": "Déclenchée ce tour — une fois par bataille",
    "texte": "(Once per battle, per army) This model’s Watcher’s Axe weapon has +3 A until the end of the phase."
+  }
+ ],
+ "Aleya": [
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "nom": "Esprit Tenace — entamée",
+   "quand": "L'unité est sous son effectif de départ",
+   "texte": "While this unit is below starting strength, this unit's attacks have +1 to hit rolls."
+  },
+  {
+   "champ": "hitMod",
+   "val": 1,
+   "aussi": [
+    {
+     "champ": "wndMod",
+     "val": 1
+    }
+   ],
+   "nom": "Esprit Tenace — moitié",
+   "quand": "L'unité est sous la moitié de son effectif (+1 touche et +1 blessure)",
+   "texte": "While this unit is below half-strength, this unit's attacks have +1 to wound rolls."
+  }
+ ],
+ "Custodian Guard Sodality with Adrasite Spears": [
+  {
+   "champ": "rrW",
+   "val": "failed",
+   "nom": "Veille Inébranlable — objectif",
+   "quand": "L'unité est à portée d'un objectif (relance toutes les blessures au lieu des 1)",
+   "texte": "Or: If this unit is within range of an objective, re-roll wound rolls"
+  }
+ ],
+ "Sagittarum Custodians Sodality": [
+  {
+   "port": "T",
+   "mot": "dev",
+   "nom": "Rayons Désintégrateurs",
+   "quand": "Une fois par bataille, à la phase de Tir",
+   "texte": "(Once per battle, per unit) In your Shooting phase, you can use this ability. If you do, this unit's ranged attacks have [DEVASTATING WOUNDS]."
+  }
+ ],
+ "Custodian Guard Sodality with Pyrithite Spears": [
+  {
+   "port": "T",
+   "mot": "lethal",
+   "aussi": [
+    {
+     "mot": "ignorescover"
+    }
+   ],
+   "nom": "Nul Ennemi ne Tiendra",
+   "quand": "Une fois par bataille ([TOUCHES LÉTALES] et [IGNORE LE COUVERT])",
+   "texte": "(Once per battle, per unit) This unit's ranged attacks have [LETHAL HITS] and [IGNORES COVER]."
   }
  ]
 };
@@ -1686,7 +1752,16 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {};
+const APTIS_UNITE = {
+ "Custodian Guard Sodality with Adrasite Spears": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Veille Inébranlable",
+   "texte": "This unit's attacks can: - Re-roll wound rolls of 1."
+  }
+ ]
+};
 const AURAS_PERSO = {};
 
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */

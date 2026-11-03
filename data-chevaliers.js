@@ -819,7 +819,24 @@ const KW = {
   "Acastus Knight Porphyrion",
   "Armiger Helverin",
   "Armiger Moirax",
-  "Armiger Warglaive"
+  "Armiger Warglaive",
+  "Canis Rex",
+  "Cerastus Knight Acheron",
+  "Cerastus Knight Atrapos",
+  "Cerastus Knight Castigator",
+  "Cerastus Knight Lancer",
+  "Knight Castellan",
+  "Knight Crusader",
+  "Knight Defender",
+  "Knight Destrier",
+  "Knight Errant",
+  "Knight Gallant",
+  "Knight Paladin",
+  "Knight Preceptor",
+  "Knight Valiant",
+  "Knight Warden",
+  "Questoris Knight Magaera",
+  "Questoris Knight Styrix"
  ],
  "monster": [],
  "battleline": [],
@@ -828,6 +845,7 @@ const KW = {
  ],
  "infantry": [],
  "character": [
+  "Canis Rex",
   "Cerastus Knight Acheron",
   "Cerastus Knight Atrapos",
   "Cerastus Knight Castigator",
@@ -1046,6 +1064,19 @@ const APTIS_CIBLE = {
    "val": 1,
    "nom": "Protocoles de Macro-Extinction",
    "texte": "Each time this model makes an attack that targets a MONSTER or VEHICLE unit, add 1 to the Hit roll."
+  }
+ ],
+ "Knight Castellan": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Chasseur de Titans",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ]
 };

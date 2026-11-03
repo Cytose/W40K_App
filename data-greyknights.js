@@ -909,7 +909,8 @@ const KW = {
   "Rhino",
   "Stormhawk Interceptor",
   "Stormraven Gunship",
-  "Stormtalon Gunship"
+  "Stormtalon Gunship",
+  "Venerable Dreadnought"
  ],
  "monster": [],
  "battleline": [
@@ -923,11 +924,21 @@ const KW = {
   "Kaldor Draigo"
  ],
  "infantry": [
+  "Brotherhood Champion",
+  "Brotherhood Chaplain",
+  "Brotherhood Librarian",
+  "Brotherhood Techmarine",
+  "Brotherhood Terminator Squad",
+  "Castellan Crowe",
+  "Grand Master",
+  "Grand Master Voldus",
   "Interceptor Squad",
+  "Kaldor Draigo",
   "Paladin Squad",
   "Purgation Squad",
   "Purifier Squad",
-  "Servitors"
+  "Servitors",
+  "Strike Squad"
  ],
  "character": [
   "Brother-Captain",
@@ -935,8 +946,11 @@ const KW = {
   "Brotherhood Chaplain",
   "Brotherhood Librarian",
   "Brotherhood Techmarine",
+  "Castellan Crowe",
   "Grand Master",
+  "Grand Master Voldus",
   "Grand Master in Nemesis Dreadknight",
+  "Kaldor Draigo",
   "Venerable Dreadnought"
  ]
 };
@@ -1241,6 +1255,23 @@ const AURAS_ARMEE = [
   "nom": "Concentration du Feu",
   "quand": "L'unité a débarqué du Razorback ce tour, et la cible a été touchée par lui",
   "texte": "Each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1."
+ },
+ {
+  "source": "Grey Knights Dreadnought",
+  "kw": [
+   "infantry"
+  ],
+  "champ": "rrH",
+  "val": "ones",
+  "aussi": [
+   {
+    "champ": "rrW",
+    "val": "ones"
+   }
+  ],
+  "nom": "Sagesse des Anciens (Aura)",
+  "quand": "L'unité d'INFANTERIE est à 6\" du Dreadnought",
+  "texte": "While a friendly Grey Knights Infantry unit is within 6\" of this model, each time a model in that unit makes an attack, re-roll a Hit roll of 1 and re-roll a Wound roll of 1."
  }
 ];
 const OCTROIS_DETACH = {

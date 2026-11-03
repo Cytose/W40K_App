@@ -863,21 +863,34 @@ const KW = {
   "Ûthar the Destined"
  ],
  "infantry": [
+  "Arkanyst Evaluator",
+  "Berehk Stornbröw",
+  "Brôkhyr Iron-master",
   "Brôkhyr Thunderkyn",
+  "Buri Aegnirssen",
   "Cthonian Beserks",
   "Cthonian Earthshakers",
+  "Einhyr Champion",
   "Einhyr Hearthguard",
+  "Grimnyr",
+  "Hearthkyn Warriors",
   "Hernkyn Yaegirs",
   "Ironkin Steeljacks with Heavy Volkanite Disintegrators",
-  "Ironkin Steeljacks with Melee Weapons"
+  "Ironkin Steeljacks with Melee Weapons",
+  "Kâhl",
+  "Memnyr Strategist",
+  "Ûthar the Destined"
  ],
  "character": [
   "Arkanyst Evaluator",
+  "Berehk Stornbröw",
   "Brôkhyr Iron-master",
+  "Buri Aegnirssen",
   "Einhyr Champion",
   "Grimnyr",
   "Kâhl",
-  "Memnyr Strategist"
+  "Memnyr Strategist",
+  "Ûthar the Destined"
  ]
 };
 
@@ -957,6 +970,14 @@ const APTIS_UNITE = {
    "nom": "Obus de Saturation",
    "texte": "This unit’s ranged attacks have [IGNORES COVER]."
   }
+ ],
+ "Berehk Stornbröw": [
+  {
+   "port": "C",
+   "mot": "sust",
+   "nom": "Briser l'Ennemi",
+   "texte": "Melee weapons equipped by models in this unit have the [Sustained Hits 1] ability."
+  }
  ]
 };
 const APTIS_COND = {
@@ -1010,6 +1031,15 @@ const APTIS_COND = {
    "nom": "Scanner Pan-spectral",
    "quand": "Le véhicule porte le scanner pan-spectral",
    "texte": "Each time a model in the bearer's unit makes a ranged attack, re-roll a Hit roll of 1."
+  }
+ ],
+ "Arkanyst Evaluator": [
+  {
+   "port": "T",
+   "mot": "sust",
+   "nom": "Transmutation des Ressources",
+   "quand": "1 YP dépensé à cette phase de Tir",
+   "texte": "Ranged weapons equipped by that model have the [Sustained Hits 1] ability."
   }
  ]
 };
@@ -1117,6 +1147,17 @@ const AURAS_ARMEE = [
   "nom": "Avatars des Ancêtres",
   "quand": "La cible est à 9\" ou moins",
   "texte": "Friendly KÂHL/EINHYR CHAMPION/EINHYR HEARTHGUARD/ÛTHAR THE DESTINED units’ ranged attacks that target a unit within 9\" can re-roll wound rolls of 1."
+ },
+ {
+  "source": "Kapricus Carrier",
+  "kw": [
+   "infantry"
+  ],
+  "port": "T",
+  "mot": "sust",
+  "nom": "Base de Feu (Aura)",
+  "quand": "L'unité d'INFANTERIE est entièrement à 6\" du Kapricus Carrier",
+  "texte": "While a friendly Leagues of Votann Infantry unit is wholly within 6\" of this Transport, ranged weapons equipped by models in that Infantry unit have the [sustained hits 1] ability."
  }
 ];
 const STRAT_SIMU = [

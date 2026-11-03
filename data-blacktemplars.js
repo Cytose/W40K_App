@@ -2007,7 +2007,9 @@ const KW = {
   "Gladiator Lancer",
   "Gladiator Reaper",
   "Gladiator Valiant",
+  "Hammerfall Bunker",
   "Impulsor",
+  "Invader ATVs",
   "Invictor Tactical Warsuit",
   "Land Raider",
   "Land Raider Crusader",
@@ -2047,23 +2049,44 @@ const KW = {
  ],
  "infantry": [
   "Aggressor Squad",
+  "Ancient",
+  "Apothecary",
+  "Apothecary Biologis",
+  "Assault Intercessor Squad",
   "Assault Intercessors with Jump Packs",
+  "Bladeguard Ancient",
   "Bladeguard Veteran Squad",
+  "Captain",
+  "Castellan",
   "Centurion Assault Squad",
   "Centurion Devastator Squad",
+  "Chaplain",
+  "Chaplain Grimaldus",
+  "Company Heroes",
+  "Crusade Ancient",
+  "Crusader Squad",
   "Desolation Squad",
   "Eliminator Squad",
   "Eradicator Squad with Heavy Bolters",
   "Eradicator Squad with Melta Rifles",
+  "Execrator",
+  "Heavy Intercessor Squad",
   "Hellblaster Squad",
+  "High Marshal Helbrecht",
   "Inceptor Squad",
   "Incursor Squad",
   "Infernus Squad",
   "Infiltrator Squad",
+  "Intercessor Squad",
+  "Judiciar",
+  "Lieutenant",
+  "Lieutenant with Combi-weapon",
+  "Marshal",
   "Reiver Squad",
   "Scout Squad",
   "Sternguard Veteran Squad",
   "Sword Brethren Squad",
+  "Techmarine",
   "Terminator Assault Squad",
   "Terminator Squad",
   "Vanguard Veteran Squad",
@@ -2083,6 +2106,7 @@ const KW = {
   "Captain with Jump Pack",
   "Castellan",
   "Chaplain",
+  "Chaplain Grimaldus",
   "Chaplain in Terminator Armour",
   "Chaplain on Bike",
   "Chaplain with Jump Pack",
@@ -2090,12 +2114,14 @@ const KW = {
   "Crusade Ancient",
   "Emperor's Champion",
   "Execrator",
+  "High Marshal Helbrecht",
   "Judiciar",
   "Lieutenant",
   "Lieutenant in Phobos Armour",
   "Lieutenant with Combi-weapon",
   "Marshal",
-  "Techmarine"
+  "Techmarine",
+  "Venerable Dreadnought"
  ],
  "gravis": [
   "Aggressor Squad",
@@ -2702,6 +2728,19 @@ const APTIS_CIBLE = {
     "mon",
     "veh"
    ]
+  }
+ ],
+ "Predator Annihilator": [
+  {
+   "port": "T",
+   "champ": "rrD",
+   "val": "tous",
+   "vs": [
+    "mon",
+    "veh"
+   ],
+   "nom": "Annihilateur",
+   "texte": "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll."
   }
  ]
 };
