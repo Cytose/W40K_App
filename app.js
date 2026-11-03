@@ -1055,10 +1055,15 @@ function pastilles(q, brut){
      chiffre final, la pastille dit qu'il a bouge */
   if(brut.str !== undefined && q.str !== brut.str)
     out.push({t:"F " + (q.str > brut.str ? "+" : "−") + Math.abs(q.str - brut.str), cl:"m", d:""});
-  if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:""});
-  if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:""});
+  /* la Force que la fiche n'avait pas : une amelioration, une aura.
+     La ligne montre deja le chiffre final, la pastille dit qui l'a donne */
+  if(brut.strFiche !== undefined && brut.str !== brut.strFiche)
+    out.push({t:"F " + (brut.str > brut.strFiche ? "+" : "−") + Math.abs(brut.str - brut.strFiche),
+              cl:"m", d:dit("strMod")});
+  if(q.apMod) out.push({t:"PA " + (q.apMod > 0 ? "+" : "−") + Math.abs(q.apMod), cl:"m", d:dit("apMod")});
+  if(q.dmgMod) out.push({t:"Dégâts " + (q.dmgMod > 0 ? "+" : "−") + Math.abs(q.dmgMod), cl:"m", d:dit("dmgMod")});
   if(q.strMod) out.push({t:"Force " + (q.strMod > 0 ? "+" : "−") + Math.abs(q.strMod), cl:"m", d:""});
-  if(q.atkMod) out.push({t:"A " + (q.atkMod > 0 ? "+" : "−") + Math.abs(q.atkMod), cl:"m", d:""});
+  if(q.atkMod) out.push({t:"A " + (q.atkMod > 0 ? "+" : "−") + Math.abs(q.atkMod), cl:"m", d:dit("atkMod")});
   return out;
 }
 
@@ -1077,6 +1082,13 @@ function rechargeUnite(){
   else { renderAtkUnite(); render(); }
 }
 
+/* la caracteristique telle que le moteur la jouera : « 8 » et +1 font
+   « 9 », « D6 » et +1 font « D6+1 » */
+function avecMod(v, m){
+  if(!m) return v;
+  if(/^\d+$/.test(String(v))) return String(Math.max(0, +v + m));
+  return v + (m > 0 ? "+" : "−") + Math.abs(m);
+}
 function renderAtkUnite(){
   const nom = el("ruName"), sub = el("ruSub"), host = el("atkProfils");
   if(!nom || !host) return;
@@ -1088,8 +1100,13 @@ function renderAtkUnite(){
   }
   nom.textContent = atkUnit.nom;
   sub.textContent = atkUnit.unite + " ×" + atkUnit.taille +
-    (atkUnit.persos.length ? "  ·  " + atkUnit.persos.join(", ") : "");
+    (atkUnit.persos.length ? "  ·  " + atkUnit.persos.join(", ") : "") +
+    (atkUnit.enh ? "  ·  " + atkUnit.enh.nom : "");
   host.innerHTML = "";
+  /* l'amelioration portee : ce qu'elle change aux armes, et son texte.
+     Le Memento Moritoi d'un Contemptor-Galatus ne se voyait nulle part
+     dans le simulateur ; ses +1 A, F et D n'etaient pas comptes. */
+  if(atkUnit.enh) host.appendChild(blocEnh(atkUnit.enh, atkUnit.unite));
   if(!atkUnit.profils.length){
     host.innerHTML = '<p class="hint">Cette unité n\'a aucune arme ' +
       (atkPhase === "C" ? "de mêlée" : "de tir") + '.</p>';
@@ -1120,9 +1137,9 @@ function renderAtkUnite(){
     const past = pastilles(q, p);
     row.innerHTML = '<span class="pbox">' + (actif ? "✓" : "") + '</span>' +
       '<span class="pmain"><b>' + p.label + '</b>' +
-      '<i>A ' + q.attacks + ' · ' + (p.kind === "C" ? "CC" : "CT") + ' ' + q.bs + '+' +
-      ' · F ' + q.str + ' · PA ' + (ENG.apEffectif(q) ? "-" + ENG.apEffectif(q) : "0") +
-      ' · D ' + q.dmg + '</i>' +
+      '<i>A ' + avecMod(q.attacks, q.atkMod) + ' · ' + (p.kind === "C" ? "CC" : "CT") + ' ' + q.bs + '+' +
+      ' · F ' + ENG.force(q) + ' · PA ' + (ENG.apEffectif(q) ? "-" + ENG.apEffectif(q) : "0") +
+      ' · D ' + avecMod(q.dmg, q.dmgMod) + '</i>' +
       (past.length ? '<span class="pkw">' + past.map(x =>
         '<span class="pk-' + x.cl + '"' + (x.d ? ' title="' + x.d.replace(/"/g, "&quot;") + '"' : '') +
         '>' + x.t + (x.d ? '<em>' + x.d + '</em>' : '') + '</span>').join("") + '</span>' : '') +
@@ -1132,6 +1149,21 @@ function renderAtkUnite(){
     });
     host.appendChild(row);
   });
+}
+
+/* « Amélioration : X — portée par Y », ce qui s'applique d'office,
+   ce qui se declare, et le texte complet sous un depli */
+function blocEnh(en, unite){
+  const d = document.createElement("div");
+  d.className = "enhbox";
+  const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  d.innerHTML = '<b>Amélioration · ' + esc(en.nom) + '</b>' +
+    (en.porteur !== unite ? '<span class="enhp">portée par ' + esc(en.porteur) + '</span>' : '') +
+    (en.auto.length ? '<p><em>Compté d\'office :</em> ' + en.auto.map(esc).join(" · ") + '</p>' : '') +
+    (en.cond.length ? '<p><em>À déclarer dans les aptitudes, plus bas :</em> ' + en.cond.map(esc).join(" · ") + '</p>' : '') +
+    (!en.auto.length && !en.cond.length ? '<p>Rien qui change les armes : son effet se joue ailleurs dans la partie.</p>' : '') +
+    '<details><summary>Texte de l\'amélioration</summary><p>' + esc(en.texte) + '</p></details>';
+  return d;
 }
 
 /* le choix de l'unite a charger */

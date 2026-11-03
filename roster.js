@@ -619,6 +619,21 @@ function conditionsDe(ru, ph, ficheSeule){
     out.push(Object.assign({ id: "aura|" + auraCle(a) + "|" + i, sur: "" }, cond));
   });
 
+  /* ce que l'amelioration ne fait que sous condition — « une fois par
+     bataille », « contre un PERSONNAGE » : a declarer, comme le reste.
+     Plusieurs effets d'une meme phrase forment une seule pastille. */
+  const en = ficheSeule ? null : enhDe(ru);
+  if(en) en.cond.forEach((c, i)=>{
+    const eff = c.effets.filter(o => !o.port || o.port === port);
+    if(!eff.length) return;
+    const sur = eff.every(o => o.qui === "figurine") ? en.porteur : "";
+    const [o0, ...autres] = eff;
+    out.push({ id: "enh|" + en.complet + "|" + i, sur: sur, nom: en.nom + " (amélioration)",
+               quand: c.quand, texte: en.texte, arme: o0.arme, psy: o0.psy, siMot: o0.siMot,
+               champ: o0.champ, mot: o0.mot, val: o0.val,
+               aussi: autres.length ? autres.map(o => o.mot ? {mot:o.mot} : {champ:o.champ, val:o.val}) : undefined });
+  });
+
   /* le malus des figurines abimees : un etat de partie, jamais un
      automatisme — l'application ignore combien il reste de PV */
   const ab = (typeof ABIMEES !== "undefined") ? ABIMEES : {};
@@ -713,6 +728,10 @@ window.ROSTER = {
      arme du catalogue mesuree seule ne connait que sa fiche. Avant ce
      crochet, la Defense Impenetrable des Gardes Custodiens — leurs
      Touches Soutenues — n'existait qu'en mode unite. */
+  /* crochet de verification : ce que le simulateur lit d'un texte
+     d'amelioration (test-ameliorations.mjs) */
+  lisEnh: t => lisEnh(t),
+  oublieEnh: () => Object.keys(ENH_LUES).forEach(k => delete ENH_LUES[k]),
   aptisArme: function(nom, idx){
     const w = unitWeps(nom)[idx];
     if(!w) return { auto: [], conditions: [] };
@@ -735,7 +754,8 @@ window.ROSTER = {
       id: ru.id, nom: nomRepere(ru), unite: ru.name, taille: ru.size,
       persos: ru.chars.map(c => c.name), armes: armementCourt(ru),
       profils: profilsPhase(ru, ph).map(p => Object.assign({}, p)),
-      conditions: conditionsDe(ru, ph)
+      conditions: conditionsDe(ru, ph),
+      enh: enhResume(ru)
     };
   },
   /* Les stratagemes de mes detachements qui touchent la sequence
@@ -1317,6 +1337,213 @@ function porteurRetenu(ru){
   return ok.indexOf(ru.enhP || "") >= 0 ? (ru.enhP || "") : ok[0];
 }
 const nomPorteur = (ru, p) => (p === "" || p === undefined || p === null) ? ru.name : p;
+
+/* ==========================================================
+   CE QU'UNE AMELIORATION FAIT AUX ARMES
+
+   Le Memento Moritoi donne +1 A, F et D aux attaques de melee du
+   Contemptor-Galatus qui le porte : le simulateur chargeait le
+   Dreadnought, et sa lame restait celle de la fiche. Aucune table ne
+   dit ce qu'une amelioration fait au calcul — 973 ameliorations, 29
+   factions — mais leur texte suit quelques tournures fixes (« This
+   model's melee attacks have +1 A, S and D », « Add 1 to the Damage
+   characteristic of melee weapons equipped by the bearer », « have the
+   [LETHAL HITS] ability »). On les lit donc.
+
+   - Ce qui vaut sans condition s'applique d'office, comme l'aptitude
+     de la fiche (`auto`).
+   - Ce qui depend d'un etat de partie (« while », « if », « once per
+     battle », « that targets ») devient une condition a declarer, avec
+     les autres aptitudes de l'unite (`cond`).
+   - Le reste (portee, mouvement, defense, auras sur d'autres unites)
+     n'est pas lu : le texte s'affiche quand meme sur l'unite chargee.
+   ========================================================== */
+const ENH_CARAC = { a:"atkMod", attacks:"atkMod", s:"strMod", strength:"strMod",
+  d:"dmgMod", damage:"dmgMod", ap:"apMod", "armour penetration":"apMod",
+  bs:"bsMod", ws:"bsMod", "ballistic skill":"bsMod", "weapon skill":"bsMod" };
+const ENH_ANTI = { infantry:"inf", vehicle:"veh", monster:"mon", mounted:"monte",
+  character:"perso", fly:"vol", psyker:"psyker", chaos:"chaos", daemon:"demon",
+  imperium:"imperium", titanic:"titan", swarm:"nuee", beast:"bete",
+  fortification:"fort", walker:"marcheur" };
+const ENH_MOT = { "lethal hits":"lethal", "devastating wounds":"dev",
+  "ignores cover":"ignorescover", "precision":"precision", "assault":"assault",
+  "lance":"lance", "heavy":"heavy" };
+/* Le fichier necron est ecrit en francais : ses tournures sont ramenees
+   a l'anglais des exports avant lecture. */
+const ENH_FR = [
+  [/\bseulement\./g, "only."],
+  [/les attaques de tir de cette unité/g, "this unit's ranged attacks"],
+  [/les attaques de mêlée de cette unité/g, "this unit's melee attacks"],
+  [/les armes de tir/g, "ranged weapons"], [/les armes de mêlée/g, "melee weapons"],
+  [/dont sont équipées les figurines de l'unité du porteur/g, "equipped by models in the bearer's unit"],
+  [/dont est équipé le porteur/g, "equipped by the bearer"],
+  [/à chaque attaque d'une figurine de l'unité du porteur/g, "each time a model in the bearer's unit makes an attack"],
+  [/ajoutez (\d) au jet de touche/g, "add $1 to the hit roll"],
+  [/ajoutez (\d) au jet de blessure/g, "add $1 to the wound roll"],
+  [/ont l'aptitude/g, "have the"], [/\bont\b/g, "have"],
+  [/\[assaut\]/g, "[assault]"], [/\[ignore le couvert\]/g, "[ignores cover]"],
+  [/\[touches létales\]/g, "[lethal hits]"], [/\[blessures dévastatrices\]/g, "[devastating wounds]"],
+  [/\[touches soutenues (\d)\]/g, "[sustained hits $1]"], [/\[précision\]/g, "[precision]"],
+  [/\b(quand|tant qu|choisissez|jusqu|une fois par)\b/g, "while"], [/(^|\s)si /g, "$1if "]
+];
+const COND_ENH = /\b(while|if|until|once per|when|select|at the start|in your|after|within|wholly|instead|you can|can use|expended|that targets?|targeting|on your)\b/;
+function lisEnh(texte){
+  const res = { auto: [], cond: [] };
+  const brut = String(texte || "").replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim();
+  /* une phrase, ou une puce : « ▪ », « - » en tete de ligne */
+  const phrases = brut.split(/(?<=[.!])\s+(?=[A-Z▪(-])|\s*▪\s*|\s+-\s+(?=[A-Z+\[])/)
+                      .map(s => s.trim()).filter(Boolean);
+  /* « Or: » : un choix entre deux effets, que le joueur fait en partie */
+  const choix = /\bor:/i.test(brut);
+  let entete = false, sujet = "";
+  phrases.forEach(ph=>{
+    let l = ENH_FR.reduce((t, [a, b]) => t.replace(a, b), ph.toLowerCase());
+    /* une liste a puces sous « This unit's attacks can: » ou « While … : »
+       herite du sujet et de la condition de son en-tete */
+    if(/:$/.test(l)){ entete = COND_ENH.test(l); sujet = l; return; }
+    if(sujet) l = sujet + " " + l;
+    if(/\bonly\.?$/.test(l) && !/\b(have|has)\b/.test(l)) return;
+    /* ce qui protege ou gene l'ennemi n'est pas une attaque de l'unite */
+    if(/\b(subtract|worsen)\b|targets? (the bearer|this (unit|model))|friendly|enemy unit within|\(aura\)|those armiger|selected model|that transport|mortal wound/.test(l)) return;
+    /* de qui parle la phrase ? */
+    const fig = /\b(this model|the bearer(?!'s unit)|bearer's (?!unit)|its (melee|ranged)? ?weapons)/.test(l);
+    const unite = /\b(this unit|bearer's unit|models in (this|the bearer's|that) unit|that unit)/.test(l);
+    const armes = /\b(attacks?|weapons?|hit roll|wound roll|\[)/.test(l);
+    if(!armes || (!fig && !unite && !/^(add|improve|melee weapons|ranged weapons|weapons|those weapons)/.test(l))) return;
+    const eff = [];
+    const pose = o => eff.push(o);
+    /* « +1 A, S and D », « +1A, S, AP and D », « +2 S » */
+    l.replace(/\+(\d+) ?((?:(?<![a-z])(?:a|s|d|ap|bs|ws|t|sv)\b(?:\s*(?:,|and)\s*)?)+)/g, (m, n, st)=>{
+      st.split(/\s*(?:,|and)\s*/).forEach(c => { if(ENH_CARAC[c.trim()]) pose({champ:ENH_CARAC[c.trim()], val:+n}); });
+    });
+    /* « Add 1 to the Damage characteristic of … », « Improve the Attacks and AP characteristics of … by 1 » */
+    l.replace(/add (\d+) to the ([a-z ,]+?) characteristics? of/g, (m, n, st)=>{
+      st.split(/\s*(?:,|\band\b)\s*/).forEach(c => { if(ENH_CARAC[c.trim()]) pose({champ:ENH_CARAC[c.trim()], val:+n}); });
+    });
+    /* « Add 3 to the Strength and add 1 to the Attacks characteristics » */
+    l.replace(/add (\d+) to the ([a-z ]+?) and (?=add \d)/g, (m, n, c)=>{
+      if(ENH_CARAC[c.trim()]) pose({champ:ENH_CARAC[c.trim()], val:+n});
+    });
+    l.replace(/improve the ([a-z ,]+?) characteristics? of .*?\bby (\d+)/g, (m, st, n)=>{
+      st.split(/\s*(?:,|\band\b)\s*/).forEach(c => { if(ENH_CARAC[c.trim()]) pose({champ:ENH_CARAC[c.trim()], val:+n}); });
+    });
+    /* les jets */
+    l.replace(/add (\d) to the (hit|wound) roll|\+(\d) to (hit|wound) rolls?( and (hit|wound) rolls?)?/g, (m, a, b, c, d, e, f)=>{
+      pose({champ:(b || d) === "hit" ? "hitMod" : "wndMod", val:+(a || c)});
+      if(f && f !== d) pose({champ:f === "hit" ? "hitMod" : "wndMod", val:+c});
+    });
+    l.replace(/re-roll (one|a single|an?|the)? ?(hit|wound) rolls?( of 1)?/g, (m, un, r, uns)=>{
+      const v = (un === "one" || un === "a single") ? "un" : (uns ? "ones" : "failed");
+      pose({champ:r === "hit" ? "rrH" : "rrW", val:v});
+    });
+    l.replace(/(critical hit) on (?:a )?(\d)\+|hit roll of (\d)\+ scores a critical hit/g, (m, a, b, c)=>{
+      pose({champ:"critH", val:+(b || c)});
+    });
+    /* les mots-cles entre crochets */
+    let condMot = false;
+    l.replace(/\[([^\]]+)\]/g, (m, k)=>{
+      k = k.trim();
+      if(/:/.test(k)) { condMot = true; k = k.split(":")[0].trim(); }
+      let x;
+      if(ENH_MOT[k]) pose({mot:ENH_MOT[k]});
+      else if((x = k.match(/^sustained hits (\d)$/))) pose({mot: x[1] === "1" ? "sust" : "sust:" + x[1]});
+      else if((x = k.match(/^anti-([a-z]+) (\d)\+$/)) && ENH_ANTI[x[1]]) pose({champ:"anti", val:x[2] + ":" + ENH_ANTI[x[1]]});
+    });
+    if(!eff.length) return;
+    /* « on a Critical Wound, improve the AP » : de la PA sur blessure critique */
+    if(/on a critical wound/.test(l)) eff.forEach(o => { if(o.champ === "apMod") o.champ = "apCrit"; });
+    if(/\bpistols?\b/.test(l)) eff.forEach(o => o.siMot = "pistol");
+    if(/\(excluding \[psychic\]/.test(l)) eff.forEach(o => o.horsPsy = true);
+    else if(/psychic (weapons?|attacks?)|\bpsychic\b.*weapon/.test(l) && !/\[psychic\]/.test(l)) eff.forEach(o => o.psy = true);
+    const melee = /\bmelee\b/.test(l), tir = /\branged\b|shoot/.test(l);
+    const port = melee && !tir ? "C" : (tir && !melee ? "T" : "");
+    /* une arme nommee : « the bearer's Eldritch Storm weapon », « this model's exitus rifle has » */
+    const an = l.match(/(?:bearer's|model's|with its) ([a-z][a-z' -]+?) (?:weapon )?(?:has|have|that)\b/);
+    const arme = an && !/\b(unit|makes?|model|attacks?)\b/.test(an[1]) && !/^(melee|ranged|weapons?|attacks?|melee weapons|ranged weapons|melee attacks|ranged attacks|psychic weapons?|unit)$/.test(an[1]) ? an[1] : "";
+    const qui = unite && !/\b(this model|the bearer(?!'s unit)|bearer's (?!unit))/.test(l.replace(/models in (this|the bearer's|that) unit/g, "")) ? "unite" : (fig ? "figurine" : "unite");
+    /* tout ce qui depend d'un etat de partie se declare */
+    const cond = choix || entete || condMot || COND_ENH.test(l);
+    eff.forEach(o => { o.port = port; o.qui = qui; if(arme) o.arme = arme; });
+    if(cond) res.cond.push({ quand: ph, effets: eff });
+    else res.auto.push(...eff);
+  });
+  return res;
+}
+const ENH_LUES = {};
+const lisEnhMemo = t => (ENH_LUES[t] = ENH_LUES[t] || lisEnh(t));
+
+/* L'amelioration d'une unite de la liste, son porteur et ce qu'elle
+   fait. Un effet « this model » pose sur une escouade entiere — une
+   seule de ses figurines le porte — ne peut pas s'appliquer a toutes
+   ses armes : il passe a declarer, pour que le joueur l'active en
+   sachant ce qu'il fait. */
+function enhDe(ru){
+  const e = ru && ru.enh && enhRow(ru.enh);
+  if(!e) return null;
+  const p = porteurRetenu(ru);
+  if(p === null) return null;
+  const porteur = nomPorteur(ru, p);
+  const lu = lisEnhMemo(e[3] || "");
+  const seulSurEscouade = o => o.qui === "figurine" && porteur === ru.name && ru.size > 1;
+  /* une arme nommee dans le texte (« its volcano cannon ») : on la
+     retrouve parmi celles du porteur, sinon l'effet ne vise rien */
+  const armeDe = o => {
+    if(!o.arme) return o;
+    const w = unitWeps(porteur).find(x => x[1].toLowerCase().indexOf(o.arme) >= 0 ||
+                                          o.arme.indexOf(x[1].toLowerCase()) >= 0);
+    return Object.assign({}, o, { arme: w ? w[1] : o.arme });
+  };
+  const auto = lu.auto.filter(o => !seulSurEscouade(o)).map(armeDe);
+  const cond = lu.cond.map(c => ({ quand: c.quand, effets: c.effets.map(armeDe) }));
+  const seules = lu.auto.filter(seulSurEscouade).map(armeDe);
+  if(seules.length) cond.push({ quand: "Une seule figurine de l'escouade porte l'amélioration",
+                                effets: seules });
+  return { nom: nomEnh(ru.enh), complet: ru.enh, porteur: porteur, texte: e[3] || "",
+           auto: auto, cond: cond };
+}
+/* ce que l'ecran du simulateur montre de l'amelioration chargee */
+function enhResume(ru){
+  const en = enhDe(ru);
+  if(!en) return null;
+  return { nom: en.nom, porteur: en.porteur, texte: en.texte,
+           auto: en.auto.map(libelleEffet),
+           cond: en.cond.map(c => c.effets.map(libelleEffet).join(", ")) };
+}
+/* l'effet vaut-il pour cette arme, portee par cette figurine ? */
+function enhVautPour(o, porteurEnh, fig, w){
+  if(o.port && o.port !== w[2]) return false;
+  if(o.qui === "figurine" && fig !== porteurEnh) return false;
+  if(o.arme && o.arme !== w[1]) return false;
+  const f = parseFlags(w[8] || "");
+  if(o.siMot && !f[o.siMot]) return false;
+  if(o.horsPsy && f.psychic) return false;
+  return true;
+}
+/* « +1 A, F, D (corps à corps) » : ce que l'ecran dit d'un effet lu */
+const ENH_LIB = { atkMod:"A", strMod:"F", dmgMod:"D", apMod:"PA", bsMod:"CT/CC",
+  hitMod:"pour toucher", wndMod:"pour blesser" };
+const ENH_MOT_LIB = { lethal:"Touches létales", dev:"Blessures dévastatrices",
+  ignorescover:"Ignore le couvert", precision:"Précision", assault:"Assaut",
+  lance:"Lance", heavy:"Lourd", sust:"Touches soutenues 1" };
+function libelleEffet(o){
+  let t;
+  if(o.mot) t = ENH_MOT_LIB[o.mot] || (/^sust:/.test(o.mot) ? "Touches soutenues " + o.mot.split(":")[1] : o.mot);
+  else if(o.champ === "anti"){ const [s, k] = String(o.val).split(":");
+    t = "Anti-" + ((typeof MOTS_CIBLE !== "undefined" ? MOTS_CIBLE : []).find(x => x[0] === k) || [k, k])[1] + " " + s + "+"; }
+  else if(o.champ === "rrH" || o.champ === "rrW")
+    t = (o.val === "un" ? "une relance de " : "relance ") + (o.champ === "rrH" ? "touche" : "blessure") +
+        (o.val === "ones" ? " des 1" : (o.val === "un" ? "" : " ratée"));
+  else if(o.champ === "critH") t = "touche critique sur " + o.val + "+";
+  else if(o.champ === "apCrit") t = "PA +" + o.val + " sur blessure critique";
+  else if(ENH_LIB[o.champ]) t = (o.val > 0 ? "+" : "") + o.val + " " + ENH_LIB[o.champ];
+  else t = o.champ;
+  const ou = [];
+  if(o.port) ou.push(o.port === "C" ? "corps à corps" : "tir");
+  if(o.arme) ou.push(o.arme);
+  if(o.psy) ou.push("armes psychiques");
+  if(o.siMot === "pistol") ou.push("pistolets");
+  return t + (ou.length ? " (" + ou.join(", ") + ")" : "");
+}
 /* Ce qu'une unite paie EN PLUS de sa fiche : l'optimisation qu'elle porte
    et, sous le Pantheon de Malheur, l'Entrave Necrodermique que le
    detachement lui impose. Un seul endroit pour les deux — trois calculs
@@ -1679,6 +1906,15 @@ function octroisArme(ru, porteur, w){
     });
   });
   aptisFiche(fig, w).forEach(o => out.push(o));
+  /* l'amelioration que porte l'unite ou l'un de ses personnages : ce
+     qu'elle donne sans condition compte comme la fiche. `parFig` : un
+     bonus d'Attaques vaut pour chaque figurine qui porte l'arme. */
+  const en = enhDe(ru);
+  if(en) en.auto.forEach(o=>{
+    if(!enhVautPour(o, en.porteur, fig, w)) return;
+    out.push({ psy:o.psy, mot:o.mot, champ:o.champ, val:o.val, parFig:true,
+               nom:en.nom, texte:en.texte, source:"Amélioration" });
+  });
   /* `psy` : l'octroi ne vaut que pour une arme psychique. Le Grand
      Coven donne +1 pour blesser aux sorts des Thousand Sons, pas a
      leurs bolters. */
@@ -1891,6 +2127,9 @@ function weaponProfile(unitName, w, bearers, ru){
     hitMod: 0, wndMod: 0, rrH: "none", rrW: f.twin ? "failed" : "none"
   });
   if(ru){
+    /* la Force de la fiche, avant ce que les regles y ajoutent : l'ecran
+       dit ensuite d'ou vient la difference */
+    p.strFiche = p.str;
     preApply(p, ru); applyDetach(p, ru);
     /* les octrois qui touchent un champ du profil, et non un mot-cle :
        le Heraut de la Destruction d'un Plasmancien abaisse le seuil de
@@ -1924,7 +2163,7 @@ function weaponProfile(unitName, w, bearers, ru){
       /* le +1 degat des Huit-Enchaines Exaltes passait ici sans rien
          faire : le profil porte dmgMod et atkMod, le moteur les lit */
       else if(o.champ === "dmgMod") p.dmgMod = (p.dmgMod || 0) + o.val;
-      else if(o.champ === "atkMod") p.atkMod = (p.atkMod || 0) + o.val;
+      else if(o.champ === "atkMod") p.atkMod = (p.atkMod || 0) + o.val * (o.parFig ? bearers : 1);
     });
     /* on garde la trace de qui a donne quoi : un crit 5+ qui apparait
        sans nom ne se verifie pas, et un joueur qui ne peut pas verifier

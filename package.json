@@ -30,6 +30,7 @@
     "etalonnage": "python3 outils/extraction.py necrons --sortie build/etalon-necrons.js && node outils/etalonnage.js build/etalon-necrons.js",
     "custodes": "node outils/test-custodes.mjs",
     "aptitudes": "node outils/test-aptitudes.mjs",
+    "ameliorations": "node outils/test-ameliorations.mjs",
     "recable": "python3 outils/recable.py --toutes",
     "options": "python3 outils/options.py",
     "options-test": "node outils/test-options.mjs",
