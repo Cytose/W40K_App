@@ -668,6 +668,9 @@ input[type=text].gname:focus{outline:none;border-bottom-color:var(--glow)}
 .subtabs button.on{background:var(--glow-soft);color:var(--glow)}
 .sub{display:none}
 #cmpModes{margin-top:10px}
+/* .chips posait display:flex et l emportait sur hidden : les puces de
+   Comparer restaient affichees sous Attaque et Encaisser */
+#cmpModes[hidden]{display:none}
 .sub.on{display:block}
 
 /* ---------- retour vers l'index des listes ---------- */
@@ -1499,6 +1502,76 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 #scMap .opt.sel{border-color:var(--glow);background:var(--glow-soft)}
 #scMap .chips{padding-left:0;padding-right:0;margin-left:0;margin-right:0}
 #scMap .seg{gap:6px}
+
+/* ---------- simulateur : le defenseur en fiche ---------- */
+.defres{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:10px}
+.defres div{text-align:center;min-width:0}
+.defres i{display:block;font:600 11px/1 var(--cond);font-style:normal;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--tx3);margin-bottom:3px}
+.defres b{display:block;border:2px solid #2A3034;border-radius:6px;padding:6px 0;background:var(--s1);
+  font:700 20px/1 var(--cond);color:var(--tx);font-variant-numeric:tabular-nums}
+.defres .vide b{border-color:var(--line-hi);color:var(--tx3)}
+.defmods{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.defmods:empty{display:none}
+.defmods span{font-size:11px;font-weight:700;color:var(--glow);background:var(--glow-soft);
+  border:1px solid var(--acc-bd);border-radius:5px;padding:2px 7px}
+.defplie{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:9px 2px 4px;
+  background:none;border:0;border-top:1px solid var(--line-soft);cursor:pointer;font-family:inherit;
+  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tx2)}
+.defplie .chev{margin-left:auto;color:var(--tx3);font-size:11px;transition:transform .18s}
+#cardTgt.replie .defplie .chev{transform:rotate(-90deg)}
+#cardTgt.replie #defDetail{display:none}
+#defDetail > .kwbox:first-child{margin-top:6px}
+
+/* ---------- simulateur sur un ecran d'ordinateur ----------
+   Trois colonnes : l'attaquant, le defenseur, les resultats. Chacune se
+   cale sous l'en-tete et defile pour son compte : on regle d'un cote, on
+   lit de l'autre, sans balayer la page de haut en bas. Le telephone n'est
+   pas touche : sous 1100 px les colonnes ne font rien. */
+@media (min-width:1100px){
+  .wrap:has(> #scSim.on > #subAtk.on){max-width:1640px}
+  body:has(#scSim.on > #subAtk.on) .hbar{max-width:1640px}
+  /* la liste en service et les sous-onglets sur une seule ligne */
+  #scSim.on{display:grid;grid-template-columns:minmax(240px,340px) minmax(0,1fr);gap:10px 12px;align-items:center;
+    padding-top:10px}
+  #scSim.on > *{grid-column:1 / -1}
+  #scSim.on > .listebar{grid-column:1;margin:0}
+  #scSim.on > #simTabs{grid-column:2;margin-top:0}
+  /* les grands chiffres sont dans la colonne des resultats */
+  body:has(#scSim.on > #subAtk.on) #headSum{display:none !important}
+  #subAtk.on{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr) minmax(0,1fr);gap:12px;
+    align-items:start;margin-top:0}
+  /* l'ecran tient exactement entre l'en-tete et la barre d'onglets :
+     la page ne defile plus, chaque colonne defile pour son compte */
+  #scSim.on:has(> #subAtk.on){height:calc(100vh - var(--hautEntete,52px) - var(--hautNav,56px));
+    height:calc(100dvh - var(--hautEntete,52px) - var(--hautNav,56px));
+    grid-template-rows:auto minmax(0,1fr);padding-bottom:10px}
+  #subAtk.on{height:100%;min-height:0;grid-template-rows:minmax(0,1fr)}
+  #subAtk .simcol{max-height:100%;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+    border-radius:10px}
+  /* la note de bas de page reste dans les autres ecrans */
+  body:has(#scSim.on > #subAtk.on){padding-bottom:0}
+  body:has(#scSim.on > #subAtk.on) footer{display:none}
+  #subAtk .simcol > .card:first-child{margin-top:0}
+  #subAtk .simcol > .card{margin-top:10px}
+  /* les cartes ne se replient plus par leur titre dans les colonnes de
+     l'attaquant principal et des resultats : il n'y aurait rien a gagner */
+  #cardRes > h2 .chev,#cardTgt > h2 .chev,#cardAtk > h2 .chev{display:none}
+  #cardRes > h2,#cardTgt > h2,#cardAtk > h2{cursor:default;pointer-events:none}
+  #cardRes.collapsed > .body,#cardTgt.collapsed > .body,#cardAtk.collapsed > .body{display:block}
+  /* les resultats : les chiffres qui comptent remontent sous l'entonnoir */
+  #cardRes > .body{display:flex;flex-direction:column}
+  #cardRes .funnel{order:1}
+  #cardRes #seuilsTitre,#cardRes .seuils,#cardRes .seuils + div{order:2}
+  #cardRes #seuilsTitre{margin-top:14px !important}
+  #cardRes #seuilsAide{display:none}
+  #cardRes #modeChips{order:3}
+  #cardRes #histTitle,#cardRes #histSub,#cardRes #hist{order:4}
+  #cardRes #cumTitle,#cardRes #cumSub,#cardRes #cum{order:5}
+  #cardRes #btnTable,#cardRes #tableWrap{order:6}
+  #cardRes .seuils + div{margin-top:8px !important}
+  #cardRes .seuils + div .kv{padding:5px 0;font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -1541,7 +1614,10 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     <button type="button" class="chip" data-v="subTop">Palmarès</button>
   </div>
   <div class="sub on" id="subAtk">
-
+  <!-- trois colonnes sur un ecran d'ordinateur : l'attaquant, le defenseur,
+       les resultats. Sur un telephone les colonnes ne font rien : les
+       cartes s'empilent comme avant. -->
+  <div class="simcol" id="colAtk">
   <section class="card" id="cardAtk">
     <h2>Attaquant <span class="chev">▾</span></h2>
     <div class="body">
@@ -1614,15 +1690,24 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     </div>
   </section>
 
+  </div>
+  <div class="simcol" id="colDef">
   <section class="card" id="cardTgt">
-    <h2>Cible <span class="chev">▾</span></h2>
+    <h2>Défenseur <span class="chev">▾</span></h2>
     <div class="body">
       <button class="picker" id="pickTarget" type="button">
         <span class="pk"><span class="p1" id="ptName">Space Marine</span><span class="p2" id="ptSub">—</span></span>
         <span class="arrow">›</span>
       </button>
+      <!-- le resume de la cible, a la facon d'une fiche d'unite : il reste
+           visible quand le profil detaille est replie -->
+      <div class="defres" id="defRes"></div>
+      <div class="defmods" id="defMods"></div>
       <div class="chips tight" id="tSizeChips"></div>
       <div class="cibgard" id="cibGardees"></div>
+      <button type="button" class="defplie" id="btnDefPlie" aria-expanded="true" aria-controls="defDetail">
+        <span class="dpt">Profil détaillé</span><span class="chev">▾</span></button>
+      <div id="defDetail">
       <div class="kwbox">
         <span class="kwk">Ce qu'elle est</span>
         <div class="kwrow" id="kwCible"></div>
@@ -1647,9 +1732,12 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
         <label class="toggle tcov"><input type="checkbox" id="cover"><span class="box">✓</span><span class="txt">Bénéfice du couvert<em>−1 pour toucher — sur les attaques de tir seulement</em></span></label>
       </div>
       <p class="hint" id="tgtNote"></p>
+      </div>
     </div>
   </section>
+  </div>
 
+  <div class="simcol" id="colRes">
   <section class="card" id="cardRes">
     <h2>Résultats <span class="chev">▾</span></h2>
     <div class="body">
@@ -1668,8 +1756,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <p class="chart-sub" id="cumSub">Cumulé.</p>
       <svg id="cum" class="chart" role="img" aria-label="Probabilité cumulée"></svg>
 
-      <div class="chart-title" style="margin-top:18px">Combien de figurines tombent</div>
-      <p class="chart-sub">Le nombre de figurines couchées selon la certitude qu'on veut. « 3 fois sur 4 : 6 » se lit : au moins 6 figurines tombent dans trois parties sur quatre. La cible n'est pas plafonnée à son effectif — le tir continue sur des figurines fraîches.</p>
+      <div class="chart-title" id="seuilsTitre" style="margin-top:18px">Combien de figurines tombent</div>
+      <p class="chart-sub" id="seuilsAide">Le nombre de figurines couchées selon la certitude qu'on veut. « 3 fois sur 4 : 6 » se lit : au moins 6 figurines tombent dans trois parties sur quatre. La cible n'est pas plafonnée à son effectif — le tir continue sur des figurines fraîches.</p>
       <div class="seuils" id="rSeuils"></div>
 
       <div style="margin-top:16px">
@@ -1685,6 +1773,7 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
       <div id="tableWrap" style="display:none;margin-top:10px"></div>
     </div>
   </section>
+  </div>
 
     </div>
   <div class="sub" id="subGrp">
