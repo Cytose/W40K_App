@@ -1531,6 +1531,8 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
 @media (min-width:1100px){
   .wrap:has(> #scSim.on > #subAtk.on){max-width:1640px}
   body:has(#scSim.on > #subAtk.on) .hbar{max-width:1640px}
+  /* les selecteurs s'ouvrent en menu deroulant : la fleche le dit */
+  #subAtk .picker .arrow{transform:rotate(90deg)}
   /* la liste en service et les sous-onglets sur une seule ligne */
   #scSim.on{display:grid;grid-template-columns:minmax(240px,340px) minmax(0,1fr);gap:10px 12px;align-items:center;
     padding-top:10px}
@@ -1572,6 +1574,19 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   #cardRes .seuils + div{margin-top:8px !important}
   #cardRes .seuils + div .kv{padding:5px 0;font-size:13px}
 }
+
+/* ---------- feuille ouverte en menu deroulant (simulateur, ordinateur) ---------- */
+.sheet.deroulant{inset:auto;border:1px solid var(--line-hi);border-radius:10px;overflow:hidden;
+  background:var(--s1);box-shadow:0 14px 36px var(--ombre),0 2px 6px var(--ombre)}
+.sheet.deroulant .sheet-head{padding:8px 10px 8px 12px}
+.sheet.deroulant .sheet-head .ghost[data-close]{display:none}
+.sheet.deroulant .sheet-list,.sheet.deroulant .sheet-head,.sheet.deroulant input.sheet-search,
+.sheet.deroulant .pickbar,.sheet.deroulant .sheet-tabs{max-width:none}
+.sheet.deroulant input.sheet-search{width:calc(100% - 24px);height:38px;font-size:14px}
+.sheet.deroulant .sheet-list{padding-bottom:10px}
+.sheet.deroulant > :not(.sheet-list):not(.pickcorps),.sheet.deroulant .pickcat > :not(.sheet-list){flex-shrink:0}
+.sheet.deroulant .pickcorps{flex-direction:column;max-width:none;min-height:0;flex:1}
+.sheet.deroulant .pickliste{display:none}
 </style>
 </head>
 <body>

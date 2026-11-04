@@ -694,8 +694,46 @@ function fermeFeuilleParBouton(id){
   const b = document.querySelector('[data-close="' + id + '"]');
   if(b) b.click(); else closeSheet(id);
 }
+/* Sur un ecran d'ordinateur, dans l'onglet Attaque, choisir l'attaquant
+   ou le defenseur ne fait plus basculer sur un ecran entier : la feuille
+   s'ouvre en menu deroulant sous le bouton qui l'appelle, et le reste du
+   simulateur reste en vue. Sur telephone, rien ne change. */
+const ECRAN_ORDI = window.matchMedia("(min-width:1100px)");
+const DEROULANTS = {pickTarget:"sheetTarget", pickUnit:"sheetUnit", pickRosterUnit:"sheetRosterUnit"};
+let ancreFeuille = null;
+Object.keys(DEROULANTS).forEach(b => { const x = el(b); if(x)
+  x.addEventListener("click", ()=>{ ancreFeuille = {id: DEROULANTS[b], btn: x}; }, true); });
+function placeDeroulant(id){
+  const s = el(id), a = ancreFeuille; ancreFeuille = null;
+  const ok = a && a.id === id && ECRAN_ORDI.matches &&
+             el("subAtk").classList.contains("on") && a.btn.offsetParent;
+  if(!ok){ s.classList.remove("deroulant"); s.removeAttribute("style"); s._ancre = null; return false; }
+  const r = a.btn.getBoundingClientRect();
+  const larg = Math.max(r.width, 380);
+  s.classList.add("deroulant"); s._ancre = a.btn;
+  s.style.left = Math.max(8, Math.min(innerWidth - larg - 8, r.left)) + "px";
+  s.style.top = (r.bottom + 4) + "px";
+  s.style.width = larg + "px";
+  /* une hauteur fixe : les listes des feuilles sont en flex:1 et
+     s'ecraseraient a zero sous une simple hauteur maximale */
+  s.style.height = Math.max(260, Math.min(620, innerHeight - r.bottom - 16)) + "px";
+  const q = s.querySelector("input.sheet-search");
+  if(q) setTimeout(()=> q.focus(), 0);
+  return true;
+}
+/* un clic a cote du menu le referme, comme un menu deroulant */
+document.addEventListener("pointerdown", e=>{
+  const s = document.querySelector(".sheet.deroulant.open");
+  if(!s || s.contains(e.target) || (s._ancre && s._ancre.contains(e.target))) return;
+  fermeFeuilleParBouton(s.id);
+}, true);
+document.addEventListener("keydown", e=>{
+  const s = document.querySelector(".sheet.deroulant.open");
+  if(s && e.key === "Escape") fermeFeuilleParBouton(s.id);
+});
 function openSheet(id){
-  el(id).classList.add("open"); document.body.style.overflow="hidden";
+  const menu = placeDeroulant(id);
+  el(id).classList.add("open"); if(!menu) document.body.style.overflow="hidden";
   NAV.ouvre("feuille:" + id, ()=> fermeFeuilleParBouton(id));
 }
 function closeSheet(id){
