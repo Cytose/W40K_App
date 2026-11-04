@@ -532,8 +532,62 @@ function majResumeCible(){
   el("ptSub").textContent = "E" + S.tough + " · Svg " + S.sv + "+" + (S.inv ? " / " + S.inv + "++" : "") +
     " · " + S.wounds + " PV × " + S.models + (S.fnp ? " · FNP " + S.fnp + "+" : "") +
     (S.dmgRed ? " · -" + S.dmgRed + " dégât" : "");
+  majFicheCible();
   renderCiblesGardees();
 }
+/* Le resume du defenseur, en cases comme sur une fiche d'unite : ce qui
+   decide d'une sauvegarde se lit d'un coup d'oeil, meme profil replie.
+   Ce que la cible impose en plus (dégâts réduits, -1 pour toucher...)
+   suit en pastilles, pour qu'un profil replie ne cache rien d'actif. */
+function majFicheCible(){
+  const host = el("defRes"); if(!host) return;
+  const cases = [["Fig.", S.models], ["E", S.tough], ["PV", S.wounds], ["Sv", S.sv + "+"],
+                 ["Invu", S.inv ? S.inv + "++" : "—"], ["FNP", S.fnp ? S.fnp + "+" : "—"]];
+  host.innerHTML = cases.map(([k, v]) =>
+    '<div' + (v === "—" ? ' class="vide"' : '') + '><i>' + k + '</i><b>' + v + '</b></div>').join("");
+  const m = [];
+  if(S.dmgRed)   m.push("−" + S.dmgRed + " aux dégâts");
+  if(S.dmgHalf)  m.push("Dégâts ÷ 2");
+  if(S.defHit)   m.push("−1 pour la toucher");
+  if(S.defWnd)   m.push("−1 pour la blesser");
+  if(S.defWndFE) m.push("−1 pour blesser si F > E");
+  if(S.svMod)    m.push("Sauvegarde +" + S.svMod);
+  if(S.fnpPsy)   m.push("FNP psychique " + S.fnpPsy + "+");
+  if(S.cover)    m.push("À couvert");
+  el("defMods").innerHTML = m.map(t => "<span>" + t + "</span>").join("");
+}
+/* Replier le profil detaille du defenseur. Sur un ecran d'ordinateur il
+   part replie, pour que les trois colonnes tiennent sans defiler ; sur
+   un telephone il reste ouvert, comme avant. Le choix fait a la main se
+   retient. */
+(function(){
+  const b = el("btnDefPlie"), carte = el("cardTgt"); if(!b || !carte) return;
+  const CLE = "w40k.defPlie";
+  let plie;
+  try{ const v = localStorage.getItem(CLE); if(v !== null) plie = v === "1"; }catch(e){}
+  const ordi = window.matchMedia("(min-width:1100px)").matches;
+  if(plie === undefined) plie = ordi;
+  /* les modificateurs bruts aussi partent replies sur ordinateur : leur
+     en-tete dit combien sont actifs */
+  if(ordi){ const ab = el("cardAbil"); if(ab) ab.classList.add("collapsed"); }
+  const pose = () => { carte.classList.toggle("replie", plie);
+                       b.setAttribute("aria-expanded", plie ? "false" : "true"); };
+  pose();
+  b.addEventListener("click", () => { plie = !plie; pose();
+    try{ localStorage.setItem(CLE, plie ? "1" : "0"); }catch(e){} });
+})();
+/* la hauteur reelle de l'en-tete collante et de la barre d'onglets : les
+   colonnes du simulateur tiennent entre les deux (et la barre des fiches
+   se cale sous l'en-tete) */
+(function(){
+  const h = document.querySelector("header"); if(!h) return;
+  const nav = document.querySelector("nav.tabs"), r = document.documentElement.style;
+  const pose = () => { r.setProperty("--hautEntete", h.offsetHeight + "px");
+                       if(nav) r.setProperty("--hautNav", nav.offsetHeight + "px"); };
+  pose();
+  if(typeof ResizeObserver !== "undefined"){ const o = new ResizeObserver(pose); o.observe(h); if(nav) o.observe(nav); }
+  else window.addEventListener("resize", pose);
+})();
 /* les mots-cles, en pastilles, sous le profil de la cible */
 function renderKwCible(){
   const host = el("kwCible"); if(!host) return;
@@ -640,8 +694,46 @@ function fermeFeuilleParBouton(id){
   const b = document.querySelector('[data-close="' + id + '"]');
   if(b) b.click(); else closeSheet(id);
 }
+/* Sur un ecran d'ordinateur, dans l'onglet Attaque, choisir l'attaquant
+   ou le defenseur ne fait plus basculer sur un ecran entier : la feuille
+   s'ouvre en menu deroulant sous le bouton qui l'appelle, et le reste du
+   simulateur reste en vue. Sur telephone, rien ne change. */
+const ECRAN_ORDI = window.matchMedia("(min-width:1100px)");
+const DEROULANTS = {pickTarget:"sheetTarget", pickUnit:"sheetUnit", pickRosterUnit:"sheetRosterUnit"};
+let ancreFeuille = null;
+Object.keys(DEROULANTS).forEach(b => { const x = el(b); if(x)
+  x.addEventListener("click", ()=>{ ancreFeuille = {id: DEROULANTS[b], btn: x}; }, true); });
+function placeDeroulant(id){
+  const s = el(id), a = ancreFeuille; ancreFeuille = null;
+  const ok = a && a.id === id && ECRAN_ORDI.matches &&
+             el("subAtk").classList.contains("on") && a.btn.offsetParent;
+  if(!ok){ s.classList.remove("deroulant"); s.removeAttribute("style"); s._ancre = null; return false; }
+  const r = a.btn.getBoundingClientRect();
+  const larg = Math.max(r.width, 380);
+  s.classList.add("deroulant"); s._ancre = a.btn;
+  s.style.left = Math.max(8, Math.min(innerWidth - larg - 8, r.left)) + "px";
+  s.style.top = (r.bottom + 4) + "px";
+  s.style.width = larg + "px";
+  /* une hauteur fixe : les listes des feuilles sont en flex:1 et
+     s'ecraseraient a zero sous une simple hauteur maximale */
+  s.style.height = Math.max(260, Math.min(620, innerHeight - r.bottom - 16)) + "px";
+  const q = s.querySelector("input.sheet-search");
+  if(q) setTimeout(()=> q.focus(), 0);
+  return true;
+}
+/* un clic a cote du menu le referme, comme un menu deroulant */
+document.addEventListener("pointerdown", e=>{
+  const s = document.querySelector(".sheet.deroulant.open");
+  if(!s || s.contains(e.target) || (s._ancre && s._ancre.contains(e.target))) return;
+  fermeFeuilleParBouton(s.id);
+}, true);
+document.addEventListener("keydown", e=>{
+  const s = document.querySelector(".sheet.deroulant.open");
+  if(s && e.key === "Escape") fermeFeuilleParBouton(s.id);
+});
 function openSheet(id){
-  el(id).classList.add("open"); document.body.style.overflow="hidden";
+  const menu = placeDeroulant(id);
+  el(id).classList.add("open"); if(!menu) document.body.style.overflow="hidden";
   NAV.ouvre("feuille:" + id, ()=> fermeFeuilleParBouton(id));
 }
 function closeSheet(id){
