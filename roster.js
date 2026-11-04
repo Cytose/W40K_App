@@ -7433,12 +7433,15 @@ function initDetachSheet(){
   tete.textContent = reste > 0
     ? reste + " Point" + (reste > 1 ? "s" : "") + " de Détachement disponible" + (reste > 1 ? "s" : "")
     : "Budget de Points de Détachement épuisé";
+  if(R.detach.length) tete.textContent += " · touche un détachement pris pour le retirer";
   host.appendChild(tete);
 
   let dispo = 0;
   DETACHMENTS.forEach(d=>{
-    const raison = detachBloque(d), pris = R.detach.indexOf(d[0]) >= 0;
-    if(!raison) dispo++;
+    /* un detachement deja pris reste cliquable : un second toucher le
+       retire, comme les puces de Nouvelle liste */
+    const pris = R.detach.indexOf(d[0]) >= 0, raison = pris ? "" : detachBloque(d);
+    if(!raison && !pris) dispo++;
     const b = document.createElement("button");
     b.type = "button";
     b.className = "opt" + (pris ? " sel" : "") + (raison ? " opt-off" : "");
@@ -7448,9 +7451,18 @@ function initDetachSheet(){
       (raison ? ' — ' + raison : '') + '</span></span>' +
       (d[8] ? '<span class="otag dispo">' + d[8] + '</span>' :
         (d[5] ? '<span class="otag">DÉS</span>' : ''));
+    b.setAttribute("aria-pressed", pris ? "true" : "false");
+    /* la feuille reste ouverte : on en coche plusieurs d'affilee et on
+       ne revient a la liste que par le bouton du haut */
     if(!raison) b.addEventListener("click", ()=>{
-      R.detach.push(d[0]);
-      closeSheet("sheetDetach"); saveR(); renderList();
+      if(pris) R.detach.splice(R.detach.indexOf(d[0]), 1);
+      else R.detach.push(d[0]);
+      saveR(); renderList();
+      const haut = host.scrollTop;
+      const ouverts = [...host.querySelectorAll(".dvoir")].map(v => v.open);
+      initDetachSheet();
+      host.querySelectorAll(".dvoir").forEach((v, i) => { if(ouverts[i]) v.open = true; });
+      host.scrollTop = haut;
     });
     host.appendChild(b);
     /* la fiche complete se deplie sous la ligne, meme grisee : on peut
