@@ -218,6 +218,25 @@ await p.evaluate(() => document.getElementById('btnAddDetach').click()); await p
 await p.locator('#dList .dvoir summary').first().click(); await p.waitForTimeout(200);
 eq('la feuille des détachements déplie une fiche', await p.locator('#dList .dvoir .dfiche').count(), 1);
 
+console.log('\n== 9. la feuille des détachements reste ouverte ==');
+const ouverte = () => p.evaluate(() => getComputedStyle(document.getElementById('sheetDetach')).display !== 'none');
+const pris = () => p.locator('#dList .opt.sel').count();
+const avant = await pris();
+await p.locator('#dList .opt:not(.sel):not([disabled])').first().click(); await p.waitForTimeout(150);
+eq('un toucher prend le détachement', await pris(), avant + 1);
+eq('la feuille reste ouverte après un choix', await ouverte(), true);
+const libre = p.locator('#dList .opt:not(.sel):not([disabled])');
+if(await libre.count()){
+  await libre.first().click(); await p.waitForTimeout(150);
+  eq('un second détachement se prend dans la foulée', await pris(), avant + 2);
+}
+const n = await pris();
+await p.locator('#dList .opt.sel').last().click(); await p.waitForTimeout(150);
+eq('toucher un détachement pris le retire', await pris(), n - 1);
+eq('et la feuille reste ouverte', await ouverte(), true);
+await p.locator('#sheetDetach [data-close]').click(); await p.waitForTimeout(150);
+eq('le bouton Terminé ramène à la liste', await ouverte(), false);
+
 await b.close();
 console.log([...ok, ...ko].join('\n'));
 console.log('\n' + ok.length + ' ok, ' + ko.length + ' KO');
