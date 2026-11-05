@@ -1543,7 +1543,7 @@ const ARMEMENT = {
  "Rhino" : {"f": [1, 2], "s": [{"min": 0, "o": [[0]]}]},
  "Servitors" : {"f": [], "s": [{"min": 1, "o": [[5], [0, 4], [1, 4], [2, 3, 4]], "qui": "Figurines", "omax": [0, 2, 2, 2], "onom": ["Servitor with servo-arm", "Servitor with heavy bolter", "Servitor with multi-melta", "Servitor with plasma cannon"]}]},
  "Stormhawk Interceptor" : {"f": [3, 7], "s": [{"min": 1, "o": [[2], [4], [5, 6]]}, {"min": 1, "o": [[1], [0]]}]},
- "Stormraven Gunship" : {"f": [10, 1], "s": [{"min": 0, "o": [[0]]}, {"min": 1, "o": [[2], [6, 7], [4]]}, {"min": 1, "o": [[8, 9], [5], [3]]}], "n": {"1": 2, "0": 2}},
+ "Stormraven Gunship" : {"f": [10, 1], "s": [{"min": 0, "o": [[0, 0]]}, {"min": 1, "o": [[2], [6, 7], [4]]}, {"min": 1, "o": [[8, 9], [5], [3]]}], "n": {"1": 2}},
  "Stormtalon Gunship" : {"f": [1, 6], "s": [{"min": 1, "o": [[0], [3], [2], [4, 5]]}]},
  "Strike Squad" : {"f": [3, 5], "s": [{"min": 1, "o": [[5, 3], [4, 0], [4, 2], [4, 1]], "qui": "Figurines", "onom": ["Grey Knight", "Grey Knight with Heavy Weapon : Close combat weapon + Incinerator", "Grey Knight with Heavy Weapon : Close combat weapon + Psycannon", "Grey Knight with Heavy Weapon : Close combat weapon + Psilencer"], "nb": -1}], "nf": {"3": 1, "5": 1}},
  "Venerable Dreadnought" : {"f": [], "s": [{"min": 0, "o": [[0], [4, 5], [3], [2, 6], [1, 6]]}]}

@@ -1081,8 +1081,10 @@ const armSlots = nom => { const a = armRow(nom); return a ? a.s : []; };
 
    Deux usages qui se rejoignent. Sur une unite uniforme, absent veut dire
    « une par figurine » : cinq Immortels portent cinq carabines. Sur une
-   fiche qui compte ses armes, le nombre est explicite : le Monolithe a
-   quatre rayons de mort, l'Arche Fantome deux batteries.
+   fiche qui compte ses armes, le nombre est explicite : l'Arche Fantome
+   a deux batteries. `n` ne vaut que pour les armes d'office ; une option
+   d'emplacement dit ses exemplaires en repetant l'indice (les quatre
+   rayons de mort du Monolithe, les deux bolters de flanc d'un Leman Russ).
 
    On aurait pu ecrire « Rayon de mort ×4 » avec quatre attaques d'un
    coup. Le total serait le meme, mais le profil ne se lirait plus sur la
@@ -1171,9 +1173,12 @@ function portParArme(ru){
     const s = slots[l.s]; if(!s || l.n <= 0) return;
     const o = s.o[l.o]; if(!o) return;
     /* Une arme prise dans un emplacement compte elle aussi ses
-       exemplaires : le Monolithe choisit ses rayons de mort, et il en
-       recoit quatre, pas un. */
-    o.forEach(i => { out[i] = (out[i] || 0) + l.n * nPort(n, i); });
+       exemplaires, ecrits dans l'option en repetant l'indice : le
+       Monolithe choisit ses rayons de mort et en recoit quatre, le
+       Leman Russ ses bolters lourds de flanc et en recoit deux. `n`
+       ne compte que les armes d'office : sinon le bolter lourd de
+       coque comptait double parce que ceux de flanc vont par deux. */
+    o.forEach(i => { out[i] = (out[i] || 0) + l.n; });
   });
   return out;
 }
@@ -1187,7 +1192,7 @@ function portParArmePerso(c){
   (c.lo || []).forEach(l => {
     const sl = slots[l.s]; if(!sl) return;
     const o = sl.o[l.o]; if(!o) return;
-    o.forEach(i => { out[i] = (out[i] || 0) + nPort(n, i); });
+    o.forEach(i => { out[i] = (out[i] || 0) + 1; });
   });
   return out;
 }
@@ -1261,16 +1266,24 @@ function loParDefaut(nom, taille){
   return out;
 }
 
-/* libelle d'une option : les armes qu'elle donne, groupes compris */
+/* combien d'exemplaires une option donne de chaque arme, par indice */
+function exemplairesOption(opt){
+  const k = {};
+  (opt || []).forEach(i => { k[i] = (k[i] || 0) + 1; });
+  return k;
+}
+/* libelle d'une option : les armes qu'elle donne, groupes compris, avec
+   leur nombre quand elle en donne plusieurs — « 2× Heavy bolter » pour
+   les flancs d'un Leman Russ, qui vont par paire */
 function libelleOption(nom, opt, sl, oi){
   if(sl && sl.onom && sl.onom[oi]) return sl.onom[oi];
-  const wl = unitWeps(nom), vus = {}, bouts = [];
+  const wl = unitWeps(nom), vus = {}, bouts = [], k = exemplairesOption(opt);
   opt.forEach(i => {
     const g = groupeDe(nom, i);
     const cle = g ? g.base : String(i);
     if(vus[cle]) return;
     vus[cle] = 1;
-    bouts.push(g ? g.libelle : (wl[i] ? wl[i][1] : "?"));
+    bouts.push((k[i] > 1 ? k[i] + "× " : "") + (g ? g.libelle : (wl[i] ? wl[i][1] : "?")));
   });
   return bouts.join(" + ") || "Sans arme";
 }
@@ -5203,10 +5216,16 @@ let armMode = "prises";
    disposer de tous ses profils : le choix du mode se fait au
    moment d'attaquer, pas au moment de s'équiper.
    ========================================================== */
-const baseArme = n => String(n).toLowerCase()
+/* Le tiret qui separe une arme de son mode est entoure d'espaces
+   (« Plasma cannon - supercharge ») ; celui d'un nom compose ne l'est
+   pas. Les confondre rangeait le multi-fuseau sous « Multi », avec le
+   multi-laser, et le fusil laser radiant avec le pistolet radiant.
+   Une arme a profils (➤) peut aussi dire son mode entre parentheses. */
+const sansMode = s => (/^➤/.test(s) ? s.replace(/\s*\([^)]*\)\s*$/, '') : s)
+  .replace(/(\s+[—-]\s*|\s*[—-]\s+).+$/, '');
+const baseArme = n => sansMode(String(n).toLowerCase()
   .replace(/\s*\((tir|càc|cac|c'tan)\)\s*$/i, '')
-  .replace(/\s*[×x]\s*\d+\s*$/i, '')
-  .replace(/\s*[—-]\s*.+$/, '')
+  .replace(/\s*[×x]\s*\d+\s*$/i, ''))
   .trim();
 
 /* [{base, libelle, profils:[{w, i}], principal}] pour une unité */
@@ -5216,9 +5235,9 @@ function groupesArmes(nom){
     const b = baseArme(w[1]);
     if(vus[b] === undefined){
       vus[b] = out.length;
-      const lbl = w[1].replace(/\s*\((tir|càc|cac)\)\s*$/i, '')
-                      .replace(/\s*[×x]\s*\d+\s*$/i, '')
-                      .replace(/\s*[—-]\s*.+$/, '').trim();
+      const lbl = sansMode(w[1].replace(/\s*\((tir|càc|cac)\)\s*$/i, '')
+                      .replace(/\s*[×x]\s*\d+\s*$/i, ''))
+                      .replace(/^➤\s*/, '').trim();
       out.push({ base: b, libelle: lbl || w[1], profils: [], principal: i });
     }
     out[vus[b]].profils.push({ w: w, i: i });
@@ -6644,7 +6663,8 @@ function portMax(nom, taille){
   slots.forEach((sl, si)=>{
     (sl.o || []).forEach((opt, oi)=>{
       const cap = Math.min(optMax(sl, oi) || taille, figSlot(sl, taille));
-      (opt || []).forEach(i => { out[i] = Math.max(out[i] || 0, cap); });
+      const k = exemplairesOption(opt);
+      Object.keys(k).forEach(i => { out[i] = Math.max(out[i] || 0, cap * k[i]); });
     });
   });
   return out;

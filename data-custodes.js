@@ -1743,7 +1743,7 @@ const ARMEMENT = {
  "Shield-Captain" : {"f": [], "s": [{"min": 1, "o": [[6, 2], [4], [5, 1], [3, 0]]}]},
  "Shield-Captain in Allarus Terminator Armour" : {"f": [0], "s": [{"min": 1, "o": [[4, 2], [3, 1]]}]},
  "Shield-Captain on Dawneagle Jetbike" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
- "Telemon Heavy Dreadnought" : {"f": [3], "s": [{"min": 1, "o": [[6, 4], [0, 5, 4], [1, 5, 4], [2, 5, 4]]}], "n": {"4": 2}},
+ "Telemon Heavy Dreadnought" : {"f": [3], "s": [{"min": 1, "o": [[6, 4, 4], [0, 5, 4], [1, 5, 4], [2, 5, 4]]}]},
  "Venerable Contemptor Dreadnought" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}]},
  "Venerable Land Raider" : {"f": [4, 0, 3], "s": [{"min": 0, "o": [[2]]}, {"min": 0, "o": [[1]]}], "n": {"0": 2}},
  "Vertus Praetors" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]}

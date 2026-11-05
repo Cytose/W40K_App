@@ -1935,7 +1935,7 @@ const ARMEMENT = {
  "Immolator" : {"f": [0, 5], "s": [{"min": 1, "o": [[2], [3], [4]]}, {"min": 0, "o": [[1]]}]},
  "Intranzia Fraye" : {"f": [0, 1, 3, 4, 2], "s": [], "n": {"0": 2, "2": 2}},
  "Ministorum Priest" : {"f": [], "s": [{"min": 1, "o": [[1, 3], [0, 2]]}]},
- "Mortifiers" : {"f": [], "s": [{"min": 1, "o": [[4], [5], [2, 3]]}, {"min": 1, "o": [[0], [1], [0, 1]]}]},
+ "Mortifiers" : {"f": [], "s": [{"min": 1, "o": [[4], [5], [2, 3]]}, {"min": 1, "o": [[0, 0], [1, 1], [0, 1]]}]},
  "Palatine" : {"f": [3], "s": [{"min": 1, "o": [[0], [2, 1]]}]},
  "Paragon Warsuits" : {"f": [0], "s": [{"min": 1, "o": [[5], [4]], "nb": 2, "qui": "Paragon Warsuit"}, {"min": 1, "o": [[6], [7]], "nb": 2, "qui": "Paragon Warsuit"}, {"min": 1, "o": [[1], [3], [2]], "nb": 2, "qui": "Paragon Warsuit"}, {"min": 1, "o": [[5], [4]], "nb": 1, "qui": "Paragon Superior"}, {"min": 1, "o": [[6], [7]], "nb": 1, "qui": "Paragon Superior"}, {"min": 1, "o": [[1], [3], [2]], "nb": 1, "qui": "Paragon Superior"}], "nf": {"0": 3}},
  "Penitent Engines" : {"f": [0], "s": [{"min": 1, "o": [[3], [4], [1, 2]]}]},
@@ -1944,7 +1944,7 @@ const ARMEMENT = {
  "Retributor Squad" : {"f": [0, 12], "s": [{"min": 1, "o": [[1], [3], [2], [0], [5], [6], [10, 9]], "nb": 1, "qui": "Retributor Superior"}, {"min": 0, "o": [[11], [13]], "nb": 1, "qui": "Retributor Superior"}, {"min": 1, "o": [[4], [7], [8]], "nb": 4, "qui": "Retributor"}], "nf": {"0": 5, "12": 5}},
  "Saint Celestine" : {"f": [0, 1, 2, 3], "s": [], "nf": {"0": 2, "1": 1, "2": 2, "3": 1}},
  "Sanctifiers" : {"f": [0, 2, 5, 6, 7, 8], "s": [{"min": 0, "o": [[0]], "nb": 1, "qui": "Missionary w/ plasma gun"}, {"min": 1, "o": [[3, 4], [1]], "nb": 1, "qui": "Missionary w/ plasma gun"}], "nf": {"0": 1, "2": -5, "5": 1, "6": -8, "7": 1, "8": 6}},
- "Seraphim Squad" : {"f": [6], "s": [{"min": 1, "o": [[0], [0, 4, 3], [7, 4, 3], [7, 0], [5, 0], [5, 4, 3]], "nb": 1, "qui": "Seraphim Superior"}, {"min": 1, "o": [[0], [2], [1]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Seraphim", "Seraphim with Special Weapons : Ministorum hand flamer", "Seraphim with Special Weapons : Inferno Pistol"], "nb": -1}]},
+ "Seraphim Squad" : {"f": [6], "s": [{"min": 1, "o": [[0, 0], [0, 4, 3], [7, 4, 3], [7, 0], [5, 0], [5, 4, 3]], "nb": 1, "qui": "Seraphim Superior"}, {"min": 1, "o": [[0], [2], [1]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Seraphim", "Seraphim with Special Weapons : Ministorum hand flamer", "Seraphim with Special Weapons : Inferno Pistol"], "nb": -1}]},
  "Sisters Novitiate Squad" : {"f": [4], "s": [{"min": 1, "o": [[0, 1], [0, 9], [6, 5, 9]], "nb": 1, "qui": "Novitiate Superior"}, {"min": 1, "o": [[3, 7], [8], [2, 7], [7]], "qui": "Figurines", "omax": [0, 0, 2, 1], "onom": ["Sister Novitiate (Autogun)", "Sister Novitiate (Melee Weapon)", "Novitiate with Ministorum Flamer", "Novitiate with Sacred Banner"], "nb": -1}], "nf": {"4": -1}},
  "Sororitas Rhino" : {"f": [2, 1], "s": [{"min": 0, "o": [[0]]}]},
  "Zephyrim Squad" : {"f": [0, 3], "s": [{"min": 1, "o": [[0], [2, 1]], "nb": 1, "qui": "Zephyrim Superior"}], "nf": {"0": -1}}
