@@ -108,7 +108,7 @@ const ARMEMENT = {
  "Tomb Blades" : { f:[3], s:[{min:1, o:[[0],[2],[1]]}] }, /* d'office : Close combat weapon */
  "Canoptek Scarab Swarms" : { f:[0], s:[] }, /* d'office : Feeder mandibles */
  "Canoptek Wraiths" : { f:[], s:[{min:1, o:[[0,2],[0,3],[0],[1],[2,1],[3,1]]}] }, /* aucune arme d'office */
- "Canoptek Spyders" : { f:[1], s:[{min:0, o:[[0]]}], n:{0:2} }, /* d'office : Automaton claws */
+ "Canoptek Spyders" : { f:[1], s:[{min:0, o:[[0,0]]}] }, /* d'office : Automaton claws */
  "Canoptek Reanimator" : { f:[0,1], s:[], n:{0:2} }, /* d'office : Atomiser beam ×2, Reanimator's claws */
  "Canoptek Doomstalker" : { f:[0,2,1], s:[] }, /* d'office : Doomsday blaster, Doomstalker limbs, Twin gauss flayer */
  /* Le pack limite deux options a une seule figurine, et la mandibule
@@ -126,7 +126,7 @@ const ARMEMENT = {
  "Doomsday Ark" : { f:[0,1,2], s:[], n:{1:2} }, /* d'office : Doomsday cannon, Gauss flayer array ×2, Armoured bulk */
  "Ghost Ark" : { f:[0,1], s:[], n:{0:2} }, /* d'office : Gauss flayer array ×2, Armoured bulk */
  "Annihilation Barge" : { f:[0,3], s:[{min:1, o:[[1],[2]]}] }, /* d'office : Twin tesla destructor, Armoured bulk */
- "Monolith" : { f:[2,3], s:[{min:1, o:[[1],[0]]}], n:{0:4, 1:4} }, /* d'office : Particle whip, Portal of exile */
+ "Monolith" : { f:[2,3], s:[{min:1, o:[[1,1,1,1],[0,0,0,0]]}] }, /* d'office : Particle whip, Portal of exile */
  "Obelisk" : { f:[1,0], s:[], n:{0:4} }, /* d'office : Armoured bulk, Tesla sphere ×4 */
  "Tesseract Vault" : { f:[4,0,1,2,3], s:[], n:{0:4} }, /* d'office : Armoured bulk, Tesla spheres ×4, Antimatter Meteor (C'tan), Cosmic Fire (C'tan), Time's Arrow (C'tan) */
  "Doom Scythe" : { f:[0,1,2], s:[] }, /* d'office : Heavy death ray, Twin tesla destructor, Armoured bulk */

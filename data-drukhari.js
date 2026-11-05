@@ -1813,14 +1813,14 @@ const ARMEMENT = {
  "Raider" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}]},
  "Ravager" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[0], [1]]}]},
  "Raven Strike Fighter" : {"f": [2, 0, 1], "s": [], "n": {"0": 2}},
- "Razorwing Jetfighter" : {"f": [7, 4, 5, 6], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[3], [2]]}], "n": {"0": 2, "1": 2}},
+ "Razorwing Jetfighter" : {"f": [7, 4, 5, 6], "s": [{"min": 1, "o": [[0, 0], [1, 1]]}, {"min": 1, "o": [[3], [2]]}]},
  "Reavers" : {"f": [2, 4], "s": [{"min": 1, "o": [[3], [0], [1]], "omax": [0, 1, 1], "nb": 1, "qui": "Arena Champion"}, {"min": 1, "o": [[3], [0], [1]], "qui": "Figurines", "omax": [0, 2, 2], "onom": ["Reaver", "Reaver with Blaster", "Reaver with Heat Lance"], "nb": -1}]},
  "Scourges with Heavy Weapons" : {"f": [9, 0, 8, 10], "s": [{"min": 1, "o": [[5], []], "onom": ["", "1 Blast pistol and 1 Power weapon"], "nb": 1, "qui": "Solarite"}, {"min": 1, "o": [[7], [1], [4], [6], [2], [3]], "nb": -1, "qui": "Scourge with Heavy Weapon"}]},
  "Scourges with Shardcarbines" : {"f": [2, 5, 0, 4, 6], "s": [{"min": 1, "o": [[2], []], "onom": ["", "1 Blast pistol and 1 Power weapon"], "nb": 1, "qui": "Solarite"}, {"min": 1, "o": [[2], [1], [3]], "nb": -5, "qui": "Scourge with Special Weapon"}], "nf": {"2": 4}},
  "Talos" : {"f": [], "s": [{"min": 1, "o": [[6], [8], [2]]}, {"min": 1, "o": [[6], [5], [7]]}, {"min": 1, "o": [[3], [1], [4], [0]]}]},
  "Venom" : {"f": [2, 0], "s": [{"min": 1, "o": [[1], [0]]}]},
- "Voidraven Bomber" : {"f": [4], "s": [{"min": 0, "o": [[2, 3]]}, {"min": 1, "o": [[1], [0]]}], "n": {"1": 2, "0": 2}},
- "Wracks" : {"f": [], "s": [{"min": 1, "o": [[6], [4, 5], [4, 0], [4, 1], [4, 2], [4, 3], [5], [5, 0], [5, 1], [5, 2], [5, 3]], "nb": 1, "qui": "Acothyst"}, {"min": 1, "o": [[6], [5, 0], [5, 1], [5, 2], [5, 3]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2], "onom": ["Wrack", "Wrack with Hexrifle", "Wrack with Liquifier Gun", "Wrack with Ossefactor", "Wrack with Stinger Pistol"], "nb": -1}]},
+ "Voidraven Bomber" : {"f": [4], "s": [{"min": 0, "o": [[2, 3]]}, {"min": 1, "o": [[1, 1], [0, 0]]}]},
+ "Wracks" : {"f": [], "s": [{"min": 1, "o": [[6], [4, 5], [4, 0], [4, 1], [4, 2], [4, 3], [5, 5], [5, 0], [5, 1], [5, 2], [5, 3]], "nb": 1, "qui": "Acothyst"}, {"min": 1, "o": [[6], [5, 0], [5, 1], [5, 2], [5, 3]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2], "onom": ["Wrack", "Wrack with Hexrifle", "Wrack with Liquifier Gun", "Wrack with Ossefactor", "Wrack with Stinger Pistol"], "nb": -1}]},
  "Wyches" : {"f": [], "s": [{"min": 1, "o": [[1], [0]], "nb": 1, "qui": "Hekatrix"}, {"min": 1, "o": [[3], [4]], "nb": 1, "qui": "Hekatrix"}, {"min": 1, "o": [[1, 3], [2]], "qui": "Figurines", "omax": [0, 3], "onom": ["Wych", "Wych w/ Gladiatorial weapons"], "nb": -1}]}
 };
 const RETINUE = {};

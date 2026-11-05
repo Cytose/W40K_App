@@ -30,6 +30,10 @@ nécrone ne connaissait pas :
   · `nf` sur la fiche : combien d'exemplaires d'une arme D'OFFICE, avec
     la même convention. Le pistolet du sergent compte un, le fusil des
     marines l'effectif moins un.
+Une option qui donne plusieurs exemplaires d'une arme les écrit en
+répétant l'indice : les deux bolters lourds de flanc d'un Leman Russ
+s'écrivent [0, 0]. Le champ `n` de la fiche ne compte plus que les armes
+d'office (les deux lascanons d'un Baneblade).
 Quand une escouade a plusieurs sortes de figurines « libres » — des
 Intercessors et jusqu'à deux Intercessors lance-grenades — elles
 deviennent les options d'un emplacement « Figurines », chacune plafonnée
@@ -277,6 +281,18 @@ def indexeur(armes):
         return None
     return trouve
 
+def multiples(xs):
+    """Comme uniq, mais une arme reçue en plusieurs exemplaires reste
+       répétée : « 2 bolters lourds » donne [0, 0]. Les exemplaires d'une
+       même arme se suivent, dans l'ordre de première apparition, pour
+       qu'une même option se reconnaisse d'une lecture à l'autre."""
+    ordre, k = [], {}
+    for x in xs:
+        if x is None: continue
+        if x not in k: ordre.append(x)
+        k[x] = k.get(x, 0) + 1
+    return [x for x in ordre for _ in range(k[x])]
+
 def uniq(xs):
     vus, out = set(), []
     for x in xs:
@@ -290,6 +306,9 @@ def armement(racine, ctx, armes):
        le dit déjà)."""
     trouve = indexeur(armes)
     idxs = lambda profs: uniq(trouve(p) for p in profs)
+    # une option garde ses exemplaires : les deux bolters lourds de flanc
+    # d'un Leman Russ sont deux armes, pas une
+    idxsM = lambda profs: multiples(trouve(p) for p in profs)
     def libelle(ii):
         vus = []
         for i in ii:
@@ -304,7 +323,7 @@ def armement(racine, ctx, armes):
     def slotJs(sl, nb=None, qui=None):
         o, onom, omax = [], [], []
         for nom, profs, cap in sl['opts']:
-            ii = idxs(profs)
+            ii = idxsM(profs)
             if ii in o: continue
             o.append(ii); onom.append(nom if not ii else ''); omax.append(cap or 0)
         if len(o) < 2 and sl['min'] >= 1: return None
@@ -320,28 +339,27 @@ def armement(racine, ctx, armes):
     if len(lues) == 1:
         F, lo, hi, _ = lues[0]
         f = idxs(p for p, n in F['fixes'])
+        # `n` ne compte que les armes D'OFFICE : « 2 lascanons » sur un
+        # Baneblade. Une option porte ses exemplaires elle-même, en
+        # répétant l'indice. Un seul `n` par arme confondait les deux :
+        # le bolter lourd de coque d'un Leman Russ comptait double parce
+        # que ses bolters de flanc vont par deux.
         n = {}
-        if hi <= 1:
-            for p, k in F['fixes']:
-                i = trouve(p)
-                if i is not None and k > 1: n[i] = k
+        def compteFixe(i, k):
+            if hi <= 1 and i is not None and k > 1: n[i] = max(n.get(i, 1), k)
+        for p, k in F['fixes']:
+            compteFixe(trouve(p), k)
         s = []
         for sl in F['slots']:
             js = slotJs(sl)
             if js is None:
                 # un groupe obligatoire à une seule option : d'office
                 if sl['min'] >= 1 and sl['opts']:
-                    f = uniq(f + idxs(sl['opts'][0][1]))
+                    ii = idxsM(sl['opts'][0][1])
+                    f = uniq(f + ii)
+                    for i in set(ii): compteFixe(i, ii.count(i))
                 continue
             s.append(js)
-        if hi <= 1:
-            # « 4 rayons de mort » : une option peut donner plusieurs
-            # exemplaires de la même arme, à une figurine seule
-            for sl in F['slots']:
-                for _, profs, _ in sl['opts']:
-                    for i in set(trouve(p) for p in profs):
-                        k = sum(1 for p in profs if trouve(p) == i)
-                        if i is not None and k > 1: n[i] = max(n.get(i, 1), k)
         # une arme que rien ne place reste d'office : mieux vaut la montrer
         # en trop que la perdre
         places = set(f) | {i for x in s for o in x['o'] for i in o}

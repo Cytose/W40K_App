@@ -1437,22 +1437,22 @@ const ARMEMENT = {
  "Bloodletters" : {"f": [0], "s": [], "nf": {"0": 10}},
  "Bloodthirster" : {"f": [1], "s": [{"min": 1, "o": [[5, 6], [3, 4, 0], [3, 4, 2]]}]},
  "Chaos Land Raider" : {"f": [5, 3, 4], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2}},
- "Chaos Predator Annihilator" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2, "4": 2}},
- "Chaos Predator Destructor" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3], [4]]}, {"min": 0, "o": [[2]]}], "n": {"3": 2, "4": 2}},
+ "Chaos Predator Annihilator" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3, 3], [4, 4]]}, {"min": 0, "o": [[2]]}]},
+ "Chaos Predator Destructor" : {"f": [5, 6], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[3, 3], [4, 4]]}, {"min": 0, "o": [[2]]}]},
  "Chaos Rhino" : {"f": [3], "s": [{"min": 0, "o": [[0], [1]]}, {"min": 0, "o": [[0]]}, {"min": 0, "o": [[2]]}]},
  "Chaos Terminators" : {"f": [], "s": [{"min": 1, "o": [[0, 4], [1, 7], [1, 4], [5, 1], [5, 0], [0, 7], [6]], "nb": 1, "qui": "Terminator Champion"}, {"min": 1, "o": [[0, 4], [1, 4], [0, 7], [1, 7], [5, 0], [5, 1], [6], [4, 3], [4, 2], [7, 3], [7, 2], [5, 3], [5, 2]], "qui": "Figurines", "omax": [0, 0, 6, 6, 2, 2, 2, 1, 1, 1, 1, 1, 1], "onom": ["Combi-bolter, accursed weapon", "Combi-weapon, accursed weapon", "Combi-bolter, power fist", "Combi-weapon, power fist", "Combi-bolter, chainfist", "Combi-weapon, chainfist", "Paired accursed weapons", "Heavy weapon : Accursed weapon + Reaper autocannon", "Heavy weapon : Accursed weapon + Heavy flamer", "Heavy weapon : Power fist + Reaper autocannon", "Heavy weapon : Power fist + Heavy flamer", "Heavy weapon : Chainfist + Reaper autocannon", "Heavy weapon : Chainfist + Heavy flamer"], "nb": -1}]},
- "Defiler" : {"f": [10, 11], "s": [{"min": 1, "o": [[7, 8], [9], [3], [5]]}, {"min": 1, "o": [[2], [0]]}, {"min": 1, "o": [[4], [5], [9], [3]]}, {"min": 1, "o": [[1], [6]]}], "n": {"1": 2, "6": 2}},
+ "Defiler" : {"f": [10, 11], "s": [{"min": 1, "o": [[7, 8], [9], [3], [5]]}, {"min": 1, "o": [[2], [0]]}, {"min": 1, "o": [[4], [5], [9], [3]]}, {"min": 1, "o": [[1, 1], [6, 6]]}]},
  "Eightbound" : {"f": [0], "s": []},
  "Exalted Eightbound" : {"f": [0], "s": []},
  "Flesh Hounds" : {"f": [0, 1], "s": [], "nf": {"0": 1}},
- "Forgefiend" : {"f": [], "s": [{"min": 1, "o": [[1], [0]]}, {"min": 1, "o": [[3], [2, 0]]}], "n": {"1": 2, "0": 2}},
+ "Forgefiend" : {"f": [], "s": [{"min": 1, "o": [[1, 1], [0, 0]]}, {"min": 1, "o": [[3], [2, 0]]}]},
  "Goremongers" : {"f": [0, 2, 3], "s": [{"min": 1, "o": [[1], []], "qui": "Figurines", "onom": ["Goremonger w/ blood harpoon", "Goremonger w/ 2 pistols"], "nb": -8}], "nf": {"2": 8}},
  "Helbrute" : {"f": [9], "s": [{"min": 1, "o": [[7, 8], [10, 0], [10, 1], [11], [12]]}, {"min": 1, "o": [[2], [4], [10, 1], [10, 0], [3], [5], [6]]}]},
  "Heldrake" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}]},
  "Jakhals" : {"f": [0, 1, 2], "s": [{"min": 1, "o": [[4], [3]], "qui": "Figurines", "onom": ["Dishonoured w/ skullsmasher and mangler", "Dishonoured w/ paired manglers"], "nb": -9}], "nf": {"0": 9, "1": 9}},
  "Khorne Berzerkers" : {"f": [3], "s": [{"min": 1, "o": [[0], [1, 2]], "nb": 1, "qui": "Khorne Berzerker Champion"}, {"min": 1, "o": [[3, 0], [4, 0], [4, 1, 2], [3, 1, 2]], "qui": "Figurines", "omax": [0, 4, 4, 4], "onom": ["Khorne Berzerker", "Khorne Berzerker w/ eviscerator and bolt pistol", "Khorne Berzerker w/ eviscerator and plasma pistol", "Khorne Berzerker w/ chainblade and plasma pistol"], "nb": -1}], "nf": {"3": 1}},
  "Khorne Lord of Skulls" : {"f": [5, 6], "s": [{"min": 1, "o": [[2], [4]]}, {"min": 1, "o": [[1], [0], [3]]}]},
- "Maulerfiend" : {"f": [2], "s": [{"min": 1, "o": [[1], [0]]}], "n": {"0": 2}}
+ "Maulerfiend" : {"f": [2], "s": [{"min": 1, "o": [[1], [0, 0]]}]}
 };
 const RETINUE = {};
 const ENH_ANCIENS = {};

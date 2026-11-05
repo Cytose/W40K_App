@@ -2181,7 +2181,7 @@ const ARMEMENT = {
  "Sydonian Skatros" : {"f": [3, 0], "s": [{"min": 1, "o": [[1], [2]]}]},
  "Tech-Priest Dominus" : {"f": [5], "s": [{"min": 1, "o": [[0], [1]]}, {"min": 1, "o": [[2], [3, 4]]}]},
  "Tech-Priest Manipulus" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]]}]},
- "Terrax-Pattern Termite" : {"f": [4, 2], "s": [{"min": 1, "o": [[0], [1], [3]]}], "n": {"0": 2, "1": 2, "3": 2}}
+ "Terrax-Pattern Termite" : {"f": [4, 2], "s": [{"min": 1, "o": [[0, 0], [1, 1], [3, 3]]}]}
 };
 const RETINUE = {};
 const ENH_ANCIENS = {};
