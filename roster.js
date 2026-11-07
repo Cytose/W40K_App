@@ -2149,7 +2149,7 @@ function weaponProfile(unitName, w, bearers, ru){
     bs: w[4], str: w[5], ap: w[6], dmg: w[7],
     torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
     sustainedOn: !!f.sust, sustainedN: f.sust ? String(f.sust) : "1",
-    blast: !!f.blast,
+    blast: !!f.blast, blastN: f.blast === true ? 1 : (+f.blast || 1),
     /* l'assaut ne change rien a la sequence d'attaque — le moteur
        l'ignore — mais il se lit sur la ligne du profil : c'est lui
        qu'un detachement comme le Conclave de Crypteks accorde, et le
@@ -2530,7 +2530,7 @@ function renderDef(){
     psychic: !!f.psychic, lance: !!f.lance,
     torrent: !!f.torrent, lethal: !!f.lethal, dev: !!f.dev,
     sustainedOn: !!f.sust, sustainedN: f.sust || "1",
-    blast: !!f.blast, rapidOn: false, rapidN: 0,
+    blast: !!f.blast, blastN: f.blast === true ? 1 : (+f.blast || 1), rapidOn: false, rapidN: 0,
     meltaOn: !!f.melta, meltaN: f.melta || 0,
     critH: 6, critW: 6, hitMod: 0, wndMod: 0, rrH: "none", rrW: "none"
   };
@@ -5492,7 +5492,7 @@ function motsArme(flags){
   if(f.lethal)  k.push("Touches Fatales");
   if(f.dev)     k.push("Blessures Dévastatrices");
   if(f.torrent) k.push("Torrent");
-  if(f.blast)   k.push("Déflagration");
+  if(f.blast)   k.push("Déflagration" + (f.blast === true ? "" : " " + f.blast));
   if(f.twin)    k.push("Jumelé");
   if(f.sust)    k.push("Touches Soutenues " + f.sust);
   if(f.rf)      k.push("Tir Rapide " + f.rf);

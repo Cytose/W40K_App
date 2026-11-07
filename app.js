@@ -9,7 +9,7 @@ const S = {
   wName:"", attacks:"20", kind:"T", bs:3, str:5, ap:1, dmg:"1",
   tough:4, sv:3, inv:0, wounds:2, models:5, fnp:0, dmgRed:0, cover:false,
   torrent:false, lethal:true, dev:false, sustainedOn:false, sustainedN:"1",
-  blast:false, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
+  blast:false, blastN:1, rapidOn:false, rapidN:1, meltaOn:false, meltaN:2,
   critH:6, critW:6, hitMod:0, wndMod:0, atkMod:0, rrH:"none", rrW:"none",
   apMod:0, dmgMod:0, strMod:0, ignoresCover:false, indirect:false, ignoreMalus:false,
   /* une situation, pas un modificateur : l'unite n'a pas bouge ce tour,
@@ -302,6 +302,8 @@ function applyWeapon(){
   S.dev     = !!f.dev;
   S.sustainedOn = !!f.sust;  S.sustainedN = f.sust ? String(f.sust) : "1";
   S.blast   = !!f.blast;
+  /* « blast:2 » : [DÉFLAGRATION 2], deux attaques par tranche de cinq */
+  S.blastN  = f.blast === true ? 1 : (+f.blast || 1);
   S.rapidOn = !!f.rf;        S.rapidN = f.rf ? Math.min(60, (+f.rf) * curSize) : 1;
   S.meltaOn = !!f.melta;     S.meltaN = f.melta ? +f.melta : 2;
   S.critH   = 6;
@@ -1090,6 +1092,7 @@ function profilPourMoteur(p){
     lethal:  !!p.lethal  || S.lethal,
     dev:     !!p.dev     || S.dev,
     blast:   !!p.blast   || S.blast,
+    blastN:  p.blast ? (p.blastN || 1) : S.blastN,
     sustainedOn: !!p.sustainedOn || S.sustainedOn,
     sustainedN:  p.sustainedOn ? p.sustainedN : S.sustainedN,
     critH: Math.min(p.critH === undefined ? 6 : p.critH, S.critH),
@@ -1141,7 +1144,7 @@ function pastilles(q, brut){
   if(q.lethal) kw("LÉTHAL", "lethal");
   if(q.dev) kw("DÉVASTATRICES", "dev");
   if(q.sustainedOn) kw("SOUTENU " + q.sustainedN, "sust");
-  if(q.blast) kw("DÉFLAGRATION", "blast");
+  if(q.blast) kw("DÉFLAGRATION" + ((+q.blastN || 1) > 1 ? " " + q.blastN : ""), "blast");
   if(q.rapidOn) kw("TIR RAPIDE " + q.rapidN, "rf");
   if(q.meltaOn) kw("FONTE " + q.meltaN, "melta");
   /* l'arme le porte, mais la distance ne le donne pas. On l'affiche
@@ -1914,13 +1917,13 @@ el("modeChips").querySelectorAll(".chip").forEach(b=>
    les remet donc a zero en entrant dans ce mode — sans quoi le Lethal
    Hits coche par defaut se serait offert a toute la liste — et on rend
    a l'arme les siennes en sortant. */
-const CAPF = ["torrent","lethal","dev","sustainedOn","sustainedN","blast",
+const CAPF = ["torrent","lethal","dev","sustainedOn","sustainedN","blast","blastN",
               "rapidOn","rapidN","meltaOn","meltaN","critH","critW",
               "ignoresCover","indirect","ignoreMalus"];
 let capMemo = null;
 function videCaps(){
   S.torrent = false; S.lethal = false; S.dev = false;
-  S.sustainedOn = false; S.sustainedN = "1"; S.blast = false;
+  S.sustainedOn = false; S.sustainedN = "1"; S.blast = false; S.blastN = 1;
   S.rapidOn = false; S.meltaOn = false;
   S.ignoresCover = false; S.indirect = false; S.ignoreMalus = false;
   S.critH = 6; S.critW = 6;
@@ -1947,7 +1950,8 @@ const CAPS = [
   {k:"dev",          nom:"Dévastatrices",     aide:"blessure crit. = pas de svg"},
   {k:"sustainedOn",  nom:"Soutenu",           aide:"touches en plus par critique",
    num:{id:"sustainedN", texte:true}},
-  {k:"blast",        nom:"Déflagration",      aide:"+1 attaque par 5 figurines"},
+  {k:"blast",        nom:"Déflagration",      aide:"attaques en plus par 5 figurines",
+   num:{id:"blastN", min:1, max:6}},
   {k:"rapidOn",      nom:"Tir Rapide",        aide:"attaques en plus à mi-portée",
    uAide:"on est à mi-portée", num:{id:"rapidN", min:1, max:60}, uSansNum:true},
   {k:"meltaOn",      nom:"Fonte",             aide:"dégâts en plus à mi-portée",

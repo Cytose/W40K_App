@@ -327,6 +327,11 @@ def drapeaux(kw, inconnus):
         if m: out.append('rf:' + m.group(1).upper().replace('D', 'D')); continue
         m = re.match(r'sustained hits (\w+)', b)
         if m: out.append('sust:' + m.group(1).upper()); continue
+        # [DÉFLAGRATION X] (11e) : X attaques par tranche de cinq. « Blast 1 »
+        # vaut l'ancien « Blast ». Avant, « Blast 2 » tombait dans les
+        # inconnus et l'arme perdait sa déflagration.
+        m = re.match(r'blast (\d+)', b)
+        if m: out.append('blast' if m.group(1) == '1' else 'blast:' + m.group(1)); continue
         m = re.match(r'melta (\d+)', b)
         if m: out.append('melta:' + m.group(1)); continue
         simple = {'lethal hits': 'lethal', 'devastating wounds': 'dev', 'blast': 'blast',

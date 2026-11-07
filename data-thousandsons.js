@@ -1382,6 +1382,18 @@ const AURAS_ARMEE = [
   "texte": "Each time a TZEENTCH MUTANT INFANTRY or TZEENTCH MUTANT MOUNTED unit from your army is selected to shoot or fight, before selecting its targets, that unit can make a Warpmeld Sacrifice. If it does, until the end of the phase, each time a model in that unit makes an attack, add 1 to the Wound roll."
  }
 ];
+const OCTROIS_DETACH = {
+ "Hexwarp Thrallband": [
+  {
+   "psy": true,
+   "champ": "rrW",
+   "val": "ones",
+   "kw": [],
+   "nom": "Flux de Magie",
+   "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
+  }
+ ]
+};
 const STRAT_SIMU = [
  {
   "nom": "Scouring Warpflame",
@@ -1468,23 +1480,11 @@ const MOMENTS = {};
 const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
-const OCTROIS_DETACH = {
- "Hexwarp Thrallband": [
-  {
-   "psy": true,
-   "champ": "rrW",
-   "val": "ones",
-   "kw": [],
-   "nom": "Flux de Magie",
-   "texte": "Each time a THOUSAND SONS model from your army makes a Psychic Attack, re-roll a Wound roll of 1. If such a model is wholly within your army’s Flow of Magic, each time it makes a Psychic Attack, add 1 to the Wound roll instead."
-  }
- ]
-};
 
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
 const OPTIONS_PTS = {
  "Defiler" : [["Hades Lascannon", 15, [[0, 2, 1], [2, 2, 1]], []], ["Heavy Reaper Autocannon", 15, [[0, 3, 1], [2, 3, 1]], []]],
- "Forgefiend" : [["Ectoplasma cannon", 5, [[0, 1, 2], [1, 1, 2]], []]]
+ "Forgefiend" : [["Ectoplasma cannon", 5, [[0, 1, 1], [1, 1, 1]], []]]
 };
 
 enregistreFaction({

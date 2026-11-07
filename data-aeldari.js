@@ -444,7 +444,7 @@ const WEAPONS = [
   ["Starweaver","Close Combat Weapon","C","4",3,3,0,"1","","càc"],
   ["Stonesinger","Solar Carbine","T","2",3,4,0,"1","rf:2","18\""],
   ["Stonesinger","Song of Waning","T","3",3,4,2,"3","psychic","24\""],
-  ["Stonesinger","Venomcrest Spit","T","3",0,3,2,"2","torrent","12\""],
+  ["Stonesinger","Venomcrest Spit","T","3",0,3,2,"2","blast torrent","12\""],
   ["Stonesinger","Drakesteed Fangs and Talons","C","3",3,5,1,"1","extra","càc"],
   ["Stonesinger","Stone Stave","C","3",3,3,1,"2","psychic","càc"],
   ["Storm Guardians","Flamer","T","D6",0,4,0,"1","assault ignorescover torrent","12\""],

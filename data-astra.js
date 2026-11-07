@@ -4278,7 +4278,7 @@ const ARMEMENT = {
  "Shadowsword" : {"f": [3, 4, 0, 1], "s": [{"min": 1, "o": [[2, 2], [1, 1]]}, {"min": 0, "o": [[0, 0, 1, 1], [0, 0, 2, 2]]}], "n": {"0": 2}},
  "Storm Chimera" : {"f": [6, 0], "s": [{"min": 0, "o": [[5], [3]]}, {"min": 1, "o": [[1], [2]]}, {"min": 0, "o": [[4]]}]},
  "Stormblade" : {"f": [6, 7, 8, 2], "s": [{"min": 1, "o": [[4, 4], [5, 5]]}, {"min": 0, "o": [[0], [3]]}, {"min": 0, "o": [[2, 2, 4, 4], [2, 2, 5, 5]]}, {"min": 0, "o": [[1]]}], "n": {"2": 2}},
- "Stormlord" : {"f": [4, 2, 1, 0, 5], "s": [{"min": 1, "o": [[3, 3], [2, 2]]}, {"min": 0, "o": [[1, 1, 2, 2], [1, 1, 3, 3]]}], "n": {"0": 2, "1": 2}},
+ "Stormlord" : {"f": [4, 2, 1, 0, 5], "s": [{"min": 1, "o": [[3, 3], [2, 2]]}, {"min": 0, "o": [[1, 1, 2, 2], [1, 1, 3, 3]]}], "n": {"1": 2, "0": 2}},
  "Stormsword" : {"f": [1, 2, 0, 4], "s": [{"min": 1, "o": [[3, 3], [2, 2]]}, {"min": 0, "o": [[0, 0, 2, 2], [0, 0, 3, 3]]}], "n": {"0": 2}},
  "Stygies Destroyer Tank Hunter" : {"f": [3, 4], "s": [{"min": 0, "o": [[2], [0]]}, {"min": 0, "o": [[1]]}]},
  "Tarantula Battery" : {"f": [2], "s": [{"min": 1, "o": [[0], [1]], "qui": "Figurines", "onom": ["Tarantula w/ twin heavy bolter", "Tarantula w/ twin lascannon"]}]},
@@ -4310,14 +4310,14 @@ const OCTROIS_DETACH = {};
 const OPTIONS_PTS = {
  "Field Ordnance Battery" : [["Bombast field gun", 10, [[0, 1, 1]], []]],
  "Krieg Heavy Weapons Squad" : [["Krieg heavy flamer", 5, [[0, 0, 1]], []]],
- "Leman Russ Battle Tank" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
- "Leman Russ Commander" : [["Demolisher battle cannon", 15, [[0, 1, 1]], []], ["Multi-melta", 5, [[2, 2, 2]], []], ["Lascannon", 5, [[1, 0, 1]], []], ["Plasma cannon", 5, [[2, 3, 2]], []]],
- "Leman Russ Demolisher" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
- "Leman Russ Eradicator" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
- "Leman Russ Executioner" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
- "Leman Russ Exterminator" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
- "Leman Russ Punisher" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]],
- "Leman Russ Vanquisher" : [["Multi-melta", 5, [[1, 2, 2]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 2]], []]]
+ "Leman Russ Battle Tank" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]],
+ "Leman Russ Commander" : [["Demolisher battle cannon", 15, [[0, 1, 1]], []], ["Multi-melta", 5, [[2, 2, 1]], []], ["Lascannon", 5, [[1, 0, 1]], []], ["Plasma cannon", 5, [[2, 3, 1]], []]],
+ "Leman Russ Demolisher" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]],
+ "Leman Russ Eradicator" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]],
+ "Leman Russ Executioner" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]],
+ "Leman Russ Exterminator" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]],
+ "Leman Russ Punisher" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]],
+ "Leman Russ Vanquisher" : [["Multi-melta", 5, [[1, 2, 1]], []], ["Lascannon", 5, [[0, 0, 1]], []], ["Plasma cannon", 5, [[1, 3, 1]], []]]
 };
 
 enregistreFaction({
