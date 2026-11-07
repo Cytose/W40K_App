@@ -34,6 +34,7 @@
     "ameliorations": "node outils/test-ameliorations.mjs",
     "strats-base": "node outils/test-strats-base.mjs",
     "recable": "python3 outils/recable.py --toutes",
+    "pv": "python3 outils/pv.py",
     "options": "python3 outils/options.py",
     "options-test": "node outils/test-options.mjs",
     "livrees": "node outils/test-livrees.mjs",

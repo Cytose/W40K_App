@@ -74,34 +74,47 @@ function rendSeuils(host, dist){
   }).join("");
 }
 
-/* Les cibles generiques sont des archetypes, pas des fiches officielles :
-   l'application ne connait que les Necrons. Elles servent a se faire une
-   idee — pour un chiffre exact contre un adversaire reel, on saisit son
-   profil et on le garde (voir « cibles gardees »). */
+/* Les cibles generiques sont des unites reelles, une par grand type de
+   cible, relevees le 07/11/2026 sur l'export Wahapedia de la 11e edition
+   (celui de /mnt/project-files/wahapedia) : E, Svg, Invu et PV du soldat
+   de base, effectif minimal courant. Elles ne portent ni les aptitudes
+   ni les regles d'armee (Reanimation, Insensible des Death Guard...) :
+   pour cela, l'onglet de l'armee donne la fiche complete. Avant la 11e,
+   Space Marine et Terminator avaient E4/E5, les Custodes E6 a 3 PV et
+   le Knight E12 : c'est ce qui a change. */
 const NATURE_CIBLE = {
   "Garde impérial":"Infanterie légère", "Ork Boy":"Infanterie légère",
-  "Aeldari (Guardian)":"Infanterie légère",
+  "Aeldari (Guardian)":"Infanterie légère", "Guerrier nécron":"Infanterie légère",
+  "Termagant":"Infanterie légère",
   "Space Marine":"Infanterie lourde", "Marine Gravis":"Infanterie lourde",
   "Genestealer":"Infanterie lourde", "Guerrier tyranide":"Infanterie lourde",
   "Terminator":"Élite", "Custodes":"Élite",
-  "Transport (T9)":"Véhicule & monstre", "Char lourd (T11)":"Véhicule & monstre",
-  "Knight (T12)":"Véhicule & monstre"
+  "Rhino":"Véhicule & monstre", "Carnifex":"Véhicule & monstre",
+  "Leman Russ":"Véhicule & monstre", "Land Raider":"Véhicule & monstre",
+  "Knight Paladin":"Véhicule & monstre"
 };
 const NATURE_ORDRE = ["Infanterie légère","Infanterie lourde","Élite","Véhicule & monstre"];
 
+/* [nom affiche, profil, fiche d'origine] */
 const GENERIC_TARGETS = [
-  ["Garde impérial",     {tough:3, sv:5, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}],
-  ["Ork Boy",            {tough:5, sv:6, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}],
-  ["Space Marine",       {tough:4, sv:3, inv:0, wounds:2, models:5,  fnp:0, dmgRed:0}],
-  ["Marine Gravis",      {tough:6, sv:3, inv:0, wounds:3, models:3,  fnp:0, dmgRed:0}],
-  ["Terminator",         {tough:5, sv:2, inv:4, wounds:3, models:5,  fnp:0, dmgRed:0}],
-  ["Custodes",           {tough:6, sv:2, inv:4, wounds:3, models:4,  fnp:0, dmgRed:0}],
-  ["Aeldari (Guardian)", {tough:3, sv:4, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}],
-  ["Genestealer",        {tough:4, sv:5, inv:5, wounds:2, models:10, fnp:0, dmgRed:0}],
-  ["Guerrier tyranide",  {tough:5, sv:4, inv:0, wounds:3, models:3,  fnp:0, dmgRed:0}],
-  ["Transport (T9)",     {tough:9, sv:3, inv:0, wounds:10, models:1, fnp:0, dmgRed:0}],
-  ["Char lourd (T11)",   {tough:11,sv:2, inv:0, wounds:16, models:1, fnp:0, dmgRed:0}],
-  ["Knight (T12)",       {tough:12,sv:3, inv:5, wounds:22, models:1, fnp:0, dmgRed:0}]
+  ["Garde impérial",     {tough:3, sv:5, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}, "Cadian Shock Troops"],
+  ["Ork Boy",            {tough:5, sv:5, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}, "Boyz"],
+  ["Aeldari (Guardian)", {tough:3, sv:4, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}, "Guardian Defenders"],
+  ["Guerrier nécron",    {tough:4, sv:4, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}, "Necron Warriors"],
+  ["Termagant",          {tough:3, sv:5, inv:0, wounds:1, models:10, fnp:0, dmgRed:0}, "Termagants"],
+  ["Space Marine",       {tough:5, sv:3, inv:0, wounds:2, models:5,  fnp:0, dmgRed:0}, "Intercessor Squad"],
+  ["Marine Gravis",      {tough:6, sv:3, inv:0, wounds:3, models:5,  fnp:0, dmgRed:0}, "Heavy Intercessor Squad"],
+  ["Genestealer",        {tough:4, sv:5, inv:5, wounds:2, models:10, fnp:0, dmgRed:0}, "Genestealers"],
+  ["Guerrier tyranide",  {tough:5, sv:4, inv:0, wounds:3, models:3,  fnp:0, dmgRed:0}, "Tyranid Warriors"],
+  ["Terminator",         {tough:6, sv:2, inv:4, wounds:3, models:5,  fnp:0, dmgRed:0}, "Terminator Squad"],
+  ["Custodes",           {tough:7, sv:2, inv:4, wounds:5, models:3,  fnp:0, dmgRed:0}, "Custodian Guard"],
+  ["Rhino",              {tough:9, sv:3, inv:0, wounds:10, models:1, fnp:0, dmgRed:0}, "Rhino"],
+  ["Carnifex",           {tough:9, sv:2, inv:0, wounds:8,  models:1, fnp:0, dmgRed:0}, "Carnifexes"],
+  ["Leman Russ",         {tough:11,sv:2, inv:0, wounds:13, models:1, fnp:0, dmgRed:0}, "Leman Russ Battle Tank"],
+  ["Land Raider",        {tough:12,sv:2, inv:0, wounds:16, models:1, fnp:0, dmgRed:0}, "Land Raider"],
+  /* l'invulnerable 5+ du Knight ne vaut qu'au tir ; le simulateur n'a
+     qu'une case Invu, elle reste donc posee aussi en melee */
+  ["Knight Paladin",     {tough:11,sv:3, inv:5, wounds:26, models:1, fnp:0, dmgRed:0}, "Knight Paladin"]
 ];
 
 const SEGS = [
@@ -821,17 +834,22 @@ function renderUnitList(){
   });
 }
 function renderTargetList(){
+  /* le troisieme onglet montre l'armee active, plus seulement les
+     Necrons : il porte son nom */
+  const ongArmee = el("tTabs").querySelector('[data-t="necrons"]');
+  if(ongArmee) ongArmee.textContent = factionNom(FACTION_ACTIVE) || "Armée";
   const q = norm(el("tSearch").value.trim());
   const host = el("tList"); host.innerHTML = "";
   if(tgtTab === "generic"){
-    const list = GENERIC_TARGETS.filter(t => !q || norm(t[0]).includes(q));
+    const list = GENERIC_TARGETS.filter(t => !q || norm(t[0]).includes(q) || norm(t[2] || "").includes(q));
     if(!list.length){ host.innerHTML = '<div class="sheet-empty">Aucune cible trouvée.</div>'; return; }
     /* douze entrees a la file se lisaient mal : on les range par nature,
        qui est justement le critere avec lequel on choisit une cible */
-    const bouton = ([name,p])=>{
+    const bouton = ([name,p,src])=>{
       const b = document.createElement("button");
       b.type="button"; b.className = "opt" + (name===tgtName ? " sel" : "");
-      b.innerHTML = '<span class="oi"><span class="o1">' + name + '</span><span class="o2">E' + p.tough +
+      b.innerHTML = '<span class="oi"><span class="o1">' + name + '</span><span class="o2">' +
+        (src && src !== name ? src + " · " : "") + 'E' + p.tough +
         " · Svg " + p.sv + "+" + (p.inv ? "/" + p.inv + "++" : "") + " · " + p.wounds + " PV × " + p.models + '</span></span>';
       b.addEventListener("click", ()=>{ closeSheet("sheetTarget"); applyGenericTarget(name); });
       return b;
@@ -849,9 +867,9 @@ function renderTargetList(){
     const note = document.createElement("p");
     note.className = "hint";
     note.style.padding = "10px 14px 4px";
-    note.textContent = "Ces profils sont des archétypes : l'application ne connaît " +
-      "en propre que les fiches nécrones. Pour un chiffre exact contre un adversaire, " +
-      "saisis son profil et garde-le.";
+    note.textContent = "Profils 11e édition du soldat de base (Wahapedia, 28/10), sans " +
+      "aptitudes ni règles d'armée. Pour la fiche complète d'une unité, passe par " +
+      "l'onglet de son armée ; pour un profil maison, saisis-le et garde-le.";
     host.appendChild(note);
   } else if(tgtTab === "roster"){
     /* Viser une unite de sa propre liste : l'effectif reel, et

@@ -125,6 +125,10 @@ def main():
         print('%-24s %s' % (nom, ', '.join('%d %s' % (len(v), k) for k, v in bouge.items())))
         for k in ('legends', 'retirees', 'nouvelles'):
             for n in r[k]: print('    %-9s %s' % (k, n))
+    # extraction.py prend le premier profil de BSData, souvent le
+    # sergent : outils/pv.py remet les PV de la figurine la plus nombreuse
+    print('\nPV du soldat (outils/pv.py)…')
+    print(sh(sys.executable, os.path.join(RACINE, 'outils', 'pv.py')).rstrip())
     print('\nEnsuite : npm run livrees, puis node build.js.')
 
 if __name__ == '__main__':
