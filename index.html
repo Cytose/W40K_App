@@ -285,7 +285,7 @@ footer{padding:22px 14px 10px;font-size:10.5px;color:var(--tx3);text-align:cente
   background:var(--s1);display:flex;align-items:center;gap:10px;
 }
 .sheet-head h3{margin:0;font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--glow);flex:1}
-input.sheet-search{
+input.sheet-search,select.sheet-search{
   margin:10px 12px 0;display:block;width:calc(100% - 24px);max-width:none;height:44px;
   padding:0 12px;text-align:left;background:var(--s2);border:1px solid var(--line-hi);border-radius:8px;
   color:var(--tx);font-size:16px;font-weight:600;font-family:inherit;
@@ -1051,7 +1051,7 @@ h2 #capCount.on{color:var(--glow)}
   /* une case carree de 220 px de cote est un gouffre : on la borne */
   .tile{aspect-ratio:auto;min-height:118px}
   .sheet-list,.sheet-head,input.sheet-search,.pickbar,.sheet-tabs{max-width:920px;margin-left:auto;margin-right:auto}
-  input.sheet-search{width:calc(100% - 24px)}
+  input.sheet-search,select.sheet-search{width:calc(100% - 24px)}
   /* centree par ses marges, une tete de feuille en colonne flex se
      ratatinait a la largeur de son titre */
   .sheet-head,.sheet-list{width:100%}
@@ -2222,8 +2222,9 @@ body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
   <div class="sheet-tabs" id="tTabs">
     <button type="button" class="chip on" data-t="generic">Génériques</button>
     <button type="button" class="chip" data-t="roster">Ma liste</button>
-    <button type="button" class="chip" data-t="necrons">Nécrons</button>
+    <button type="button" class="chip" data-t="necrons">Par armée</button>
   </div>
+  <select class="sheet-search" id="tFaction" aria-label="Armée de la cible" style="display:none"></select>
   <input class="sheet-search" id="tSearch" type="text" placeholder="Rechercher une cible…" autocomplete="off">
   <div class="sheet-list" id="tList"></div>
 </div>
