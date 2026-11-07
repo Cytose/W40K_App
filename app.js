@@ -383,6 +383,8 @@ function refreshAttacker(){
    CIBLE
    ========================================================== */
 let tgtName = "Space Marine", tgtUnit = null, tgtSize = 5;
+/* l'armee de la cible choisie, et celle que montre l'onglet « Par armee » */
+let tgtFac = "", tgtFacVue = "";
 
 /* ---------- cibles gardees ----------
    L'application ne connait que les fiches necrones. Contre un adversaire
@@ -524,8 +526,12 @@ function applyGenericTarget(name){
   tgtName = name; tgtUnit = null;
   refreshTarget(); pushState(); majApresCible();
 }
-function applyNecronTarget(name, size){
-  const u = unitRow(name); if(!u) return;
+/* `fac` : l'armee ou chercher la fiche. Par defaut l'armee active ; le
+   choix d'armee de la feuille « Choisir la cible » permet de viser
+   n'importe laquelle des 29 sans changer de liste. */
+function applyNecronTarget(name, size, fac){
+  const T = (FACTIONS[fac] || FACTIONS[FACTION_ACTIVE] || {}).tables;
+  const u = T ? T.UNITS.find(x => x[0] === name) : unitRow(name); if(!u) return;
   const sizes = u[6];
   size = sizes.indexOf(size) < 0 ? sizes[sizes.length-1] : size;
   S.tough = u[2]; S.sv = u[3]; S.inv = u[4]; S.wounds = u[5];
@@ -533,8 +539,10 @@ function applyNecronTarget(name, size){
   S.fnp = u[8];
   Object.assign(S, DEF_NEUTRE);
   S.dmgRed = /Necrodermis|Implacable Resilience|-1 D.gât/.test(u[11]) ? 1 : 0;
-  poseKwCible(kwDeCategorie(catDe(name)));
+  const c = T && T.CAT ? T.CAT.find(x => x[0] === name) : null;
+  poseKwCible(kwDeCategorie(c ? c[1] : catDe(name)));
   tgtName = name; tgtUnit = u; tgtSize = size;
+  tgtFac = FACTIONS[fac] ? fac : FACTION_ACTIVE;
   refreshTarget(); pushState(); majApresCible();
 }
 /* le nom retenu, le profil reellement en vigueur, et l'etat des cibles
@@ -631,7 +639,7 @@ function refreshTarget(){
       const b = document.createElement("button");
       b.type="button"; b.className = "chip" + (sz===tgtSize ? " on" : "");
       b.textContent = "×" + sz;
-      b.addEventListener("click", ()=> applyNecronTarget(tgtName, sz));
+      b.addEventListener("click", ()=> applyNecronTarget(tgtName, sz, tgtFac));
       sc.appendChild(b);
     });
   } else sc.style.display = "none";
@@ -834,10 +842,15 @@ function renderUnitList(){
   });
 }
 function renderTargetList(){
-  /* le troisieme onglet montre l'armee active, plus seulement les
-     Necrons : il porte son nom */
-  const ongArmee = el("tTabs").querySelector('[data-t="necrons"]');
-  if(ongArmee) ongArmee.textContent = factionNom(FACTION_ACTIVE) || "Armée";
+  /* « Par armee » : on choisit l'armee, puis l'unite. Elle s'ouvre sur
+     l'armee de la cible en cours, a defaut sur celle de la liste. */
+  const sel = el("tFaction");
+  sel.style.display = tgtTab === "necrons" ? "" : "none";
+  if(!FACTIONS[tgtFacVue]) tgtFacVue = (tgtUnit && FACTIONS[tgtFac]) ? tgtFac : FACTION_ACTIVE;
+  if(sel.options.length !== ORDRE_FACTIONS.length)
+    sel.innerHTML = listeFactions().slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr"))
+      .map(f => '<option value="' + f.cle + '">' + f.nom + '</option>').join("");
+  sel.value = tgtFacVue;
   const q = norm(el("tSearch").value.trim());
   const host = el("tList"); host.innerHTML = "";
   if(tgtTab === "generic"){
@@ -901,15 +914,32 @@ function renderTargetList(){
       host.appendChild(b);
     });
   } else {
-    const list = UNITS.filter(u => !q || norm(u[0]).includes(q));
+    const T = (FACTIONS[tgtFacVue] || {}).tables || {UNITS, CAT};
+    const list = T.UNITS.filter(u => !q || norm(u[0]).includes(q));
     if(!list.length){ host.innerHTML = '<div class="sheet-empty">Aucune unité trouvée.</div>'; return; }
-    list.forEach(u=>{
+    /* rangees par categorie, la troupe d'abord : on cherche « un char »
+       ou « de l'infanterie » avant de chercher un nom, et on vise plus
+       souvent une escouade qu'un heros */
+    const catDeT = n => { const c = (T.CAT || []).find(x => x[0] === n); return c ? c[1] : "Autre"; };
+    const ordre = ["Battleline","Infanterie","Monté","Bête","Véhicule","Monstre",
+                   "Personnage","Epic Hero","Fortification","Autre"];
+    const rang = c => { const i = ordre.indexOf(c); return i < 0 ? ordre.length : i; };
+    const triees = list.map(u => [u, catDeT(u[0])])
+      .sort((a, b) => rang(a[1]) - rang(b[1]) || a[1].localeCompare(b[1]));
+    let catVue = null;
+    triees.forEach(([u, cat])=>{
+      if(cat !== catVue){
+        catVue = cat;
+        const sep = document.createElement("div");
+        sep.className = "sheet-sep"; sep.textContent = cat;
+        host.appendChild(sep);
+      }
       const b = document.createElement("button");
-      b.type="button"; b.className = "opt" + (u[0]===tgtName ? " sel" : "");
+      b.type="button"; b.className = "opt" + (u[0]===tgtName && tgtFac===tgtFacVue ? " sel" : "");
       b.innerHTML = '<span class="oi"><span class="o1">' + u[0] + '</span><span class="o2">E' + u[2] +
         " · Svg " + u[3] + "+" + (u[4] ? "/" + u[4] + "++" : "") + " · " + u[5] + " PV · ×" + u[6].join("/") + '</span></span>' +
         (u[10] ? '<span class="otag">LEGENDS</span>' : "");
-      b.addEventListener("click", ()=>{ closeSheet("sheetTarget"); applyNecronTarget(u[0], u[6][u[6].length-1]); });
+      b.addEventListener("click", ()=>{ closeSheet("sheetTarget"); applyNecronTarget(u[0], u[6][u[6].length-1], tgtFacVue); });
       host.appendChild(b);
     });
   }
@@ -2091,6 +2121,7 @@ el("pickUnit").addEventListener("click", ()=>{ window.__rosterPick=false; el("uS
 el("pickTarget").addEventListener("click", ()=>{ el("tSearch").value=""; renderTargetList(); openSheet("sheetTarget"); });
 el("uSearch").addEventListener("input", renderUnitList);
 el("tSearch").addEventListener("input", renderTargetList);
+el("tFaction").addEventListener("change", e => { tgtFacVue = e.target.value; renderTargetList(); });
 el("tTabs").querySelectorAll(".chip").forEach(b=>
   b.addEventListener("click", ()=>{
     tgtTab = b.dataset.t;
