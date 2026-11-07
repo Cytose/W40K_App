@@ -32,7 +32,7 @@ let situ = {};                        // conditions situationnelles cochees
 const listeVierge = (nom, cap, faction) => ({
   id: "l" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36),
   nom: nom || "Nouvelle liste", faction: faction || FACTION_ACTIVE || FACTION_DEFAUT,
-  cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1
+  cap: cap || 2000, detach: [], fd: "", units: [], nextId: 1, armV: 1
 });
 
 /* La date de derniere modification range les listes « Récentes ». Elle
@@ -77,6 +77,38 @@ let MIGRE = false;
    retire leurs unites. On les nomme plutot que de laisser croire a une
    liste videe sans raison. */
 let ORPHELINES = [];
+
+/* UNE MISE A JOUR NE DOIT PAS DEFAIRE LES CHOIX D'ARMES.
+   Une liste retient ses choix par position (emplacement s, option o).
+   Celle du 07/11/2026 a renomme des armes (« Plasma pistol - standard »
+   → « Plasma pistol (Standard) ») et retire une « Vanguard Veteran
+   Weapon » : les options ont change de rang, et une liste rouverte
+   designait autre chose que ce qu'on avait choisi. remap-armes.js,
+   produit par outils/remap-armes.py, dit ou chaque option est allee ;
+   on l'applique une fois aux listes qui ne portent pas armV, et
+   seulement si elles datent d'avant la mise a jour : une liste faite
+   apres est deja aux bonnes positions. */
+function realigneArmes(L){
+  if(L.armV) return;
+  L.armV = 1; MIGRE = true;
+  const M = (typeof REMAP_ARMES !== "undefined") ? REMAP_ARMES : null;
+  if(!M || (L.maj && L.maj > M.avant)) return;
+  const T = M.table[L.faction] || {};
+  const bouge = (nom, lo) => {
+    const t = T[nom]; if(!t || !lo) return lo;
+    return lo.map(l => {
+      const k = l.s + ":" + l.o;
+      if(!(k in t)) return l;
+      if(t[k] === null) return null;        // option disparue : l'emplacement reprend son defaut
+      const [s, o] = t[k].split(":").map(Number);
+      return Object.assign({}, l, {s, o});
+    }).filter(Boolean);
+  };
+  (L.units || []).forEach(ru => {
+    ru.lo = bouge(ru.name, ru.lo);
+    (ru.chars || []).forEach(c => { c.lo = bouge(c.name, c.lo); });
+  });
+}
 
 function normaliseListe(L){
   /* Une liste se relit dans SA faction, jamais dans celle qui se trouve
@@ -123,6 +155,7 @@ function normaliseListe(L){
       return false;
     });
   });
+  realigneArmes(L);
   L.units.forEach(ru => {
     ru.chars = ru.chars || []; ru.lo = ru.lo || [];
     if(ru.sel === undefined) ru.sel = true;
@@ -657,6 +690,8 @@ function profilsPhase(ru, ph){
 }
 
 window.ROSTER = {
+  /* crochet de test : le realignement des choix d'armes, sur une copie */
+  realigne: L => { const c = JSON.parse(JSON.stringify(L)); realigneArmes(c); return c; },
   /* les fiches qui peuvent porter une amelioration, telles que la fiche
      d'un detachement les annonce (test-listes.mjs, section 8) */
   porteursEnh: (cle, nom) => {
