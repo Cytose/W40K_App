@@ -97,7 +97,7 @@ eq('+3 en Force sur la seule « Pandaemonic Delusion » du Sorcier',
 
 console.log('\n== Thousand Sons : les relances uniques du Warpforged Cabal ==');
 await liste('thousandsons', ['Warpforged Cabal'], [unite(1, 'Chaos Predator Annihilator', 1)]);
-await generique('Char lourd (T11)');
+await generique('Leman Russ');
 await charge(1, 'T');
 const e0 = await esp();
 await cond('Infusion de Feu Warp — une relance de touche', true);

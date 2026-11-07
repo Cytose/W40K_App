@@ -201,8 +201,8 @@ const MOTS_CIBLE = [
      le Stormsurge contre les TITANESQUES, l'Instinct de Nuée, la Terreur
      Rouge contre les BÊTES, l'Asterius contre les FORTIFICATIONS, et
      Lucius qui distingue les MARCHEURS des autres VÉHICULES. Le joueur
-     les coche sur la cible ; les archétypes génériques n'en portent
-     aucun. */
+     les coche sur la cible ; parmi les cibles génériques, seul le
+     Knight Paladin en porte (TITANESQUE, MARCHEUR). */
   ["psyker",  "Psyker"],
   ["chaos",   "Chaos"],
   ["demon",   "Démon"],
@@ -213,10 +213,9 @@ const MOTS_CIBLE = [
   ["fort",    "Fortification"],
   ["marcheur","Marcheur"]
 ];
-/* Ce que porte chaque archétype générique. Ce sont mes propres
-   attributions, pas une source officielle : les archétypes eux-mêmes
-   sont des approximations, et rien n'empêche de les corriger d'une
-   touche sur l'écran. */
+/* Ce que porte chaque cible générique : les mots-clés physiques de sa
+   fiche 11e (Wahapedia), sans ceux de faction (IMPERIUM, CHAOS...) ni
+   PERSONNAGE. Rien n'empêche de les corriger d'une touche sur l'écran. */
 const KW_ARCHETYPE = {
   "Garde impérial"     : ["inf"],
   "Ork Boy"            : ["inf"],
@@ -227,9 +226,13 @@ const KW_ARCHETYPE = {
   "Aeldari (Guardian)" : ["inf"],
   "Genestealer"        : ["inf"],
   "Guerrier tyranide"  : ["inf"],
-  "Transport (T9)"     : ["veh"],
-  "Char lourd (T11)"   : ["veh"],
-  "Knight (T12)"       : ["veh"]
+  "Guerrier nécron"    : ["inf"],
+  "Termagant"          : ["inf"],
+  "Rhino"              : ["veh"],
+  "Carnifex"           : ["mon"],
+  "Leman Russ"         : ["veh"],
+  "Land Raider"        : ["veh"],
+  "Knight Paladin"     : ["veh", "titan", "marcheur"]
 };
 /* Et ce que porte une unité nécron, déduit de sa catégorie et des
    tables de mots-clés déjà en place. */
