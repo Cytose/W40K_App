@@ -98,7 +98,7 @@ const UNITS = [
   ["Krom Dragongaze",6,4,3,4,4,[1],{"1": 65},0,"Meneur",1,"",1,"6+"],
   ["Land Raider",10,12,2,0,16,[1],[[1, {"1": 245}], [2, {"1": 265}]],0,"",0,"",5,"6+"],
   ["Land Raider Crusader",12,12,2,0,16,[1],[[1, {"1": 230}], [2, {"1": 250}]],0,"",0,"",5,"6+"],
-  ["Land Raider Excelsior",10,12,2,0,16,[1],{"1": 250},0,"",1,"",5,"6+"],
+  ["Land Raider Excelsior",10,12,2,5,16,[1],{"1": 250},0,"",1,"",5,"6+"],
   ["Land Raider Redeemer",12,12,2,0,16,[1],[[1, {"1": 245}], [2, {"1": 265}]],0,"",0,"",5,"6+"],
   ["Land Speeder",14,8,3,0,9,[1],{"1": 105},0,"",0,"",3,"6+"],
   ["Librarian",6,5,3,0,4,[1],{"1": 75},0,"Meneur",0,"",1,"6+"],
@@ -140,10 +140,10 @@ const UNITS = [
   ["Techmarine",6,5,2,0,4,[1],{"1": 55},0,"Meneur",0,"",1,"6+"],
   ["Terminator Assault Squad",5,6,2,4,4,[5, 10],[[1, {"5": 170, "10": 340}], [3, {"5": 210, "10": 380}]],0,"",0,"",1,"6+"],
   ["Terminator Squad",5,6,2,4,3,[5, 10],[[1, {"5": 190, "10": 380}], [3, {"5": 230, "10": 420}]],0,"",0,"",1,"6+"],
-  ["Thunderhawk Gunship",20,12,2,0,30,[1],[[1, {"1": 850}], [2, {"1": 950}]],0,"",0,"",0,"6+"],
+  ["Thunderhawk Gunship",14,12,2,0,30,[1],[[1, {"1": 850}], [2, {"1": 950}]],0,"",0,"",0,"6+"],
   ["Thunderwolf Cavalry",12,6,3,0,4,[3, 6],[[1, {"3": 115, "6": 230}], [3, {"3": 145, "6": 260}]],0,"",0,"",2,"6+"],
   ["Ulrik the Slayer",7,5,3,4,4,[1],{"1": 90},0,"Meneur",0,"",1,"5+"],
-  ["Vanguard Veteran Squad",6,4,3,0,2,[5, 10],{"5": 120, "10": 240},0,"",1,"",1,"6+"],
+  ["Vanguard Veteran Squad",6,5,3,0,2,[5, 10],{"5": 120, "10": 240},0,"",1,"",1,"6+"],
   ["Vanguard Veteran Squad with Jump Packs",12,5,3,0,2,[5, 10],[[1, {"5": 110, "10": 220}], [3, {"5": 130, "10": 240}]],0,"",0,"",1,"6+"],
   ["Venerable Dreadnought",8,9,2,0,8,[1],[[1, {"1": 130}], [3, {"1": 140}]],0,"",0,"",3,"6+"],
   ["Vindicator",9,11,2,0,11,[1],[[1, {"1": 185}], [3, {"1": 200}]],0,"",1,"",3,"6+"],
@@ -168,8 +168,8 @@ const UNITS = [
 /* WEAPONS : [unité, arme, "T"|"C", A, CT/CC, F, PA, D, drapeaux, portée] */
 const WEAPONS = [
   ["Aggressor Squad","Auto Boltstorm Gauntlets","T","3",3,5,1,"1","twin","18\""],
-  ["Aggressor Squad","Fragstorm grenade launcher","T","3",3,4,1,"1","","18\""],
-  ["Aggressor Squad","➤ Flamestorm Gauntlets","T","3",0,4,1,"1","torrent twin","12\""],
+  ["Aggressor Squad","Fragstorm grenade launcher","T","3",3,4,1,"1","blast","18\""],
+  ["Aggressor Squad","➤ Flamestorm Gauntlets","T","3",0,4,1,"1","blast:2 torrent twin","12\""],
   ["Aggressor Squad","➤ Flamestorm Gauntlets - Close-quarters","T","3",0,4,1,"1","torrent twin","12\""],
   ["Aggressor Squad","Twin power fist","C","3",3,8,2,"2","twin","càc"],
   ["Ancient","Bolt pistol","T","1",3,5,1,"1","","12\""],
@@ -183,35 +183,35 @@ const WEAPONS = [
   ["Arjac Rockfist","Foehammer (càc)","C","5",2,10,2,"3","precision","càc"],
   ["Assault Intercessor Squad","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
   ["Assault Intercessor Squad","Heavy Bolt Pistol","T","1",3,5,1,"1","","18\""],
-  ["Assault Intercessor Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Assault Intercessor Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Assault Intercessor Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Assault Intercessor Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Assault Intercessor Squad","Chainsword","C","4",3,5,1,"1","","càc"],
   ["Assault Intercessor Squad","Power fist","C","3",3,8,2,"2","","càc"],
   ["Assault Intercessor Squad","Power weapon","C","4",3,5,2,"1","","càc"],
   ["Assault Intercessor Squad","Thunder Hammer","C","3",4,8,2,"3","dev","càc"],
   ["Assault Intercessors with Jump Packs","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
   ["Assault Intercessors with Jump Packs","Heavy Bolt Pistol","T","1",3,5,1,"1","","18\""],
-  ["Assault Intercessors with Jump Packs","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Assault Intercessors with Jump Packs","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Assault Intercessors with Jump Packs","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Assault Intercessors with Jump Packs","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Assault Intercessors with Jump Packs","Chainsword","C","4",3,5,1,"1","","càc"],
   ["Assault Intercessors with Jump Packs","Power fist","C","3",3,8,2,"2","","càc"],
   ["Assault Intercessors with Jump Packs","Power weapon","C","4",3,5,2,"1","","càc"],
-  ["Astraeus","Astraeus las-ripper","T","3",3,12,3,"D3+3","","36\""],
+  ["Astraeus","Astraeus las-ripper","T","2",3,12,3,"D3+3","","36\""],
   ["Astraeus","Ironhail Heavy Stubber","T","3",3,4,1,"1","rf:3","36\""],
   ["Astraeus","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Astraeus","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
   ["Astraeus","Twin lascannon","T","1",3,12,3,"D3+3","twin","48\""],
-  ["Astraeus","Twin macro-accelerator cannon","T","12",3,9,1,"3","sust:1 twin","72\""],
-  ["Astraeus","➤ Plasma eradicator - standard","T","D6",3,7,2,"2","","36\""],
-  ["Astraeus","➤ Plasma eradicator - supercharge","T","3",3,8,3,"3","hazardous","36\""],
+  ["Astraeus","Twin macro-accelerator cannon","T","12",3,10,1,"3","sust:1 twin","72\""],
+  ["Astraeus","➤ Plasma eradicator (Standard)","T","3",3,7,2,"2","blast:2","36\""],
+  ["Astraeus","➤ Plasma eradicator (Supercharge)","T","3",3,8,3,"3","blast:2 hazardous","36\""],
   ["Astraeus","Armoured Hull","C","6",4,8,0,"1","","càc"],
   ["Ballistus Dreadnought","Ballistus Lascannon","T","2",3,12,3,"D3+3","","48\""],
   ["Ballistus Dreadnought","Storm Bolters","T","4",3,5,1,"1","rf:4","24\""],
-  ["Ballistus Dreadnought","➤ Ballistus Missile Launcher - Frag","T","D6+6",3,5,1,"1","","48\""],
+  ["Ballistus Dreadnought","➤ Ballistus Missile Launcher - Frag","T","D6+6",3,5,1,"1","blast:2","48\""],
   ["Ballistus Dreadnought","➤ Ballistus Missile Launcher - Krak","T","2",3,10,2,"D3+3","","48\""],
   ["Ballistus Dreadnought","Armoured Feet","C","5",3,7,0,"1","","càc"],
   ["Bjorn the Fell-Handed","Assault cannon","T","6",3,6,2,"1","sust:1","24\""],
-  ["Bjorn the Fell-Handed","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Bjorn the Fell-Handed","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Bjorn the Fell-Handed","Multi-melta","T","2",2,10,3,"D3+2","melta:3","18\""],
   ["Bjorn the Fell-Handed","➤ Helfrost cannon - dispersed","T","3",0,6,1,"2","torrent","12\""],
   ["Bjorn the Fell-Handed","➤ Helfrost cannon - focused","T","1",2,10,3,"5","","36\""],
@@ -220,12 +220,12 @@ const WEAPONS = [
   ["Bladeguard Ancient","Relics of Battle","C","4",3,5,2,"2","","càc"],
   ["Bladeguard Veteran Squad","Heavy Bolt Pistol","T","1",3,5,1,"1","","18\""],
   ["Bladeguard Veteran Squad","Neo-volkite Pistol","T","1",3,5,0,"2","dev","12\""],
-  ["Bladeguard Veteran Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Bladeguard Veteran Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Bladeguard Veteran Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Bladeguard Veteran Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Bladeguard Veteran Squad","Master-crafted power weapon","C","4",3,5,2,"2","","càc"],
   ["Blood Claws","Bolt pistol","T","1",3,5,1,"1","","12\""],
-  ["Blood Claws","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Blood Claws","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Blood Claws","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Blood Claws","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Blood Claws","Chainsword","C","4",3,5,1,"1","","càc"],
   ["Blood Claws","Power weapon","C","4",3,5,2,"1","","càc"],
   ["Brutalis Dreadnought","Bolt Rifles","T","4",3,5,1,"1","twin","24\""],
@@ -256,19 +256,19 @@ const WEAPONS = [
   ["Captain in Phobos Armour","Combat Knife","C","6",2,5,1,"1","precision sust:1","càc"],
   ["Captain in Terminator Armour","Storm bolter","T","2",2,5,1,"1","rf:2","24\""],
   ["Captain in Terminator Armour","➤ Combi-weapon - Damnatus","T","1",2,9,3,"D3+2","melta:2","12\""],
-  ["Captain in Terminator Armour","➤ Combi-weapon - Infernus","T","3",0,4,0,"1","torrent","12\""],
+  ["Captain in Terminator Armour","➤ Combi-weapon - Infernus","T","3",0,4,0,"1","blast torrent","12\""],
   ["Captain in Terminator Armour","➤ Combi-weapon - Purgatus","T","2",2,7,2,"2","","24\""],
   ["Captain in Terminator Armour","Relic Fist","C","5",2,8,2,"2","","càc"],
   ["Captain in Terminator Armour","Relic Weapon","C","6",2,6,2,"2","","càc"],
   ["Captain on Bike","Bolt pistol","T","1",2,5,1,"1","","12\""],
   ["Captain on Bike","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
   ["Captain on Bike","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
-  ["Captain on Bike","Inferno Pistol","T","1",3,8,3,"D3+2","melta:1","9\""],
+  ["Captain on Bike","Inferno Pistol","T","1",3,8,3,"D3+2","melta:2","9\""],
   ["Captain on Bike","Master-crafted boltgun","T","2",2,4,0,"2","","24\""],
   ["Captain on Bike","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Captain on Bike","Twin boltgun","T","2",3,4,0,"1","twin","24\""],
-  ["Captain on Bike","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Captain on Bike","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Captain on Bike","Twin boltgun","T","2",3,5,1,"1","twin","24\""],
+  ["Captain on Bike","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Captain on Bike","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Captain on Bike","Astartes Chainsword","C","7",2,4,1,"1","","càc"],
   ["Captain on Bike","Close combat weapon","C","6",2,4,0,"1","","càc"],
   ["Captain on Bike","Power fist","C","5",2,8,2,"2","","càc"],
@@ -283,12 +283,12 @@ const WEAPONS = [
   ["Captain with Jump Pack","Power fist","C","5",2,8,2,"2","","càc"],
   ["Captain with Jump Pack","Relic Weapon","C","6",2,6,2,"2","","càc"],
   ["Captain with Jump Pack","Thunder Hammer","C","5",3,8,2,"3","dev","càc"],
-  ["Centurion Assault Squad","Centurion Bolters","T","3",3,4,0,"1","rf:3 twin","24\""],
-  ["Centurion Assault Squad","Twin flamer","T","D6",0,4,0,"1","ignorescover torrent twin","12\""],
-  ["Centurion Assault Squad","Twin meltagun","T","1",3,9,4,"D6","melta:2 twin","12\""],
+  ["Centurion Assault Squad","Centurion Bolters","T","3",3,5,1,"1","rf:3 twin","24\""],
+  ["Centurion Assault Squad","Twin flamer","T","3",0,4,0,"1","blast torrent twin","12\""],
+  ["Centurion Assault Squad","Twin meltagun","T","1",3,9,3,"D3+2","melta:2 twin","12\""],
   ["Centurion Assault Squad","Siege Drills","C","3",3,10,2,"3","twin","càc"],
-  ["Centurion Devastator Squad","Centurion Bolters","T","3",3,4,0,"1","rf:3 twin","24\""],
-  ["Centurion Devastator Squad","Centurion missile launcher","T","D3",3,9,2,"D3","blast","36\""],
+  ["Centurion Devastator Squad","Centurion Bolters","T","3",3,5,1,"1","rf:3 twin","24\""],
+  ["Centurion Devastator Squad","Centurion missile launcher","T","2",3,9,2,"3","blast","36\""],
   ["Centurion Devastator Squad","Grav-cannon","T","3",3,6,1,"3","anti:2:veh","24\""],
   ["Centurion Devastator Squad","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
   ["Centurion Devastator Squad","Twin lascannon","T","1",3,12,3,"D6+1","twin","48\""],
@@ -310,21 +310,21 @@ const WEAPONS = [
   ["Cyberwolf","Teeth and claws","C","4",4,4,0,"1","","càc"],
   ["Desolation Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Desolation Squad","Castellan Launcher","T","2",3,5,1,"1","heavy","24\""],
-  ["Desolation Squad","Superfrag Rocket Launcher","T","4",3,5,1,"1","heavy","48\""],
+  ["Desolation Squad","Superfrag Rocket Launcher","T","4",3,5,1,"1","blast heavy","48\""],
   ["Desolation Squad","Superkrak Rocket Launcher","T","1",3,10,2,"D3+3","heavy","48\""],
-  ["Desolation Squad","Vengor launcher","T","4",3,7,1,"2","heavy indirect","48\""],
+  ["Desolation Squad","Vengor launcher","T","4",3,7,1,"2","blast heavy indirect","48\""],
   ["Desolation Squad","Ceramite Fists","C","3",3,5,0,"1","","càc"],
-  ["Dreadnought","Assault Cannon","T","6",3,6,0,"1","dev","24\""],
-  ["Dreadnought","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
-  ["Dreadnought","Multi-melta","T","2",3,9,4,"D6","melta:2","18\""],
+  ["Dreadnought","Assault Cannon","T","6",3,6,2,"1","sust:1","24\""],
+  ["Dreadnought","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
+  ["Dreadnought","Multi-melta","T","2",3,10,3,"D3+2","melta:3","18\""],
   ["Dreadnought","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Dreadnought","Twin lascannon","T","1",3,12,3,"D6+1","twin","48\""],
-  ["Dreadnought","➤ Heavy Plasma Cannon","T","D3",3,8,3,"3","blast hazardous","36\""],
-  ["Dreadnought","➤ Heavy Plasma Cannon - Standard","T","D3",3,7,2,"2","blast","36\""],
-  ["Dreadnought","➤ Missile Launcher - Frag","T","D6",3,4,0,"1","blast","48\""],
-  ["Dreadnought","➤ Missile Launcher - Krak","T","1",3,9,2,"D6","","48\""],
-  ["Dreadnought","Close combat weapon","C","5",3,6,0,"1","","càc"],
-  ["Dreadnought","Dreadnought Combat Weapon","C","5",3,12,2,"3","","càc"],
+  ["Dreadnought","Twin lascannon","T","1",3,12,3,"D3+3","twin","48\""],
+  ["Dreadnought","➤ Heavy Plasma Cannon (Standard)","T","3",3,9,2,"2","blast heavy","36\""],
+  ["Dreadnought","➤ Heavy Plasma Cannon (Supercharge)","T","3",3,10,3,"3","blast hazardous heavy","36\""],
+  ["Dreadnought","➤ Missile Launcher (Frag)","T","4",3,4,1,"1","blast","48\""],
+  ["Dreadnought","➤ Missile Launcher (Krak)","T","1",3,10,2,"D3+3","","48\""],
+  ["Dreadnought","Crushing Feet","C","5",3,6,0,"1","","càc"],
+  ["Dreadnought","Dreadnought Fist","C","5",3,12,2,"3","","càc"],
   ["Eliminator Squad","Bolt Sniper Rifle","T","1",3,6,2,"3","heavy precision","36\""],
   ["Eliminator Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Eliminator Squad","Instigator Bolt Carbine","T","2",3,5,2,"2","precision rf:2","24\""],
@@ -360,10 +360,10 @@ const WEAPONS = [
   ["Grey Hunters","Chainsword","C","4",3,5,1,"1","","càc"],
   ["Grey Hunters","Power fist","C","3",3,8,2,"2","","càc"],
   ["Grey Hunters","Power weapon","C","4",3,5,2,"1","","càc"],
-  ["Hammerfall Bunker","Hammerfall Heavy Bolter Array","T","6",4,5,1,"2","sust:1 twin","36\""],
-  ["Hammerfall Bunker","Hammerfall Heavy Flamer Array","T","2D6",0,5,1,"1","ignorescover torrent twin","12\""],
-  ["Hammerfall Bunker","➤ Hammerfall Missile Launcher - Superfrag","T","2d6+2",4,5,0,"1","blast","48\""],
-  ["Hammerfall Bunker","➤ Hammerfall Missile Launcher - Superkrak","T","2",4,10,2,"D6+1","","48\""],
+  ["Hammerfall Bunker","Hammerfall Heavy Bolter Array","T","6",4,5,1,"2","rf:2 sust:1 twin","36\""],
+  ["Hammerfall Bunker","Hammerfall Heavy Flamer Array","T","6",0,5,1,"1","blast:2 torrent twin","12\""],
+  ["Hammerfall Bunker","➤ Hammerfall Missile Launcher - Superfrag","T","7",4,5,1,"1","blast","48\""],
+  ["Hammerfall Bunker","➤ Hammerfall Missile Launcher - Superkrak","T","2",4,10,2,"D3+3","","48\""],
   ["Harald Deathwolf","Bolt pistol","T","1",2,5,1,"1","","12\""],
   ["Harald Deathwolf","Crushing teeth and claws","C","3",3,5,1,"1","extra","càc"],
   ["Harald Deathwolf","Glacius","C","6",2,6,2,"2","","càc"],
@@ -374,16 +374,16 @@ const WEAPONS = [
   ["Hellblaster Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Hellblaster Squad","➤ Plasma Incinerator - Standard","T","2",3,7,2,"2","assault rf:1","24\""],
   ["Hellblaster Squad","➤ Plasma Incinerator - Supercharge","T","2",3,8,3,"2","assault hazardous rf:1","24\""],
-  ["Hellblaster Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Hellblaster Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Hellblaster Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Hellblaster Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Hellblaster Squad","Ceramite Fists","C","3",3,5,0,"1","","càc"],
   ["Hounds of Morkai","Morkai bolt pistol","T","1",3,4,1,"1","anti:4 dev pistol precision","12\""],
   ["Hounds of Morkai","Morkai combat knife","C","4",3,4,0,"1","anti:4 dev precision","càc"],
-  ["Impulsor","Fragstorm Grenade Launchers","T","6",3,4,1,"1","","18\""],
+  ["Impulsor","Fragstorm Grenade Launchers","T","6",3,4,1,"1","blast:2","18\""],
   ["Impulsor","Ironhail Heavy Stubber","T","3",3,4,1,"1","rf:3","36\""],
   ["Impulsor","Ironhail Skytalon Array","T","6",3,4,1,"1","rf:6","36\""],
   ["Impulsor","Storm Bolters","T","4",3,5,1,"1","rf:4","24\""],
-  ["Impulsor","➤ Bellicatus Missile Array - Frag","T","4",3,4,1,"1","","48\""],
+  ["Impulsor","➤ Bellicatus Missile Array - Frag","T","4",3,4,1,"1","blast","48\""],
   ["Impulsor","➤ Bellicatus Missile Array - Icarus","T","3",3,6,1,"2","anti:2:vol","48\""],
   ["Impulsor","➤ Bellicatus Missile Array - Krak","T","1",3,10,2,"D3+3","","48\""],
   ["Impulsor","Armoured Hull","C","3",4,6,0,"1","","càc"],
@@ -395,7 +395,7 @@ const WEAPONS = [
   ["Incursor Squad","Occulus Bolt Carbine","T","2",3,5,1,"1","assault ignorescover","24\""],
   ["Incursor Squad","Paired Combat Blades","C","3",3,5,1,"1","sust:1","càc"],
   ["Infernus Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
-  ["Infernus Squad","Pyreblaster","T","3",0,5,1,"1","torrent","12\""],
+  ["Infernus Squad","Pyreblaster","T","3",0,5,1,"1","blast torrent","12\""],
   ["Infernus Squad","Ceramite Fists","C","3",3,5,0,"1","","càc"],
   ["Infiltrator Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Infiltrator Squad","Marksman Bolt Carbine","T","2",3,5,1,"1","precision rf:1","24\""],
@@ -404,10 +404,10 @@ const WEAPONS = [
   ["Intercessor Squad","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
   ["Intercessor Squad","➤ Bolt Rifle - Focused Fire","T","1",3,6,1,"2","heavy rf:1","24\""],
   ["Intercessor Squad","➤ Bolt Rifle - Saturation","T","2",3,5,1,"1","assault rf:1","24\""],
-  ["Intercessor Squad","➤ Grenade Launcher - Frag","T","4",3,4,1,"1","","24\""],
+  ["Intercessor Squad","➤ Grenade Launcher - Frag","T","4",3,4,1,"1","blast","24\""],
   ["Intercessor Squad","➤ Grenade Launcher - Krak","T","1",3,10,2,"3","rf:1","24\""],
-  ["Intercessor Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Intercessor Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Intercessor Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Intercessor Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Intercessor Squad","Chainsword","C","5",3,5,1,"1","","càc"],
   ["Intercessor Squad","Knives and Fists","C","3",3,5,0,"1","","càc"],
   ["Intercessor Squad","Power fist","C","3",3,8,2,"2","","càc"],
@@ -418,9 +418,9 @@ const WEAPONS = [
   ["Invader ATVs","Onslaught gatling cannon","T","8",3,5,1,"1","","24\""],
   ["Invader ATVs","Twin Bolt Rifle","T","2",3,5,1,"1","assault rf:2 twin","24\""],
   ["Invader ATVs","Armoured Impact","C","4",3,5,0,"1","","càc"],
-  ["Invictor Tactical Warsuit","Fragstorm grenade launcher","T","3",3,4,1,"1","","18\""],
+  ["Invictor Tactical Warsuit","Fragstorm grenade launcher","T","3",3,4,1,"1","blast","18\""],
   ["Invictor Tactical Warsuit","Heavy Bolter","T","3",3,5,1,"2","rf:2 sust:1","36\""],
-  ["Invictor Tactical Warsuit","Incendium Cannon","T","4",0,6,1,"2","torrent","12\""],
+  ["Invictor Tactical Warsuit","Incendium Cannon","T","4",0,6,1,"2","blast:2 torrent","12\""],
   ["Invictor Tactical Warsuit","Ironhail Heavy Stubbers","T","6",3,4,1,"1","rf:6","36\""],
   ["Invictor Tactical Warsuit","Twin Ironhail Autocannon","T","4",3,9,1,"3","twin","48\""],
   ["Invictor Tactical Warsuit","Invictor Fist","C","5",3,12,2,"3","","càc"],
@@ -443,14 +443,16 @@ const WEAPONS = [
   ["Land Raider Crusader","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Land Raider Crusader","Twin assault cannon","T","6",3,6,2,"1","sust:1 twin","24\""],
   ["Land Raider Crusader","Armoured Tracks","C","6",4,8,0,"1","","càc"],
-  ["Land Raider Excelsior","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
   ["Land Raider Excelsior","Godhammer Lascannon","T","2",3,12,3,"D3+3","","48\""],
   ["Land Raider Excelsior","Grav-cannon","T","3",3,6,1,"3","anti:2:veh","24\""],
   ["Land Raider Excelsior","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
   ["Land Raider Excelsior","Multi-melta","T","2",3,10,3,"D3+2","melta:3","18\""],
   ["Land Raider Excelsior","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
+  ["Land Raider Excelsior","➤ Combi-weapon (Damnatus)","T","1",3,9,3,"D3+2","","12\""],
+  ["Land Raider Excelsior","➤ Combi-weapon (Infernus)","T","3",0,4,0,"1","blast torrent","12\""],
+  ["Land Raider Excelsior","➤ Combi-weapon (Purgatus)","T","2",3,7,2,"2","melta:2","24\""],
   ["Land Raider Excelsior","Armoured Tracks","C","6",4,8,0,"1","","càc"],
-  ["Land Raider Redeemer","Flamestorm Cannon","T","4",0,6,2,"2","torrent","12\""],
+  ["Land Raider Redeemer","Flamestorm Cannon","T","4",0,6,2,"2","blast:2 torrent","12\""],
   ["Land Raider Redeemer","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
   ["Land Raider Redeemer","Multi-melta","T","2",3,10,3,"D3+2","melta:3","18\""],
   ["Land Raider Redeemer","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
@@ -458,7 +460,7 @@ const WEAPONS = [
   ["Land Raider Redeemer","Armoured Tracks","C","6",4,8,0,"1","","càc"],
   ["Land Speeder","Multi-melta","T","2",3,10,3,"D3+2","melta:3","18\""],
   ["Land Speeder","Onslaught gatling cannon","T","8",3,5,1,"1","","24\""],
-  ["Land Speeder","Pyrecannon","T","4",0,6,1,"1","torrent","12\""],
+  ["Land Speeder","Pyrecannon","T","4",0,6,1,"1","blast:2 torrent","12\""],
   ["Land Speeder","Stormfury Missile Launcher","T","1",3,10,3,"D3+3","","48\""],
   ["Land Speeder","Armoured Impact","C","3",4,6,0,"1","","càc"],
   ["Librarian","Bolt pistol","T","1",3,5,1,"1","","12\""],
@@ -477,8 +479,8 @@ const WEAPONS = [
   ["Lieutenant","Heavy Bolt Pistol","T","1",2,5,1,"1","","18\""],
   ["Lieutenant","Master-crafted bolter","T","2",2,5,1,"2","","24\""],
   ["Lieutenant","Neo-volkite Pistol","T","1",2,5,0,"2","dev pistol","12\""],
-  ["Lieutenant","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Lieutenant","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Lieutenant","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Lieutenant","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Lieutenant","Ceramite Fists","C","5",2,5,0,"1","","càc"],
   ["Lieutenant","Master-crafted Power Weapon","C","5",2,6,2,"2","","càc"],
   ["Lieutenant","Master-crafted power weapon","C","6",2,6,2,"2","","càc"],
@@ -487,7 +489,7 @@ const WEAPONS = [
   ["Lieutenant in Phobos Armour","Special-issue Bolt Pistol","T","1",2,5,2,"2","precision","12\""],
   ["Lieutenant in Phobos Armour","Monomolecular Combat Blades","C","6",2,5,1,"1","precision sust:1","càc"],
   ["Lieutenant with Combi-weapon","➤ Combi-weapon - Bolter","T","2",2,5,1,"2","assault rf:1","24\""],
-  ["Lieutenant with Combi-weapon","➤ Combi-weapon - Flamer","T","3",0,5,1,"1","assault torrent","12\""],
+  ["Lieutenant with Combi-weapon","➤ Combi-weapon - Flamer","T","3",0,5,1,"1","assault blast torrent","12\""],
   ["Lieutenant with Combi-weapon","Paired Combat Blades","C","6",2,5,1,"1","sust:1","càc"],
   ["Logan Grimnar","Storm bolter","T","2",2,5,1,"1","rf:2","24\""],
   ["Logan Grimnar","Tyrnak and Fenrir","C","6",2,5,1,"1","extra","càc"],
@@ -522,7 +524,7 @@ const WEAPONS = [
   ["Lukas the Trickster","➤ Plasma pistol - standard","T","1",3,7,2,"1","pistol","12\""],
   ["Lukas the Trickster","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous pistol","12\""],
   ["Lukas the Trickster","Claw of the Jackalwolf","C","6",2,5,2,"1","","càc"],
-  ["Murderfang","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Murderfang","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Murderfang","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Murderfang","Murderclaws","C","8",3,14,2,"3","sust:1 twin","càc"],
   ["Njal Stormcaller","Bolt pistol","T","1",3,5,1,"1","","12\""],
@@ -531,20 +533,20 @@ const WEAPONS = [
   ["Njal Stormcaller","Staff of the Stormcaller","C","4",3,7,1,"2","psychic sust:2","càc"],
   ["Outrider Squad","Heavy Bolt Pistol","T","1",3,5,1,"1","","18\""],
   ["Outrider Squad","Twin bolt rifle","T","2",2,5,1,"1","assault rf:2 twin","24\""],
-  ["Outrider Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Outrider Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Outrider Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Outrider Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Outrider Squad","Chainsword","C","4",3,5,1,"1","","càc"],
   ["Outrider Squad","Power weapon","C","3",3,5,2,"1","","càc"],
   ["Outrider Squad","Thunder Hammer","C","3",4,8,2,"3","dev","càc"],
-  ["Predator Annihilator","Heavy Bolter","T","3",3,5,1,"2","sust:1","36\""],
+  ["Predator Annihilator","Heavy Bolter","T","3",3,5,1,"2","rf:2 sust:1","36\""],
   ["Predator Annihilator","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
-  ["Predator Annihilator","Lascannon","T","1",3,12,3,"D6+1","","48\""],
-  ["Predator Annihilator","Predator Twin Lascannon","T","1",3,14,3,"D6+1","twin","48\""],
+  ["Predator Annihilator","Lascannon","T","1",3,12,3,"D3+3","","48\""],
+  ["Predator Annihilator","Predator Twin Lascannon","T","1",3,14,3,"D3+3","twin","48\""],
   ["Predator Annihilator","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Predator Annihilator","Armoured Tracks","C","3",4,6,0,"1","","càc"],
   ["Predator Destructor","Heavy Bolter","T","3",3,5,1,"2","sust:1","36\""],
   ["Predator Destructor","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
-  ["Predator Destructor","Lascannon","T","1",3,12,3,"D6+1","","48\""],
+  ["Predator Destructor","Lascannon","T","1",3,12,3,"D3+3","","48\""],
   ["Predator Destructor","Predator Autocannon","T","4",3,9,1,"3","rf:2","48\""],
   ["Predator Destructor","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Predator Destructor","Armoured Tracks","C","3",4,6,0,"1","","càc"],
@@ -555,24 +557,24 @@ const WEAPONS = [
   ["Razorback","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
   ["Razorback","Twin lascannon","T","1",3,12,3,"D6+1","twin","48\""],
   ["Razorback","Armoured Tracks","C","3",4,6,0,"1","","càc"],
-  ["Redemptor Dreadnought","Fragstorm Grenade Launchers","T","6",3,4,1,"1","","18\""],
-  ["Redemptor Dreadnought","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Redemptor Dreadnought","Fragstorm Grenade Launchers","T","6",3,4,1,"1","blast:2","18\""],
+  ["Redemptor Dreadnought","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Redemptor Dreadnought","Heavy Onslaught Gatling Cannon","T","12",3,6,1,"1","sust:2","24\""],
   ["Redemptor Dreadnought","Icarus Rocket Pod","T","3",3,6,1,"2","anti:2:vol","24\""],
   ["Redemptor Dreadnought","Onslaught gatling cannon","T","8",3,5,1,"1","","24\""],
   ["Redemptor Dreadnought","Storm Bolters","T","4",3,5,1,"1","rf:4","24\""],
-  ["Redemptor Dreadnought","➤ Macro Plasma Incinerator - Standard","T","D3+3",3,9,3,"2","","36\""],
-  ["Redemptor Dreadnought","➤ Macro Plasma Incinerator - Supercharge","T","D3+3",3,10,4,"3","hazardous","36\""],
+  ["Redemptor Dreadnought","➤ Macro Plasma Incinerator - Standard","T","D3+3",3,9,3,"2","blast","36\""],
+  ["Redemptor Dreadnought","➤ Macro Plasma Incinerator - Supercharge","T","D3+3",3,10,4,"3","blast hazardous","36\""],
   ["Redemptor Dreadnought","Redemptor Fist","C","5",3,12,3,"D3+3","","càc"],
   ["Reiver Squad","Bolt Carbine","T","3",3,5,1,"1","assault precision","18\""],
   ["Reiver Squad","Special-issue Bolt Pistol","T","1",3,5,2,"1","precision","12\""],
   ["Reiver Squad","Monomolecular Combat Knife","C","4",3,5,1,"1","precision","càc"],
   ["Relic Razorback","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
-  ["Relic Razorback","Multi-melta","T","2",3,9,4,"D6","melta:2","18\""],
+  ["Relic Razorback","Multi-melta","T","2",3,10,3,"D3+2","melta:3","18\""],
   ["Relic Razorback","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Relic Razorback","Twin assault cannon","T","6",3,6,0,"1","dev twin","24\""],
+  ["Relic Razorback","Twin assault cannon","T","6",3,6,2,"1","sust:1 twin","24\""],
   ["Relic Razorback","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
-  ["Relic Razorback","Twin lascannon","T","1",3,12,3,"D6+1","twin","48\""],
+  ["Relic Razorback","Twin lascannon","T","1",3,12,3,"D3+3","twin","48\""],
   ["Relic Razorback","Armoured Tracks","C","3",4,6,0,"1","","càc"],
   ["Repulsor","Defensive Array","T","18",3,5,1,"1","","24\""],
   ["Repulsor","Heavy Onslaught Gatling Cannon","T","12",3,6,1,"1","sust:2","24\""],
@@ -585,40 +587,41 @@ const WEAPONS = [
   ["Repulsor Executioner","Heavy Laser Destroyer","T","2",3,16,4,"D6+4","dev heavy","72\""],
   ["Repulsor Executioner","Heavy Onslaught Gatling Cannon","T","12",3,6,1,"1","sust:2","24\""],
   ["Repulsor Executioner","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
-  ["Repulsor Executioner","➤ Macro Plasma Incinerator - Standard","T","D3+3",3,9,3,"2","","36\""],
-  ["Repulsor Executioner","➤ Macro Plasma Incinerator - Supercharge","T","D3+3",3,10,4,"3","hazardous","36\""],
+  ["Repulsor Executioner","➤ Macro Plasma Incinerator - Standard","T","D3+3",3,9,3,"2","blast","36\""],
+  ["Repulsor Executioner","➤ Macro Plasma Incinerator - Supercharge","T","D3+3",3,10,4,"3","blast hazardous","36\""],
   ["Repulsor Executioner","Armoured Hull","C","6",4,8,0,"1","","càc"],
   ["Rhino","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
   ["Rhino","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Rhino","Armoured Tracks","C","3",4,6,0,"1","","càc"],
   ["Rhino Primaris","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
-  ["Rhino Primaris","➤ Twin Plasma Gun - Overcharge","T","1",3,8,3,"2","hazardous rf:1 twin","24\""],
-  ["Rhino Primaris","➤ Twin Plasma Gun - Standard","T","1",3,7,2,"1","rf:1 twin","24\""],
+  ["Rhino Primaris","➤ Twin Plasma Gun (Standard)","T","1",3,7,2,"1","rf:1 twin","24\""],
+  ["Rhino Primaris","➤ Twin Plasma Gun (Supercharge)","T","1",3,8,3,"2","hazardous rf:1 twin","24\""],
   ["Rhino Primaris","Armoured Tracks","C","3",4,6,0,"1","","càc"],
-  ["Scout Bike Squad","Astartes Shotgun","T","2",3,4,0,"1","assault","18\""],
   ["Scout Bike Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
-  ["Scout Bike Squad","Boltgun","T","2",3,4,0,"1","","24\""],
-  ["Scout Bike Squad","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
-  ["Scout Bike Squad","Grav-pistol","T","1",3,4,1,"2","anti:2:veh pistol","12\""],
+  ["Scout Bike Squad","Grav-pistol","T","1",3,2,1,"3","anti:2:veh","12\""],
   ["Scout Bike Squad","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
-  ["Scout Bike Squad","Inferno Pistol","T","1",3,8,3,"D3+2","melta:1","9\""],
+  ["Scout Bike Squad","Inferno Pistol","T","1",3,8,3,"D3+2","melta:2","9\""],
+  ["Scout Bike Squad","Shotgun","T","2",3,4,1,"1","assault blast","18\""],
   ["Scout Bike Squad","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Scout Bike Squad","Twin boltgun","T","2",3,4,0,"1","twin","24\""],
-  ["Scout Bike Squad","➤ Astartes grenade launcher - frag","T","D3",3,4,0,"1","blast","24\""],
-  ["Scout Bike Squad","➤ Astartes grenade launcher - krak","T","1",3,9,2,"D3","","24\""],
-  ["Scout Bike Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Scout Bike Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
-  ["Scout Bike Squad","Astartes Chainsword","C","3",3,4,1,"1","","càc"],
-  ["Scout Bike Squad","Combat Knife","C","3",3,4,0,"1","","càc"],
+  ["Scout Bike Squad","Twin boltgun","T","2",3,5,1,"1","twin","24\""],
+  ["Scout Bike Squad","➤ Combi-weapon (Damnatus)","T","1",3,9,3,"D3+2","","12\""],
+  ["Scout Bike Squad","➤ Combi-weapon (Infernus)","T","3",0,4,0,"1","blast torrent","12\""],
+  ["Scout Bike Squad","➤ Combi-weapon (Purgatus)","T","2",3,7,2,"2","melta:2","24\""],
+  ["Scout Bike Squad","➤ Grenade Launcher - Frag","T","4",3,4,1,"1","blast","24\""],
+  ["Scout Bike Squad","➤ Grenade Launcher - Krak","T","1",3,10,2,"3","rf:1","24\""],
+  ["Scout Bike Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Scout Bike Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
+  ["Scout Bike Squad","Chainsword","C","4",3,4,1,"1","","càc"],
+  ["Scout Bike Squad","Combat Knife","C","3",3,4,1,"1","","càc"],
   ["Scout Bike Squad","Power fist","C","2",3,8,2,"2","","càc"],
-  ["Scout Bike Squad","Power weapon","C","3",3,5,2,"1","","càc"],
+  ["Scout Bike Squad","Power weapon","C","3",3,4,2,"1","","càc"],
   ["Scout Bike Squad","Thunder Hammer","C","2",4,8,2,"3","dev","càc"],
   ["Scout Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Scout Squad","Boltgun","T","1",3,5,1,"1","rf:1","24\""],
   ["Scout Squad","Heavy Bolter","T","3",4,5,1,"2","heavy rf:2 sust:1","36\""],
-  ["Scout Squad","Shotgun","T","2",3,4,1,"1","assault","18\""],
+  ["Scout Squad","Shotgun","T","2",3,4,1,"1","assault blast","18\""],
   ["Scout Squad","Sniper Rifle","T","1",3,5,2,"2","heavy precision","36\""],
-  ["Scout Squad","➤ Missile Launcher - Frag","T","4",4,4,1,"1","heavy","48\""],
+  ["Scout Squad","➤ Missile Launcher - Frag","T","4",4,4,1,"1","blast heavy","48\""],
   ["Scout Squad","➤ Missile Launcher - Krak","T","1",4,10,2,"D3+3","","48\""],
   ["Scout Squad","Chainsword","C","4",3,4,1,"1","","càc"],
   ["Scout Squad","Combat Knife","C","3",3,4,1,"1","","càc"],
@@ -628,23 +631,25 @@ const WEAPONS = [
   ["Skyclaws","Meltagun","T","1",3,9,4,"D6","melta:2","12\""],
   ["Skyclaws","➤ Plasma gun - standard","T","1",3,7,2,"1","rf:1","24\""],
   ["Skyclaws","➤ Plasma gun - supercharge","T","1",3,8,3,"2","hazardous rf:1","24\""],
-  ["Skyclaws","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Skyclaws","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Skyclaws","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Skyclaws","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
+  ["Skyclaws","➤ Plasma pistol - standard","T","1",3,7,2,"1","pistol","12\""],
+  ["Skyclaws","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous pistol","12\""],
   ["Skyclaws","Astartes Chainsword","C","3",3,4,1,"1","","càc"],
   ["Skyclaws","Close combat weapon","C","2",3,4,0,"1","","càc"],
   ["Skyclaws","Power fist","C","2",3,8,2,"2","","càc"],
   ["Skyclaws","Power weapon","C","3",3,5,2,"1","","càc"],
   ["Sternguard Veteran Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Sternguard Veteran Squad","Heavy Bolter","T","3",3,5,1,"2","heavy rf:2 sust:1","36\""],
-  ["Sternguard Veteran Squad","Pyrecannon","T","4",0,6,1,"1","torrent","12\""],
+  ["Sternguard Veteran Squad","Pyrecannon","T","4",0,6,1,"1","blast:2 torrent","12\""],
   ["Sternguard Veteran Squad","➤ Artificer Firearm - Damnatus","T","1",3,9,3,"D3+2","assault melta:2","12\""],
   ["Sternguard Veteran Squad","➤ Artificer Firearm - Infernus","T","2",3,5,1,"1","assault rf:2","24\""],
   ["Sternguard Veteran Squad","➤ Artificer Firearm - Purgatus","T","1",3,7,2,"2","assault rf:1","24\""],
-  ["Sternguard Veteran Squad","Astartes Chainsword","C","6",3,4,1,"1","","càc"],
   ["Sternguard Veteran Squad","Ceramite Fists","C","4",3,5,0,"1","","càc"],
+  ["Sternguard Veteran Squad","Chainsword","C","5",3,5,1,"1","","càc"],
   ["Sternguard Veteran Squad","Power fist","C","4",3,8,2,"2","","càc"],
   ["Sternguard Veteran Squad","Power weapon","C","5",3,5,2,"1","","càc"],
-  ["Storm Speeder Hailstrike","Fragstorm Grenade Launchers","T","6",3,4,1,"1","","18\""],
+  ["Storm Speeder Hailstrike","Fragstorm Grenade Launchers","T","6",3,4,1,"1","blast:2","18\""],
   ["Storm Speeder Hailstrike","Ironhail Heavy Stubber Array","T","6",3,4,1,"1","ignorescover rf:6","36\""],
   ["Storm Speeder Hailstrike","Onslaught gatling cannon","T","8",3,5,1,"1","","24\""],
   ["Storm Speeder Hailstrike","Armoured Impact","C","3",4,6,0,"1","","càc"],
@@ -656,39 +661,39 @@ const WEAPONS = [
   ["Storm Speeder Thunderstrike","Thunderstrike Icarus Rocket Pod","T","6",3,6,1,"2","anti:2:vol","24\""],
   ["Storm Speeder Thunderstrike","Thunderstrike Las-talon","T","2",3,10,3,"D3+3","","36\""],
   ["Storm Speeder Thunderstrike","Armoured Impact","C","3",4,6,0,"1","","càc"],
-  ["Stormfang Gunship","Skyhammer Missile Launcher","T","3",3,8,1,"D3","anti:2:vol","48\""],
-  ["Stormfang Gunship","Twin multi-melta","T","2",3,9,4,"D6","melta:2 twin","18\""],
+  ["Stormfang Gunship","Skyhammer Missile Launcher","T","3",3,8,1,"2","anti:2:vol","48\""],
+  ["Stormfang Gunship","Twin multi-melta","T","2",3,10,4,"D3+2","melta:3 twin","18\""],
   ["Stormfang Gunship","Twin stormstrike missile launcher","T","1",3,10,2,"3","twin","48\""],
   ["Stormfang Gunship","➤ Helfrost destructor - dispersed","T","D3",3,11,3,"7","sust:D3","36\""],
   ["Stormfang Gunship","➤ Helfrost destructor - focused","T","D6+6",0,8,1,"2","torrent","12\""],
   ["Stormhawk Interceptor","Icarus Stormcannon","T","6",3,7,1,"2","anti:2:vol","48\""],
   ["Stormhawk Interceptor","Las-talon","T","2",3,10,3,"D3+3","","36\""],
-  ["Stormhawk Interceptor","Skyhammer Missile Launcher","T","3",3,8,1,"D3","anti:2:vol","48\""],
-  ["Stormhawk Interceptor","Twin assault cannon","T","6",3,6,0,"1","dev twin","24\""],
+  ["Stormhawk Interceptor","Skyhammer Missile Launcher","T","3",3,8,1,"2","anti:2:vol","48\""],
+  ["Stormhawk Interceptor","Twin assault cannon","T","6",3,6,2,"1","sust:1 twin","24\""],
   ["Stormhawk Interceptor","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
-  ["Stormhawk Interceptor","➤ Typhoon missile launcher - frag","T","2D6",3,4,0,"1","blast","48\""],
-  ["Stormhawk Interceptor","➤ Typhoon missile launcher - krak","T","2",3,9,2,"D6","","48\""],
+  ["Stormhawk Interceptor","➤ Typhoon missile launcher (frag)","T","6",3,4,1,"1","blast:2","48\""],
+  ["Stormhawk Interceptor","➤ Typhoon missile launcher (krak)","T","2",3,10,2,"D3+3","","48\""],
   ["Stormhawk Interceptor","Armoured Hull","C","3",4,6,0,"1","","càc"],
-  ["Stormraven Gunship","Hurricane Bolter","T","6",3,4,0,"1","rf:6 twin","24\""],
+  ["Stormraven Gunship","Hurricane Bolter","T","6",3,5,1,"1","rf:6 twin","24\""],
   ["Stormraven Gunship","Stormstrike Missile Launcher","T","1",3,10,2,"3","","48\""],
-  ["Stormraven Gunship","Twin assault cannon","T","6",3,6,0,"1","dev twin","24\""],
+  ["Stormraven Gunship","Twin assault cannon","T","6",3,6,2,"1","sust:1 twin","24\""],
   ["Stormraven Gunship","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
   ["Stormraven Gunship","Twin lascannon","T","1",3,12,3,"D6+1","twin","48\""],
-  ["Stormraven Gunship","Twin multi-melta","T","2",3,9,4,"D6","melta:2 twin","18\""],
-  ["Stormraven Gunship","➤ Twin Heavy Plasma Cannon - Standard","T","D3",3,7,2,"2","blast twin","36\""],
-  ["Stormraven Gunship","➤ Twin Heavy Plasma Cannon - Supercharge","T","D3",3,8,3,"3","blast hazardous twin","36\""],
-  ["Stormraven Gunship","➤ Typhoon missile launcher - frag","T","2D6",3,4,0,"1","blast","48\""],
-  ["Stormraven Gunship","➤ Typhoon missile launcher - krak","T","2",3,9,2,"D6","","48\""],
+  ["Stormraven Gunship","Twin multi-melta","T","2",3,10,4,"D3+2","melta:3 twin","18\""],
+  ["Stormraven Gunship","➤ Twin Heavy Plasma Cannon (Standard)","T","3",3,9,2,"2","blast heavy twin","36\""],
+  ["Stormraven Gunship","➤ Twin Heavy Plasma Cannon (Supercharge)","T","3",3,10,3,"3","blast hazardous heavy twin","36\""],
+  ["Stormraven Gunship","➤ Typhoon missile launcher (frag)","T","6",3,4,1,"1","blast:2","48\""],
+  ["Stormraven Gunship","➤ Typhoon missile launcher (krak)","T","2",3,10,2,"D3+3","","48\""],
   ["Stormraven Gunship","Armoured Hull","C","6",4,8,0,"1","","càc"],
-  ["Stormtalon Gunship","Skyhammer Missile Launcher","T","3",3,8,1,"D3","anti:2:vol twin","48\""],
-  ["Stormtalon Gunship","Twin assault cannon","T","6",3,6,0,"1","dev twin","24\""],
+  ["Stormtalon Gunship","Skyhammer Missile Launcher","T","3",3,8,1,"2","anti:2:vol","48\""],
+  ["Stormtalon Gunship","Twin assault cannon","T","6",3,6,2,"1","sust:1 twin","24\""],
   ["Stormtalon Gunship","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
-  ["Stormtalon Gunship","Twin lascannon","T","1",3,12,3,"D6+1","twin","48\""],
-  ["Stormtalon Gunship","➤ Typhoon missile launcher - frag","T","2D6",3,4,0,"1","blast","48\""],
-  ["Stormtalon Gunship","➤ Typhoon missile launcher - krak","T","2",3,9,2,"D6","","48\""],
+  ["Stormtalon Gunship","Twin lascannon","T","1",3,12,3,"D3+3","twin","48\""],
+  ["Stormtalon Gunship","➤ Typhoon missile launcher (frag)","T","6",3,4,1,"1","blast:2","48\""],
+  ["Stormtalon Gunship","➤ Typhoon missile launcher (krak)","T","2",3,10,2,"D3+3","","48\""],
   ["Stormtalon Gunship","Armoured Hull","C","3",4,6,0,"1","","càc"],
-  ["Stormwolf","Skyhammer Missile Launcher","T","3",3,8,1,"D3","anti:2:vol","48\""],
-  ["Stormwolf","Twin multi-melta","T","2",3,9,4,"D6","melta:2 twin","18\""],
+  ["Stormwolf","Skyhammer Missile Launcher","T","3",3,8,1,"2","anti:2:vol","48\""],
+  ["Stormwolf","Twin multi-melta","T","2",3,10,4,"D3+2","melta:3 twin","18\""],
   ["Stormwolf","➤ Twin helfrost cannon - dispersed","T","D6",0,6,1,"2","torrent twin","12\""],
   ["Stormwolf","➤ Twin helfrost cannon - focused","T","1",3,9,3,"5","twin","36\""],
   ["Techmarine","Forge Bolter","T","3",2,5,1,"2","sust:1","24\""],
@@ -697,57 +702,56 @@ const WEAPONS = [
   ["Terminator Assault Squad","Thunder Hammer","C","3",3,8,2,"3","dev","càc"],
   ["Terminator Assault Squad","Twin Lightning Claws","C","6",3,5,2,"1","twin","càc"],
   ["Terminator Squad","Assault Cannon","T","6",3,6,2,"1","sust:1","24\""],
-  ["Terminator Squad","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Terminator Squad","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Terminator Squad","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Terminator Squad","➤ Cyclone missile launcher - frag","T","8",3,4,1,"1","","36\""],
+  ["Terminator Squad","➤ Cyclone missile launcher - frag","T","8",3,4,1,"1","blast:2","36\""],
   ["Terminator Squad","➤ Cyclone missile launcher - krak","T","2",3,10,2,"D3+3","","36\""],
   ["Terminator Squad","Power fist","C","3",3,8,2,"2","","càc"],
   ["Terminator Squad","Power weapon","C","5",3,5,2,"1","","càc"],
   ["Terminator Squad","➤ Chainfist - Hunter: Monster/Vehicle","C","3",3,12,2,"3","","càc"],
   ["Terminator Squad","➤ Chainfist - Standard","C","2",4,8,2,"2","","càc"],
   ["Thunderhawk Gunship","Hellstrike missile battery","T","4",3,8,2,"3","anti:4:vol","72\""],
-  ["Thunderhawk Gunship","Thunderhawk heavy cannon","T","D6+6",3,10,2,"3","blast","48\""],
-  ["Thunderhawk Gunship","Turbo-laser destructor","T","D3+1",3,20,4,"D6+6","blast","96\""],
+  ["Thunderhawk Gunship","Thunderhawk heavy cannon","T","10",3,10,2,"3","blast:2","48\""],
+  ["Thunderhawk Gunship","Turbo-laser destructor","T","3",3,20,4,"D6+6","blast:2","96\""],
   ["Thunderhawk Gunship","Twin heavy bolter","T","3",3,5,1,"2","rf:2 sust:1 twin","36\""],
   ["Thunderwolf Cavalry","Bolt pistol","T","1",3,5,1,"1","","12\""],
-  ["Thunderwolf Cavalry","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Thunderwolf Cavalry","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Thunderwolf Cavalry","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Thunderwolf Cavalry","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Thunderwolf Cavalry","Teeth and claws","C","3",4,5,1,"1","extra","càc"],
   ["Thunderwolf Cavalry","Wolf Guard Weapon","C","4",3,5,2,"2","","càc"],
   ["Ulrik the Slayer","➤ Plasma pistol - standard","T","1",2,7,2,"1","","12\""],
   ["Ulrik the Slayer","➤ Plasma pistol - supercharge","T","1",2,8,3,"2","hazardous","12\""],
   ["Ulrik the Slayer","Artificer Crozius Arcanum","C","5",2,6,2,"2","","càc"],
   ["Vanguard Veteran Squad","Bolt pistol","T","1",3,5,1,"1","","12\""],
-  ["Vanguard Veteran Squad","Grav-pistol","T","1",3,4,1,"2","anti:2:veh pistol","12\""],
+  ["Vanguard Veteran Squad","Grav-pistol","T","1",3,2,1,"3","anti:2:veh","12\""],
   ["Vanguard Veteran Squad","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
-  ["Vanguard Veteran Squad","Inferno Pistol","T","1",3,8,3,"D3+2","melta:1","9\""],
-  ["Vanguard Veteran Squad","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Vanguard Veteran Squad","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
-  ["Vanguard Veteran Squad","Heirloom Weapon","C","4",3,5,1,"1","","càc"],
-  ["Vanguard Veteran Squad","Vanguard Veteran Weapon","C","4",3,5,1,"1","","càc"],
+  ["Vanguard Veteran Squad","Inferno Pistol","T","1",3,8,3,"D3+2","melta:2","9\""],
+  ["Vanguard Veteran Squad","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Vanguard Veteran Squad","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
+  ["Vanguard Veteran Squad","Heirloom Weapon","C","4",3,5,2,"1","","càc"],
   ["Vanguard Veteran Squad with Jump Packs","Heavy Bolt Pistol","T","1",3,5,1,"1","","18\""],
-  ["Vanguard Veteran Squad with Jump Packs","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Vanguard Veteran Squad with Jump Packs","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Vanguard Veteran Squad with Jump Packs","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Vanguard Veteran Squad with Jump Packs","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Vanguard Veteran Squad with Jump Packs","Master-crafted Power Weapon","C","3",3,5,2,"2","","càc"],
   ["Vanguard Veteran Squad with Jump Packs","Power fist","C","3",3,8,2,"2","","càc"],
   ["Vanguard Veteran Squad with Jump Packs","Relic Blade","C","3",3,6,2,"2","","càc"],
   ["Vanguard Veteran Squad with Jump Packs","Thunder Hammer","C","3",4,8,2,"3","dev","càc"],
   ["Venerable Dreadnought","Assault Cannon","T","6",3,6,2,"1","sust:1","24\""],
-  ["Venerable Dreadnought","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Venerable Dreadnought","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Venerable Dreadnought","Multi-melta","T","2",3,10,3,"D3+2","melta:3","18\""],
   ["Venerable Dreadnought","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Venerable Dreadnought","➤ Helfrost cannon - dispersed","T","3",0,6,1,"2","torrent","12\""],
   ["Venerable Dreadnought","➤ Helfrost cannon - focused","T","1",3,10,3,"5","","36\""],
-  ["Venerable Dreadnought","Dreadnought Combat Weapon","C","5",3,12,2,"3","","càc"],
+  ["Venerable Dreadnought","Dreadnought Fist","C","5",3,12,2,"3","","càc"],
   ["Venerable Dreadnought","➤ Fenrisian great axe - strike","C","6",3,10,2,"D3+3","","càc"],
   ["Venerable Dreadnought","➤ Fenrisian great axe - sweep","C","12",3,6,2,"1","","càc"],
-  ["Vindicator","Demolisher Cannon","T","D6+3",3,14,3,"D6","blast","24\""],
+  ["Vindicator","Demolisher Cannon","T","D3+3",3,14,3,"4","blast","24\""],
   ["Vindicator","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
   ["Vindicator","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Vindicator","Armoured Tracks","C","3",4,6,0,"1","","càc"],
   ["Whirlwind","Hunter-killer missile","T","1",2,14,3,"D3+3","oneshot","48\""],
   ["Whirlwind","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Whirlwind","Whirlwind Vengeance Launcher","T","D6+3",3,8,2,"2","blast indirect","72\""],
+  ["Whirlwind","Whirlwind Vengeance Launcher","T","6",3,8,2,"2","blast:2 indirect","72\""],
   ["Whirlwind","Armoured Tracks","C","3",4,6,0,"1","","càc"],
   ["Wolf Guard","Bolt pistol","T","1",3,5,1,"1","","12\""],
   ["Wolf Guard","Boltgun","T","2",3,4,0,"1","","24\""],
@@ -756,8 +760,8 @@ const WEAPONS = [
   ["Wolf Guard","➤ Plasma pistol - standard","T","1",3,7,2,"1","pistol","12\""],
   ["Wolf Guard","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous pistol","12\""],
   ["Wolf Guard","Heirloom weapon","C","4",3,5,1,"1","","càc"],
-  ["Wolf Guard Battle Leader","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Wolf Guard Battle Leader","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Wolf Guard Battle Leader","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Wolf Guard Battle Leader","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Wolf Guard Battle Leader","Master-crafted Power Weapon","C","7",2,6,2,"2","","càc"],
   ["Wolf Guard Battle Leader","Thunder Hammer","C","5",3,8,2,"3","dev","càc"],
   ["Wolf Guard Battle Leader in Terminator Armour","Combi-weapon","T","1",3,4,0,"1","anti:4:inf dev rf:1","24\""],
@@ -798,7 +802,7 @@ const WEAPONS = [
   ["Wolf Guard Pack Leader","Twin lightning claws","C","4",3,5,2,"1","twin","càc"],
   ["Wolf Guard Pack Leader in Terminator Armour","Assault Cannon","T","6",3,6,0,"1","dev","24\""],
   ["Wolf Guard Pack Leader in Terminator Armour","Combi-weapon","T","1",3,4,0,"1","anti:4:inf dev rf:1","24\""],
-  ["Wolf Guard Pack Leader in Terminator Armour","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Wolf Guard Pack Leader in Terminator Armour","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Wolf Guard Pack Leader in Terminator Armour","Storm Bolter","T","2",3,4,0,"1","rf:2","24\""],
   ["Wolf Guard Pack Leader in Terminator Armour","➤ Cyclone missile launcher - frag","T","2D6",3,4,0,"1","blast","36\""],
   ["Wolf Guard Pack Leader in Terminator Armour","➤ Cyclone missile launcher - krak","T","2",3,9,2,"D6","","36\""],
@@ -830,8 +834,8 @@ const WEAPONS = [
   ["Wolf Lord on Thunderwolf","Combi-weapon","T","1",4,4,0,"1","anti:4:inf dev rf:1","24\""],
   ["Wolf Lord on Thunderwolf","Master-crafted boltgun","T","2",2,4,0,"2","","24\""],
   ["Wolf Lord on Thunderwolf","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
-  ["Wolf Lord on Thunderwolf","➤ Plasma pistol - standard","T","1",3,7,2,"1","","12\""],
-  ["Wolf Lord on Thunderwolf","➤ Plasma pistol - supercharge","T","1",3,8,3,"2","hazardous","12\""],
+  ["Wolf Lord on Thunderwolf","➤ Plasma pistol (Standard)","T","1",3,7,2,"1","","12\""],
+  ["Wolf Lord on Thunderwolf","➤ Plasma pistol (Supercharge)","T","1",3,8,3,"2","hazardous","12\""],
   ["Wolf Lord on Thunderwolf","Close combat weapon","C","6",3,4,0,"1","","càc"],
   ["Wolf Lord on Thunderwolf","Power fist","C","5",2,8,2,"2","","càc"],
   ["Wolf Lord on Thunderwolf","Relic Weapon","C","6",2,5,2,"2","","càc"],
@@ -846,13 +850,13 @@ const WEAPONS = [
   ["Wolf Scouts","Combi-weapon","T","1",3,4,0,"1","anti:4:inf dev rf:1","24\""],
   ["Wolf Scouts","Flamer","T","D6",0,4,0,"1","ignorescover torrent","12\""],
   ["Wolf Scouts","Grav-gun","T","2",3,5,1,"2","anti:2:veh","18\""],
-  ["Wolf Scouts","Grav-pistol","T","1",3,4,1,"2","anti:2:veh pistol","12\""],
+  ["Wolf Scouts","Grav-pistol","T","1",3,2,1,"3","anti:2:veh","12\""],
   ["Wolf Scouts","Hand flamer","T","3",0,4,0,"1","torrent","9\""],
   ["Wolf Scouts","Heavy Bolter","T","3",4,5,1,"2","heavy rf:2 sust:1","36\""],
-  ["Wolf Scouts","Inferno Pistol","T","1",3,8,3,"D3+2","melta:1","9\""],
+  ["Wolf Scouts","Inferno Pistol","T","1",3,8,3,"D3+2","melta:2","9\""],
   ["Wolf Scouts","Meltagun","T","1",3,9,4,"D6","melta:2","12\""],
   ["Wolf Scouts","Storm Bolter","T","2",3,4,0,"1","rf:2","24\""],
-  ["Wolf Scouts","➤ Missile Launcher - Frag","T","4",4,4,1,"1","heavy","48\""],
+  ["Wolf Scouts","➤ Missile Launcher - Frag","T","4",4,4,1,"1","blast heavy","48\""],
   ["Wolf Scouts","➤ Missile Launcher - Krak","T","1",4,10,2,"D3+3","","48\""],
   ["Wolf Scouts","➤ Plasma gun - standard","T","1",3,7,2,"1","rf:1","24\""],
   ["Wolf Scouts","➤ Plasma gun - supercharge","T","1",3,8,3,"2","rf:1 hazardous","24\""],
@@ -865,14 +869,14 @@ const WEAPONS = [
   ["Wolf Scouts","Power weapon","C","3",3,5,2,"1","","càc"],
   ["Wolf Scouts","Thunder Hammer","C","2",4,8,2,"3","dev","càc"],
   ["Wolf Scouts","Twin lightning claws","C","4",3,5,2,"1","twin","càc"],
-  ["Wulfen","Stormfrag auto-launcher","T","2",4,4,1,"1","assault","12\""],
+  ["Wulfen","Stormfrag auto-launcher","T","2",4,4,1,"1","assault blast","12\""],
   ["Wulfen","Wulfen Weapons","C","3",3,6,2,"2","sust:1","càc"],
-  ["Wulfen Dreadnought","Heavy Flamer","T","3",0,5,1,"1","torrent","12\""],
+  ["Wulfen Dreadnought","Heavy Flamer","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Wulfen Dreadnought","Storm bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Wulfen Dreadnought","Great wolf claw","C","6",3,10,3,"3","","càc"],
   ["Wulfen Dreadnought","➤ Fenrisian great axe - strike","C","6",3,10,2,"D3+3","","càc"],
   ["Wulfen Dreadnought","➤ Fenrisian great axe - sweep","C","12",3,6,2,"1","","càc"],
-  ["Wulfen with Storm Shields","Stormfrag auto-launcher","T","2",4,4,1,"1","assault","12\""],
+  ["Wulfen with Storm Shields","Stormfrag auto-launcher","T","2",4,4,1,"1","assault blast","12\""],
   ["Wulfen with Storm Shields","➤ Thunder Hammer","C","2",3,8,2,"3","dev","càc"],
   ["Wulfen with Storm Shields","➤ Thunder Hammer (Hunter: Monster/Vehicle)","C","3",3,10,3,"3","dev","càc"]
 ];
@@ -1810,11 +1814,11 @@ const APTITUDES = {
  "Vanguard Veteran Squad": [
   [
    "Vanguard Assault",
-   "Each time this unit ends a Charge move, until the end of the turn, melee weapons equipped by models in this unit have the [LETHAL HITS] ability."
+   "If this unit made a charge move this turn, this unit's melee attacks have [LETHAL HITS]."
   ],
   [
    "Storm Shield",
-   "The bearer has a 4+ invulnerable save"
+   "This model has a 4+ InSv."
   ]
  ],
  "Sternguard Veteran Squad": [
@@ -1874,17 +1878,17 @@ const APTITUDES = {
  "Centurion Assault Squad": [
   [
    "Annihilator Protocols",
-   "Melee weapons equipped by models in this unit have the [SUSTAINED HITS 2] ability when targeting Monster, Vehicle or Fortification units"
+   "This unit's melee attacks that target a Monster/Vehicle/Fortification unit have [SUSTAINED HITS 2]."
   ],
   [
    "Centurion Assault Launchers",
-   "The bearer has the Grenades keyword."
+   "The bearer has the Explosives keyword."
   ]
  ],
  "Centurion Devastator Squad": [
   [
    "Decimator Protocols",
-   "Each time a model in this unit makes a ranged attack, re-roll a Hit roll of 1. If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Hit roll instead."
+   "- This unit's ranged attacks can re-roll hit rolls of 1.\n- Or: This unit's ranged attacks that target an enemy unit within range of an objective can re-roll hit rolls."
   ]
  ],
  "Invictor Tactical Warsuit": [
@@ -1895,8 +1899,8 @@ const APTITUDES = {
  ],
  "Dreadnought": [
   [
-   "Wisdom of the Ancients [Aura]",
-   "While a friendly Adeptus Astartes Infantry unit is within 6\" of this model, each time a model in that unit makes an attack, re-roll a Hit roll of 1."
+   "Wisdom of the Ancients",
+   "While a friendly Adeptus Astartes Infantry unit is within 6\" of this model, that unit's attacks can re-roll hit rolls of 1."
   ]
  ],
  "Redemptor Dreadnought": [
@@ -1926,7 +1930,7 @@ const APTITUDES = {
  "Scout Bike Squad": [
   [
    "Outflank",
-   "When this unit arrives from Strategic Reserves, it can be set up within your opponent’s deployment zone (all other restrictions still apply)."
+   "When this unit makes an ingress move, it can be set up within your opponent's deployment zone."
   ]
  ],
  "Inceptor Squad": [
@@ -1998,23 +2002,19 @@ const APTITUDES = {
  "Whirlwind": [
   [
    "Pinning Bombardment",
-   "In your Shooting phase, after this model has shot, if one or more of those attacks made with its Whirlwind vengeance launcher scored a hit against an enemy Infantry unit, that unit must take a Battle-shock test."
+   "In your Shooting phase, when this unit has shot, select one enemy Infantry unit hit by Whirlwind Vengeance Launcher attacks. That enemy unit makes a battle-shock roll."
   ]
  ],
  "Predator Destructor": [
   [
    "Destructor",
-   "Each time this model makes a ranged attack that targets an Infantry unit, improve the Armour Penetration characteristic of that attack by 1."
-  ],
-  [
-   "Damaged: 1-4 Wounds Remaining",
-   "While this model has 1-4 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."
+   "This unit's ranged attacks that target an Infantry unit have +1 AP."
   ]
  ],
  "Predator Annihilator": [
   [
    "Annihilator",
-   "Each time a ranged attack made by this model is allocated to a Monster or Vehicle model, you can re-roll the Damage roll"
+   "This unit's ranged attacks that target a Monster/Vehicle unit can re-roll damage rolls."
   ]
  ],
  "Gladiator Lancer": [
@@ -2038,7 +2038,7 @@ const APTITUDES = {
  "Vindicator": [
   [
    "Siege Shield",
-   "When making ranged attacks with its demolisher cannon, this model can target enemy units within Engagement Range of it (provided no other friendly units are also within Engagement Range of that enemy unit). In addition, when making ranged attacks, this model does not suffer the penalty to its Hit rolls for being within Engagement Range of one or more enemy units."
+   "In your Shooting phase, when this unit is selected to shoot using close-quarters shooting:\n- This unit's attacks that target a unit engaged with this unit can ignore modifiers to:\n- BS.\n- Hit rolls.\n- For each of this unit's [Blast] weapons, you can choose for that weapon to not have [Blast]:\n- If you do, that weapon can only target an enemy unit that is not engaged with another friendly unit."
   ]
  ],
  "Land Raider": [
@@ -2116,11 +2116,7 @@ const APTITUDES = {
  "Razorback": [
   [
    "Fire Support",
-   "In your Shooting phase, after this model has  shot, select one enemy unit it scored one or more hits against this phase. Until the end of the phase, each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll."
-  ],
-  [
-   "Transport",
-   "This model has a transport capacity of 6 Adeptus Astartes Infantry models.  It cannot transport JUMP PACK, WULFEN, PHOBOS, GRAVIS, CENTURION, TERMINATOR or TACTICUS models (excluding TACTICUS CHARACTER models that began the battle attached to a non-TACTICUS unit)"
+   "In your Shooting phase, when this unit has shot, select one enemy unit hit by those attacks. Attacks that target that unit made by friendly Adeptus Astartes units that disembarked from this Transport this turn can re-roll wound rolls."
   ]
  ],
  "Impulsor": [
@@ -2158,51 +2154,19 @@ const APTITUDES = {
  "Stormhawk Interceptor": [
   [
    "Interceptor",
-   "Each time this model makes a ranged attack that targets a unit that can Fly, add 1 to the Hit roll"
-  ],
-  [
-   "Thundercowl Turbines",
-   "Ravenwing Fly/Mounted unit only. In your first Movement phase, this unit can make an ingress move."
-  ],
-  [
-   "Nightforged Battery",
-   "Landspeeder Vengeance unit only. This unit can re-roll:\n\n\n▪ Rolls to determine the A of a weapon.\n▪ Hazard rolls."
+   "This unit's ranged attacks that target a Fly unit have +1 to hit rolls."
   ]
  ],
  "Stormtalon Gunship": [
   [
    "Strafing Run",
-   "Each time this model makes a ranged attack that targets a unit that cannot Fly, add 1 to the Hit roll."
-  ],
-  [
-   "Thundercowl Turbines",
-   "Ravenwing Fly/Mounted unit only. In your first Movement phase, this unit can make an ingress move."
-  ],
-  [
-   "Nightforged Battery",
-   "Landspeeder Vengeance unit only. This unit can re-roll:\n\n\n▪ Rolls to determine the A of a weapon.\n▪ Hazard rolls."
+   "This unit's ranged attacks that target a non-Fly unit have +1 to hit rolls."
   ]
  ],
  "Stormraven Gunship": [
   [
    "Armoured Resilience",
-   "Each time an attack is allocated to this model, subtract 1 from the Damage characteristic of that attack."
-  ],
-  [
-   "Transport",
-   "This model has a transport capacity of 12 Adeptus Astartes Infantry models and 1 Dreadnought model. Each Jump Pack, Wulfen, Gravis or Terminator model takes up the space of 2 models and each Centurion model takes up the space of 3 models."
-  ],
-  [
-   "Damaged: 1-5 Wounds Remaining",
-   "While this model has 1-5 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."
-  ],
-  [
-   "Thundercowl Turbines",
-   "Ravenwing Fly/Mounted unit only. In your first Movement phase, this unit can make an ingress move."
-  ],
-  [
-   "Nightforged Battery",
-   "Landspeeder Vengeance unit only. This unit can re-roll:\n\n\n▪ Rolls to determine the A of a weapon.\n▪ Hazard rolls."
+   "Attacks that target this unit have -1 D."
   ]
  ],
  "Hammerfall Bunker": [
@@ -2212,15 +2176,11 @@ const APTITUDES = {
   ],
   [
    "Ceramite Cover",
-   "Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this Fortification, that model has the Benefit of Cover against that attack."
+   "When an attack targets a unit that is not fully visible to the attacking model because of this unit, the target has the benefit of cover against that attack."
   ],
   [
    "Defensive Array",
-   "You can target this Fortification with the Fire Overwatch Strategem for 0CP, and can do so even if you have already targeted another unit with that Stratagem this turn. This Fortification can only be targeted with that Stratagem once per turn."
-  ],
-  [
-   "Damaged: 1-4 Wounds Remaining",
-   "While this model has 1-4 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."
+   "(Once per phase, per unit)\nYou can target this unit with the Fire Overwatch stratagem regardless of any other uses of that stratagem this phase. If you do, that use is -1 CP."
   ]
  ],
  "Captain on Bike": [
@@ -2510,57 +2470,33 @@ const APTITUDES = {
  "Thunderhawk Gunship": [
   [
    "Aerial Assault",
-   "Each time a unit with the Deep Strike ability disembarks from this model after it has made a Normal move, that unit is still eligible to declare a charge this turn."
-  ],
-  [
-   "Damaged: 1-10 wounds remaining",
-   "While this model has 1-10 wounds remaining, each time this model makes an attack, subtract 1 from the Hit roll."
+   "In your Movement phase, when this unit ends a normal move, units embarked within this unit can make an assault disembark move, provided every model in the embarked unit has Deep Strike."
   ],
   [
    "Thunderhawk Cluster Bombs",
-   "Each time the bearer ends a Normal move, you can select one enemy unit it moved over during that move and roll six D6: for each 3+, that unit suffers 1 mortal wound."
+   "In your Movement phase, when this unit ends a normal/advance move, you can select one enemy unit this unit moved over during that move and roll six D6:\n- For each 3+, that enemy unit suffers 1 mortal wound."
   ]
  ],
  "Rhino Primaris": [
   [
    "Self Repair",
-   "At the end of your Command phase, this model regains 1 lost wound."
+   "In your Command phase, this unit heals 1 wound."
   ],
   [
-   "Transport",
-   "This model has a transport capacity of 6 Adeptus Astartes Infantry models. It cannot transport Jump Pack, Wulfen, Phobos, Gravis, Centurion, Terminator or Tacticus models (except for Tacticus Character models that begin the battle attached to a non-Tacticus unit)."
-  ],
-  [
-   "Orbital Comms Array [Aura]",
-   "While a friendly Adeptus Astartes unit is within 6\" of the bearer, each time you target that unit with a Stratagem, roll one D6: on a 5+, you gain 1CP"
+   "Orbital Comms Array",
+   "While a friendly Adeptus Astartes unit is within 6\" of this unit, each time you target that unit with a stratagem, roll 1D6:\n- On a 5+, you gain 1 CP."
   ]
  ],
  "Land Raider Excelsior": [
   [
-   "Assault Ramp",
-   "Each time a unit disembarks from this model after it has made a Normal move, that unit is still eligible to declare a charge this turn."
-  ],
-  [
-   "Transport",
-   "This model has a transport capacity of 12 Adeptus Astartes Infantry models. Each Jump Pack, Wulfen, Gravis or Terminator model takes up the space of 2 models and each Centurion model takes up the space of 3 models."
-  ],
-  [
-   "Invulnerable Save",
-   "5+"
-  ],
-  [
-   "Strategic Acumen",
-   "In your Command phase, you can use this ability. If you do, select one combat doctrine to be active for this unit until the start of your next Command phase."
+   "Rites of Battle",
+   "Once per battle round, one unit from your army with this ability can use it when it is targeted with a stratagem. If it does, reduce the cost of that stratagem by 1 CP."
   ]
  ],
  "Relic Razorback": [
   [
    "Fire Support",
-   "In your Shooting phase, after this model has  shot, select one enemy unit it scored one or more hits against this phase. Until the end of the phase, each time a friendly model that disembarked from this Transport this turn makes an attack that targets that enemy unit, you can re-roll the Wound roll."
-  ],
-  [
-   "Transport",
-   "This model has a transport capacity of 6 Adeptus Astartes Infantry models. It cannot transport Jump Pack, Wulfen, Tacticus, Phobos, Gravis, Centurion or Terminator models."
+   "In your Shooting phase, when this unit has shot, select one enemy unit hit by those attacks. Attacks that target that unit made by friendly Adeptus Astartes units that disembarked from this Transport this turn can re-roll wound rolls."
   ]
  ],
  "Assault Intercessors with Jump Packs": [
@@ -3192,17 +3128,18 @@ const SOCLES = {
    Déduit des aptitudes « Damaged: 1-N Wounds Remaining ». */
 const ABIMEES = {
  "Stormfang Gunship": 5,
- "Stormwolf": 5,
- "Predator Destructor": 4,
- "Stormraven Gunship": 5,
- "Hammerfall Bunker": 4,
- "Thunderhawk Gunship": 10
+ "Stormwolf": 5
 };
 
 const TRANSPORTS = {
  "Stormfang Gunship": "This model has a transport capacity of 6 ADEPTUS ASTARTES INFANTRY models. Each JUMP PACK, WULFEN, GRAVIS or TERMINATOR model takes up the space of 2 models and each CENTURION model takes up the space of 3 models.",
  "Stormwolf": "This model has a transport capacity of 16 ADEPTUS ASTARTES INFANTRY models. Each JUMP PACK, WULFEN, GRAVIS or TERMINATOR model takes up the space of 2 models and each CENTURION model takes up the space of 3 models.",
- "Thunderhawk Gunship": "This model has a transport capacity of 30 ADEPTUS ASTARTES INFANTRY or ADEPTUS ASTARTES MOUNTED models. Each JUMP PACK, WULFEN, GRAVIS or TERMINATOR model takes up the space of 2 models. Each CENTURION model takes up the space of 3 models. Each MOUNTED model takes up the space of 4 models."
+ "Razorback": "This model has a transport capacity of 6 Adeptus Astartes Infantry models. It cannot transport Jump Pack, Terminator, Centurion or Gravis models.",
+ "Stormraven Gunship": "This model has a transport capacity of 12 Adeptus Astartes Infantry models. And 1 Dreadnought models. Each Jump Pack, Wulfen, Gravis, Terminator model takes up the space of 2 models. Each Centurion model takes up the space of 3 models.",
+ "Thunderhawk Gunship": "This model has a transport capacity of 30 Adeptus Astartes Infantry models. Or Adeptus Astartes Mounted models. Each Jump Pack, Gravis, Terminator model takes up the space of 2 models. Each Adeptus Astartes Mounted model takes up the space of 4 models.",
+ "Rhino Primaris": "This model has a transport capacity of 6 Adeptus Astartes Infantry models. It cannot transport Jump Pack, Gravis, Centurion or Terminator models.",
+ "Land Raider Excelsior": "This model has a transport capacity of 12 Adeptus Astartes Infantry models. Each Jump Pack, Gravis, Terminator model takes up the space of 2 models. Each Centurion model takes up the space of 3 models.",
+ "Relic Razorback": "This model has a transport capacity of 6 Adeptus Astartes Infantry models. It cannot transport Jump Pack, Gravis, Centurion or Terminator models."
 };
 const FACTION = [
  [
@@ -4529,7 +4466,7 @@ const ARMEMENT = {
  "Chaplain in Terminator Armour" : {"f": [1], "s": [{"min": 1, "o": [[0], []], "onom": ["", "Relic Shield"]}]},
  "Company Heroes" : {"f": [0, 1, 2, 3, 4], "s": [], "nf": {"0": 4, "1": 2, "2": 1, "3": 3, "4": 1}},
  "Desolation Squad" : {"f": [0, 1, 5], "s": [{"min": 1, "o": [[2], [3]], "nb": 4, "qui": "Desolation Marine"}, {"min": 1, "o": [[2], [3], [4]], "nb": 1, "qui": "Desolation Sergeant"}], "nf": {"0": 5, "1": 5, "5": 5}},
- "Dreadnought" : {"f": [], "s": [{"min": 1, "o": [[10, 3], [10, 1], [7, 8, 9]]}, {"min": 1, "o": [[0], [2], [4], [6, 5]]}]},
+ "Dreadnought" : {"f": [], "s": [{"min": 1, "o": [[10, 3], [10, 1], [7, 8, 9]]}, {"min": 1, "o": [[0], [2], [4], [5, 6]]}]},
  "Eliminator Squad" : {"f": [1, 4], "s": [{"min": 1, "o": [[0], [2], [3]], "nb": 1, "qui": "Eliminator Sergeant"}, {"min": 1, "o": [[0], [3]], "nb": 2, "qui": "Eliminator"}], "nf": {"1": 3, "4": 3}},
  "Eradicator Squad with Heavy Bolters" : {"f": [0, 1, 2], "s": []},
  "Eradicator Squad with Melta Rifles" : {"f": [0, 1, 2, 5], "s": [{"min": 1, "o": [[2, 1], [3, 4]], "qui": "Figurines", "omax": [0, 1], "onom": ["Eradicator", "Eradicator with Multi-melta"], "nb": -1}], "nf": {"1": 1, "2": 1}},
@@ -4549,7 +4486,7 @@ const ARMEMENT = {
  "Invictor Tactical Warsuit" : {"f": [5, 3, 0, 1], "s": [{"min": 1, "o": [[2], [4]]}]},
  "Land Raider" : {"f": [5, 4, 0], "s": [{"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2}},
  "Land Raider Crusader" : {"f": [1, 5, 4], "s": [{"min": 0, "o": [[0]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}], "n": {"1": 2}},
- "Land Raider Excelsior" : {"f": [2, 6, 1], "s": [{"min": 0, "o": [[0]]}, {"min": 0, "o": [[3]]}, {"min": 0, "o": [[4]]}, {"min": 0, "o": [[5]]}], "n": {"1": 2}},
+ "Land Raider Excelsior" : {"f": [8, 0, 1], "s": [{"min": 0, "o": [[5, 6, 7]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}, {"min": 0, "o": [[4]]}], "n": {"0": 2}},
  "Land Raider Redeemer" : {"f": [0, 5, 4], "s": [{"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}, {"min": 0, "o": [[3]]}], "n": {"0": 2}},
  "Land Speeder" : {"f": [3, 4, 0], "s": [{"min": 1, "o": [[1], [2]]}]},
  "Lieutenant" : {"f": [1], "s": [{"min": 1, "o": [[0, 6, 2], [0, 6, 5, 4], [0, 6, 8], [0, 6, 9], [0, 8, 2], [0, 8, 5, 4], [0, 8, 8], [0, 8, 9], [0, 9, 2], [0, 9, 5, 4], [0, 9, 8], [0, 9, 9], [7, 8, 3], [7, 9, 3], [7, 6, 3]]}]},
@@ -4565,21 +4502,21 @@ const ARMEMENT = {
  "Repulsor" : {"f": [6, 2, 0], "s": [{"min": 1, "o": [[4], [5]]}, {"min": 1, "o": [[1], [3]]}]},
  "Repulsor Executioner" : {"f": [6, 2, 3, 0], "s": [{"min": 1, "o": [[4, 5], [1]]}]},
  "Rhino" : {"f": [2, 1], "s": [{"min": 0, "o": [[0]]}]},
- "Rhino Primaris" : {"f": [2, 1, 3], "s": [{"min": 0, "o": [[0]]}]},
- "Scout Bike Squad" : {"f": [0, 14], "s": [{"min": 1, "o": [[8], [10, 9]], "nb": 1, "qui": "Scout Biker Sergeant"}, {"min": 1, "o": [[1], [2], [3], [5], [4], [6], [12, 11], [7], [16], [15], [17], [13]], "nb": 1, "qui": "Scout Biker Sergeant"}, {"min": 1, "o": [[10, 9], [8]], "qui": "Figurines", "onom": ["Scout Biker w/ Astartes Grenade Launcher", "Scout Biker w/ Twin Boltgun"], "nb": -1}]},
+ "Rhino Primaris" : {"f": [1, 2, 3], "s": [{"min": 0, "o": [[0]]}]},
+ "Scout Bike Squad" : {"f": [4, 15], "s": [{"min": 1, "o": [[6], [11, 10]], "nb": 1, "qui": "Scout Biker Sergeant"}, {"min": 1, "o": [[17], [0], [7, 8, 9], [2], [1], [3], [13, 12], [5], [16], [18], [14]], "nb": 1, "qui": "Scout Biker Sergeant"}, {"min": 1, "o": [[11, 10], [6]], "qui": "Figurines", "onom": ["Scout Biker w/ Astartes Grenade Launcher", "Scout Biker w/ Twin Boltgun"], "nb": -1}]},
  "Scout Squad" : {"f": [0, 8], "s": [{"min": 1, "o": [[1], [3]], "nb": 1, "qui": "Scout Sergeant"}, {"min": 1, "o": [[8], [7]], "nb": 1, "qui": "Scout Sergeant"}, {"min": 1, "o": [[1], [3], [2], [5, 6], [4]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1], "onom": ["Scouts w/ Boltgun", "Scouts w/ Shotgun", "Scout w/ Heavy Weapon : Heavy Bolter", "Scout w/ Heavy Weapon : Missile Launcher", "Scout w/ Sniper Rifle"], "nb": -1}], "nf": {"8": -1}},
- "Skyclaws" : {"f": [], "s": [{"min": 1, "o": [[0], [7, 6]], "nb": 1, "qui": "Skyclaw Pack Leader"}, {"min": 1, "o": [[8], [11], [10]], "nb": 1, "qui": "Skyclaw Pack Leader"}, {"min": 1, "o": [[8, 0], [8, 7, 6], [9, 1], [9, 2], [9, 4, 5], [9, 3]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2, 2], "onom": ["Skyclaw", "Skyclaw w/ plasma pistol", "Skyclaw w/ flamer", "Skyclaw w/ grav-gun", "Skyclaw w/ plasma gun", "Skyclaw w/ meltagun"], "nb": -1}]},
- "Sternguard Veteran Squad" : {"f": [0, 3, 4, 5, 7, 6], "s": [{"min": 0, "o": [[], [9], [8]], "onom": ["Chainsword", "", ""], "nb": 1, "qui": "Sternguard Veteran Sergeant"}, {"min": 1, "o": [[4, 5, 3], [1], [2]], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Sternguard Veteran w/ Artificer Firearm", "Sternguard Veteran w/ Special Weapon : Heavy Bolter", "Sternguard Veteran w/ Special Weapon : Pyrecannon"], "nb": -1}], "nf": {"3": 1, "4": 1, "5": 1, "7": -1}},
+ "Skyclaws" : {"f": [], "s": [{"min": 1, "o": [[0], [7, 6]], "nb": 1, "qui": "Skyclaw Pack Leader"}, {"min": 1, "o": [[10], [13], [12]], "nb": 1, "qui": "Skyclaw Pack Leader"}, {"min": 1, "o": [[10, 0], [10, 9, 8], [11, 1], [11, 2], [11, 4, 5], [11, 3]], "qui": "Figurines", "omax": [0, 2, 2, 2, 2, 2], "onom": ["Skyclaw", "Skyclaw w/ plasma pistol", "Skyclaw w/ flamer", "Skyclaw w/ grav-gun", "Skyclaw w/ plasma gun", "Skyclaw w/ meltagun"], "nb": -1}]},
+ "Sternguard Veteran Squad" : {"f": [0, 3, 4, 5, 6], "s": [{"min": 0, "o": [[7], [9], [8]], "nb": 1, "qui": "Sternguard Veteran Sergeant"}, {"min": 1, "o": [[4, 5, 3], [1], [2]], "qui": "Figurines", "omax": [0, 1, 1], "onom": ["Sternguard Veteran w/ Artificer Firearm", "Sternguard Veteran w/ Special Weapon : Heavy Bolter", "Sternguard Veteran w/ Special Weapon : Pyrecannon"], "nb": -1}], "nf": {"3": 1, "4": 1, "5": 1, "6": -1}},
  "Stormfang Gunship" : {"f": [3, 4, 2], "s": [{"min": 1, "o": [[0, 0], [1, 1], []], "onom": ["", "", "Two twin heavy bolters"]}]},
  "Stormhawk Interceptor" : {"f": [7, 3], "s": [{"min": 1, "o": [[1], [0]]}, {"min": 1, "o": [[2], [4], [5, 6]]}]},
  "Stormraven Gunship" : {"f": [1, 10], "s": [{"min": 0, "o": [[0, 0]]}, {"min": 1, "o": [[2], [6, 7], [4]]}, {"min": 1, "o": [[8, 9], [3], [5]]}], "n": {"1": 2}},
- "Stormtalon Gunship" : {"f": [6, 1], "s": [{"min": 1, "o": [[0], [4, 5], [2], [3]]}]},
+ "Stormtalon Gunship" : {"f": [6, 1], "s": [{"min": 1, "o": [[4, 5], [2], [3], [0]]}]},
  "Stormwolf" : {"f": [2, 3], "s": [{"min": 1, "o": [[0, 0], [1, 1], []], "onom": ["", "", "Two twin heavy bolters"]}]},
  "Terminator Assault Squad" : {"f": [], "s": [{"min": 1, "o": [[1], [0]], "nb": 1, "qui": "Assault Terminator Sergeant"}, {"min": 1, "o": [[0], [1]], "qui": "Figurines", "onom": ["Assault Terminator w/ Thunder Hammer & Storm Shield", "Assault Terminator w/ Twin Lightning Claws"], "nb": -1}]},
  "Terminator Squad" : {"f": [2], "s": [{"min": 1, "o": [[5], [6], [8, 7]], "nb": 1, "qui": "Terminator Sergeant"}, {"min": 1, "o": [[5, 2], [2, 8, 7], [2, 3, 4, 5], [2, 3, 4, 8, 7], [1, 5], [1, 8, 7], [0, 5], [0, 8, 7]], "qui": "Figurines", "omax": [0, 0, 1, 1, 1, 1, 1, 1], "onom": ["Terminator w/ Power Fist", "Terminator w/ Chain Fist", "Terminator w/ Heavy Weapon : Storm bolter + Cyclone missile launcher + Power fist", "Terminator w/ Heavy Weapon : Storm bolter + Cyclone missile launcher + Chainfist", "Terminator w/ Heavy Weapon : Heavy Flamer + Power fist", "Terminator w/ Heavy Weapon : Heavy Flamer + Chainfist", "Terminator w/ Heavy Weapon : Assault Cannon + Power fist", "Terminator w/ Heavy Weapon : Assault Cannon + Chainfist"], "nb": -1}], "nf": {"2": 1}},
  "Thunderhawk Gunship" : {"f": [3], "s": [{"min": 1, "o": [[], [0]], "onom": ["Thunderhawk cluster bombs", ""]}, {"min": 1, "o": [[1], [2]]}], "n": {"3": 4}},
  "Thunderwolf Cavalry" : {"f": [3, 4], "s": [{"min": 1, "o": [[], [0], [2, 1]], "qui": "Figurines", "omax": [0, 0, 2], "onom": ["Thunderwolf w/ boltgun and storm shield", "Thunderwolf w/ bolt pistol", "Thunderwolf w/ plasma pistol"]}]},
- "Vanguard Veteran Squad" : {"f": [6], "s": [{"min": 1, "o": [[0], [], [5, 4], [3], [2], [1]], "onom": ["", "Storm Shield", "", "", "", ""], "nb": 1, "qui": "Vanguard Veteran Sergeant"}, {"min": 0, "o": [[7]], "nb": 1, "qui": "Vanguard Veteran Sergeant"}, {"min": 1, "o": [[0], [], [5, 4], [3], [2], [1]], "onom": ["", "Storm Shield", "", "", "", ""], "nb": -1, "qui": "Vanguard Veterans"}], "nf": {"6": -1}},
+ "Vanguard Veteran Squad" : {"f": [6], "s": [{"min": 1, "o": [[0], [5, 4], [3], [2], [1], []], "onom": ["", "", "", "", "", "Storm Shield"], "nb": 1, "qui": "Vanguard Veteran Sergeant"}, {"min": 1, "o": [[0], [], [5, 4], [3], [2], [1]], "onom": ["", "Storm Shield", "", "", "", ""], "nb": -1, "qui": "Vanguard Veteran"}]},
  "Vanguard Veteran Squad with Jump Packs" : {"f": [3], "s": [{"min": 1, "o": [[0], [2, 1], []], "onom": ["", "", "Combat Shield"], "nb": 1, "qui": "Vanguard Veteran Sergeant with Jump Pack"}, {"min": 1, "o": [[5], [4], [6]], "nb": 1, "qui": "Vanguard Veteran Sergeant with Jump Pack"}, {"min": 1, "o": [[0], [], [2, 1]], "qui": "Figurines", "omax": [0, 0, 2], "onom": ["Vanguard Veteran with Jump Packs", "Vanguard Veteran wtih Jump Packs w/ Shield", "Vanguard Veteran with Jump Pack w/ Plasma Pistol"], "nb": -1}], "nf": {"3": -1}},
  "Venerable Dreadnought" : {"f": [6], "s": [{"min": 0, "o": [[7, 8]]}, {"min": 1, "o": [[0], [4, 5], [2]]}, {"min": 1, "o": [[3], [1]]}]},
  "Vindicator" : {"f": [0, 3], "s": [{"min": 0, "o": [[1]]}, {"min": 0, "o": [[2]]}]},

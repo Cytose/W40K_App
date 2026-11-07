@@ -5464,7 +5464,7 @@ const ROLES_UNITE = {};
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */
 const OPTIONS_PTS = {
  "Defiler" : [["Heavy Reaper Autocannon", 15, [[0, 3, 1], [2, 3, 1]], []], ["Hades Lascannon", 15, [[0, 2, 1], [2, 2, 1]], []]],
- "Forgefiend" : [["Ectoplasma cannon", 5, [[0, 0, 2], [1, 1, 2]], []]]
+ "Forgefiend" : [["Ectoplasma cannon", 5, [[0, 0, 1], [1, 1, 1]], []]]
 };
 
 enregistreFaction({

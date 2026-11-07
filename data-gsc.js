@@ -528,7 +528,7 @@ const APTITUDES = {
   ],
   [
    "Cloaked Assassin",
-   "If this model is equipped with a Sanctus Bio-dagger, enemy units cannot use the Fire Overwatch Stratagem to shoot at this model. Enemy units cannot target this unit with snap shooting attacks."
+   "Enemy units cannot target this unit with snap shooting attacks."
   ]
  ],
  "Tectonic Fragdrill": [

@@ -440,7 +440,7 @@ const APTITUDES = {
    "At the end of your opponent’s turn, if this unit is wholly within 9\" of one or more battlefield edges and not within Engagement Range of one or more enemy units, you can remove it from the battlefield and place it into Strategic Reserves."
   ],
   [
-   "Comms array",
+   "Multiwave comms array",
    "Each time you target the bearer’s unit with a Stratagem, roll one D6: on a 5+, you gain 1CP."
   ],
   [

@@ -1563,7 +1563,7 @@ const OPTIONS_PTS = {
  "Nemesis Dreadknight" : [["Heavy psycannon", 15, [[1, 1, 1], [2, 1, 1]], []]],
  "Paladin Squad" : [["Psycannon", 5, [[0, 2, 1]], []]],
  "Purgation Squad" : [["Psycannon", 5, [[0, 3, 1]], []]],
- "Stormraven Gunship" : [["Hurricane Bolter", 10, [[0, 0, 2]], []]]
+ "Stormraven Gunship" : [["Hurricane Bolter", 10, [[0, 0, 1]], []]]
 };
 
 enregistreFaction({

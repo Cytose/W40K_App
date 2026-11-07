@@ -231,6 +231,16 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const AURAS_ARMEE = [
+ {
+  "source": "Warbringer Nemesis Titan",
+  "champ": "apCrit",
+  "val": 1,
+  "nom": "Appui de Feu Titanesque",
+  "quand": "La cible a été touchée par le Warbringer à cette phase",
+  "texte": "Until the end of the phase, each time a friendly IMPERIUM model makes an attack that targets that enemy unit, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."
+ }
+];
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {
@@ -251,16 +261,6 @@ const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
 const APTIS_UNITE = {};
 const APTIS_COND = {};
-const AURAS_ARMEE = [
- {
-  "source": "Warbringer Nemesis Titan",
-  "champ": "apCrit",
-  "val": 1,
-  "nom": "Appui de Feu Titanesque",
-  "quand": "La cible a été touchée par le Warbringer à cette phase",
-  "texte": "Until the end of the phase, each time a friendly IMPERIUM model makes an attack that targets that enemy unit, on a Critical Wound, improve the Armour Penetration characteristic of that attack by 1."
- }
-];
 const AURAS_PERSO = {};
 
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */

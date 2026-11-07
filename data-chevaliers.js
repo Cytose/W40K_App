@@ -1494,7 +1494,7 @@ const STRAT_SIMU = [
 
 /* Vides, faute de câblage : voir l'en-tête. */
 const ARMEMENT = {
- "Acastus Knight Asterius" : {"f": [2, 0, 1, 3], "s": [], "n": {"0": 2, "2": 2}},
+ "Acastus Knight Asterius" : {"f": [2, 0, 1, 3], "s": [], "n": {"2": 2, "0": 2}},
  "Acastus Knight Porphyrion" : {"f": [4, 5], "s": [{"min": 1, "o": [[0, 0], [0, 3], [3, 3]]}, {"min": 1, "o": [[1], [2]]}], "n": {"4": 2}},
  "Armiger Helverin" : {"f": [0, 3], "s": [{"min": 1, "o": [[2], [1]]}], "n": {"0": 2}},
  "Armiger Moirax" : {"f": [5], "s": [{"min": 1, "o": [[4], [1], [2], [0], [6, 3]]}, {"min": 1, "o": [[4], [1], [2], [0], [6, 3]]}]},
