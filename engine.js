@@ -310,7 +310,7 @@ function analytic(s0){
   if(s0.mortels) return analyticMortels(s0);
   const s = normalise(s0);
   const atk = parseDice(s.attacks) || {n:0,f:0,b:0};
-  const blast = s.blast ? Math.floor(s.models/5) : 0;
+  const blast = s.blast ? Math.floor(s.models/5) * (+s.blastN || 1) : 0;
   const rapid = s.rapidOn ? s.rapidN : 0;
   /* atkMod : ce qu'une regle ajoute a la caracteristique d'Attaques.
      L'aura de Skarbrand donne +1 en melee, le Slaughterbound +3 sur ses
@@ -362,7 +362,7 @@ function prep(s0){
     atk: parseDice(s.attacks) || {n:0,f:0,b:0},
     rrA: !!s.rrA && s.rrA !== "none",
     dmgD, dmgMoy: diceMean(dmgD),
-    blast: s.blast ? Math.floor(s.models/5) : 0,
+    blast: s.blast ? Math.floor(s.models/5) * (+s.blastN || 1) : 0,
     rapid: s.rapidOn ? s.rapidN : 0,
     atkMod: s.atkMod || 0,
     hitSet: sets(s.bs, s.hitMod, s.critH),

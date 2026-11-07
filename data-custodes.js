@@ -81,7 +81,7 @@ const UNITS = [
 /* WEAPONS : [unité, arme, "T"|"C", A, CT/CC, F, PA, D, drapeaux, portée] */
 const WEAPONS = [
   ["Aleya","Somnus","C","4",2,6,3,"3","anti:5 dev","càc"],
-  ["Allarus Custodians","Balistus grenade launcher","T","3",2,5,1,"1","assault","18\""],
+  ["Allarus Custodians","Balistus grenade launcher","T","3",2,5,1,"1","assault blast","18\""],
   ["Allarus Custodians","Castellan axe (tir)","T","2",2,5,1,"2","assault rf:2","24\""],
   ["Allarus Custodians","Guardian Spear (tir)","T","2",2,5,1,"2","assault rf:2","24\""],
   ["Allarus Custodians","Castellan axe (càc)","C","3",2,10,2,"4","","càc"],
@@ -90,33 +90,33 @@ const WEAPONS = [
   ["Anathema Psykana Rhino","Storm Bolter","T","2",3,5,1,"1","rf:2","24\""],
   ["Aquilon Terminators with Solarite Power Gauntlets","Adrathic Combi-destructor","T","2",2,5,2,"3","","12\""],
   ["Aquilon Terminators with Solarite Power Gauntlets","Solarite Power Gauntlet","C","5",2,10,2,"3","","càc"],
-  ["Aquilon Terminators with Solarite Power Talons","Infernus Firepike","T","3",0,5,1,"1","torrent","12\""],
+  ["Aquilon Terminators with Solarite Power Talons","Infernus Firepike","T","3",0,5,1,"1","blast:2 torrent","12\""],
   ["Aquilon Terminators with Solarite Power Talons","Lastrum Storm Bolter","T","3",2,5,1,"1","rf:3","24\""],
   ["Aquilon Terminators with Solarite Power Talons","Solarite Power Talons","C","6",2,6,2,"1","sust:2","càc"],
   ["Ares Gunship","Arachnus heavy blaze cannon","T","4",2,12,3,"D3+3","","36\""],
   ["Ares Gunship","Arachnus magna-blaze cannon","T","3",2,18,4,"D6+6","","48\""],
   ["Ares Gunship","Armoured hull","C","9",4,9,0,"1","","càc"],
   ["Blade Champion","➤ Vaultswords - Behemor","C","5",2,10,3,"3","dev","càc"],
-  ["Blade Champion","➤ Vaultswords - Hurricanis","C","10",2,6,1,"1","sust:1","càc"],
+  ["Blade Champion","➤ Vaultswords - Hurricanis","C","10",2,6,2,"1","sust:1","càc"],
   ["Blade Champion","➤ Vaultswords - Victus","C","8",2,8,3,"2","precision","càc"],
   ["Caladius Annihilator Grav-tank","Arachnus Blaze Carronade","T","4",2,12,3,"D6+2","","48\""],
   ["Caladius Annihilator Grav-tank","Twin Lastrum Bolt Cannon","T","3",2,6,2,"2","sust:1 twin","36\""],
-  ["Caladius Annihilator Grav-tank","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","torrent twin","12\""],
+  ["Caladius Annihilator Grav-tank","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","blast torrent twin","12\""],
   ["Caladius Annihilator Grav-tank","Armoured hull","C","4",4,6,0,"1","","càc"],
   ["Caladius Grav-tank","Twin Iliastus Accelerator Cannon","T","4",2,10,1,"3","rf:4 sust:1","48\""],
   ["Caladius Grav-tank","Twin Lastrum Bolt Cannon","T","3",2,6,2,"2","sust:1 twin","36\""],
-  ["Caladius Grav-tank","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","torrent twin","12\""],
+  ["Caladius Grav-tank","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","blast torrent twin","12\""],
   ["Caladius Grav-tank","Armoured hull","C","4",4,6,0,"1","","càc"],
   ["Contemptor-Achillus Dreadnought","Adrathic combi-destructor","T","2",2,5,2,"3","","12\""],
   ["Contemptor-Achillus Dreadnought","Dreadspear (tir)","T","2",2,10,3,"D3+2","","18\""],
   ["Contemptor-Achillus Dreadnought","Lastrum storm bolter","T","3",2,5,1,"1","rf:3","24\""],
-  ["Contemptor-Achillus Dreadnought","Twin Infernus incinerator","T","3",0,6,1,"1","torrent twin","12\""],
+  ["Contemptor-Achillus Dreadnought","Twin Infernus incinerator","T","3",0,6,1,"1","blast:2 torrent twin","12\""],
   ["Contemptor-Achillus Dreadnought","Dreadspear (càc)","C","5",2,12,3,"D3+3","lance","càc"],
-  ["Contemptor-Galatus Dreadnought","Warblade (tir)","T","4",0,6,1,"2","torrent twin","12\""],
+  ["Contemptor-Galatus Dreadnought","Warblade (tir)","T","4",0,6,1,"2","blast:2 torrent twin","12\""],
   ["Contemptor-Galatus Dreadnought","Warblade (càc)","C","8",2,10,2,"3","sust:1","càc"],
   ["Coronus Grav-carrier","Twin Arachnus Blaze Cannon","T","2",2,10,3,"D3+2","twin","24\""],
   ["Coronus Grav-carrier","Twin Lastrum Bolt Cannon","T","3",2,6,2,"2","sust:1 twin","36\""],
-  ["Coronus Grav-carrier","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","torrent twin","12\""],
+  ["Coronus Grav-carrier","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","blast torrent twin","12\""],
   ["Coronus Grav-carrier","Armoured hull","C","4",4,6,0,"1","","càc"],
   ["Custodian Guard Sodality","Guardian Spear (tir)","T","2",2,5,1,"2","assault rf:2","24\""],
   ["Custodian Guard Sodality","Guardian Spear (càc)","C","6",2,8,2,"2","","càc"],
@@ -133,19 +133,19 @@ const WEAPONS = [
   ["Gyrfalcon Jetbike Sodality","Lastrum Bolt Cannon","T","3",2,6,2,"2","sust:1","36\""],
   ["Gyrfalcon Jetbike Sodality","Twin Corvae Las-pulser","T","1",2,10,3,"D3+2","twin","18\""],
   ["Gyrfalcon Jetbike Sodality","Solarite Power Lance","C","5",2,8,2,"3","lance","càc"],
-  ["Knight-Centura","Master-crafted Flamer","T","4",0,4,1,"1","anti:4 assault torrent","12\""],
+  ["Knight-Centura","Master-crafted Flamer","T","4",0,4,1,"1","anti:4 assault blast:2 torrent","12\""],
   ["Knight-Centura","Master-crafted boltgun","T","2",2,5,1,"2","anti:4 assault rf:1","24\""],
   ["Knight-Centura","Executioner Greatblade","C","4",2,5,2,"2","anti:5","càc"],
-  ["Knight-Centura","Gun Stock","C","3",3,3,0,"1","","càc"],
+  ["Knight-Centura","Gun Stock","C","3",2,3,0,"1","","càc"],
   ["Orion Assault Dropship","Arachnus heavy blaze cannon","T","4",2,12,3,"D3+3","","36\""],
-  ["Orion Assault Dropship","Spiculus heavy bolt launcher","T","8",2,7,1,"2","","36\""],
+  ["Orion Assault Dropship","Spiculus heavy bolt launcher","T","8",2,7,1,"2","blast:2","36\""],
   ["Orion Assault Dropship","Twin lastrum bolt cannon","T","3",2,6,2,"2","sust:1 twin","36\""],
   ["Orion Assault Dropship","Armoured hull","C","9",4,9,0,"1","","càc"],
   ["Pallas Grav-attack","Twin Arachnus Blaze Cannon","T","2",2,10,3,"D3+2","twin","24\""],
   ["Pallas Grav-attack","Twin Iliastus Accelerator Fusil","T","2",2,10,1,"3","rf:2 twin","48\""],
   ["Pallas Grav-attack","Armoured hull","C","4",4,6,0,"1","","càc"],
   ["Prosecutor Squad","Boltgun","T","1",3,5,1,"1","anti:4 assault rf:1","24\""],
-  ["Prosecutor Squad","Gun Stock","C","3",3,3,0,"1","","càc"],
+  ["Prosecutor Squad","Gun Stock","C","2",3,3,0,"1","","càc"],
   ["Sagittarum Custodians Sodality","Adrastus bolt caliver","T","3",2,7,2,"2","sust:1","36\""],
   ["Sagittarum Custodians Sodality","Misericordia","C","4",2,6,2,"1","","càc"],
   ["Sentinel Guard Sodality","Sentinel Blade (tir)","T","4",2,5,1,"2","assault","12\""],
@@ -157,7 +157,7 @@ const WEAPONS = [
   ["Shield-Captain","Eternity-pattern Paragon Blade","C","6",2,10,3,"3","precision","càc"],
   ["Shield-Captain","Guardian Spear (càc)","C","8",2,8,2,"2","","càc"],
   ["Shield-Captain","Pyrithite Spear (càc)","C","8",2,8,2,"2","","càc"],
-  ["Shield-Captain in Allarus Terminator Armour","Balistus grenade launcher","T","3",2,5,1,"1","assault","18\""],
+  ["Shield-Captain in Allarus Terminator Armour","Balistus grenade launcher","T","3",2,5,1,"1","assault blast","18\""],
   ["Shield-Captain in Allarus Terminator Armour","Castellan Axe (tir)","T","2",2,5,1,"2","assault rf:2","24\""],
   ["Shield-Captain in Allarus Terminator Armour","Guardian Spear (tir)","T","2",2,5,1,"2","assault rf:2","24\""],
   ["Shield-Captain in Allarus Terminator Armour","Castellan Axe (càc)","C","5",2,10,2,"4","","càc"],
@@ -168,8 +168,8 @@ const WEAPONS = [
   ["Telemon Heavy Dreadnought","Adrathic Desolator","T","4",2,10,2,"4","","24\""],
   ["Telemon Heavy Dreadnought","Arachnus Storm Cannon","T","12",2,6,1,"1","dev sust:1","24\""],
   ["Telemon Heavy Dreadnought","Iliastus Accelerator Culverin","T","3",2,10,1,"3","rf:3","48\""],
-  ["Telemon Heavy Dreadnought","Spiculus bolt launcher","T","6",2,5,1,"1","","36\""],
-  ["Telemon Heavy Dreadnought","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","torrent twin","12\""],
+  ["Telemon Heavy Dreadnought","Spiculus bolt launcher","T","6",2,5,1,"1","blast:2","36\""],
+  ["Telemon Heavy Dreadnought","Twin Neutronium Cascade Projectors","T","3",0,7,2,"1","blast torrent twin","12\""],
   ["Telemon Heavy Dreadnought","Caestus Fist","C","5",2,14,3,"4","","càc"],
   ["Telemon Heavy Dreadnought","Dual Caestus Fists","C","7",2,14,3,"4","twin","càc"],
   ["Trajann Valoris","Eagle's Scream","T","2",2,6,2,"2","assault rf:2","24\""],
@@ -193,8 +193,8 @@ const WEAPONS = [
   ["Vertus Praetors","Salvo launcher","T","2",2,10,2,"D3+2","","24\""],
   ["Vertus Praetors","Interceptor lance","C","6",2,8,2,"2","lance","càc"],
   ["Vigilator Squad","Executioner greatblade","C","3",3,5,2,"2","anti:5","càc"],
-  ["Witchseeker Squad","Flamer","T","3",0,4,1,"1","anti:4 assault torrent","12\""],
-  ["Witchseeker Squad","Gun Stock","C","3",3,3,0,"1","","càc"]
+  ["Witchseeker Squad","Flamer","T","3",0,4,1,"1","anti:4 assault blast torrent","12\""],
+  ["Witchseeker Squad","Gun Stock","C","2",3,3,0,"1","","càc"]
 ];
 
 /* CAT : [nom, catégorie principale] */
@@ -1152,6 +1152,16 @@ const FACTION = [
    ce que chaque règle fait au calcul. Ce qui n'y figure pas sort
    vide : le simulateur tourne alors sur les caractéristiques nues,
    ce qui est faux par défaut plutôt que faux par invention. */
+const APTIS_UNITE = {
+ "Custodian Guard Sodality with Adrasite Spears": [
+  {
+   "champ": "rrW",
+   "val": "ones",
+   "nom": "Veille Inébranlable",
+   "texte": "This unit's attacks can: - Re-roll wound rolls of 1."
+  }
+ ]
+};
 const APTIS_COND = {
  "Allarus Custodians": [
   {
@@ -1756,16 +1766,6 @@ const MOMENTS_ARMEE = [];
 const COMPO = {};
 const ROLES_UNITE = {};
 const OCTROIS_DETACH = {};
-const APTIS_UNITE = {
- "Custodian Guard Sodality with Adrasite Spears": [
-  {
-   "champ": "rrW",
-   "val": "ones",
-   "nom": "Veille Inébranlable",
-   "texte": "This unit's attacks can: - Re-roll wound rolls of 1."
-  }
- ]
-};
 const AURAS_PERSO = {};
 
 /* Options payantes du Munitorum (« Wargear options ») : voir outils/options.py */

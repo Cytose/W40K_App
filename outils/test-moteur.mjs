@@ -32,6 +32,15 @@ const accord = (quoi, s, tol = 0.03) => {
 
 console.log('\n== l\'existant ne bouge pas ==');
 const ref = accord('profil de reference', P({}));
+
+/* [DÉFLAGRATION 2] (11e) : deux attaques par tranche de cinq figurines.
+   Contre dix figurines, 10 attaques en deviennent 14 ; [DÉFLAGRATION]
+   seul en donne 12. */
+const bl1 = accord('deflagration', P({blast:true, models:10}));
+const bl2 = accord('deflagration 2', P({blast:true, blastN:2, models:10}));
+T('deflagration 2 = 14 attaques sur 10 au lieu de 12',
+  proche(bl2 / ref, 1.4, 0.001) && proche(bl1 / ref, 1.2, 0.001),
+  (bl1 / ref).toFixed(3) + " / " + (bl2 / ref).toFixed(3));
 T('10 attaques CT3+ F4 E4 sans sauvegarde : 10·4/6·3/6', proche(ref, 10*4/6*3/6, 1e-9), ref.toFixed(4));
 
 console.log('\n== l\'Endurance de la cible ==');
